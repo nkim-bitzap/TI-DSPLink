@@ -1,0 +1,16 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_28345.tci ========
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_28343.tci");
+
+/*
+ *  ======== bios.init28345 ========
+ *  BIOS initialization for the 28345 is same as for 28343
+ */
+bios.init28345 = bios.init28343;

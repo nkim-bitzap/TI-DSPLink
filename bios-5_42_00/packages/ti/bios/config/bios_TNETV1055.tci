@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_TNETV1055.tci ========
+ *  This file contains BIOS settings for TNETV1055 (Titan).
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_TNETV1050.tci");
+
+/*
+ *  ======== bios.initTNETV1055 ========
+ *  BIOS initialization for the TNETV1055 is same as for TNETV1050
+ */
+bios.initTNETV1055 = bios.initTNETV1050;

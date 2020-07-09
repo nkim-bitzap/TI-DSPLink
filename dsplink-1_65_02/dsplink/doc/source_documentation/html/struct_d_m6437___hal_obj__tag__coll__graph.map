@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" href="$struct_d_m6437___hal_pci_phy_obj__tag.html" title="{DM6437_HalPciPhyObj_tag\n|+ dev\l+ irqId\l+ busNo\l+ slotNo\l+ prevPageAddr\l+ barPhys\l+ barLen\l+ barVirt\l+ edmaChnlId\l|}" alt="" coords="7,38,183,230" />
+<area shape="rect" href="$struct_d_m6437___hal_vlynq_phy_obj__tag.html" title="{DM6437_HalVlynqPhyObj_tag\n|+ region1Addr\l+ region1Size\l+ region2Addr\l+ region2Size\l+ region3Addr\l+ region3Size\l+ region4Addr\l+ region4Size\l+ prevUserAddr\l+ prevUserSize\l+ ctrlBaseAddr\l+ intVector\l+ edmaChnlId\l|}" alt="" coords="207,9,399,259" />
+<area shape="rect" href="$struct_h_a_l___interface__tag.html" title="{HAL_Interface_tag\n|+ phyInit\l+ phyExit\l+ bootCtrl\l+ intCtrl\l+ mmuCtrl\l+ mapCtrl\l+ pwrCtrl\l+ read\l+ write\l+ readDMA\l+ writeDMA\l|}" alt="" coords="423,23,549,245" />
+</map>

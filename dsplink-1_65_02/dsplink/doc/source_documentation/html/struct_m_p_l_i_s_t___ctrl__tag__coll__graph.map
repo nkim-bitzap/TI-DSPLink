@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" href="$struct_m_p_c_s___sh_obj__tag.html" title="{MPCS_ShObj_tag\n|+ gppMpcsObj\l+ dspMpcsObj\l+ turn\l|}" alt="" coords="13,228,133,332" />
+<area shape="rect" href="$struct_m_p_c_s___proc_obj__tag.html" title="{MPCS_ProcObj_tag\n|+ localLock\l+ flag\l+ freeObject\l+ mpcsEntryAddr\l|}" alt="" coords="8,8,138,128" />
+<area shape="rect" href="$struct_m_p_l_i_s_t___entry__tag.html" title="{MPLIST_Entry_tag\n|+ ownerProcId\l+ poolId\l+ phyListHandle\l+ name\l+ phyListHandle\l+ name\l|}" alt="" coords="157,205,285,354" />
+</map>

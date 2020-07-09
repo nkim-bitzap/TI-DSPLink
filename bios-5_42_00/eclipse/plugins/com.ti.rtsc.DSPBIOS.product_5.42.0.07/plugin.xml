@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin
+    name="DSP/BIOS Target Content"
+    id="com.ti.rtsc.DSPBIOS.product_5.42.0.07"
+    version="5.42.0.07"
+    provider-name="Texas Instruments">
+
+    <extension point="org.eclipse.rtsc.xdctools.ui.productInfo">
+        <repository location="../../../packages"/>
+        <docs location="../../../."/>
+        <docs location="../../../docs"/>
+        <docs location="../../../docs/cdoc"/>
+        <info
+            installLocation="../../.."
+            productName="DSP/BIOS"
+            versionNumber="5.42.0.07"
+        />
+    </extension>
+
+
+
+</plugin>

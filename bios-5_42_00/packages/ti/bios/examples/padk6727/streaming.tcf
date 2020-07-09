@@ -1,0 +1,112 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== streaming.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.sim64xx");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Turn on heaps in SDRAM and define label SEG0 for heap usage if this program
+ * has useMemSettings defined as true.
+ */
+bios.SDRAM.createHeap = true;
+bios.SDRAM.heapSize = 0x8000;
+bios.SDRAM.enableHeapLabel = true;
+bios.SDRAM["heapLabel"] = prog.extern("SEG0");
+bios.MEM.BIOSOBJSEG = prog.get("SDRAM");
+bios.MEM.MALLOCSEG = prog.get("SDRAM");
+/* Increase the buffer size of the LOG_system LOG object */
+
+bios.LOG_system.bufLen = 512;
+
+/* Create a trace LOG object for printing basic program output.  */
+
+var trace = bios.LOG.create("trace");
+trace.bufLen = 512;
+trace.logType = "circular";
+
+/* Create and initialize a sine wave generator */
+
+var sineWave = bios.DGN.create("sineWave");
+sineWave.device = "sine";
+sineWave.frequency = 256;
+sineWave.gain = 128.000000;
+
+/* Create a log to print the sine wave data to */
+
+var myLog = bios.LOG.create("myLog");
+myLog.bufLen = 512;
+
+/* Create and initialize a DGN used to print out the sine wave data */
+
+var printData = bios.DGN.create("printData");
+printData.device = "user";
+printData.fxn = prog.extern("DGN_print2log");
+printData.arg = prog.extern("myLog");
+
+/* Create a pipe to transfer data */
+
+var pipe0 = bios.DPI.create("pipe0");
+pipe0.allowVirtual = 0;
+
+/* Create a user defined device object */
+
+var scale = bios.UDEV.create("scale");
+scale.fxnTable = prog.extern("DTR_FXNS");
+scale.deviceId = prog.extern("DTR_multiply");
+scale.params = prog.extern("DTR_PRMS");
+scale.stackingDevice = 1;
+
+/* Create two TSK objects for transferring data through a pipe */
+
+var sourceTask = bios.TSK.create("sourceTask");
+sourceTask.fxn = prog.extern("source");
+sourceTask.arg0 = 3;
+
+var sinkTask = bios.TSK.create("sinkTask");
+sinkTask.fxn = prog.extern("sink");
+sinkTask.arg0 = 3;
+
+/* Create two SIO objects for the stream task created above */
+
+var inStreamSrc = bios.SIO.create("inStreamSrc");
+inStreamSrc.controlParameter = "/sineWave";
+inStreamSrc.deviceName = prog.get("scale");
+inStreamSrc.mode = "input";
+inStreamSrc.bufSize = 128;
+inStreamSrc.allocStaticBuf = 1;
+
+var outStreamSrc = bios.SIO.create("outStreamSrc");
+outStreamSrc.deviceName = prog.get("pipe0");
+outStreamSrc.mode = "output";
+outStreamSrc.bufSize = 128;
+
+/* Create two SIO objects for the sink task created above */
+
+var inStreamSink = bios.SIO.create("inStreamSink");
+inStreamSink.deviceName = prog.get("pipe0");
+inStreamSink.mode = "input";
+inStreamSink.bufSize = 128;
+inStreamSink.allocStaticBuf = 1;
+
+var outStreamSink = bios.SIO.create("outStreamSink");
+outStreamSink.deviceName = prog.get("printData");
+outStreamSink.mode = "output";
+outStreamSink.bufSize = 128;
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

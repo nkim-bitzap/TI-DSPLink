@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" href="$dm648__hal_8h.html" title="Hardware Abstraction Layer for DM648. Define the Platform specific HAL (Hardware Abstraction Layer) o..." alt="" coords="536,84,626,108" />
+<area shape="rect" href="$dm648__hal__pci__boot_8h.html" title="BOOT controller module header file." alt="" coords="8,158,152,182" />
+<area shape="rect" href="$dm648__hal__pci__dma_8h.html" title="DMA module header file." alt="" coords="176,158,320,182" />
+<area shape="rect" href="$dm648__hal__pci__intgen_8h.html" title="Interrupt Generation module header file." alt="" coords="344,158,498,182" />
+<area shape="rect" href="$dm648__hal__pci__map_8h.html" title="Map module header file." alt="" coords="688,158,832,182" />
+<area shape="rect" href="$dm648__hal__pci__pwr_8h.html" title="Power Management module header file." alt="" coords="856,158,997,182" />
+<area shape="rect" href="$dm648__hal__pci__rdwr_8h.html" title="Read Write module header file." alt="" coords="1021,158,1168,182" />
+<area shape="rect" href="$dm648__phy__pci_8h.html" title="Hardware Abstraction Layer for DM648. Define the Platform specific HAL (Hardware Abstraction Layer) o..." alt="" coords="522,158,640,182" />
+</map>

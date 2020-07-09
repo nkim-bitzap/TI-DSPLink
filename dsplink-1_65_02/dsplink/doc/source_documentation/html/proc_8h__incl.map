@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" href="$gpp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="258,84,328,108" />
+<area shape="rect" href="$linkcfgdefs_8h.html" title="Defines constants and interfaces for configuration of DSPLINK." alt="" coords="405,158,496,182" />
+<area shape="rect" href="$procdefs_8h.html" title="Defines data types and structures used by PROC component." alt="" coords="430,84,508,108" />
+<area shape="rect" href="$gpptypes_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="136,233,216,257" />
+<area shape="rect" href="$constants_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="301,158,381,182" />
+<area shape="rect" href="$errbase_8h.html" title="Central repository for error and status code bases and ranges for DSP/BIOS LINK and any Algorithm Fra..." alt="" coords="8,158,77,182" />
+<area shape="rect" href="$archdefs_8h.html" title="Defines platform specific attributes for user applications." alt="" coords="101,158,176,182" />
+<area shape="rect" href="$linkcfgdefs__os_8h.html" title="Defines OS&#45;specific constants and interfaces for configuration of DSP/BIOS LINK." alt="" coords="302,233,412,257" />
+</map>

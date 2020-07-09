@@ -1,0 +1,69 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== queue.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.evm5505");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Enable heaps in DARAM and define label SEG0 for heap usage.
+ */
+
+bios.DARAM.createHeap      = true;
+bios.DARAM.enableHeapLabel = true;
+bios.DARAM["heapLabel"]    = prog.extern("SEG0");
+bios.DARAM.heapSize        = 0x500;
+bios.MEM.BIOSOBJSEG = prog.get("DARAM");
+bios.MEM.MALLOCSEG = prog.get("DARAM");
+
+
+/*
+ *  Define the GBL memory model 
+ */
+
+bios.GBL.MEMORYMODEL = "LARGE";
+/* Increase the buffer size of the LOG_system LOG object */
+
+bios.LOG_system.bufLen = 512;
+
+/* Create a trace LOG object for printing basic program output.  */
+
+var trace = bios.LOG.create("trace");
+trace.bufLen = 1024;
+trace.logType = "circular";
+
+/* Create a QUE object for sending messages from writer to reader */
+
+var queue = bios.QUE.create("queue");
+
+/* Create a QUE object to store pre-allocated message objects for efficieny */
+
+var freequeue = bios.QUE.create("freequeue");
+
+/* Create a TSK object and map it to the initTask function */
+
+var initTsk = bios.TSK.create("initTsk");
+initTsk.priority = 15;
+initTsk["fxn"] = prog.extern("initTask");
+
+/* Create a TSK object and map it to the function task */
+
+var tsk0 = bios.TSK.create("tsk0");
+tsk0["fxn"] = prog.extern("task");
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

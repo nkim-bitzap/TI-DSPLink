@@ -1,0 +1,56 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== msgq_clientServer.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.padk6727");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Turn on heaps in SDRAM and define label SEG0 for heap usage if this program
+ * has useMemSettings defined as true.
+ */
+bios.SDRAM.createHeap = true;
+bios.SDRAM.heapSize = 0x8000;
+bios.SDRAM.enableHeapLabel = true;
+bios.SDRAM["heapLabel"] = prog.extern("SEG0");
+bios.MEM.BIOSOBJSEG = prog.get("SDRAM");
+bios.MEM.MALLOCSEG = prog.get("SDRAM");
+/* 
+ * Create a LOG object logTrace 
+ */
+var trace      = bios.LOG.create( "trace" );
+trace.comment  = "default LOG object for application messages";
+trace.bufLen   = 256;
+
+/* 
+ *  Change the size of the LOG_system object to a value large enough
+ */
+bios.LOG_system.bufLen = 256;
+
+/*  Enable TSK Manger and shrink the default stack size */
+bios.enableTskManager(prog);
+bios.TSK.STACKSIZE = 0x200;
+
+/*  Enable MSGQ and POOL Managers */
+bios.MSGQ.ENABLEMSGQ = true;
+bios.POOL.ENABLEPOOL = true;
+
+
+
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

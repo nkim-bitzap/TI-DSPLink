@@ -1,0 +1,11 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+utils.importFile("ti/bios/config/bios_2430.tci");
+
+/*
+ *  ======== bios.init2531 ========
+ *  BIOS initialization for 2531 is same as for 2430
+ */
+bios.init2531 = bios.init2430;

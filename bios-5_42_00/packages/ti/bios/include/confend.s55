@@ -1,0 +1,15 @@
+;
+;  Copyright 2012 by Texas Instruments Incorporated.
+;  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+;
+;
+;  ======== confend.s55 ========
+;  The statements in this file are inserted at the end of
+;  every BIOS configuration file.
+;
+        .include vers.h55
+
+        VERS_create VERS$DATE, VERS$CDB, VERS$TREE, VERS$CDBRELATIVEPATH
+
+        .text
+

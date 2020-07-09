@@ -1,0 +1,57 @@
+clean::
+	$(RM) package/ti.bios.examples.sch
+	$(RM) package/.vers_g180
+	$(RM) package/.vers_r170
+	$(RM) package/.vers_b150
+	$(RM) package/.xdc-y35
+	$(RM) package/ti_bios_examples.java
+	$(RM) package/ti_bios_examples.class
+	$(RM) package/package_ti.bios.examples.c
+	$(RM) package/package.defs.h
+	$(RM) package/ti.bios.examples.ccs
+
+.interfaces: package/ti.bios.examples.sch package/.vers_g180 package/.vers_r170 package/.vers_b150 package/.xdc-y35 package/ti_bios_examples.java package/package_ti.bios.examples.c package/package.defs.h package/ti.bios.examples.ccs 
+package/package.xdc.inc: package/.vers_g180
+package/.vers_g180:
+package/package.xdc.inc: package/.vers_r170
+package/.vers_r170:
+package/package.xdc.inc: package/.vers_b150
+package/.vers_b150:
+
+.interfaces: Examples.xdc 
+
+# schema include file dependencies
+Examples.xs:
+package/package.xdc.inc: Examples.xs
+
+# schema update dependencies
+package/package.xdc.inc: Examples.xdc
+package/package.xdc.inc: xdc/IPackage.xdc
+xdc/IPackage.xdc:
+vpath xdc/IPackage.xdc $(XPKGVPATH)
+package/package.xdc.inc: xdc/tools/product/IProductTemplate.xdc
+xdc/tools/product/IProductTemplate.xdc:
+vpath xdc/tools/product/IProductTemplate.xdc $(XPKGVPATH)
+
+ifneq (clean,$(MAKECMDGOALS))
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/ecj.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/ecj.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/cmd/java/package.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/cmd/java/package.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/xsr/java/package.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/xsr/java/package.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/antlr.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/antlr.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/global/java/package.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/global/java/package.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/tar.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/tar.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/spec/java/package.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/spec/java/package.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/gen/java/package.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/services/intern/gen/java/package.jar
+/db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/js.jar:
+package/package.xdc.inc: /db/rtree/install/trees/products/xdcprod/xdcprod-q29/product/Linux/xdctools_3_24_01_29/packages/xdc/shelf/java/js.jar
+endif
+# goals for files generated during schema generation but unspecified by schema's pattern rule
+

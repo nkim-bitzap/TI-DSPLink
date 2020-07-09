@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_DA830.tci ========
+ *  This file contains BIOS settings for DA830.
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_L137.tci");
+
+/*
+ *  ======== bios.initDA830 ========
+ *  BIOS initialization for the DA830 is same as for L137 
+ */
+bios.initDA830 = bios.initL137;

@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" href="$struct_ring_i_o___entry__tag.html" title="{RingIO_Entry_tag\n|+ phyControl\l+ virtControl\l+ name\l+ ownerProcId\l+ ctrlPoolId\l+ dataPoolId\l+ attrPoolId\l+ lockPoolId\l+ phyControl\l+ virtControl\l+ name\l+ ownerProcId\l+ ctrlPoolId\l+ dataPoolId\l+ attrPoolId\l+ lockPoolId\l|}" alt="" coords="7,205,127,501" />
+<area shape="rect" href="$struct_m_p_c_s___sh_obj__tag.html" title="{MPCS_ShObj_tag\n|+ gppMpcsObj\l+ dspMpcsObj\l+ turn\l|}" alt="" coords="151,301,271,405" />
+<area shape="rect" href="$struct_m_p_c_s___proc_obj__tag.html" title="{MPCS_ProcObj_tag\n|+ localLock\l+ flag\l+ freeObject\l+ mpcsEntryAddr\l|}" alt="" coords="146,8,277,128" />
+</map>

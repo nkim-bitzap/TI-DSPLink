@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" href="$struct_m_p_l_i_s_t___header__tag.html" title="{MPLIST_Header_tag\n|+ next\l+ prev\l|}" alt="" coords="8,213,144,304" />
+<area shape="rect" href="$struct_m_p_c_s___sh_obj__tag.html" title="{MPCS_ShObj_tag\n|+ gppMpcsObj\l+ dspMpcsObj\l+ turn\l|}" alt="" coords="214,206,334,310" />
+<area shape="rect" href="$struct_m_p_c_s___proc_obj__tag.html" title="{MPCS_ProcObj_tag\n|+ localLock\l+ flag\l+ freeObject\l+ mpcsEntryAddr\l|}" alt="" coords="209,8,340,128" />
+</map>

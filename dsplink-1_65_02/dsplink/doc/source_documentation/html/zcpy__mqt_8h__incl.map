@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" href="$msgq_8h.html" title="Defines the interfaces and data structures for the API sub&#45;component MSGQ." alt="" coords="285,83,344,107" />
+<area shape="rect" href="$gpp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="213,158,282,182" />
+<area shape="rect" href="$msgqdefs_8h.html" title="Defines data types and structures used by DSP/BIOS(tm) Link for MSGQ." alt="" coords="420,158,502,182" />
+<area shape="rect" href="$gpptypes_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="333,307,413,331" />
+<area shape="rect" href="$constants_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="322,233,402,257" />
+<area shape="rect" href="$errbase_8h.html" title="Central repository for error and status code bases and ranges for DSP/BIOS LINK and any Algorithm Fra..." alt="" coords="426,233,496,257" />
+<area shape="rect" href="$archdefs_8h.html" title="Defines platform specific attributes for user applications." alt="" coords="173,233,248,257" />
+<area shape="rect" href="$linkcfgdefs_8h.html" title="Defines constants and interfaces for configuration of DSPLINK." alt="" coords="8,233,98,257" />
+<area shape="rect" href="$linkcfgdefs__os_8h.html" title="Defines OS&#45;specific constants and interfaces for configuration of DSP/BIOS LINK." alt="" coords="40,307,149,331" />
+</map>

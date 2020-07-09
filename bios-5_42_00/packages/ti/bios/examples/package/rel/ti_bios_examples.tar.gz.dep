@@ -1,0 +1,32 @@
+../../../../../../../../exports/ti_bios_examples.tar: Examples.xdc
+Examples.xdc:
+../../../../../../../../exports/ti_bios_examples.tar: Examples.xs
+Examples.xs:
+../../../../../../../../exports/ti_bios_examples.tar: package/.vers_b150
+package/.vers_b150:
+../../../../../../../../exports/ti_bios_examples.tar: package/.vers_g180
+package/.vers_g180:
+../../../../../../../../exports/ti_bios_examples.tar: package/.vers_r170
+package/.vers_r170:
+../../../../../../../../exports/ti_bios_examples.tar: package/.xdc-y35
+package/.xdc-y35:
+../../../../../../../../exports/ti_bios_examples.tar: package/build.cfg
+package/build.cfg:
+../../../../../../../../exports/ti_bios_examples.tar: package/package.bld.xml
+package/package.bld.xml:
+../../../../../../../../exports/ti_bios_examples.tar: package/package.defs.h
+package/package.defs.h:
+../../../../../../../../exports/ti_bios_examples.tar: package/package_ti.bios.examples.c
+package/package_ti.bios.examples.c:
+../../../../../../../../exports/ti_bios_examples.tar: package/ti.bios.examples.ccs
+package/ti.bios.examples.ccs:
+../../../../../../../../exports/ti_bios_examples.tar: package/ti.bios.examples.sch
+package/ti.bios.examples.sch:
+../../../../../../../../exports/ti_bios_examples.tar: package/ti_bios_examples.class
+package/ti_bios_examples.class:
+../../../../../../../../exports/ti_bios_examples.tar: package/ti_bios_examples.java
+package/ti_bios_examples.java:
+../../../../../../../../exports/ti_bios_examples.tar: package.bld
+package.bld:
+../../../../../../../../exports/ti_bios_examples.tar: package.xdc
+package.xdc:

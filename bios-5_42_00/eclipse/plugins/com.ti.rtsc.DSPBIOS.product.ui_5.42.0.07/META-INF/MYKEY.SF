@@ -1,0 +1,614 @@
+Signature-Version: 1.0
+Created-By: 1.5.0_22 (Sun Microsystems Inc.)
+SHA1-Digest-Manifest-Main-Attributes: Vu96mHPSYB8acH/TdlSfqaCBQVc=
+SHA1-Digest-Manifest: SzfVA6Jk1gJ77d/kBEPNDBAqG+k=
+
+Name: resources/dsk6455/swi.tcf
+SHA1-Digest: ClvoqHLUcEvs4rJ0NMnnzaEcmXc=
+
+Name: resources/evm5515/tsk.tcf
+SHA1-Digest: tC0VqOxosy8rXyqvSWDehj0b2D8=
+
+Name: resources/evmDM6446/stairstep.tcf
+SHA1-Digest: YIU1lkdB9fOyB8aGeUvsCIJtfk4=
+
+Name: resources/evmOMAPL137/swi.tcf
+SHA1-Digest: qbsx141oHM6SN7/hB01JZkrUih4=
+
+Name: resources/evmDM6446/clk.tcf
+SHA1-Digest: hckndaBr/35c9qhurJHknFtCIV4=
+
+Name: resources/control28055/tsk.tcf
+SHA1-Digest: o2TDG0M1g3VWuVcfsKe80eN0mJY=
+
+Name: resources/ezdsp5535/semaphore.tcf
+SHA1-Digest: +snUiAfDuWsFpNMgznA9T5zXXJw=
+
+Name: resources/dsk5510/stairstep.tcf
+SHA1-Digest: 1C89qLfMex69MzXjEKAL2e1on1s=
+
+Name: resources/evmDM6467/semaphore.tcf
+SHA1-Digest: uJlxRHPge9U1J7OwhFtdXcI3pQ0=
+
+Name: resources/evm6748/mailbox.tcf
+SHA1-Digest: rdBTr84iepCLaEci+xTdTtV4+m0=
+
+Name: resources/evmOMAPL137/semaphore.tcf
+SHA1-Digest: 4/wiHq+meFOldmHR63MhBIS+ucw=
+
+Name: resources/evmOMAPL138/semaphore.tcf
+SHA1-Digest: l9x4sYhnmh6OLQ/mU/24zn8nVT4=
+
+Name: resources/control28069/semaphore.tcf
+SHA1-Digest: yG+jINhw9jmeyd3YqMv39A1IB5Q=
+
+Name: resources/evm6747/hello.tcf
+SHA1-Digest: qGihFvVZ5pzQpJ5XMlDpEBwbsuI=
+
+Name: resources/ezdsp2812/swi.tcf
+SHA1-Digest: 0tU4GvCmaw3CcOfV3QKe5ju0N4A=
+
+Name: resources/bigtime.cpp
+SHA1-Digest: sIMtSeWjDdEpITKt2B7N0lmIzbs=
+
+Name: resources/padk6727/tsk.tcf
+SHA1-Digest: h3i7L2U0TR28+td0qX9l7vxqnAk=
+
+Name: resources/dsk6416/clk.tcf
+SHA1-Digest: lzyyGB6Wn6tR1Pslv/ebY5/h81g=
+
+Name: resources/ezdsp5505/stairstep.tcf
+SHA1-Digest: KefpOE6rNq3jgD5OZ0mfYBTJpWo=
+
+Name: resources/dsk6455/hello.tcf
+SHA1-Digest: j0w2f7hyHKvmFvDAvLv3ehRBjfE=
+
+Name: resources/evmOMAPL138/clk.tcf
+SHA1-Digest: YJdz5Oeio16fuBXqW9fubWYMaGQ=
+
+Name: resources/evm5517/swi.tcf
+SHA1-Digest: YRWmlYNEC6w1zxcXQphp5AN8DYU=
+
+Name: resources/dsk6455/stairstep.tcf
+SHA1-Digest: QXeoJ+0m7WWOBYZ8WJdBnqk8kWo=
+
+Name: resources/dsk5510/tsk.tcf
+SHA1-Digest: 5dXYYI2r+JndKsebKTmFIGjFEE4=
+
+Name: resources/evmDM6446/hello.tcf
+SHA1-Digest: xoDdZRLkmqLjJjdorHRKYVkAFus=
+
+Name: resources/ezdsp5502/hello.tcf
+SHA1-Digest: gG0onSBm/kfa9c1NkeRdy4jfozk=
+
+Name: resources/dsk6455/semaphore.tcf
+SHA1-Digest: oVMxRPr0wYsw6I95hWO5rrhe4Ec=
+
+Name: resources/evm6747/semaphore.tcf
+SHA1-Digest: OFPDRCOhgn4jemLdLGgkDwAQpFM=
+
+Name: resources/evmOMAPL137/mailbox.tcf
+SHA1-Digest: /+ERS5BIZIpWPR+kX0DYucAv6nI=
+
+Name: resources/dsk5510/semaphore.tcf
+SHA1-Digest: kkqK9cVsNbVx/bMNrOElRgHnT9Q=
+
+Name: resources/evmDM6467/clk.tcf
+SHA1-Digest: J02Td+cXYmXyZwkRgDLST+Gk9YM=
+
+Name: plugin.properties
+SHA1-Digest: d9ybzvnBlD5oVzHnmEnXFqAkV8w=
+
+Name: resources/evm6424/mailbox.tcf
+SHA1-Digest: Y9x6MnmKY6rQRV1zjP8dPSHGaQY=
+
+Name: resources/evmDM6437/bigtime.tcf
+SHA1-Digest: 3nbetgDiq6fAVPEotkJESeEUKWo=
+
+Name: resources/evmDM6437/tsk.tcf
+SHA1-Digest: ErGp0Spl3WTc1NUgxL7yF/HFrbY=
+
+Name: resources/ezdsp5502/semaphore.tcf
+SHA1-Digest: JAkFtw4v6ADn2W8E48fDxdonKAo=
+
+Name: resources/evmOMAPL138/mailbox.tcf
+SHA1-Digest: u3YTX1EfyM+LI5UqmglN8TSZZTc=
+
+Name: resources/stairstep.c
+SHA1-Digest: J3TBltQLvl9KWQ4OctzKvb4bQQQ=
+
+Name: resources/mailbox.c
+SHA1-Digest: uTapzUBOj/sT2J8vNT8Pl0A9AKE=
+
+Name: resources/ezdsp5505/clk.tcf
+SHA1-Digest: RiiqsbVfan3wm1rY1/Uov3ICmfw=
+
+Name: resources/evm5517/hello.tcf
+SHA1-Digest: 04aUsrzWRwVMy82ALZ7sq650Z2g=
+
+Name: resources/evm6747/stairstep.tcf
+SHA1-Digest: EOLs4Yzp9R57+MbtREnxmYu/9IE=
+
+Name: resources/dsk6416/tsk.tcf
+SHA1-Digest: Gkz9tUuSBpToRP4006jU315Ov4c=
+
+Name: resources/evm5517/clk.tcf
+SHA1-Digest: ysSCcRqdLiRYUeAhTaED8koGpLw=
+
+Name: resources/sim6416/clk.tcf
+SHA1-Digest: IVpThmy0dtcPrt4sLOpBbpeRaFM=
+
+Name: toc_top.xml
+SHA1-Digest: ZmfwgyGb6xU4quSrEsP2NC0Fppk=
+
+Name: resources/ezdsp2812/mailbox.tcf
+SHA1-Digest: /iEHV1YtiS8BnjfdCAjFvMN3L34=
+
+Name: resources/dsk6455/clk.tcf
+SHA1-Digest: +P0WGkXh52yaQ59AtS4hSXspBwc=
+
+Name: resources/evmOMAPL138/bigtime.tcf
+SHA1-Digest: WkamWTJJSCFHXDZQPcJK2PKsly8=
+
+Name: resources/evm6748/bigtime.tcf
+SHA1-Digest: bS6XhYrCdhN4FjCVnsVPTaBocWY=
+
+Name: resources/ezdsp28335/swi.tcf
+SHA1-Digest: ZodNLQWFEth9PGbJov96sNhExjY=
+
+Name: resources/evm5515/clk.tcf
+SHA1-Digest: 6oF8ki6mSl5yavo/64FUkhHfC7s=
+
+Name: resources/evm6424/semaphore.tcf
+SHA1-Digest: lHk91jb7Cqcrft/5hFpQtmkEOqM=
+
+Name: resources/dsk6455/mailbox.tcf
+SHA1-Digest: BucExyRf/P986g0aCEHYWYxG0UI=
+
+Name: resources/evm5505/hello.tcf
+SHA1-Digest: tDEW7jQMLB0DDPdqqrBAUwLY6TE=
+
+Name: resources/evm6748/semaphore.tcf
+SHA1-Digest: x3R2xB0Z1IC+ekBokJw9QB24rIU=
+
+Name: resources/evmDM6446/semaphore.tcf
+SHA1-Digest: 0a8fwY7MAKhZxzhdp0DPWmQ8GIQ=
+
+Name: resources/swi.c
+SHA1-Digest: D0SyYDRgUZXx4P99weEGvga2vuw=
+
+Name: resources/evm5505/bigtime.tcf
+SHA1-Digest: rSMD72U7kvIJD7orSMMDEiEB2Nw=
+
+Name: resources/semaphore.c
+SHA1-Digest: P54xxGwNYYtNv8FLC7aKhXhrveY=
+
+Name: resources/evmDM6467/bigtime.tcf
+SHA1-Digest: SUKHkcr0oG9RhSqPgwiOt23QPco=
+
+Name: resources/padk6727/bigtime.tcf
+SHA1-Digest: yvB0gyzFLO+oljC9hsdV6C+nEpE=
+
+Name: resources/sim6416/stairstep.tcf
+SHA1-Digest: /7SEZFRA0cVBUCAKR/5ABJ1lp0Y=
+
+Name: resources/dsk5510/swi.tcf
+SHA1-Digest: QG3FwNwM43j1H4TdXkLbnLcCmvg=
+
+Name: resources/tsk.c
+SHA1-Digest: OJnMkG7hQGY7/6KELYM9ivLrpDU=
+
+Name: resources/evmDM6446/tsk.tcf
+SHA1-Digest: ycUsE0YHlZ2GdPqUCIMA4ziHZJk=
+
+Name: resources/sim6416/hello.tcf
+SHA1-Digest: dRWPKMvZJzctF8Wx3JMFTiycai0=
+
+Name: resources/evmDM6437/stairstep.tcf
+SHA1-Digest: vA4HRVMPMCnVUGlkVefBeT+4uQ4=
+
+Name: resources/ezdsp28335/tsk.tcf
+SHA1-Digest: lrXZJpOKdQMsmAS52m0yuxZ+a8s=
+
+Name: resources/ezdsp2812/tsk.tcf
+SHA1-Digest: Sl1RrnLf96gTl5E7oDDa+Zfg5S4=
+
+Name: resources/control28055/stairstep.tcf
+SHA1-Digest: HevY+J9znMBnme/8Ax/ABlky02I=
+
+Name: resources/evmDM6437/swi.tcf
+SHA1-Digest: wHS953a9/OLs7J5g41c0FdXEjfY=
+
+Name: resources/evm6747/clk.tcf
+SHA1-Digest: ckoMcx6BgILTuqvRresLDjxIWJI=
+
+Name: resources/evm6474/tsk.tcf
+SHA1-Digest: +tPfoqYxYemfCTit8zDjujxMnLo=
+
+Name: resources/ezdsp5505/hello.tcf
+SHA1-Digest: gT2/bQNt2HnELFyZVGKmspgthcg=
+
+Name: resources/evmDM6437/mailbox.tcf
+SHA1-Digest: pne9jJAoD2cDAIBtrP4Kgt9l9oU=
+
+Name: resources/control28069/bigtime.tcf
+SHA1-Digest: oZpsRJ7zWxpFBwpDT3SDgojgN+A=
+
+Name: resources/control28069/clk.tcf
+SHA1-Digest: sK77tV3hqaEYA5/Q6X0jSMcgkVY=
+
+Name: resources/evm6748/swi.tcf
+SHA1-Digest: /+svIEreX2m9LgPYWM+f+6vXV10=
+
+Name: resources/sim6416/swi.tcf
+SHA1-Digest: cUyMahY8+JwAwancKEJ4no36xMY=
+
+Name: resources/ezdsp5505/bigtime.tcf
+SHA1-Digest: w7vt1cETuRkBBO8p6qDTETmDR+Q=
+
+Name: resources/ezdsp5535/mailbox.tcf
+SHA1-Digest: LX95Ds19fxKuP9jc7RmO9A9RJhs=
+
+Name: resources/evm5517/tsk.tcf
+SHA1-Digest: RHYgp4ETfCxnaoPjrw5Sv1OSHWc=
+
+Name: resources/sim6416/semaphore.tcf
+SHA1-Digest: PRuuPNB9YR6VEWa8HEIi556BUMk=
+
+Name: resources/control28069/mailbox.tcf
+SHA1-Digest: yo6QAJJvLia1fsy8lvhfaJfMhKM=
+
+Name: resources/sim6416/bigtime.tcf
+SHA1-Digest: qMStDE5L2idnX6suGzH/yxnqrYs=
+
+Name: resources/ezdsp28335/bigtime.tcf
+SHA1-Digest: +T8QUoUIrja9SdwIAQObGr5qMzQ=
+
+Name: resources/padk6727/clk.tcf
+SHA1-Digest: lkNkZXsMpTuk8E96FzZKZCTXTOw=
+
+Name: resources/ezdsp5505/semaphore.tcf
+SHA1-Digest: XBy2owolNh3luXWjaAEq6beogXs=
+
+Name: resources/control28069/hello.tcf
+SHA1-Digest: LEdziXcX9R5fTDeFIeFzXCSOUtI=
+
+Name: resources/evm5505/semaphore.tcf
+SHA1-Digest: cFy0BrCXFMLmYPwu09nF1UTJj0s=
+
+Name: resources/evm6474/mailbox.tcf
+SHA1-Digest: wiURlMFDhgs2MQwa5N0j6dZG/Uk=
+
+Name: resources/sim6416/mailbox.tcf
+SHA1-Digest: tdNNSHP0XzNpR7rGZreqVUsoMas=
+
+Name: resources/evm6424/tsk.tcf
+SHA1-Digest: ZBMqsH4u92ovWfAeHv0ApvNfXJA=
+
+Name: resources/evm6424/swi.tcf
+SHA1-Digest: NNu0F4NkqLl5wEPayIF5+8ooKvw=
+
+Name: resources/control28069/tsk.tcf
+SHA1-Digest: 4XpLRUy4Vz0P7x5Eh7Reqzo8UZg=
+
+Name: resources/ezdsp2812/semaphore.tcf
+SHA1-Digest: JiH3oTd40YswGpIacdmb6Alq9sg=
+
+Name: resources/ezdsp5502/swi.tcf
+SHA1-Digest: dJjcHaSP1VguN0f3WBrpMc/GWkE=
+
+Name: resources/evm6424/stairstep.tcf
+SHA1-Digest: SVUGTxEX5CcNE1Sk6jjgiBpDhNE=
+
+Name: resources/dsk5510/hello.tcf
+SHA1-Digest: vRdew2rrghA+YGIS/CizyeF/CEc=
+
+Name: resources/ezdsp5502/stairstep.tcf
+SHA1-Digest: xmSVKzXtzwQ0ceUzsGx0Q8i71fY=
+
+Name: resources/evm5515/semaphore.tcf
+SHA1-Digest: HfFZc5Yy1CTqCxmU8AwvIqrSigo=
+
+Name: resources/sim6416/tsk.tcf
+SHA1-Digest: Tj1Q2GD6Wa9JK3tj0JXwIGw9DWo=
+
+Name: resources/evm6424/bigtime.tcf
+SHA1-Digest: Z19+9Mpid1pdfk28Xy5yCrc4y+g=
+
+Name: resources/padk6727/swi.tcf
+SHA1-Digest: 8aBQgIw4ZgcQiPBrmyoYszPImzI=
+
+Name: resources/ezdsp28335/hello.tcf
+SHA1-Digest: RVKAMiy9jijk3F4A4oEsMGdK2Sc=
+
+Name: resources/dsk5510/clk.tcf
+SHA1-Digest: RtKQRXNvY+9bA226Mjihx5iDdSw=
+
+Name: resources/evm6747/tsk.tcf
+SHA1-Digest: VQyhEyizruAmI6x4ZHbVKTjqf3A=
+
+Name: resources/ezdsp5535/tsk.tcf
+SHA1-Digest: PsOfZAxHdqRYRqqRdH7qunqTKVo=
+
+Name: resources/control28069/stairstep.tcf
+SHA1-Digest: 3eQsd1QTy1hEE48UX+IRHECJvlg=
+
+Name: resources/ezdsp2812/hello.tcf
+SHA1-Digest: g5GeV1mUjr8oK6dq/4o8MdkvDHs=
+
+Name: resources/ezdsp5535/hello.tcf
+SHA1-Digest: hVHK3bzNs30F8ltJQYy0TLXULAw=
+
+Name: resources/ezdsp5502/tsk.tcf
+SHA1-Digest: e1VLktCuMOzKKfE4fs2dBqvL4c4=
+
+Name: resources/evm5505/stairstep.tcf
+SHA1-Digest: OKGKee/jZGHXI13Di2zWQsKvPKk=
+
+Name: resources/ezdsp28335/mailbox.tcf
+SHA1-Digest: zVpFJVF8PhCbYMbVYo3n0nj8eBE=
+
+Name: resources/dsk6416/stairstep.tcf
+SHA1-Digest: 038TBSFipBESOUPyC4LUDgynbFQ=
+
+Name: resources/dsk6416/hello.tcf
+SHA1-Digest: yvrKzu82XSQaofOt3BLu1wVm+VE=
+
+Name: plugin.xml
+SHA1-Digest: 4O+BB9uotI94KmdX13gKDa6ig/k=
+
+Name: resources/dsk5510/mailbox.tcf
+SHA1-Digest: c9IL5z+SEW3CY2frJZY+O0eGQBg=
+
+Name: resources/control28055/clk.tcf
+SHA1-Digest: WQQAxiFb6wSGPvIgitYUDHt+Hv8=
+
+Name: resources/dsk6416/semaphore.tcf
+SHA1-Digest: y0UXFkA/P2N1O+Z6qz4CdWMfCUI=
+
+Name: resources/evm5515/bigtime.tcf
+SHA1-Digest: G2l0tDjFDy1gWIRjznu0Sm8utNY=
+
+Name: resources/ezdsp5535/bigtime.tcf
+SHA1-Digest: yIiKRG5hzX220Yt6wTitmdLBoHM=
+
+Name: resources/control28069/swi.tcf
+SHA1-Digest: GFzNf4wqLywrk5f9aVTNSyFNzp8=
+
+Name: resources/evmDM6467/stairstep.tcf
+SHA1-Digest: filQN5Ozqbo9h6FxMzDRy8e3p/g=
+
+Name: resources/ezdsp28335/stairstep.tcf
+SHA1-Digest: cNy0rsh09vsX2UhyrMq3fvRjfm4=
+
+Name: resources/evm5505/swi.tcf
+SHA1-Digest: Aa8cLX8CcHaUbzNgrUbwNML3bks=
+
+Name: resources/evm6748/clk.tcf
+SHA1-Digest: Bgs8RnnFOuq7JkzTup8Dhv5Xbqw=
+
+Name: resources/evmOMAPL138/stairstep.tcf
+SHA1-Digest: ePLFXmnun5FFuwfK02+c7MRMjz4=
+
+Name: resources/control28055/hello.tcf
+SHA1-Digest: 3gDm0dBAQ57lmVYLB40O0PbZxIM=
+
+Name: resources/ezdsp5502/mailbox.tcf
+SHA1-Digest: WjgSArR/MGnUSzW5WBXRNUu8tms=
+
+Name: resources/evmOMAPL137/stairstep.tcf
+SHA1-Digest: lEtsrqxUUXJeQV9WN14D6mOZ0AA=
+
+Name: resources/evmOMAPL138/hello.tcf
+SHA1-Digest: rZ/3Ss2l8ATHI2ZVCsyoz5RJ9cE=
+
+Name: resources/control28055/semaphore.tcf
+SHA1-Digest: zuqUA7/YzUTIhnjER3zx8gx2FiA=
+
+Name: resources/evm5517/mailbox.tcf
+SHA1-Digest: c8a2tJuPJ3iuU39D3W/hxgIlS7Y=
+
+Name: resources/evm6747/swi.tcf
+SHA1-Digest: EDVtkuJ+qYxAKnzsalOeh7ppgWg=
+
+Name: resources/dsk6416/bigtime.tcf
+SHA1-Digest: golHDyWhs6a+0OfIBeuAIR/410Y=
+
+Name: resources/evmDM6467/mailbox.tcf
+SHA1-Digest: WrYfa9i9U6XZYTkP30AuaJqFeos=
+
+Name: resources/evmDM6467/hello.tcf
+SHA1-Digest: YXqD648lpgoj3QtZ3xuSESn0Tzo=
+
+Name: resources/clk.c
+SHA1-Digest: GJz0dTfk/vBWtrAMsyW6Lt1Bp0A=
+
+Name: resources/ezdsp5502/bigtime.tcf
+SHA1-Digest: SaDv3lT3G7+PzP5v2bRodAay2lk=
+
+Name: resources/evm6474/stairstep.tcf
+SHA1-Digest: i8+FX1eidwL75SGvCV+WLFgA0kc=
+
+Name: resources/ezdsp5535/stairstep.tcf
+SHA1-Digest: baXOlcMyLeFiCySrLpZxRWpL9g4=
+
+Name: resources/control28055/swi.tcf
+SHA1-Digest: kWY41ytlBl6Ss7bDeZ4OJeABJ9s=
+
+Name: resources/evm6474/bigtime.tcf
+SHA1-Digest: 9JE9S5k5hQMZsdmApwIh6FhQ560=
+
+Name: resources/evm6424/hello.tcf
+SHA1-Digest: ShunLb5piIC0322y6iXrJ/teuk4=
+
+Name: resources/evmDM6446/mailbox.tcf
+SHA1-Digest: M6wcar0kH9pzD2Q4AZ2DFt0ySIA=
+
+Name: resources/ezdsp28335/clk.tcf
+SHA1-Digest: IiLZTE9crRehfxjB6oL7mcFK1Uk=
+
+Name: resources/padk6727/semaphore.tcf
+SHA1-Digest: 5z+KWJP4o/I5EezBrOyqEd+P9Rc=
+
+Name: resources/ezdsp2812/clk.tcf
+SHA1-Digest: XZt0SWUNzlp0kkynGyw6i/p11jE=
+
+Name: resources/dsk6416/mailbox.tcf
+SHA1-Digest: TV6zl/kkAUTRfePSo99Fegw875I=
+
+Name: resources/dsk6455/tsk.tcf
+SHA1-Digest: KEWpipGukc0pK6qaHcVLWL8XFrM=
+
+Name: resources/evm6747/mailbox.tcf
+SHA1-Digest: VgsfoV76iVFDHJjOxZFv6RFgwmw=
+
+Name: resources/evmDM6446/bigtime.tcf
+SHA1-Digest: I+Nd+W7UGPLwJZoU3oAblvIbA94=
+
+Name: resources/evm6474/swi.tcf
+SHA1-Digest: gNpHj/4vxGrRUFj75UKAJmbWSC4=
+
+Name: resources/evm6747/bigtime.tcf
+SHA1-Digest: lo3tiBDFCQ/mN5NY7qDX1BgnlXM=
+
+Name: resources/evm5505/mailbox.tcf
+SHA1-Digest: hxz+zdrD1clm/93RHRsMLOA+TlI=
+
+Name: resources/evmDM6437/hello.tcf
+SHA1-Digest: 70ybuy4EJEgy6h9qkNPvuUgFAas=
+
+Name: resources/hello.c
+SHA1-Digest: AZWYgUZKF+Ensy95BLj5pdfn3o4=
+
+Name: resources/evmOMAPL137/hello.tcf
+SHA1-Digest: 1Cu9o5MWwEO92OG3eWw2M3jt4gk=
+
+Name: resources/ezdsp5505/mailbox.tcf
+SHA1-Digest: rAd+5Grh3CqueP3Hu9zq41A6sMI=
+
+Name: resources/evmOMAPL137/clk.tcf
+SHA1-Digest: hGaeDQ6ot8Mxfp26V5/TGoaL1Qo=
+
+Name: resources/evmDM6437/clk.tcf
+SHA1-Digest: MGQAj/Rd6wRH/Fr4gZmwkWV0ZkE=
+
+Name: resources/evmDM6437/semaphore.tcf
+SHA1-Digest: 064lUATqG0ZQUURW4sUskbPDihc=
+
+Name: resources/evm5505/tsk.tcf
+SHA1-Digest: +lxiwJySt8TXm9xQFyr0WIvaUOw=
+
+Name: resources/evmOMAPL138/swi.tcf
+SHA1-Digest: uXnRRU3oU20cBgybmepY4vj0b2U=
+
+Name: resources/evm5515/hello.tcf
+SHA1-Digest: e++6yLnj93r5LBFhIhjV3Rxo6x4=
+
+Name: resources/padk6727/stairstep.tcf
+SHA1-Digest: wcRhdDsk/BQRNxa9eZFgP1M10KY=
+
+Name: resources/evm6474/hello.tcf
+SHA1-Digest: 5lBLJxCGbMaX9UqHOVTDUdtLG+8=
+
+Name: resources/ezdsp5505/tsk.tcf
+SHA1-Digest: xTAD+fSC5WyPv76dRVl1+GDgJPc=
+
+Name: resources/ezdsp5505/swi.tcf
+SHA1-Digest: TegbFIUnXrhe2pDYT5yY9foer00=
+
+Name: resources/evm6474/semaphore.tcf
+SHA1-Digest: vQd+cmS8J5EGC+JXkRJj1U/tNVk=
+
+Name: resources/ezdsp2812/stairstep.tcf
+SHA1-Digest: WQiiJNG3yPl5AulKrIugkCaGFLE=
+
+Name: resources/evm5515/stairstep.tcf
+SHA1-Digest: NYADGSGh5HfaL+8GQCAEGf8jH8Y=
+
+Name: resources/ezdsp2812/bigtime.tcf
+SHA1-Digest: 1SKcv2r+5veOlLVdpXF7Jc9femc=
+
+Name: resources/evm5505/clk.tcf
+SHA1-Digest: 4kaDfzVnimSXFoy/xb5H8YIg6Po=
+
+Name: resources/evm6748/tsk.tcf
+SHA1-Digest: 60//QEeqzxBK92v2OSh2RQ40HKg=
+
+Name: resources/evm6474/clk.tcf
+SHA1-Digest: QNJNLVWTQASzzwSCznJIrDtuII0=
+
+Name: resources/evm6424/clk.tcf
+SHA1-Digest: etOKWIPgSKEkJyxnJXyt8bHap84=
+
+Name: resources/padk6727/hello.tcf
+SHA1-Digest: um6jYLB4gkJNqim11Vee7zQKymE=
+
+Name: resources/control28055/mailbox.tcf
+SHA1-Digest: z2PGxh1hxivx96JNUzpnkZ1ryjA=
+
+Name: resources/dsk6416/swi.tcf
+SHA1-Digest: EB1s5CNUYEIg5jOId/FxOs9NIjc=
+
+Name: resources/evm5515/mailbox.tcf
+SHA1-Digest: FyUxyZFazmKWXd+fIZiJNxY+UeM=
+
+Name: resources/padk6727/mailbox.tcf
+SHA1-Digest: hhiiyDbGzu9J7baTKbl+4DkTAuA=
+
+Name: resources/evm6748/hello.tcf
+SHA1-Digest: ppT+eBU0XlWQ/MJcELeYGjW+P5k=
+
+Name: resources/evm6748/stairstep.tcf
+SHA1-Digest: 62lv0qIY8PlP2oQeA6Bvs9+3c6k=
+
+Name: resources/dsk5510/bigtime.tcf
+SHA1-Digest: bJeu5YASSZoCQga6SlIjCckSTbg=
+
+Name: resources/dsk6455/bigtime.tcf
+SHA1-Digest: HzzfZqAJIhfcJ+R4IruGSVYTIxY=
+
+Name: resources/evm5517/semaphore.tcf
+SHA1-Digest: XmDSqVT+L8BIRzBkhiuXCJ2q1oU=
+
+Name: resources/control28055/bigtime.tcf
+SHA1-Digest: 3it6pcb0IWcEvFp55wegxP0bM0I=
+
+Name: resources/evmDM6446/swi.tcf
+SHA1-Digest: cFpwta+S+kkwn2Uf0+bD/SOyKyU=
+
+Name: resources/evmOMAPL137/tsk.tcf
+SHA1-Digest: RnUEPnXuFbg5QzubLhAexqbxMhc=
+
+Name: resources/ezdsp5535/clk.tcf
+SHA1-Digest: 5vUVy5KZy2+zy7wduWhkloStlQo=
+
+Name: resources/ezdsp5535/swi.tcf
+SHA1-Digest: sC+arm2GjnImjHBs4Hx5e6xLZu8=
+
+Name: resources/ezdsp28335/semaphore.tcf
+SHA1-Digest: ZwP9QNYRRbTxLL8Yp+XTRqnSxO8=
+
+Name: resources/evm5517/bigtime.tcf
+SHA1-Digest: ru/lNRpojIEtPwtwVkBKuQ+frPc=
+
+Name: resources/evm5515/swi.tcf
+SHA1-Digest: MdVLZpX1Uqpoc/f8VRJLQo4gW+g=
+
+Name: resources/evmDM6467/swi.tcf
+SHA1-Digest: Or2SJX6+lSPKl0lJ8ptIfsvTWF0=
+
+Name: resources/evmOMAPL137/bigtime.tcf
+SHA1-Digest: BR/JGD9ZF7fYL/QhEQ4yISK0ddM=
+
+Name: resources/evm5517/stairstep.tcf
+SHA1-Digest: xAFX3sr6+nIgIcRGqXMLG9MwYCE=
+
+Name: resources/ezdsp5502/clk.tcf
+SHA1-Digest: 6jkfodzjxFkXIYncHrTyrb3kMTE=
+
+Name: resources/evmOMAPL138/tsk.tcf
+SHA1-Digest: LoP4A23QhmBQ75itnnncegPx4Ag=
+
+Name: resources/evmDM6467/tsk.tcf
+SHA1-Digest: lRTEh4mWnZneqzGNVxr/OAkJmQw=
+

@@ -1,0 +1,51 @@
+<map id="G" name="G">
+<area shape="rect" href="$gpp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="2077,83,2146,107" />
+<area shape="rect" href="$msgqdefs_8h.html" title="Defines data types and structures used by DSP/BIOS(tm) Link for MSGQ." alt="" coords="2170,83,2253,107" />
+<area shape="rect" href="$dsp_2inc_2mpcs_8h.html" title="mpcs.h" alt="" coords="8,158,66,182" />
+<area shape="rect" href="$dsp_2inc_2mpcsdefs_8h.html" title="mpcsdefs.h" alt="" coords="90,158,170,182" />
+<area shape="rect" href="$dsp_2inc_2mplist_8h.html" title="mplist.h" alt="" coords="194,158,258,182" />
+<area shape="rect" href="$dsp_2inc_2notify_8h.html" title="notify.h" alt="" coords="282,158,344,182" />
+<area shape="rect" href="$dsp_2inc_2ringio_8h.html" title="ringio.h" alt="" coords="368,158,429,182" />
+<area shape="rect" href="$zcpy__mqt_8h.html" title="Defines the exported interface of the ZCPY MQT for GPP&#45;DSP communication." alt="" coords="453,158,536,182" />
+<area shape="rect" href="$chnl_8h.html" title="Defines the interfaces and data structures for the API sub&#45;component CHNL." alt="" coords="570,233,624,257" />
+<area shape="rect" href="$chnldefs_8h.html" title="Defines data types and structures used by CHNL component." alt="" coords="560,158,634,182" />
+<area shape="rect" href="$da8xxgem__hal_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Primus. Declares necessary functions ..." alt="" coords="760,158,869,182" />
+<area shape="rect" href="$da8xxgem__hal__intgen_8h.html" title="Declares necessary functions for Interrupt Handling." alt="" coords="652,233,801,257" />
+<area shape="rect" href="$da8xxgem__hal__pwr_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Primus. Declares necessary functions ..." alt="" coords="833,233,969,257" />
+<area shape="rect" href="$da8xxgem__hal__boot_8h.html" title="Hardware Abstraction Layer for Primus Boot controller. Defines the Platform specific HAL (Hardware Ab..." alt="" coords="944,158,1082,182" />
+<area shape="rect" href="$da8xxgem__hal__shmem_8h.html" title="Hardware Abstraction Layer for Shared memory interface." alt="" coords="1106,158,1261,182" />
+<area shape="rect" href="$da8xxgem__phy__shmem_8h.html" title="Physical Interface Abstraction Layer for DA8XXGem." alt="" coords="1285,158,1442,182" />
+<area shape="rect" href="$gpp_2inc_2dbc_8h.html" title="dbc.h" alt="" coords="1466,158,1517,182" />
+<area shape="rect" href="$dm6437__hal_8h.html" title="Hardware Abstraction Layer for 64LC_PCI. Define the Platform specific HAL (Hardware Abstraction Layer..." alt="" coords="1970,158,2066,182" />
+<area shape="rect" href="$dm6437__hal__pci_8h.html" title="Hardware Abstraction Layer for PC&#45;DM64LC PCI interface. Defines interfaces to initialize the PCI inte..." alt="" coords="1600,233,1720,257" />
+<area shape="rect" href="$dm6437__hal__pci__boot_8h.html" title="BOOT controller module header file." alt="" coords="1670,307,1820,331" />
+<area shape="rect" href="$dm6437__hal__pci__dma_8h.html" title="DMA module header file." alt="" coords="1497,307,1646,331" />
+<area shape="rect" href="$dm6437__hal__pci__intgen_8h.html" title="Interrupt Generation module header file." alt="" coords="969,307,1129,331" />
+<area shape="rect" href="$dm6437__hal__pci__map_8h.html" title="Map module header file." alt="" coords="1153,307,1302,331" />
+<area shape="rect" href="$dm6437__hal__pci__pwr_8h.html" title="Power Management module header file." alt="" coords="1326,307,1473,331" />
+<area shape="rect" href="$dm6437__hal__pci__rdwr_8h.html" title="Read Write module header file." alt="" coords="1844,307,1996,331" />
+<area shape="rect" href="$dm6437__hal__vlynq_8h.html" title="Hardware Abstraction Layer for PC&#45;DM64LC VLYNQ interface. Defines interfaces to initialize the VLYNQ ..." alt="" coords="2250,233,2384,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__boot_8h.html" title="BOOT controller module header file." alt="" coords="2020,307,2185,331" />
+<area shape="rect" href="$dm6437__hal__vlynq__dma_8h.html" title="DMA module header file." alt="" coords="2398,307,2561,331" />
+<area shape="rect" href="$dm6437__hal__vlynq__intgen_8h.html" title="Interrupt Generation module header file." alt="" coords="2585,307,2758,331" />
+<area shape="rect" href="$dm6437__hal__vlynq__map_8h.html" title="Map module header file." alt="" coords="2782,307,2945,331" />
+<area shape="rect" href="$dm6437__hal__vlynq__pwr_8h.html" title="Power Management module header file." alt="" coords="2969,307,3132,331" />
+<area shape="rect" href="$dm6437__hal__vlynq__rdwr_8h.html" title="Read Write module header file." alt="" coords="2209,307,2374,331" />
+<area shape="rect" href="$dm6437__phy__pci_8h.html" title="Hardware Abstraction Layer for DM6437. Define the Platform specific HAL (Hardware Abstraction Layer) ..." alt="" coords="2560,233,2682,257" />
+<area shape="rect" href="$dm64446gem__hal__shmem_8h.html" title="Hardware Abstraction Layer for Shared memory interface." alt="" coords="2668,158,2841,182" />
+<area shape="rect" href="$dm6446gem__hal_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Davinci. Declares necessary functions..." alt="" coords="2916,158,3036,182" />
+<area shape="rect" href="$dm6446gem__hal__intgen_8h.html" title="Declares necessary functions for Interrupt Handling." alt="" coords="2933,233,3093,257" />
+<area shape="rect" href="$dm6446gem__hal__pwr_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Davinci. Declares necessary functions..." alt="" coords="3117,233,3264,257" />
+<area shape="rect" href="$dm6446gem__hal__boot_8h.html" title="Hardware Abstraction Layer for Davinci Boot controller. Defines the Platform specific HAL (Hardware A..." alt="" coords="3110,158,3260,182" />
+<area shape="rect" href="$dm6446gem__phy__shmem_8h.html" title="Physical Interface Abstraction Layer for DM6446Gem." alt="" coords="3284,158,3452,182" />
+<area shape="rect" href="$dm6467gem__dspclk_8h.html" title="Defines the interfaces and data structures for the DSPCLK access." alt="" coords="3476,158,3614,182" />
+<area shape="rect" href="$dm6467gem__hal_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Davinci. Declares necessary functions..." alt="" coords="3689,158,3809,182" />
+<area shape="rect" href="$dm6467gem__hal__intgen_8h.html" title="Declares necessary functions for Interrupt Handling." alt="" coords="3577,233,3737,257" />
+<area shape="rect" href="$dm6467gem__hal__pwr_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Davinci. Declares necessary functions..." alt="" coords="3769,233,3916,257" />
+<area shape="rect" href="$dm6467gem__hal__boot_8h.html" title="Hardware Abstraction Layer for Davinci Boot controller. Defines the Platform specific HAL (Hardware A..." alt="" coords="3884,158,4033,182" />
+<area shape="rect" href="$dm6467gem__hal__shmem_8h.html" title="Hardware Abstraction Layer for Shared memory interface." alt="" coords="4057,158,4222,182" />
+<area shape="rect" href="$dm6467gem__phy__shmem_8h.html" title="Physical Interface Abstraction Layer for DM6467Gem." alt="" coords="4246,158,4414,182" />
+<area shape="rect" href="$dm648__hal_8h.html" title="Hardware Abstraction Layer for DM648. Define the Platform specific HAL (Hardware Abstraction Layer) o..." alt="" coords="4489,158,4580,182" />
+<area shape="rect" href="$dm648__hal__pci_8h.html" title="Hardware Abstraction Layer for PC&#45;DM648 PCI interface. Defines interfaces to initialize the PCI inter..." alt="" coords="4540,233,4654,257" />
+<area shape="rect" href="$dm648__hal__pci__boot_8h.html" title="BOOT controller module header file." alt="" coords="4430,307,4574,331" />
+</map>

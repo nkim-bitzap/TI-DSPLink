@@ -1,0 +1,4623 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin
+    name="DSP/BIOS IDE Support"
+    id="com.ti.rtsc.DSPBIOS.product.ui"
+    version="5.42.0.07"
+    provider-name="Texas Instruments">
+
+    <extension point="org.eclipse.help.toc">
+        <toc file="toc_top.xml" primary="true"/>
+    </extension>
+
+    <extension point="org.eclipse.help.contentProducer">
+        <contentProducer>
+            <producer class="org.eclipse.rtsc.xdctools.ui.help.HelpContentProducer"/>
+        </contentProducer>
+    </extension>
+
+    <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+     <variable 
+        name="COM_TI_RTSC_DSPBIOS_INSTALL_DIR"
+        resolver="org.eclipse.rtsc.xdctools.ui.macros.MacroResolver"
+        description="Installation directory for DSP/BIOS">
+     </variable>
+   </extension>
+
+    <extension point="com.ti.common.project.core.projectTemplates">
+        <templateGroup
+            id="ti.bios.examples.root"
+            description="DSP/BIOS v5.xx Examples"
+            name="DSP/BIOS v5.xx Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.ezdsp2812"
+            description="ezdsp2812 specific DSP/BIOS Examples."
+            name="ezdsp2812 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.ezdsp28335"
+            description="ezdsp28335 specific DSP/BIOS Examples."
+            name="ezdsp28335 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.control28055"
+            description="control28055 specific DSP/BIOS Examples."
+            name="control28055 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.control28069"
+            description="control28069 specific DSP/BIOS Examples."
+            name="control28069 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.ezdsp5502"
+            description="ezdsp5502 specific DSP/BIOS Examples."
+            name="ezdsp5502 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm5505"
+            description="evm5505 specific DSP/BIOS Examples."
+            name="evm5505 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.ezdsp5535"
+            description="ezdsp5535 specific DSP/BIOS Examples."
+            name="ezdsp5535 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm5515"
+            description="evm5515 specific DSP/BIOS Examples."
+            name="evm5515 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm5517"
+            description="evm5517 specific DSP/BIOS Examples."
+            name="evm5517 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.dsk5510"
+            description="dsk5510 specific DSP/BIOS Examples."
+            name="dsk5510 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.ezdsp5505"
+            description="ezdsp5505 specific DSP/BIOS Examples."
+            name="ezdsp5505 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.dsk6416"
+            description="dsk6416 specific DSP/BIOS Examples."
+            name="dsk6416 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.dsk6455"
+            description="dsk6455 specific DSP/BIOS Examples."
+            name="dsk6455 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm6424"
+            description="evm6424 specific DSP/BIOS Examples."
+            name="evm6424 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm6474"
+            description="evm6474 specific DSP/BIOS Examples."
+            name="evm6474 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm6747"
+            description="evm6747 specific DSP/BIOS Examples."
+            name="evm6747 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evm6748"
+            description="evm6748 specific DSP/BIOS Examples."
+            name="evm6748 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evmDM6437"
+            description="evmDM6437 specific DSP/BIOS Examples."
+            name="evmDM6437 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evmDM6446"
+            description="evmDM6446 specific DSP/BIOS Examples."
+            name="evmDM6446 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evmDM6467"
+            description="evmDM6467 specific DSP/BIOS Examples."
+            name="evmDM6467 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evmOMAPL137"
+            description="evmOMAPL137 specific DSP/BIOS Examples."
+            name="evmOMAPL137 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.evmOMAPL138"
+            description="evmOMAPL138 specific DSP/BIOS Examples."
+            name="evmOMAPL138 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.padk6727"
+            description="padk6727 specific DSP/BIOS Examples."
+            name="padk6727 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+        <templateGroup
+            id="ti.bios.examples.root.sim6416"
+            description="sim6416 specific DSP/BIOS Examples."
+            name="sim6416 Examples">
+            <property name="productType" value="com.ti.rtsc.DSPBIOS"/>
+            <group id="ti.bios.examples.root"/>
+        </templateGroup>
+
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_0_title"
+                 id="com.ti.rtsc.DSPBIOS.example_0"
+                 linkerCommandFile=""
+                 description="%example_0_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_1_title"
+                 id="com.ti.rtsc.DSPBIOS.example_1"
+                 linkerCommandFile=""
+                 description="%example_1_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_2_title"
+                 id="com.ti.rtsc.DSPBIOS.example_2"
+                 linkerCommandFile=""
+                 description="%example_2_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_3_title"
+                 id="com.ti.rtsc.DSPBIOS.example_3"
+                 linkerCommandFile=""
+                 description="%example_3_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_4_title"
+                 id="com.ti.rtsc.DSPBIOS.example_4"
+                 linkerCommandFile=""
+                 description="%example_4_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_5_title"
+                 id="com.ti.rtsc.DSPBIOS.example_5"
+                 linkerCommandFile=""
+                 description="%example_5_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_6_title"
+                 id="com.ti.rtsc.DSPBIOS.example_6"
+                 linkerCommandFile=""
+                 description="%example_6_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_7_title"
+                 id="com.ti.rtsc.DSPBIOS.example_7"
+                 linkerCommandFile=""
+                 description="%example_7_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp2812"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp2812/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_8_title"
+                 id="com.ti.rtsc.DSPBIOS.example_8"
+                 linkerCommandFile=""
+                 description="%example_8_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_9_title"
+                 id="com.ti.rtsc.DSPBIOS.example_9"
+                 linkerCommandFile=""
+                 description="%example_9_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_10_title"
+                 id="com.ti.rtsc.DSPBIOS.example_10"
+                 linkerCommandFile=""
+                 description="%example_10_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_11_title"
+                 id="com.ti.rtsc.DSPBIOS.example_11"
+                 linkerCommandFile=""
+                 description="%example_11_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_12_title"
+                 id="com.ti.rtsc.DSPBIOS.example_12"
+                 linkerCommandFile=""
+                 description="%example_12_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_13_title"
+                 id="com.ti.rtsc.DSPBIOS.example_13"
+                 linkerCommandFile=""
+                 description="%example_13_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_14_title"
+                 id="com.ti.rtsc.DSPBIOS.example_14"
+                 linkerCommandFile=""
+                 description="%example_14_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_15_title"
+                 id="com.ti.rtsc.DSPBIOS.example_15"
+                 linkerCommandFile=""
+                 description="%example_15_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp28335"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp28335/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_16_title"
+                 id="com.ti.rtsc.DSPBIOS.example_16"
+                 linkerCommandFile=""
+                 description="%example_16_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_17_title"
+                 id="com.ti.rtsc.DSPBIOS.example_17"
+                 linkerCommandFile=""
+                 description="%example_17_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_18_title"
+                 id="com.ti.rtsc.DSPBIOS.example_18"
+                 linkerCommandFile=""
+                 description="%example_18_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_19_title"
+                 id="com.ti.rtsc.DSPBIOS.example_19"
+                 linkerCommandFile=""
+                 description="%example_19_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_20_title"
+                 id="com.ti.rtsc.DSPBIOS.example_20"
+                 linkerCommandFile=""
+                 description="%example_20_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_21_title"
+                 id="com.ti.rtsc.DSPBIOS.example_21"
+                 linkerCommandFile=""
+                 description="%example_21_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_22_title"
+                 id="com.ti.rtsc.DSPBIOS.example_22"
+                 linkerCommandFile=""
+                 description="%example_22_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_23_title"
+                 id="com.ti.rtsc.DSPBIOS.example_23"
+                 linkerCommandFile=""
+                 description="%example_23_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28055"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28055/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_24_title"
+                 id="com.ti.rtsc.DSPBIOS.example_24"
+                 linkerCommandFile=""
+                 description="%example_24_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_25_title"
+                 id="com.ti.rtsc.DSPBIOS.example_25"
+                 linkerCommandFile=""
+                 description="%example_25_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_26_title"
+                 id="com.ti.rtsc.DSPBIOS.example_26"
+                 linkerCommandFile=""
+                 description="%example_26_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_27_title"
+                 id="com.ti.rtsc.DSPBIOS.example_27"
+                 linkerCommandFile=""
+                 description="%example_27_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_28_title"
+                 id="com.ti.rtsc.DSPBIOS.example_28"
+                 linkerCommandFile=""
+                 description="%example_28_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_29_title"
+                 id="com.ti.rtsc.DSPBIOS.example_29"
+                 linkerCommandFile=""
+                 description="%example_29_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_30_title"
+                 id="com.ti.rtsc.DSPBIOS.example_30"
+                 linkerCommandFile=""
+                 description="%example_30_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C2000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_31_title"
+                 id="com.ti.rtsc.DSPBIOS.example_31"
+                 linkerCommandFile=""
+                 description="%example_31_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.control28069"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/control28069/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_32_title"
+                 id="com.ti.rtsc.DSPBIOS.example_32"
+                 linkerCommandFile=""
+                 description="%example_32_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_33_title"
+                 id="com.ti.rtsc.DSPBIOS.example_33"
+                 linkerCommandFile=""
+                 description="%example_33_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_34_title"
+                 id="com.ti.rtsc.DSPBIOS.example_34"
+                 linkerCommandFile=""
+                 description="%example_34_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_35_title"
+                 id="com.ti.rtsc.DSPBIOS.example_35"
+                 linkerCommandFile=""
+                 description="%example_35_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_36_title"
+                 id="com.ti.rtsc.DSPBIOS.example_36"
+                 linkerCommandFile=""
+                 description="%example_36_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_37_title"
+                 id="com.ti.rtsc.DSPBIOS.example_37"
+                 linkerCommandFile=""
+                 description="%example_37_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_38_title"
+                 id="com.ti.rtsc.DSPBIOS.example_38"
+                 linkerCommandFile=""
+                 description="%example_38_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_39_title"
+                 id="com.ti.rtsc.DSPBIOS.example_39"
+                 linkerCommandFile=""
+                 description="%example_39_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5502"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5502/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_40_title"
+                 id="com.ti.rtsc.DSPBIOS.example_40"
+                 linkerCommandFile=""
+                 description="%example_40_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_41_title"
+                 id="com.ti.rtsc.DSPBIOS.example_41"
+                 linkerCommandFile=""
+                 description="%example_41_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_42_title"
+                 id="com.ti.rtsc.DSPBIOS.example_42"
+                 linkerCommandFile=""
+                 description="%example_42_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_43_title"
+                 id="com.ti.rtsc.DSPBIOS.example_43"
+                 linkerCommandFile=""
+                 description="%example_43_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_44_title"
+                 id="com.ti.rtsc.DSPBIOS.example_44"
+                 linkerCommandFile=""
+                 description="%example_44_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_45_title"
+                 id="com.ti.rtsc.DSPBIOS.example_45"
+                 linkerCommandFile=""
+                 description="%example_45_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_46_title"
+                 id="com.ti.rtsc.DSPBIOS.example_46"
+                 linkerCommandFile=""
+                 description="%example_46_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_47_title"
+                 id="com.ti.rtsc.DSPBIOS.example_47"
+                 linkerCommandFile=""
+                 description="%example_47_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5505"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5505/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_48_title"
+                 id="com.ti.rtsc.DSPBIOS.example_48"
+                 linkerCommandFile=""
+                 description="%example_48_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_49_title"
+                 id="com.ti.rtsc.DSPBIOS.example_49"
+                 linkerCommandFile=""
+                 description="%example_49_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_50_title"
+                 id="com.ti.rtsc.DSPBIOS.example_50"
+                 linkerCommandFile=""
+                 description="%example_50_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_51_title"
+                 id="com.ti.rtsc.DSPBIOS.example_51"
+                 linkerCommandFile=""
+                 description="%example_51_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_52_title"
+                 id="com.ti.rtsc.DSPBIOS.example_52"
+                 linkerCommandFile=""
+                 description="%example_52_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_53_title"
+                 id="com.ti.rtsc.DSPBIOS.example_53"
+                 linkerCommandFile=""
+                 description="%example_53_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_54_title"
+                 id="com.ti.rtsc.DSPBIOS.example_54"
+                 linkerCommandFile=""
+                 description="%example_54_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_55_title"
+                 id="com.ti.rtsc.DSPBIOS.example_55"
+                 linkerCommandFile=""
+                 description="%example_55_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5535"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5535/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_56_title"
+                 id="com.ti.rtsc.DSPBIOS.example_56"
+                 linkerCommandFile=""
+                 description="%example_56_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_57_title"
+                 id="com.ti.rtsc.DSPBIOS.example_57"
+                 linkerCommandFile=""
+                 description="%example_57_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_58_title"
+                 id="com.ti.rtsc.DSPBIOS.example_58"
+                 linkerCommandFile=""
+                 description="%example_58_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_59_title"
+                 id="com.ti.rtsc.DSPBIOS.example_59"
+                 linkerCommandFile=""
+                 description="%example_59_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_60_title"
+                 id="com.ti.rtsc.DSPBIOS.example_60"
+                 linkerCommandFile=""
+                 description="%example_60_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_61_title"
+                 id="com.ti.rtsc.DSPBIOS.example_61"
+                 linkerCommandFile=""
+                 description="%example_61_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_62_title"
+                 id="com.ti.rtsc.DSPBIOS.example_62"
+                 linkerCommandFile=""
+                 description="%example_62_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_63_title"
+                 id="com.ti.rtsc.DSPBIOS.example_63"
+                 linkerCommandFile=""
+                 description="%example_63_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5515"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5515/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_64_title"
+                 id="com.ti.rtsc.DSPBIOS.example_64"
+                 linkerCommandFile=""
+                 description="%example_64_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_65_title"
+                 id="com.ti.rtsc.DSPBIOS.example_65"
+                 linkerCommandFile=""
+                 description="%example_65_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_66_title"
+                 id="com.ti.rtsc.DSPBIOS.example_66"
+                 linkerCommandFile=""
+                 description="%example_66_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_67_title"
+                 id="com.ti.rtsc.DSPBIOS.example_67"
+                 linkerCommandFile=""
+                 description="%example_67_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_68_title"
+                 id="com.ti.rtsc.DSPBIOS.example_68"
+                 linkerCommandFile=""
+                 description="%example_68_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_69_title"
+                 id="com.ti.rtsc.DSPBIOS.example_69"
+                 linkerCommandFile=""
+                 description="%example_69_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_70_title"
+                 id="com.ti.rtsc.DSPBIOS.example_70"
+                 linkerCommandFile=""
+                 description="%example_70_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_71_title"
+                 id="com.ti.rtsc.DSPBIOS.example_71"
+                 linkerCommandFile=""
+                 description="%example_71_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm5517"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm5517/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_72_title"
+                 id="com.ti.rtsc.DSPBIOS.example_72"
+                 linkerCommandFile=""
+                 description="%example_72_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_73_title"
+                 id="com.ti.rtsc.DSPBIOS.example_73"
+                 linkerCommandFile=""
+                 description="%example_73_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_74_title"
+                 id="com.ti.rtsc.DSPBIOS.example_74"
+                 linkerCommandFile=""
+                 description="%example_74_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_75_title"
+                 id="com.ti.rtsc.DSPBIOS.example_75"
+                 linkerCommandFile=""
+                 description="%example_75_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_76_title"
+                 id="com.ti.rtsc.DSPBIOS.example_76"
+                 linkerCommandFile=""
+                 description="%example_76_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_77_title"
+                 id="com.ti.rtsc.DSPBIOS.example_77"
+                 linkerCommandFile=""
+                 description="%example_77_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_78_title"
+                 id="com.ti.rtsc.DSPBIOS.example_78"
+                 linkerCommandFile=""
+                 description="%example_78_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_79_title"
+                 id="com.ti.rtsc.DSPBIOS.example_79"
+                 linkerCommandFile=""
+                 description="%example_79_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk5510"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk5510/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_80_title"
+                 id="com.ti.rtsc.DSPBIOS.example_80"
+                 linkerCommandFile=""
+                 description="%example_80_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_81_title"
+                 id="com.ti.rtsc.DSPBIOS.example_81"
+                 linkerCommandFile=""
+                 description="%example_81_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_82_title"
+                 id="com.ti.rtsc.DSPBIOS.example_82"
+                 linkerCommandFile=""
+                 description="%example_82_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_83_title"
+                 id="com.ti.rtsc.DSPBIOS.example_83"
+                 linkerCommandFile=""
+                 description="%example_83_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_84_title"
+                 id="com.ti.rtsc.DSPBIOS.example_84"
+                 linkerCommandFile=""
+                 description="%example_84_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_85_title"
+                 id="com.ti.rtsc.DSPBIOS.example_85"
+                 linkerCommandFile=""
+                 description="%example_85_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_86_title"
+                 id="com.ti.rtsc.DSPBIOS.example_86"
+                 linkerCommandFile=""
+                 description="%example_86_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C5500"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_87_title"
+                 id="com.ti.rtsc.DSPBIOS.example_87"
+                 linkerCommandFile=""
+                 description="%example_87_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.ezdsp5505"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/ezdsp5505/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_88_title"
+                 id="com.ti.rtsc.DSPBIOS.example_88"
+                 linkerCommandFile=""
+                 description="%example_88_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_89_title"
+                 id="com.ti.rtsc.DSPBIOS.example_89"
+                 linkerCommandFile=""
+                 description="%example_89_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_90_title"
+                 id="com.ti.rtsc.DSPBIOS.example_90"
+                 linkerCommandFile=""
+                 description="%example_90_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_91_title"
+                 id="com.ti.rtsc.DSPBIOS.example_91"
+                 linkerCommandFile=""
+                 description="%example_91_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_92_title"
+                 id="com.ti.rtsc.DSPBIOS.example_92"
+                 linkerCommandFile=""
+                 description="%example_92_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_93_title"
+                 id="com.ti.rtsc.DSPBIOS.example_93"
+                 linkerCommandFile=""
+                 description="%example_93_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_94_title"
+                 id="com.ti.rtsc.DSPBIOS.example_94"
+                 linkerCommandFile=""
+                 description="%example_94_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_95_title"
+                 id="com.ti.rtsc.DSPBIOS.example_95"
+                 linkerCommandFile=""
+                 description="%example_95_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6416"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6416/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_96_title"
+                 id="com.ti.rtsc.DSPBIOS.example_96"
+                 linkerCommandFile=""
+                 description="%example_96_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_97_title"
+                 id="com.ti.rtsc.DSPBIOS.example_97"
+                 linkerCommandFile=""
+                 description="%example_97_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_98_title"
+                 id="com.ti.rtsc.DSPBIOS.example_98"
+                 linkerCommandFile=""
+                 description="%example_98_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_99_title"
+                 id="com.ti.rtsc.DSPBIOS.example_99"
+                 linkerCommandFile=""
+                 description="%example_99_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_100_title"
+                 id="com.ti.rtsc.DSPBIOS.example_100"
+                 linkerCommandFile=""
+                 description="%example_100_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_101_title"
+                 id="com.ti.rtsc.DSPBIOS.example_101"
+                 linkerCommandFile=""
+                 description="%example_101_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_102_title"
+                 id="com.ti.rtsc.DSPBIOS.example_102"
+                 linkerCommandFile=""
+                 description="%example_102_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_103_title"
+                 id="com.ti.rtsc.DSPBIOS.example_103"
+                 linkerCommandFile=""
+                 description="%example_103_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.dsk6455"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/dsk6455/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_104_title"
+                 id="com.ti.rtsc.DSPBIOS.example_104"
+                 linkerCommandFile=""
+                 description="%example_104_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_105_title"
+                 id="com.ti.rtsc.DSPBIOS.example_105"
+                 linkerCommandFile=""
+                 description="%example_105_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_106_title"
+                 id="com.ti.rtsc.DSPBIOS.example_106"
+                 linkerCommandFile=""
+                 description="%example_106_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_107_title"
+                 id="com.ti.rtsc.DSPBIOS.example_107"
+                 linkerCommandFile=""
+                 description="%example_107_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_108_title"
+                 id="com.ti.rtsc.DSPBIOS.example_108"
+                 linkerCommandFile=""
+                 description="%example_108_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_109_title"
+                 id="com.ti.rtsc.DSPBIOS.example_109"
+                 linkerCommandFile=""
+                 description="%example_109_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_110_title"
+                 id="com.ti.rtsc.DSPBIOS.example_110"
+                 linkerCommandFile=""
+                 description="%example_110_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_111_title"
+                 id="com.ti.rtsc.DSPBIOS.example_111"
+                 linkerCommandFile=""
+                 description="%example_111_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6424"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6424/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_112_title"
+                 id="com.ti.rtsc.DSPBIOS.example_112"
+                 linkerCommandFile=""
+                 description="%example_112_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_113_title"
+                 id="com.ti.rtsc.DSPBIOS.example_113"
+                 linkerCommandFile=""
+                 description="%example_113_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_114_title"
+                 id="com.ti.rtsc.DSPBIOS.example_114"
+                 linkerCommandFile=""
+                 description="%example_114_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_115_title"
+                 id="com.ti.rtsc.DSPBIOS.example_115"
+                 linkerCommandFile=""
+                 description="%example_115_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_116_title"
+                 id="com.ti.rtsc.DSPBIOS.example_116"
+                 linkerCommandFile=""
+                 description="%example_116_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_117_title"
+                 id="com.ti.rtsc.DSPBIOS.example_117"
+                 linkerCommandFile=""
+                 description="%example_117_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_118_title"
+                 id="com.ti.rtsc.DSPBIOS.example_118"
+                 linkerCommandFile=""
+                 description="%example_118_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_119_title"
+                 id="com.ti.rtsc.DSPBIOS.example_119"
+                 linkerCommandFile=""
+                 description="%example_119_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6474"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6474/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_120_title"
+                 id="com.ti.rtsc.DSPBIOS.example_120"
+                 linkerCommandFile=""
+                 description="%example_120_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_121_title"
+                 id="com.ti.rtsc.DSPBIOS.example_121"
+                 linkerCommandFile=""
+                 description="%example_121_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_122_title"
+                 id="com.ti.rtsc.DSPBIOS.example_122"
+                 linkerCommandFile=""
+                 description="%example_122_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_123_title"
+                 id="com.ti.rtsc.DSPBIOS.example_123"
+                 linkerCommandFile=""
+                 description="%example_123_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_124_title"
+                 id="com.ti.rtsc.DSPBIOS.example_124"
+                 linkerCommandFile=""
+                 description="%example_124_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_125_title"
+                 id="com.ti.rtsc.DSPBIOS.example_125"
+                 linkerCommandFile=""
+                 description="%example_125_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_126_title"
+                 id="com.ti.rtsc.DSPBIOS.example_126"
+                 linkerCommandFile=""
+                 description="%example_126_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_127_title"
+                 id="com.ti.rtsc.DSPBIOS.example_127"
+                 linkerCommandFile=""
+                 description="%example_127_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6747"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6747/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_128_title"
+                 id="com.ti.rtsc.DSPBIOS.example_128"
+                 linkerCommandFile=""
+                 description="%example_128_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_129_title"
+                 id="com.ti.rtsc.DSPBIOS.example_129"
+                 linkerCommandFile=""
+                 description="%example_129_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_130_title"
+                 id="com.ti.rtsc.DSPBIOS.example_130"
+                 linkerCommandFile=""
+                 description="%example_130_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_131_title"
+                 id="com.ti.rtsc.DSPBIOS.example_131"
+                 linkerCommandFile=""
+                 description="%example_131_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_132_title"
+                 id="com.ti.rtsc.DSPBIOS.example_132"
+                 linkerCommandFile=""
+                 description="%example_132_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_133_title"
+                 id="com.ti.rtsc.DSPBIOS.example_133"
+                 linkerCommandFile=""
+                 description="%example_133_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_134_title"
+                 id="com.ti.rtsc.DSPBIOS.example_134"
+                 linkerCommandFile=""
+                 description="%example_134_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_135_title"
+                 id="com.ti.rtsc.DSPBIOS.example_135"
+                 linkerCommandFile=""
+                 description="%example_135_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evm6748"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evm6748/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_136_title"
+                 id="com.ti.rtsc.DSPBIOS.example_136"
+                 linkerCommandFile=""
+                 description="%example_136_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_137_title"
+                 id="com.ti.rtsc.DSPBIOS.example_137"
+                 linkerCommandFile=""
+                 description="%example_137_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_138_title"
+                 id="com.ti.rtsc.DSPBIOS.example_138"
+                 linkerCommandFile=""
+                 description="%example_138_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_139_title"
+                 id="com.ti.rtsc.DSPBIOS.example_139"
+                 linkerCommandFile=""
+                 description="%example_139_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_140_title"
+                 id="com.ti.rtsc.DSPBIOS.example_140"
+                 linkerCommandFile=""
+                 description="%example_140_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_141_title"
+                 id="com.ti.rtsc.DSPBIOS.example_141"
+                 linkerCommandFile=""
+                 description="%example_141_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_142_title"
+                 id="com.ti.rtsc.DSPBIOS.example_142"
+                 linkerCommandFile=""
+                 description="%example_142_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_143_title"
+                 id="com.ti.rtsc.DSPBIOS.example_143"
+                 linkerCommandFile=""
+                 description="%example_143_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6437"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6437/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_144_title"
+                 id="com.ti.rtsc.DSPBIOS.example_144"
+                 linkerCommandFile=""
+                 description="%example_144_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_145_title"
+                 id="com.ti.rtsc.DSPBIOS.example_145"
+                 linkerCommandFile=""
+                 description="%example_145_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_146_title"
+                 id="com.ti.rtsc.DSPBIOS.example_146"
+                 linkerCommandFile=""
+                 description="%example_146_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_147_title"
+                 id="com.ti.rtsc.DSPBIOS.example_147"
+                 linkerCommandFile=""
+                 description="%example_147_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_148_title"
+                 id="com.ti.rtsc.DSPBIOS.example_148"
+                 linkerCommandFile=""
+                 description="%example_148_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_149_title"
+                 id="com.ti.rtsc.DSPBIOS.example_149"
+                 linkerCommandFile=""
+                 description="%example_149_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_150_title"
+                 id="com.ti.rtsc.DSPBIOS.example_150"
+                 linkerCommandFile=""
+                 description="%example_150_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_151_title"
+                 id="com.ti.rtsc.DSPBIOS.example_151"
+                 linkerCommandFile=""
+                 description="%example_151_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6446"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6446/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_152_title"
+                 id="com.ti.rtsc.DSPBIOS.example_152"
+                 linkerCommandFile=""
+                 description="%example_152_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_153_title"
+                 id="com.ti.rtsc.DSPBIOS.example_153"
+                 linkerCommandFile=""
+                 description="%example_153_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_154_title"
+                 id="com.ti.rtsc.DSPBIOS.example_154"
+                 linkerCommandFile=""
+                 description="%example_154_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_155_title"
+                 id="com.ti.rtsc.DSPBIOS.example_155"
+                 linkerCommandFile=""
+                 description="%example_155_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_156_title"
+                 id="com.ti.rtsc.DSPBIOS.example_156"
+                 linkerCommandFile=""
+                 description="%example_156_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_157_title"
+                 id="com.ti.rtsc.DSPBIOS.example_157"
+                 linkerCommandFile=""
+                 description="%example_157_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_158_title"
+                 id="com.ti.rtsc.DSPBIOS.example_158"
+                 linkerCommandFile=""
+                 description="%example_158_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_159_title"
+                 id="com.ti.rtsc.DSPBIOS.example_159"
+                 linkerCommandFile=""
+                 description="%example_159_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmDM6467"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmDM6467/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_160_title"
+                 id="com.ti.rtsc.DSPBIOS.example_160"
+                 linkerCommandFile=""
+                 description="%example_160_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_161_title"
+                 id="com.ti.rtsc.DSPBIOS.example_161"
+                 linkerCommandFile=""
+                 description="%example_161_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_162_title"
+                 id="com.ti.rtsc.DSPBIOS.example_162"
+                 linkerCommandFile=""
+                 description="%example_162_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_163_title"
+                 id="com.ti.rtsc.DSPBIOS.example_163"
+                 linkerCommandFile=""
+                 description="%example_163_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_164_title"
+                 id="com.ti.rtsc.DSPBIOS.example_164"
+                 linkerCommandFile=""
+                 description="%example_164_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_165_title"
+                 id="com.ti.rtsc.DSPBIOS.example_165"
+                 linkerCommandFile=""
+                 description="%example_165_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_166_title"
+                 id="com.ti.rtsc.DSPBIOS.example_166"
+                 linkerCommandFile=""
+                 description="%example_166_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_167_title"
+                 id="com.ti.rtsc.DSPBIOS.example_167"
+                 linkerCommandFile=""
+                 description="%example_167_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL137"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL137/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_168_title"
+                 id="com.ti.rtsc.DSPBIOS.example_168"
+                 linkerCommandFile=""
+                 description="%example_168_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_169_title"
+                 id="com.ti.rtsc.DSPBIOS.example_169"
+                 linkerCommandFile=""
+                 description="%example_169_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_170_title"
+                 id="com.ti.rtsc.DSPBIOS.example_170"
+                 linkerCommandFile=""
+                 description="%example_170_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_171_title"
+                 id="com.ti.rtsc.DSPBIOS.example_171"
+                 linkerCommandFile=""
+                 description="%example_171_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_172_title"
+                 id="com.ti.rtsc.DSPBIOS.example_172"
+                 linkerCommandFile=""
+                 description="%example_172_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_173_title"
+                 id="com.ti.rtsc.DSPBIOS.example_173"
+                 linkerCommandFile=""
+                 description="%example_173_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_174_title"
+                 id="com.ti.rtsc.DSPBIOS.example_174"
+                 linkerCommandFile=""
+                 description="%example_174_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_175_title"
+                 id="com.ti.rtsc.DSPBIOS.example_175"
+                 linkerCommandFile=""
+                 description="%example_175_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.evmOMAPL138"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/evmOMAPL138/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_176_title"
+                 id="com.ti.rtsc.DSPBIOS.example_176"
+                 linkerCommandFile=""
+                 description="%example_176_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_177_title"
+                 id="com.ti.rtsc.DSPBIOS.example_177"
+                 linkerCommandFile=""
+                 description="%example_177_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_178_title"
+                 id="com.ti.rtsc.DSPBIOS.example_178"
+                 linkerCommandFile=""
+                 description="%example_178_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_179_title"
+                 id="com.ti.rtsc.DSPBIOS.example_179"
+                 linkerCommandFile=""
+                 description="%example_179_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_180_title"
+                 id="com.ti.rtsc.DSPBIOS.example_180"
+                 linkerCommandFile=""
+                 description="%example_180_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_181_title"
+                 id="com.ti.rtsc.DSPBIOS.example_181"
+                 linkerCommandFile=""
+                 description="%example_181_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_182_title"
+                 id="com.ti.rtsc.DSPBIOS.example_182"
+                 linkerCommandFile=""
+                 description="%example_182_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_183_title"
+                 id="com.ti.rtsc.DSPBIOS.example_183"
+                 linkerCommandFile=""
+                 description="%example_183_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.padk6727"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/padk6727/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_184_title"
+                 id="com.ti.rtsc.DSPBIOS.example_184"
+                 linkerCommandFile=""
+                 description="%example_184_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/bigtime.cpp" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/bigtime.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_185_title"
+                 id="com.ti.rtsc.DSPBIOS.example_185"
+                 linkerCommandFile=""
+                 description="%example_185_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/clk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/clk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_186_title"
+                 id="com.ti.rtsc.DSPBIOS.example_186"
+                 linkerCommandFile=""
+                 description="%example_186_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/hello.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/hello.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_187_title"
+                 id="com.ti.rtsc.DSPBIOS.example_187"
+                 linkerCommandFile=""
+                 description="%example_187_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/mailbox.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/mailbox.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_188_title"
+                 id="com.ti.rtsc.DSPBIOS.example_188"
+                 linkerCommandFile=""
+                 description="%example_188_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/semaphore.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/semaphore.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_189_title"
+                 id="com.ti.rtsc.DSPBIOS.example_189"
+                 linkerCommandFile=""
+                 description="%example_189_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/stairstep.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/stairstep.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_190_title"
+                 id="com.ti.rtsc.DSPBIOS.example_190"
+                 linkerCommandFile=""
+                 description="%example_190_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/swi.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/swi.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+        <templateSet>
+            <applicability>
+                <when>
+                    <context
+                       deviceFamily="C6000"
+                       toolChain="TI"
+                    />
+               </when>
+            </applicability>
+             <template
+                 title="%example_191_title"
+                 id="com.ti.rtsc.DSPBIOS.example_191"
+                 linkerCommandFile=""
+                 description="%example_191_description">
+                 <property name="type" value="bios5"/>
+                 <property name="products" value="com.ti.rtsc.DSPBIOS"/>
+                 <group id="ti.bios.examples.root.sim6416"/>
+                 <file path="resources/tsk.c" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+                 <file path="resources/sim6416/tsk.tcf" openOnCreation="false" excludeFromBuild="false">
+                 </file>
+             </template>
+        </templateSet>
+    </extension>
+
+
+</plugin>

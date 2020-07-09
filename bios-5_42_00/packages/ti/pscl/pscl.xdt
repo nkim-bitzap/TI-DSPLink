@@ -1,0 +1,10 @@
+%/*
+% *  Copyright 2012 by Texas Instruments Incorporated.
+% *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+% */
+%%{
+    var pmiLib = (new java.io.File(this.packageBase + '/lib')).getCanonicalPath() + "/";
+%%}
+
+/* define the library search paths */
+-i"`pmiLib`"

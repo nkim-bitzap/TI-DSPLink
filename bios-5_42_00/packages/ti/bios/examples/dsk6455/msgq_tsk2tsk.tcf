@@ -1,0 +1,66 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== msgq_tsk2tsk.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.dsk6455");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Enable heaps in IRAM and define label SEG0 for heap usage.
+ */
+
+ 
+bios.IRAM.createHeap      = true;
+bios.IRAM.enableHeapLabel = true;
+bios.IRAM["heapLabel"]    = prog.extern("SEG0");
+bios.IRAM.heapSize        = 0x2000;
+bios.MEM.BIOSOBJSEG = prog.get("IRAM");
+bios.MEM.MALLOCSEG = prog.get("IRAM");
+
+/*
+ *  The following statements will enable the MAR bits for MAR 224 to MAR 239
+ *  This will make the external memory range (0xE0000000-0xEFFFFFFF) cacheable.
+ */
+
+bios.GBL.C64PLUSCONFIGURE = 1;
+bios.GBL.C64PLUSMAR224to255 = 0x0000ffff;
+
+
+/* 
+ * Create a LOG object logTrace 
+ */
+var trace      = bios.LOG.create( "trace" );
+trace.comment  = "default LOG object for application messages";
+trace.bufLen   = 256;
+
+/* 
+ *  Change the size of the LOG_system object to a value large enough
+ */
+bios.LOG_system.bufLen = 256;
+
+/*  Enable TSK Manger and shrink the default stack size */
+bios.enableTskManager(prog);
+bios.TSK.STACKSIZE = 0x200;
+
+/*  Enable MSGQ and POOL Managers */
+bios.MSGQ.ENABLEMSGQ=true;
+bios.POOL.ENABLEPOOL=true;
+
+
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

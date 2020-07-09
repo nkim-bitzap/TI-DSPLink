@@ -1,0 +1,62 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== msgq_swi2swi.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.evm5505");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Enable heaps in DARAM and define label SEG0 for heap usage.
+ */
+
+bios.DARAM.createHeap      = true;
+bios.DARAM.enableHeapLabel = true;
+bios.DARAM["heapLabel"]    = prog.extern("SEG0");
+bios.DARAM.heapSize        = 0x500;
+bios.MEM.BIOSOBJSEG = prog.get("DARAM");
+bios.MEM.MALLOCSEG = prog.get("DARAM");
+
+
+/*
+ *  Define the GBL memory model 
+ */
+
+bios.GBL.MEMORYMODEL = "LARGE";
+/* 
+ * Create a LOG object logTrace 
+ */
+var trace      = bios.LOG.create( "trace" );
+trace.comment  = "default LOG object for application messages";
+trace.bufLen   = 256;
+
+/* 
+ *  Change the size of the LOG_system object to a value large enough
+ */
+bios.LOG_system.bufLen = 256;
+
+/*  Enable TSK Manger */
+bios.enableTskManager(prog);
+
+/*  Enable MSGQ and POOL Managers */
+bios.MSGQ.ENABLEMSGQ=true;
+bios.POOL.ENABLEPOOL=true;
+
+
+
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

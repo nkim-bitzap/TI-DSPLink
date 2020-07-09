@@ -1,0 +1,75 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== tsk.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.ezdsp2812");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Turn on heaps in L0SARAM and define label SEG0 for heap usage 
+ * if this program has useMemSettings true.
+ */
+bios.LSARAM.createHeap = true;
+bios.LSARAM.heapSize = 0x01f0;
+bios.LSARAM.enableHeapLabel = true;
+bios.LSARAM["heapLabel"] = prog.extern("SEG0");
+bios.MEM.BIOSOBJSEG = prog.get("LSARAM");
+bios.MEM.MALLOCSEG = prog.get("LSARAM");
+bios.MEM.GBLINITSEG = prog.get("LSARAM");
+bios.MEM.TRCDATASEG = prog.get("LSARAM");
+bios.MEM.CINITSEG = prog.get("SRAM");
+
+/*
+ * Enable heaps in external SRAM and define label SEG1 for heap usage.
+ */
+
+bios.SRAM.createHeap      = true;
+bios.SRAM.enableHeapLabel = true;
+bios.SRAM["heapLabel"]    = prog.extern("SEG1");
+bios.SRAM.heapSize        = 0x4000;
+bios.MEM.BIOSOBJSEG = prog.get("SRAM");
+bios.MEM.MALLOCSEG = prog.get("SRAM");
+
+/* Increase the buffer size of the LOG_system LOG object */
+
+bios.LOG_system.bufLen = 512;
+
+/* Create a trace LOG object for printing basic program output.  */
+
+var trace = bios.LOG.create("trace");
+trace.bufLen = 1024;
+trace.logType = "circular";
+
+/* Create three TSKs of equal priority */
+
+var task0 = bios.TSK.create("task0");
+task0.priority = 1;
+task0["fxn"] = prog.extern("task");
+task0.arg0 = 0;
+
+var task1 = bios.TSK.create("task1");
+task1.priority = 1;
+task1["fxn"] = prog.extern("task");
+task1.arg0 = 1;
+
+var task2 = bios.TSK.create("task2");
+task2.priority = 1;
+task2["fxn"] = prog.extern("task");
+task2.arg0 = 2;
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

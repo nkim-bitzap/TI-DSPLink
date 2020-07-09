@@ -1,0 +1,11 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+utils.importFile("ti/bios/config/bios_3430.tci");
+
+/*
+ *  ======== bios.init3525 ========
+ *  BIOS initialization for 3525 is same as for 3430
+ */
+bios.init3525 = bios.init3430;

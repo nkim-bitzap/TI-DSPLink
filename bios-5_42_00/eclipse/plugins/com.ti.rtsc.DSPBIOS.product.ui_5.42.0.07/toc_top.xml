@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="DSP/BIOS  5.42.00.07"
+>
+    <topic label="Release Notes" href="Bios_5_42_00_07_release_notes.html"/>            
+    <topic label="Getting Started Guide" href="SetupGuide.html"/>            
+    <topic label="User's Guide" href="spru423i.pdf"/>            
+    <topic label="Tconf User's Guide" href="spru007h.pdf"/>            
+    <topic label="C28x API Reference" href="spru625l.pdf"/>            
+    <topic label="C55x API Reference" href="spru404q.pdf"/>            
+    <topic label="C6x API Reference" href="spru403s.pdf"/>            
+</toc>

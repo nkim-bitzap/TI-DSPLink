@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- --COPYRIGHT--,BSD
+ *  Copyright (c) 2012, Texas Instruments Incorporated
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *  *  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *  *  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ *  *  Neither the name of Texas Instruments Incorporated nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ *  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --/COPYRIGHT--
+-->
+<html>
+<head>
+    <title>DSP Link 1.65.02.09 Release Notes </title>
+    <!-- For now, we use the doxygen style sheet -->
+    <link type="text/css" rel="stylesheet" href="dsplink/doc/source_documentation/html/doxygen.css">
+    <!-- doxygen's css .memproto's all have tables for a little extra pad...
+         don't like tables, so give 'em a little extra left pad ourselves
+    --->
+    <style type="text/css">
+    body {
+        margin: 20px;
+    }
+    .memproto {
+        padding-left: 6px;
+    }
+    </style>
+</head>
+<body>
+<table width="100%">
+  <tbody>
+    <tr>
+      <td bgcolor="black" width="1">
+        <a href="http://www.ti.com">
+          <img border=0 src="dsplink/doc/source_documentation/html/tilogo.gif" alt="Texas Instruments">
+        </a>
+      </td>
+      <td bgcolor="red">
+        <img src="dsplink/doc/source_documentation/html/titagline.gif" alt="Technology for Innovators(tm)">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 align="center">DSP Link 1.65.02.09 Release Notes </h1>
+<h2 align="center">October 2012</h2>
+
+<p>
+This DSP Link Release is targeted to DSP/BIOS 5-based platforms.
+</p>
+<p align="center">
+<a href="#Introduction">Introduction</a>,
+<a href="#Documentation">Documentation</a>,
+<a href="#Whats_New">What's New</a>,
+<a href="#Upgrade_Info">Upgrade Info</a>,
+<a href="#Compatibility">Compatibility Information</a>,
+<a href="#Device_Support">Device Support</a>,
+<a href="#Validation">Validation Info</a>,
+<a href="#Known_Issues">Known Issues</a>,
+<a href="#Examples">Examples</a>,
+<a href="#Version">Version Information</a>,
+<a href="#Support">Technical Support</a>.
+</p>
+
+<hr>
+
+<h2><a name="Introduction">Introduction</a></h2>
+
+<p>
+DSP Link is foundation software for the inter-processor communication
+across the GPP-DSP boundary.  It provides a generic API that abstracts the
+characteristics of the physical link connecting GPP and DSP from the
+applications. It eliminates the need for customers to develop such link from
+scratch and allows them to focus more on application development.
+</p>
+<p>
+The DSP/BIOS RTOS is expected to be running on the DSP.
+</p>
+
+<hr>
+
+<h2><a name="Documentation">Documentation</a></h2>
+<p>
+The following documentation is available:
+</p>
+<ul>
+  <li>
+    <a href="dsplink/doc/UserGuide.pdf">
+    DSP Link Users' Guide</a>
+  </li>
+  <li>DSP Link Application Programming Interface (API) Reference
+  Guide (<a href="dsplink/doc/source_documentation/html/index.html">HTML</a>)</li>
+  <li>
+    <a href="dsplink/doc/index.html">
+    More documentation is available in the dsplink/doc directory</a>
+  </li>
+</ul>
+
+<p>
+In addition, users are encouraged to monitor (and contribute to!) the
+<a href="http://processors.wiki.ti.com">TI Embedded Processors Wiki</a>.
+</p>
+
+<hr>
+<h2><a name="Whats_New">What's New</a></h2>
+<p>The following significant changes have been made since 1.65</p>
+
+<div class="memitem">
+<div class="memproto">1.65.02.09 </div>
+
+<div class="memdoc">
+<ul>
+<!--
+  <li>New features
+    <ul>
+      <li></li>
+    </ul>
+  </li>
+  <br />
+-->
+  <li>The following defects were resolved:
+<table width="100%">
+  <colgroup width="20%">
+  <tbody>
+    <tr>
+      <td><b>ID</b></td>
+      <td><b>Headline</b></td>
+    </tr>
+    <tr>
+      <td>SDOCM00093829</td>
+      <td>WinCE file drv_pmgr.c has too many closing curly braces "}" for "case CMD_IDM_ACQUIREID:" in DRV_CallAPI()
+</td>
+    </tr>
+    <tr>
+      <td>SDOCM00096486</td>
+      <td>Cleanup dpc functions when application terminated with non-catchable signal
+</td>
+    </tr>
+    <tr>
+      <td>SDOCM00092960</td>
+      <td>DSPLink API RingIO_open() can crash system when iterating beyond valid procId
+</td>
+    </tr>
+
+  </tbody>
+</table>
+</li>
+  <br />
+
+  <li>The following enhancements were resolved:
+<table width="100%">
+  <colgroup width="20%">
+  <tbody>
+    <tr>
+      <td><b>ID</b></td>
+      <td><b>Headline</b></td>
+    </tr>
+    <tr>
+      <td>SDOCM00092914</td>
+      <td>Send terminate event notification from host to dsp
+</td>
+    </tr>
+
+  </tbody>
+</table>
+</li>
+
+</ul>
+</div>
+</div>
+
+<br />
+
+<div class="memitem">
+<div class="memproto">1.65.01.06 </div>
+
+<div class="memdoc">
+<ul>
+<!--
+  <li>New features
+    <ul>
+      <li></li>
+    </ul>
+  </li>
+  <br />
+-->
+  <li>The following defects were resolved:
+<table width="100%">
+  <colgroup width="20%">
+  <tbody>
+    <tr>
+      <td><b>ID</b></td>
+      <td><b>Headline</b></td>
+    </tr>
+    <tr>
+      <td>SDOCM00081491</td>
+      <td>Need to update DSPLink kernel module to conform to newer unlocked_ioctl interface
+</td>
+    </tr>
+    <tr>
+      <td>SDOCM00084658</td>
+      <td>Memory leak when using COFF_MEM_LOADER option
+</td>
+    </tr>
+
+  </tbody>
+</table>
+</li>
+  <br />
+
+  <li>The following enhancements were resolved:
+<table width="100%">
+  <colgroup width="20%">
+  <tbody>
+    <tr>
+      <td><b>ID</b></td>
+      <td><b>Headline</b></td>
+    </tr>
+
+  </tbody>
+</table>
+</li>
+
+</ul>
+</div>
+</div>
+
+<br />
+
+<hr>
+<h2><a name="Upgrade_Info">Upgrade Information</a></h2>
+<p>
+<b>This DSP Link release is suitable for BIOS 5-based DVSDKs.</b>
+</p>
+
+<hr>
+<h2><a name="Device_Support">Device Support</a></h2>
+<p>
+This release supports the following devices.  Note that for licensing
+reasons, different OS's may require you to obtain different downloads
+(e.g. Linux downloads are licensed GPL, but WinCE downloads are licensed BSD).
+<ul>
+  <li>DM6446 EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (GPP)
+        and DSP/BIOS (DSP)</li>
+      <li>multiprocessor configuration, running WinCE (GPP)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+  <li>DM6467(T) EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (GPP)
+        and DSP/BIOS (DSP)</li>
+      <li>multiprocessor configuration, running WinCE (GPP)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+  <li>OMAP3530 EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (GPP)
+        and DSP/BIOS (DSP)</li>
+      <li>multiprocessor configuration, running WinCE (GPP)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+  <li>OMAP-L1XX EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (GPP)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Other devices and configurations supported in DSP Link 1.65.00.03 should
+also be supported.  Device support was not removed, although validation
+of this release is limited.
+</p>
+</p>
+
+
+<hr>
+<h2><a name="Validation">Validation</a></h2>
+<p>
+This release was built and validated against using the following software
+components:
+</p>
+<ul>
+<!--
+  <li>XDCtools <b>undefined</b></li>
+-->
+  <li>DSP/BIOS <b>5.41.03.17</b></li>
+<!-- TODO - autogenerate these -->
+<!--
+  <li>OMAP3 PSP <b>03.00.00.05</b></li>
+  <li>OMAP-L138 PSP <b>03.21.00.04</b></li>
+  <li>toolchains:
+    <ul>
+      <li>Linux GCC - <b>CodeSourcery 2009q1-203</b></li>
+      <li>ti.targets.C64P - <b>7.0.0</b></li>
+    </ul>
+  </li>
+-->
+</ul>
+
+<p>
+This release was validated using the following hardware platforms.  Note
+that other devices and configurations supported in DSP Link 1.65.00.03 should
+also be supported.  Device support was not removed, although validation
+of this release was limited.
+</p>
+
+<ul>
+  <li>OMAP3530 EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (A8)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+  <li>OMAP-L138 EVM:
+    <ul>
+      <li>multiprocessor configuration, running Linux (ARM 9)
+        and DSP/BIOS (DSP)</li>
+    </ul>
+  </li>
+</ul>
+
+
+<hr>
+<h2><a name="Known_Issues">Known Issues</a></h2>
+<p>
+Consult the <a href="https://cqweb.ext.ti.com/cqweb/main?command=GenerateMainFrame&service=CQ&schema=SDO-Web&contextid=SDOWP&queryID=34483205&entityDefName=IncidentReport&username=readonly&password=readonly">SDOWP database</a> for open issues.
+</p>
+
+<hr>
+<h2><a name="Version">Version Information</a></h2>
+<p>
+This product's version follows a version format, <b>M.mm.pp.bb</b>,
+where <b>M</b> is a single digit Major number, <b>mm</b> is 2 digit
+minor number, <b>pp</b> is a 2 digit patch number, and <b>b</b> is an
+unrestricted set of digits used as an incrementing build counter.
+</p>
+
+<p>
+To support multiple side-by-side installations of the product, the
+product version is encoded in the top level directory,
+ex. <b>dsplink_1_65_02_09</b>.
+</p>
+
+<p>
+Subsequent releases of patch upgrades will be identified by the patch
+number, ex. DSP Link 1.65.01.XX with directory <b>dsplink_1_65_01_XX</b>.
+Typically, these patches only include critical bug fixes.
+</p>
+
+<hr>
+<h2><a name="Support">Technical Support</a></h2>
+<p>For technical support, contact <a href="mailto:softwaresupport@ti.com">softwaresupport@ti.com</a></p>
+
+<p>
+Check the following web site for updates: <a href="http://software-dl.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/DSPLink/index.html">http://software-dl.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/DSPLink/index.html</a>
+</p>
+
+<hr>
+<p>
+Last updated: October 10, 2012
+</p>
+</body>
+</html>

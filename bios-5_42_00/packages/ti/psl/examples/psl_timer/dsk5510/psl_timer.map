@@ -1,0 +1,621 @@
+******************************************************************************
+         TMS320C55x COFF Linker Unix Version 2.56              
+******************************************************************************
+>> Linked Mon Sep 24 14:31:23 2007
+
+OUTPUT FILE NAME:   <psl_timer.out>
+ENTRY POINT SYMBOL: "_c_int00"  address: 00014a5f
+
+
+MEMORY CONFIGURATION
+
+                  name            origin    length      used    attr    fill
+                                 (bytes)   (bytes)    (bytes)
+         ----------------------  --------  ---------  --------  ----  --------
+PAGE  0: INT_VECS                00000200   00000100  000000e0  R IX
+         DARAM                   00000300   0000fd00  0000360c  RW X
+         SARAM                   00010004   0003bf5c  00004caa  RW X
+         SBSRAM                  00050000   00100000  00000000  RW X
+         VECS                    00ffff00   00000100  00000000  R IX
+
+PAGE  2: IOPORT                  00000000   00020000  00000000  RWI 
+
+
+SECTION ALLOCATION MAP
+(Addresses surrounded by []'s are displayed for convenience only!)
+
+output                                                          attributes/
+section   page  orgn(bytes) orgn(words) len(bytes) len(words)   input sections
+--------  ----  ----------- ----------- ---------- ----------   --------------
+.vectors     0     00000200  [ 00000100 ] 000000e0          *   
+                   00000200  [ 00000100 ] 000000e0          *   vectors.obj (.vectors)
+
+.pinit       0   [ 00000300 ]  00000180          *   00000000   
+
+.data        0   [ 00000300 ]  00000180          *   00000000   UNINITIALIZED
+
+.bss         0   [ 00000300 ]  00000180          *   0000071b   UNINITIALIZED
+                 [ 00000300 ]  00000180          *   00000231   rts55x.lib : defs.obj (.bss)
+                 [ 00000762 ]  000003b1          *   00000190              : _printfi.obj (.bss)
+                 [ 00000a82 ]  00000541          *   000000d0              : trgdrv.obj (.bss)
+                 [ 00000c24 ]  00000612          *   00000099              : lowlev.obj (.bss)
+                 [ 00000d58 ]  000006ac          *   0000006a   PSL_c5510.a55L : PSL.o55L (.bss)
+                 [ 00000e2c ]  00000716          *   00000064   rts55x.lib : fcvt.obj (.bss)
+                 [ 00000ef4 ]  0000077a          *   00000064              : ecvt.obj (.bss)
+                 [ 00000fbc ]  000007de          *   00000050   PSL_cfg_dsk5510.a55L : PSLclk_cfg_DSK5510.o55L (.bss)
+                 [ 0000105c ]  0000082e          *   00000046   rts55x.lib : exit.obj (.bss)
+                 [ 000010e8 ]  00000874          *   00000014   PSL_cfg_dsk5510.a55L : PSLvolt_cfg_DSK5510.o55L (.bss)
+                 [ 00001110 ]  00000888          *   00000007   rts55x.lib : memory.obj (.bss)
+                 [ 00001120 ]  00000890          *   00000004              : _lock.obj (.bss)
+                 [ 00001128 ]  00000894          *   00000003   timer.obj (.bss)
+                 [ 0000112e ]  00000897          *   00000003   funcs.obj (.bss)
+                 [ 00001134 ]  0000089a          *   00000001   psl_timer.obj (.bss)
+
+.const       0   [ 00001138 ]  0000089c          *   0000030c   
+                 [ 00001138 ]  0000089c          *   000001a3   psl_timer.obj (.const)
+                 [ 0000147e ]  00000a3f          *   00000101   rts55x.lib : ctype.obj (.const)
+                 [ 00001680 ]  00000b40          *   00000035              : _printfi.obj (.const)
+                 [ 000016ea ]  00000b75          *   00000001   --HOLE-- [fill = 0]
+                 [ 000016ec ]  00000b76          *   0000000c              : ecvt.obj (.const)
+                 [ 00001704 ]  00000b82          *   0000000c              : fcvt.obj (.const)
+                 [ 0000171c ]  00000b8e          *   00000007   PSL_cfg_dsk5510.a55L : PSLvolt_cfg_DSK5510.o55L (.const)
+                 [ 0000172a ]  00000b95          *   00000001   --HOLE-- [fill = 0]
+                 [ 0000172c ]  00000b96          *   00000007                        : PSLclk_cfg_DSK5510.o55L (.const)
+                 [ 0000173a ]  00000b9d          *   00000001   --HOLE-- [fill = 0]
+                 [ 0000173c ]  00000b9e          *   00000002   rts55x.lib : fputs.obj (.const)
+                 [ 00001740 ]  00000ba0          *   00000002              : fltlid.obj (.const)
+                 [ 00001744 ]  00000ba2          *   00000002   timer.obj (.const)
+                 [ 00001748 ]  00000ba4          *   00000002   rts55x.lib : fltuld.obj (.const)
+                 [ 0000174c ]  00000ba6          *   00000002   PSL_c5510.a55L : PSLvolt.o55L (.const)
+
+.sysmem      0   [ 00001750 ]  00000ba8          *   00000280   UNINITIALIZED
+
+.stack       0   [ 00001c50 ]  00000e28          *   00000280   UNINITIALIZED
+
+.sysstack 
+*            0   [ 00002150 ]  000010a8          *   00000800   UNINITIALIZED
+
+.switch      0   [ 00003150 ]  000018a8          *   00000014   
+                 [ 00003150 ]  000018a8          *   00000014   psl_timer.obj (.switch)
+
+.csldata     0   [ 00003178 ]  000018bc          *   0000002e   UNINITIALIZED
+                 [ 00003178 ]  000018bc          *   00000022   csl5510PG2_2x.lib : csl_csldat.obj (.csldata:SYS_data)
+                 [ 000031bc ]  000018de          *   0000000c                     : csl_timdat.obj (.csldata:TIMER_data)
+
+.cio         0   [ 00003200 ]  00001900          *   00000120   UNINITIALIZED
+                 [ 00003200 ]  00001900          *   00000120   rts55x.lib : trgmsg.obj (.cio)
+
+.cinit       0   [ 00003440 ]  00001a20          *   0000027d   
+                 [ 00003440 ]  00001a20          *   000000f7   rts55x.lib : defs.obj (.cinit)
+                 [ 0000362e ]  00001b17          *   00000082   PSL_c5510.a55L : PSL.o55L (.cinit)
+                 [ 00003732 ]  00001b99          *   00000053   PSL_cfg_dsk5510.a55L : PSLclk_cfg_DSK5510.o55L (.cinit)
+                 [ 000037d8 ]  00001bec          *   0000002d   rts55x.lib : lowlev.obj (.cinit)
+                 [ 00003832 ]  00001c19          *   00000025   csl5510PG2_2x.lib : csl_csldat.obj (.cinit)
+                 [ 0000387c ]  00001c3e          *   0000001f   PSL_cfg_dsk5510.a55L : PSLvolt_cfg_DSK5510.o55L (.cinit)
+                 [ 000038ba ]  00001c5d          *   0000000f   csl5510PG2_2x.lib : csl_timdat.obj (.cinit)
+                 [ 000038d8 ]  00001c6c          *   0000000e   rts55x.lib : exit.obj (.cinit)
+                 [ 000038f4 ]  00001c7a          *   0000000c   funcs.obj (.cinit)
+                 [ 0000390c ]  00001c86          *   0000000a   rts55x.lib : _lock.obj (.cinit)
+                 [ 00003920 ]  00001c90          *   00000004              : memory.obj (.cinit)
+                 [ 00003928 ]  00001c94          *   00000004   timer.obj (.cinit)
+                 [ 00003930 ]  00001c98          *   00000004   psl_timer.obj (.cinit)
+                 [ 00003938 ]  00001c9c          *   00000001   --HOLE-- [fill = 0]
+
+.text        0     00010004  [ 00008002 ] 00004caa          *   
+                   00010004  [ 00008002 ] 00000225          *   psl_timer.obj (.text)
+                   00010229  [ 00008114+] 00000002          *   vectors.obj (.text)
+                   0001022b  [ 00008115+] 00000001          *   --HOLE-- [fill = 20]
+                   0001022c  [ 00008116 ] 000001e6          *   timer.obj (.text)
+                   00010412  [ 00008209 ] 00000002          *   --HOLE-- [fill = 20]
+                   00010414  [ 0000820a ] 0000010e          *   csl5510PG2_2x.lib : tim_rstt.obj (.text:TIMER_reset)
+                   00010522  [ 00008291 ] 00000002          *   --HOLE-- [fill = 20]
+                   00010524  [ 00008292 ] 000000d7          *   PSL_cfg_dsk5510.a55L : PSLvolt_reg_DSK5510.o55L (.text)
+                   000105fb  [ 000082fd+] 00000001          *   --HOLE-- [fill = 20]
+                   000105fc  [ 000082fe ] 000000d3          *   csl5510PG2_2x.lib : tim_open.obj (.text:TIMER_open)
+                   000106cf  [ 00008367+] 00000001          *   --HOLE-- [fill = 20]
+                   000106d0  [ 00008368 ] 000000ca          *   funcs.obj (.text)
+                   0001079a  [ 000083cd ] 00000002          *   --HOLE-- [fill = 20]
+                   0001079c  [ 000083ce ] 00000068          *   csl5510PG2_2x.lib : irq_enab.obj (.text:IRQ_enable)
+                   00010804  [ 00008402 ] 00000066          *                     : tim_cfgb.obj (.text:TIMER_configArgs)
+                   0001086a  [ 00008435 ] 00000002          *   --HOLE-- [fill = 20]
+                   0001086c  [ 00008436 ] 00000039          *                     : tim_close.obj (.text:TIMER_close)
+                   000108a5  [ 00008452+] 00000003          *   --HOLE-- [fill = 20]
+                   000108a8  [ 00008454 ] 00000037          *                     : irq_clear.obj (.text:IRQ_clear)
+                   000108df  [ 0000846f+] 00000001          *   --HOLE-- [fill = 20]
+                   000108e0  [ 00008470 ] 00000029          *                     : tim_stop.obj (.text:TIMER_stop)
+                   00010909  [ 00008484+] 00000003          *   --HOLE-- [fill = 20]
+                   0001090c  [ 00008486 ] 00000020          *                     : tim_start.obj (.text:TIMER_start)
+                   0001092c  [ 00008496 ] 0000000f          *                     : irq_gdisab.obj (.text:IRQ_globalDisable)
+                   0001093b  [ 0000849d+] 00000001          *   --HOLE-- [fill = 20]
+                   0001093c  [ 0000849e ] 0000000f          *                     : irq_genab.obj (.text:IRQ_globalEnable)
+                   0001094b  [ 000084a5+] 00000001          *   --HOLE-- [fill = 20]
+                   0001094c  [ 000084a6 ] 0000000d          *                     : _csl_init.obj (.text:_CSL_init)
+                   00010959  [ 000084ac+] 00000003          *   --HOLE-- [fill = 20]
+                   0001095c  [ 000084ae ] 0000000c          *                     : irq_grest.obj (.text:IRQ_globalRestore)
+                   00010968  [ 000084b4 ] 0000000c          *                     : csl.obj (.text:CSL_init)
+                   00010974  [ 000084ba ] 00000002          *                     : csl.obj (.text)
+                   00010976  [ 000084bb ] 000011d8          *   rts55x.lib : _printfi.obj (.text)
+                   00011b4e  [ 00008da7 ] 00000536          *              : lowlev.obj (.text)
+                   00012084  [ 00009042 ] 00000536          *              : trgdrv.obj (.text)
+                   000125ba  [ 000092dd ] 0000050a          *              : memory.obj (.text)
+                   00012ac4  [ 00009562 ] 000002c5          *              : cmpd.obj (.text)
+                   00012d89  [ 000096c4+] 000002b9          *              : llmpy.obj (.text)
+                   00013042  [ 00009821 ] 0000024b          *              : fopen.obj (.text)
+                   0001328d  [ 00009946+] 000001f2          *              : fcvt.obj (.text)
+                   0001347f  [ 00009a3f+] 000001d6          *              : ecvt.obj (.text)
+                   00013655  [ 00009b2a+] 00000160          *              : fputs.obj (.text)
+                   000137b5  [ 00009bda+] 0000013f          *              : addd.obj (.text)
+                   000138f4  [ 00009c7a ] 00000118          *   PSL_c5510.a55L : PSL.o55L (.text:_PSL_initialize)
+                   00013a0c  [ 00009d06 ] 000000f7          *   rts55x.lib : frcdivd.obj (.text)
+                   00013b03  [ 00009d81+] 000000f3          *              : divd.obj (.text)
+                   00013bf6  [ 00009dfb ] 000000e5          *              : mpyd.obj (.text)
+                   00013cdb  [ 00009e6d+] 000000df          *              : setvbuf.obj (.text)
+                   00013dba  [ 00009edd ] 000000da          *              : divli.obj (.text)
+                   00013e94  [ 00009f4a ] 000000d2          *   PSL_c5510.a55L : PSL.o55L (.text:_scaleFreqVoltage)
+                   00013f66  [ 00009fb3 ] 000000cf          *   rts55x.lib : _io_perm.obj (.text)
+                   00014035  [ 0000a01a+] 000000bd          *              : trgmsg.obj (.text:CIO_breakpoint)
+                   000140f2  [ 0000a079 ] 000000b9          *   PSL_c5510.a55L : PSL.o55L (.text:_PSL_changeSetpoints)
+                   000141ab  [ 0000a0d5+] 000000ae          *   rts55x.lib : exit.obj (.text)
+                   00014259  [ 0000a12c+] 000000ac          *              : divul.obj (.text)
+                   00014305  [ 0000a182+] 000000aa          *              : fputc.obj (.text)
+                   000143af  [ 0000a1d7+] 000000a8          *              : fflush.obj (.text)
+                   00014457  [ 0000a22b+] 00000097          *              : remli.obj (.text)
+                   000144ee  [ 0000a277 ] 0000007f          *              : fixdul.obj (.text)
+                   0001456d  [ 0000a2b6+] 0000007e          *              : fclose.obj (.text)
+                   000145eb  [ 0000a2f5+] 00000079          *              : fixdli.obj (.text)
+                   00014664  [ 0000a332 ] 00000077          *              : trgmsg.obj (.text)
+                   000146db  [ 0000a36d+] 00000074          *              : ltoa.obj (.text)
+                   0001474f  [ 0000a3a7+] 00000071          *              : fltlid.obj (.text)
+                   000147c0  [ 0000a3e0 ] 0000006b          *              : autoinit.obj (.text)
+                   0001482b  [ 0000a415+] 0000006b          *              : fseek.obj (.text)
+                   00014896  [ 0000a44b ] 0000006a          *              : fltuld.obj (.text)
+                   00014900  [ 0000a480 ] 00000060          *              : atoi.obj (.text)
+                   00014960  [ 0000a4b0 ] 0000005f          *              : frcmpyd.obj (.text)
+                   000149bf  [ 0000a4df+] 00000053          *   PSL_c5510.a55L : PSLpll_C5510.o55L (.text:_scaleLockFreq)
+                   00014a12  [ 0000a509 ] 0000004d          *   rts55x.lib : printf.obj (.text)
+                   00014a5f  [ 0000a52f+] 00000048          *              : boot.obj (.text)
+                   00014aa7  [ 0000a553+] 00000041          *   PSL_c5510.a55L : PSLvolt.o55L (.text:_PSL_getRequiredVoltage)
+                   00014ae8  [ 0000a574 ] 0000003b          *                  : PSLpll_C5510.o55L (.text:_scaleBypassFreq)
+                   00014b23  [ 0000a591+] 0000002a          *   PSL_cfg_dsk5510.a55L : PSLcpld_5510DSK.o55L (.text)
+                   00014b4d  [ 0000a5a6+] 0000002a          *   rts55x.lib : fixdi.obj (.text)
+                   00014b77  [ 0000a5bb+] 0000002a          *              : udiv.obj (.text)
+                   00014ba1  [ 0000a5d0+] 00000027          *              : memccpy.obj (.text)
+                   00014bc8  [ 0000a5e4 ] 00000016          *   PSL_c5510.a55L : PSL.o55L (.text:_PSL_querySetpointFrequencies)
+                   00014bde  [ 0000a5ef ] 00000014          *   rts55x.lib : subd.obj (.text)
+                   00014bf2  [ 0000a5f9 ] 00000013          *              : lmpy.obj (.text)
+                   00014c05  [ 0000a602+] 00000012          *              : _lock.obj (.text)
+                   00014c17  [ 0000a60b+] 00000012          *              : memcpy.obj (.text)
+                   00014c29  [ 0000a614+] 00000010          *              : negd.obj (.text)
+                   00014c39  [ 0000a61c+] 00000010          *   PSL_c5510.a55L : PSLvolt.o55L (.text:_PSL_scaleVoltage)
+                   00014c49  [ 0000a624+] 00000010          *                  : PSLvolt.o55L (.text:_PSL_initVoltageControl)
+                   00014c59  [ 0000a62c+] 0000000e          *   rts55x.lib : fltud.obj (.text)
+                   00014c67  [ 0000a633+] 0000000d          *   PSL_c5510.a55L : PSL.o55L (.text:_PSL_getFrequencies)
+                   00014c74  [ 0000a63a ] 0000000d          *   PSL_cfg_dsk5510.a55L : PSLvolt_reg_delay.o55L (.text)
+                   00014c81  [ 0000a640+] 0000000c          *   rts55x.lib : fltid.obj (.text)
+                   00014c8d  [ 0000a646+] 0000000a          *              : remove.obj (.text)
+                   00014c97  [ 0000a64b+] 00000008          *   PSL_c5510.a55L : PSL.o55L (.text:_PSL_getVoltage)
+                   00014c9f  [ 0000a64f+] 00000007          *                  : PSLvolt.o55L (.text:__isVoltScalingSupported)
+                   00014ca6  [ 0000a653 ] 00000007          *   rts55x.lib : exit.obj (.text:CIO_breakpoint)
+                   00014cad  [ 0000a656+] 00000001          *   --HOLE-- [fill = 20]
+
+.ioport      2   [ 00000000 ]  00000000          *   00000000   UNINITIALIZED
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+abs. value/
+byte addr   word addr   name
+---------   ---------   ----
+            00000180    .bss
+            00000180    .data
+00010004                .text
+00014ca7                C$$EXIT
+000140eb                C$$IO$$
+00014bf2                I$$LMPY
+00014b77                I$$UDIV
+00014b8c                I$$UMOD
+00010974                _CSL5510_PG2_0_LIB_
+            000018bc    _CSL_SysData
+            000018de    _CSL_TimerData
+00010968                _CSL_init
+000103f8                _CloseTimer0
+0001255c                _HOSTclock
+00012124                _HOSTclose
+000122a7                _HOSTlseek
+00012084                _HOSTopen
+0001218f                _HOSTread
+000123ca                _HOSTrename
+000124fe                _HOSTtime
+00012360                _HOSTunlink
+0001221b                _HOSTwrite
+000108a8                _IRQ_clear
+0001079c                _IRQ_enable
+0001092c                _IRQ_globalDisable
+0001093c                _IRQ_globalEnable
+0001095c                _IRQ_globalRestore
+000140f2                _PSL_changeSetpoints
+            00000b96    _PSL_clkmdRegAddr
+00014b38                _PSL_clrDSKVcoreMonBit
+            00000b9c    _PSL_cpuFreqCnt
+            000007de    _PSL_cpuFreqTable
+            00000b98    _PSL_cpuInputFreq
+            00000b9a    _PSL_cpuMaxFreq
+00014c67                _PSL_getFrequencies
+00014aa7                _PSL_getRequiredVoltage
+00014c97                _PSL_getVoltage
+            00000b93    _PSL_gpioIodataAddr
+            00000b92    _PSL_gpioIodirAddr
+            00000b94    _PSL_gpioPinsMask
+00010524                _PSL_gpioVoltRegInit_DSK5510
+00010548                _PSL_gpioVoltRegScale_DSK5510
+            00000880    _PSL_gpioVoltRegTable
+00014c74                _PSL_gpioVoltScaleDelay
+00014c49                _PSL_initVoltageControl
+000138f4                _PSL_initialize
+00014bc8                _PSL_querySetpointFrequencies
+00014c39                _PSL_scaleVoltage
+00014b23                _PSL_setDSKVcoreMonBit
+            00000b8f    _PSL_voltCnt
+            00000b90    _PSL_voltDecreaseLatency
+            00000b91    _PSL_voltIncreaseLatency
+            0000087c    _PSL_voltRegInitFunc
+            0000087e    _PSL_voltRegScaleFunc
+            00000b8e    _PSL_voltScalingSupported
+            00000874    _PSL_voltTable
+00010258                _RestartTimer0
+            000006b4    _SP_table
+00010360                _SetupTimer0
+0001023c                _StopTimer0
+0001086c                _TIMER_close
+00010804                _TIMER_configArgs
+000105fc                _TIMER_open
+00010414                _TIMER_reset
+0001090c                _TIMER_start
+000108e0                _TIMER_stop
+00010320                _Timer0Isr
+00010229                _UnusedIsr
+            00001900    __CIOBUF_
+0001094c                __CSL_init
+            00000714    __PSL_pPWRhook
+00000500                __STACK_SIZE
+00000500                __SYSMEM_SIZE
+00001000                __SYSSTACK_SIZE
+            00000180    ___bss__
+            00001a20    ___cinit__
+            00000180    ___data__
+            00000180    ___edata__
+            0000089b    ___end__
+00014cae                ___etext__
+ffffffff                ___pinit__
+00010004                ___text__
+000137b5                __addd
+00013241                __cleanup
+            00000870    __cleanup_ptr
+00012ac4                __cmpd
+            00000a3f    __ctypes_
+00013b03                __divd
+00013dba                __divli
+00012fdc                __divlli
+00014b77                __divu
+00014259                __divul
+00012e34                __divull
+000143f8                __doflush
+            00000872    __dtors_ptr
+00012b0d                __eqld
+00014b4d                __fixdi
+000145eb                __fixdli
+000144ee                __fixdul
+00014c81                __fltid
+0001474f                __fltlid
+00014c59                __fltud
+00014896                __fltuld
+00013a0c                __frcdivd
+00014960                __frcmpyd
+            000003b0    __ft_end
+            00000180    __ftable
+00012d13                __geqd
+00012c21                __gtrd
+00014c9f                __isVoltScalingSupported
+00012c9a                __leqd
+            00000890    __lock
+00012bab                __lssd
+00013bf6                __mpyd
+00014bf2                __mpyli
+00012d89                __mpylli
+00014c29                __negd
+00012b5c                __neqd
+00014c05                __nop
+00010976                __printfi
+00013f66                __rd_ok
+00014c07                __register_lock
+00014c0f                __register_unlock
+00014457                __remli
+00013013                __remlli
+00014b8c                __remu
+00012f8e                __remull
+            00000e28    __stack
+00014bde                __subd
+            00000ba8    __sys_memory
+            000010a8    __sysstack
+            00000270    __tmpnams
+            00000892    __unlock
+00013fc0                __wrt_ok
+00014ca6                _abort
+00011c68                _add_device
+00014207                _atexit
+00014900                _atoi
+000147c0                _auto_init
+00014a5f                _c_int00
+000129cf                _calloc
+000129fb                _chkheap
+            0000089a    _clk
+00011f85                _close
+            000006ac    _currFreq
+            000006b0    _currMode
+            000006b1    _currSP
+            000006ae    _currVolt
+0001347f                _ecvt
+000141ab                _exit
+0001456d                _fclose
+0001328d                _fcvt
+000143af                _fflush
+00013042                _fopen
+0001431d                _fputc
+00013684                _fputs
+0001275d                _free
+00012a03                _free_memory
+00013066                _freopen
+0001482b                _fseek
+000106d0                _func1
+00010714                _func2
+00010758                _func3
+00012485                _getenv
+00011f1f                _lseek
+000146db                _ltoa
+00010138                _main
+0001265a                _malloc
+00012a5c                _max_free
+00014ba1                _memccpy
+00014c17                _memcpy
+000125ba                _minit
+            000006b2    _numSPs
+00011d8c                _open
+000100fc                _printCurrSettings
+00010004                _printStatus
+00014a12                _printf
+00014305                _putc
+0001430e                _putchar
+00013655                _puts
+00011e53                _read
+00014664                _readmsg
+0001282d                _realloc
+00014c8d                _remove
+00011d56                _remove_device
+0001202b                _rename
+00014ae8                _scaleBypassFreq
+000149bf                _scaleLockFreq
+00013cdb                _setvbuf
+            00000896    _timer0Cnt
+            00000894    _timer0Handle
+00011ff8                _unlink
+00011eb9                _write
+00014035                _writemsg
+            00000897    _x
+            00000898    _y
+            00000899    _z
+            00001a20    cinit
+            00000180    edata
+            0000089b    end
+00014cae                etext
+ffffffff                pinit
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+abs. value/
+byte addr   word addr   name
+---------   ---------   ----
+            00000180    edata
+            00000180    ___data__
+            00000180    __ftable
+            00000180    ___bss__
+            00000180    .data
+            00000180    .bss
+            00000180    ___edata__
+            00000270    __tmpnams
+00000500                __SYSMEM_SIZE
+00000500                __STACK_SIZE
+            000003b0    __ft_end
+            000006ac    _currFreq
+            000006ae    _currVolt
+            000006b0    _currMode
+            000006b1    _currSP
+            000006b2    _numSPs
+            000006b4    _SP_table
+            00000714    __PSL_pPWRhook
+            000007de    _PSL_cpuFreqTable
+00001000                __SYSSTACK_SIZE
+            00000870    __cleanup_ptr
+            00000872    __dtors_ptr
+            00000874    _PSL_voltTable
+            0000087c    _PSL_voltRegInitFunc
+            0000087e    _PSL_voltRegScaleFunc
+            00000880    _PSL_gpioVoltRegTable
+            00000890    __lock
+            00000892    __unlock
+            00000894    _timer0Handle
+            00000896    _timer0Cnt
+            00000897    _x
+            00000898    _y
+            00000899    _z
+            0000089a    _clk
+            0000089b    ___end__
+            0000089b    end
+            00000a3f    __ctypes_
+            00000b8e    _PSL_voltScalingSupported
+            00000b8f    _PSL_voltCnt
+            00000b90    _PSL_voltDecreaseLatency
+            00000b91    _PSL_voltIncreaseLatency
+            00000b92    _PSL_gpioIodirAddr
+            00000b93    _PSL_gpioIodataAddr
+            00000b94    _PSL_gpioPinsMask
+            00000b96    _PSL_clkmdRegAddr
+            00000b98    _PSL_cpuInputFreq
+            00000b9a    _PSL_cpuMaxFreq
+            00000b9c    _PSL_cpuFreqCnt
+            00000ba8    __sys_memory
+            00000e28    __stack
+            000010a8    __sysstack
+            000018bc    _CSL_SysData
+            000018de    _CSL_TimerData
+            00001900    __CIOBUF_
+            00001a20    cinit
+            00001a20    ___cinit__
+00010004                ___text__
+00010004                _printStatus
+00010004                .text
+000100fc                _printCurrSettings
+00010138                _main
+00010229                _UnusedIsr
+0001023c                _StopTimer0
+00010258                _RestartTimer0
+00010320                _Timer0Isr
+00010360                _SetupTimer0
+000103f8                _CloseTimer0
+00010414                _TIMER_reset
+00010524                _PSL_gpioVoltRegInit_DSK5510
+00010548                _PSL_gpioVoltRegScale_DSK5510
+000105fc                _TIMER_open
+000106d0                _func1
+00010714                _func2
+00010758                _func3
+0001079c                _IRQ_enable
+00010804                _TIMER_configArgs
+0001086c                _TIMER_close
+000108a8                _IRQ_clear
+000108e0                _TIMER_stop
+0001090c                _TIMER_start
+0001092c                _IRQ_globalDisable
+0001093c                _IRQ_globalEnable
+0001094c                __CSL_init
+0001095c                _IRQ_globalRestore
+00010968                _CSL_init
+00010974                _CSL5510_PG2_0_LIB_
+00010976                __printfi
+00011c68                _add_device
+00011d56                _remove_device
+00011d8c                _open
+00011e53                _read
+00011eb9                _write
+00011f1f                _lseek
+00011f85                _close
+00011ff8                _unlink
+0001202b                _rename
+00012084                _HOSTopen
+00012124                _HOSTclose
+0001218f                _HOSTread
+0001221b                _HOSTwrite
+000122a7                _HOSTlseek
+00012360                _HOSTunlink
+000123ca                _HOSTrename
+00012485                _getenv
+000124fe                _HOSTtime
+0001255c                _HOSTclock
+000125ba                _minit
+0001265a                _malloc
+0001275d                _free
+0001282d                _realloc
+000129cf                _calloc
+000129fb                _chkheap
+00012a03                _free_memory
+00012a5c                _max_free
+00012ac4                __cmpd
+00012b0d                __eqld
+00012b5c                __neqd
+00012bab                __lssd
+00012c21                __gtrd
+00012c9a                __leqd
+00012d13                __geqd
+00012d89                __mpylli
+00012e34                __divull
+00012f8e                __remull
+00012fdc                __divlli
+00013013                __remlli
+00013042                _fopen
+00013066                _freopen
+00013241                __cleanup
+0001328d                _fcvt
+0001347f                _ecvt
+00013655                _puts
+00013684                _fputs
+000137b5                __addd
+000138f4                _PSL_initialize
+00013a0c                __frcdivd
+00013b03                __divd
+00013bf6                __mpyd
+00013cdb                _setvbuf
+00013dba                __divli
+00013f66                __rd_ok
+00013fc0                __wrt_ok
+00014035                _writemsg
+000140eb                C$$IO$$
+000140f2                _PSL_changeSetpoints
+000141ab                _exit
+00014207                _atexit
+00014259                __divul
+00014305                _putc
+0001430e                _putchar
+0001431d                _fputc
+000143af                _fflush
+000143f8                __doflush
+00014457                __remli
+000144ee                __fixdul
+0001456d                _fclose
+000145eb                __fixdli
+00014664                _readmsg
+000146db                _ltoa
+0001474f                __fltlid
+000147c0                _auto_init
+0001482b                _fseek
+00014896                __fltuld
+00014900                _atoi
+00014960                __frcmpyd
+000149bf                _scaleLockFreq
+00014a12                _printf
+00014a5f                _c_int00
+00014aa7                _PSL_getRequiredVoltage
+00014ae8                _scaleBypassFreq
+00014b23                _PSL_setDSKVcoreMonBit
+00014b38                _PSL_clrDSKVcoreMonBit
+00014b4d                __fixdi
+00014b77                __divu
+00014b77                I$$UDIV
+00014b8c                __remu
+00014b8c                I$$UMOD
+00014ba1                _memccpy
+00014bc8                _PSL_querySetpointFrequencies
+00014bde                __subd
+00014bf2                __mpyli
+00014bf2                I$$LMPY
+00014c05                __nop
+00014c07                __register_lock
+00014c0f                __register_unlock
+00014c17                _memcpy
+00014c29                __negd
+00014c39                _PSL_scaleVoltage
+00014c49                _PSL_initVoltageControl
+00014c59                __fltud
+00014c67                _PSL_getFrequencies
+00014c74                _PSL_gpioVoltScaleDelay
+00014c81                __fltid
+00014c8d                _remove
+00014c97                _PSL_getVoltage
+00014c9f                __isVoltScalingSupported
+00014ca6                _abort
+00014ca7                C$$EXIT
+00014cae                etext
+00014cae                ___etext__
+ffffffff                pinit
+ffffffff                ___pinit__
+
+[202 symbols]

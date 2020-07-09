@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" href="$omap2530__hal__intgen_8h.html" title="Declares necessary functions for Interrupt Handling." alt="" coords="7,83,157,107" />
+<area shape="rect" href="$omap2530__hal__mmu_8h.html" title="Hardware Abstraction Layer for Memory management module in OMAP." alt="" coords="181,83,325,107" />
+<area shape="rect" href="$omap2530__hal__pwr_8h.html" title="Hardware Abstraction Layer for Power Controller (PWR) module in Davinci. Declares necessary functions..." alt="" coords="349,83,485,107" />
+</map>

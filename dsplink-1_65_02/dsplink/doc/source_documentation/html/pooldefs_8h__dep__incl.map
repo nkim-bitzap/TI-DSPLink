@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" href="$pool_8h.html" title="Defines signature of POOL API Functions." alt="" coords="176,84,229,108" />
+<area shape="rect" href="$buf__pool_8h.html" title="Defines the exported interface of the buffer pool." alt="" coords="8,158,88,182" />
+<area shape="rect" href="$dma__pool_8h.html" title="Defines the exported interface of the SMAPOOL &#45; Shared Memory Allocator POOL." alt="" coords="112,158,194,182" />
+<area shape="rect" href="$dsp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="218,158,288,182" />
+<area shape="rect" href="$sma__pool_8h.html" title="Defines the exported interface of the SMAPOOL &#45; Shared Memory Allocator POOL." alt="" coords="312,158,394,182" />
+</map>

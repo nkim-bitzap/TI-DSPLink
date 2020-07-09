@@ -1,0 +1,16 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_5533.tci ========
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_5505.tci");
+
+/*
+ *  ======== bios.init5533 ========
+ *  BIOS initialization for the 5533 is same as for 5505
+ */
+bios.init5533 = bios.init5505;

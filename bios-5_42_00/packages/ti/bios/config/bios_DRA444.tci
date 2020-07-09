@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_DRA444.tci ========
+ *  This file contains BIOS settings for DRA444.
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_DRA442.tci");
+
+/*
+ *  ======== bios.initDRA444 ========
+ *  BIOS initialization for the DRA444 is same as for DRA442
+ */
+bios.initDRA444 = bios.initDRA442;

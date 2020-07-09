@@ -1,0 +1,17 @@
+<map id="G" name="G">
+<area shape="rect" href="$dm6437__hal_8h.html" title="Hardware Abstraction Layer for 64LC_PCI. Define the Platform specific HAL (Hardware Abstraction Layer..." alt="" coords="1023,84,1119,108" />
+<area shape="rect" href="$dm6437__hal__pci__boot_8h.html" title="BOOT controller module header file." alt="" coords="7,158,157,182" />
+<area shape="rect" href="$dm6437__hal__pci__dma_8h.html" title="DMA module header file." alt="" coords="181,158,330,182" />
+<area shape="rect" href="$dm6437__hal__pci__intgen_8h.html" title="Interrupt Generation module header file." alt="" coords="354,158,514,182" />
+<area shape="rect" href="$dm6437__hal__pci__map_8h.html" title="Map module header file." alt="" coords="538,158,687,182" />
+<area shape="rect" href="$dm6437__hal__pci__pwr_8h.html" title="Power Management module header file." alt="" coords="711,158,858,182" />
+<area shape="rect" href="$dm6437__hal__pci__rdwr_8h.html" title="Read Write module header file." alt="" coords="882,158,1034,182" />
+<area shape="rect" href="$dm6437__hal__vlynq_8h.html" title="Hardware Abstraction Layer for PC&#45;DM64LC VLYNQ interface. Defines interfaces to initialize the VLYNQ ..." alt="" coords="1210,158,1343,182" />
+<area shape="rect" href="$dm6437__hal__vlynq__boot_8h.html" title="BOOT controller module header file." alt="" coords="1691,233,1857,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__dma_8h.html" title="DMA module header file." alt="" coords="745,233,907,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__intgen_8h.html" title="Interrupt Generation module header file." alt="" coords="931,233,1105,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__map_8h.html" title="Map module header file." alt="" coords="1129,233,1291,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__pwr_8h.html" title="Power Management module header file." alt="" coords="1315,233,1478,257" />
+<area shape="rect" href="$dm6437__hal__vlynq__rdwr_8h.html" title="Read Write module header file." alt="" coords="1502,233,1667,257" />
+<area shape="rect" href="$dm6437__phy__pci_8h.html" title="Hardware Abstraction Layer for DM6437. Define the Platform specific HAL (Hardware Abstraction Layer) ..." alt="" coords="1418,158,1541,182" />
+</map>

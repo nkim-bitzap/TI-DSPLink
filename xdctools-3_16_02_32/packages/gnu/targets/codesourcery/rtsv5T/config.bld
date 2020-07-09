@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2009 by Texas Instruments Incorporated.
+ *
+ */
+
+xdc.loadCapsule("common.bld");
+
+var vtools  = environment["TOOLS"] + "/vendors";
+var csTargs = xdc.loadPackage("gnu.targets.codesourcery");
+
+csTargs.GCArmv5T.rootDir = vtools + "/cs/arm/arm-2008q3";
+
+Build.targets = [csTargs.GCArmv5T];
+/*
+ *  @(#) gnu.targets.codesourcery.rtsv5T; 1, 0, 0, 0,175; 12-18-2009 11:55:58; /db/ztree/library/trees/xdctargets/xdctargets-b30x/src/
+ */
+

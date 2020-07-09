@@ -1,0 +1,3 @@
+<map id="G" name="G">
+<area shape="rect" href="$struct_ring_i_o___control_struct__tag.html" title="{RingIO_ControlStruct_tag\n|+ procId\l+ entryId\l+ transportType\l+ phyBufStart\l+ phyBufEnd\l+ curBufEnd\l+ dataBufEnd\l+ dataBufSize\l+ footBufSize\l+ validSize\l+ emptySize\l+ phyAttrStart\l+ phyAttrBufEnd\l+ curAttrBufEnd\l+ validAttrSize\l+ emptyAttrSize\l+ prevAttrOffset\l+ phyLockHandle\l+ writer\l+ reader\l+ phyLockHandle\l|}" alt="" coords="8,427,170,795" />
+</map>

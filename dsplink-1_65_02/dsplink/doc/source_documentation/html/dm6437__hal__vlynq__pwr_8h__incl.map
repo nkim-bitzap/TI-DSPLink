@@ -1,0 +1,13 @@
+<map id="G" name="G">
+<area shape="rect" href="$gpp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="258,233,327,257" />
+<area shape="rect" href="$dm6437__hal_8h.html" title="Hardware Abstraction Layer for 64LC_PCI. Define the Platform specific HAL (Hardware Abstraction Layer..." alt="" coords="245,84,341,108" />
+<area shape="rect" href="$dm6437__hal__vlynq_8h.html" title="Hardware Abstraction Layer for PC&#45;DM64LC VLYNQ interface. Defines interfaces to initialize the VLYNQ ..." alt="" coords="377,158,510,182" />
+<area shape="rect" href="$gpptypes_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="157,382,237,406" />
+<area shape="rect" href="$constants_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="58,308,138,332" />
+<area shape="rect" href="$errbase_8h.html" title="Central repository for error and status code bases and ranges for DSP/BIOS LINK and any Algorithm Fra..." alt="" coords="162,308,231,332" />
+<area shape="rect" href="$archdefs_8h.html" title="Defines platform specific attributes for user applications." alt="" coords="255,308,330,332" />
+<area shape="rect" href="$linkcfgdefs_8h.html" title="Defines constants and interfaces for configuration of DSPLINK." alt="" coords="354,308,445,332" />
+<area shape="rect" href="$linkcfgdefs__os_8h.html" title="Defines OS&#45;specific constants and interfaces for configuration of DSP/BIOS LINK." alt="" coords="386,382,495,406" />
+<area shape="rect" href="$hal_8h.html" title="Defines interface exposed by HAL sub&#45;component." alt="" coords="110,158,158,182" />
+<area shape="rect" href="$dm6437__hal__pci_8h.html" title="Hardware Abstraction Layer for PC&#45;DM64LC PCI interface. Defines interfaces to initialize the PCI inte..." alt="" coords="233,158,353,182" />
+</map>

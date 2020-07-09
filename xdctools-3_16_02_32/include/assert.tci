@@ -1,0 +1,30 @@
+/*
+ *  Copyright 2009 by Texas Instruments Incorporated.
+ *  @(#) XDC u16 12-18-2009 (xdc-u16)
+ */
+assert = {}
+
+/*
+ *  ======== assertArray ========
+ */
+assert.assertArray = [];
+
+/*
+ *  ======== add ========
+ */
+assert.add = function(cond)
+{
+    assert.assertArray[assert.assertArray.length] = cond;
+}
+
+/*
+ *  ======== check ========
+ */
+assert.check = function () {
+    var i;
+    for (i = 0; i < assert.assertArray.length; i++) {
+        if (eval(assert.assertArray[i]) == 0) {
+            print("assertion violation: " + assert.assertArray[i]);
+        }
+    }
+}

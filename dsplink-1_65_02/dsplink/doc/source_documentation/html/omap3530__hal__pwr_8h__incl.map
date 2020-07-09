@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" href="$gpp_2inc_2dsplink_8h.html" title="dsplink.h" alt="" coords="255,233,325,257" />
+<area shape="rect" href="$omap3530__hal_8h.html" title="Hardware Abstraction Layer." alt="" coords="389,84,498,108" />
+<area shape="rect" href="$gpptypes_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="53,382,133,406" />
+<area shape="rect" href="$constants_8h.html" title="Defines the type system for DSP/BIOS Link." alt="" coords="250,308,330,332" />
+<area shape="rect" href="$errbase_8h.html" title="Central repository for error and status code bases and ranges for DSP/BIOS LINK and any Algorithm Fra..." alt="" coords="58,308,127,332" />
+<area shape="rect" href="$archdefs_8h.html" title="Defines platform specific attributes for user applications." alt="" coords="151,308,226,332" />
+<area shape="rect" href="$linkcfgdefs_8h.html" title="Defines constants and interfaces for configuration of DSPLINK." alt="" coords="354,308,445,332" />
+<area shape="rect" href="$linkcfgdefs__os_8h.html" title="Defines OS&#45;specific constants and interfaces for configuration of DSP/BIOS LINK." alt="" coords="386,382,495,406" />
+<area shape="rect" href="$hal_8h.html" title="Defines interface exposed by HAL sub&#45;component." alt="" coords="346,158,394,182" />
+</map>

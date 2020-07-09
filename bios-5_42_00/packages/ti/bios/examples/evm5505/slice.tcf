@@ -1,0 +1,92 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== slice.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.evm5505");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Enable heaps in DARAM and define label SEG0 for heap usage.
+ */
+
+bios.DARAM.createHeap      = true;
+bios.DARAM.enableHeapLabel = true;
+bios.DARAM["heapLabel"]    = prog.extern("SEG0");
+bios.DARAM.heapSize        = 0x500;
+bios.MEM.BIOSOBJSEG = prog.get("DARAM");
+bios.MEM.MALLOCSEG = prog.get("DARAM");
+
+
+/*
+ *  Define the GBL memory model 
+ */
+
+bios.GBL.MEMORYMODEL = "LARGE";
+/* Increase the buffer size of the LOG_system LOG object */
+
+bios.LOG_system.bufLen = 2048;
+bios.LOG_system.logType = "circular";
+
+/* Create a trace LOG object for printing basic program output.  */
+
+var trace = bios.LOG.create("trace");
+trace.bufLen = 1024;
+trace.logType = "circular";
+
+/* Create a PRD object to cause tasks to yield periodically */
+
+var prd0 = bios.PRD.create("prd0");
+prd0.period = 1;
+prd0.mode = "continuous";
+prd0["fxn"] = prog.extern("prdfxn0");
+
+/* Create a PRD object to post a semaphore periodically */
+
+var prd1 = bios.PRD.create("prd1");
+prd1.period = 16;
+prd1.mode = "continuous";
+prd1["fxn"] = prog.extern("prdfxn1");
+
+/* Create a semaphore for code synchronization */
+
+var sem = bios.SEM.create("sem");
+sem.count = 0;
+
+/* Create three TSKs of equal priority and one TSK with higher priority */
+
+var TSK1 = bios.TSK.create("TSK1");
+TSK1["fxn"] = prog.extern("task");
+TSK1.priority = 1;
+TSK1.arg0 = 1;
+
+var TSK2 = bios.TSK.create("TSK2");
+TSK2["fxn"] = prog.extern("task");
+TSK2.priority = 1;
+TSK2.arg0 = 2;
+
+var TSK3 = bios.TSK.create("TSK3");
+TSK3["fxn"] = prog.extern("task");
+TSK3.priority = 1;
+TSK3.arg0 = 3;
+
+var TSK4 = bios.TSK.create("TSK4");
+TSK4["fxn"] = prog.extern("hi_pri_task");
+TSK4.priority = 2;
+TSK4.arg0 = 4;
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

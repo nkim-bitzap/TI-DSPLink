@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_DA840.tci ========
+ *  This file contains BIOS settings for DA840.
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_6748.tci");
+
+/*
+ *  ======== bios.initDA840 ========
+ *  BIOS initialization for the DA840 is same as for C6748 
+ */
+bios.initDA840 = bios.init6748;

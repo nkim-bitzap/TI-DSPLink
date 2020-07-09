@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2009 by Texas Instruments Incorporated.
+ *
+ */
+
+/*  This file is necessary because we need to avoid including
+ *  gnu.targets because this is the gnu.targets package and after an
+ *  'xdc clean' this package does not exist!
+ */
+xdc.loadCapsule("common.bld");
+
+Build.useTargets = null;    /* force the set of build targets to be empty */
+
+/*
+ *  @(#) gnu.targets.arm; 1, 0, 0, 0,204; 12-18-2009 11:55:49; /db/ztree/library/trees/xdctargets/xdctargets-b30x/src/
+ */
+

@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" href="$chnldefs_8h.html" title="Defines data types and structures used by CHNL component." alt="" coords="8,84,82,108" />
+<area shape="rect" href="$drvdefs_8h.html" title="Linux module driver interface file." alt="" coords="106,84,176,108" />
+<area shape="rect" href="$loaderdefs_8h.html" title="Defines data types and structures used by the DSP/BIOS(tm) Link loader." alt="" coords="200,84,285,108" />
+<area shape="rect" href="$proc_8h.html" title="Defines the interfaces and data structures for the API sub&#45;component PROC." alt="" coords="309,84,362,108" />
+<area shape="rect" href="$chnl_8h.html" title="Defines the interfaces and data structures for the API sub&#45;component CHNL." alt="" coords="18,158,72,182" />
+</map>

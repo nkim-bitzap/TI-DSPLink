@@ -1,0 +1,17 @@
+/*
+ *  Copyright 2012 by Texas Instruments Incorporated.
+ *  @(#) DSP/BIOS_Kernel 5,2,5,44 09-06-2012 (cuda-u44)
+ */
+/*
+ *  ======== bios_6455.tci ========
+ *  This file contains BIOS settings for 6455 (Himalaya).
+ *
+ */
+
+utils.importFile("ti/bios/config/bios_6454.tci");
+
+/*
+ *  ======== bios.init6455 ========
+ *  BIOS initialization for the 6455 is same as for 6454
+ */
+bios.init6455 = bios.init6454;
