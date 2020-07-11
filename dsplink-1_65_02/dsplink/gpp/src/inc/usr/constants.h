@@ -36,8 +36,8 @@ extern "C" {
  *  @desc   Maximum length of string.
  *  ============================================================================
  */
-#define DSP_MAX_STRLEN      32u
 
+#define DSP_MAX_STRLEN 64
 
 #if defined (__cplusplus)
 }
