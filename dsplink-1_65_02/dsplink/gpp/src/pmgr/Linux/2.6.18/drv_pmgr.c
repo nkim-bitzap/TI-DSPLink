@@ -1017,7 +1017,11 @@ STATIC long DRV_copy_data_from_user(struct file * filp,
          argument which we need to copy back later */
       case CMD_IDM_ACQUIREID:
       {
+       /* need to reset explicitly, since not allocating on the stack
+           as a simple array anymore */
         Char8 *dstKey = vmalloc(DSP_MAX_STRLEN);
+        memset(dstKey, DSP_MAX_STRLEN, 0);
+
         Uint32 *id = (Uint32*) vmalloc(sizeof(Uint32));
 
         retVal = copy_from_user(
@@ -1045,26 +1049,76 @@ STATIC long DRV_copy_data_from_user(struct file * filp,
          accessing in those functions */
       case CMD_POOL_OPEN:
       {
-        POOL_OpenParams *dstParams = vmalloc(sizeof(POOL_OpenParams));
+        if (dstArgs->apiArgs.poolOpenArgs.params != NULL) {
+          POOL_OpenParams *dstParams = vmalloc(sizeof(POOL_OpenParams));
 
-        retVal = copy_from_user(
-          (void*) dstParams,
-          (void*) dstArgs->apiArgs.poolOpenArgs.params,
-          sizeof(POOL_OpenParams));
+          retVal = copy_from_user(
+            (void*) dstParams,
+            (void*) dstArgs->apiArgs.poolOpenArgs.params,
+            sizeof(POOL_OpenParams));
 
-        if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                            "<CMD_POOL_OPEN>, status: %d\n",
-                            __FUNCTION__, retVal);
+          if (retVal != 0) {
+            printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                              "<CMD_POOL_OPEN>, status: %d\n",
+                              __FUNCTION__, retVal);
 
-          status = -EFAULT;
+            status = -EFAULT;
+          }
+
+          dstArgs->apiArgs.poolOpenArgs.params = dstParams;
         }
 
-        dstArgs->apiArgs.poolOpenArgs.params = dstParams;
         break;
       }
 
       default: break;
+    }
+  }
+
+  return status;
+}
+
+/********************************************************************************
+  @name  DRV_copy_data_to_user
+
+  @desc  Depending on a particular operation, copy ALL (out) data back to
+         the user space
+
+********************************************************************************/
+
+STATIC long DRV_copy_data_to_user(unsigned int cmd,
+                                  unsigned long args,
+                                  CMD_Args *srcArgs)
+{
+  CMD_Args *dstArgs = (CMD_Args*) args;
+  int status = 0;
+
+  int retVal = copy_to_user(
+    (void*) dstArgs, (void*) srcArgs, sizeof (CMD_Args));
+
+  if (retVal != 0) {
+    printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
+           " return value: %d\n", __FUNCTION__, retVal);
+    status = -EFAULT;
+  }
+  else {
+    /* the function to handle 'CMD_IDM_ACQUIREID' produces one out-value,
+       which is 'id' */
+    if (cmd == CMD_IDM_ACQUIREID)
+    {
+      printk(KERN_ALERT "      writing user data: 'CMD_IDM_ACQUIREID'\n");
+
+      retVal = copy_to_user(
+        (void*) dstArgs->apiArgs.idmAcquireIdArgs.id,
+        (void*) srcArgs->apiArgs.idmAcquireIdArgs.id,
+        sizeof(Uint32));
+
+      if (retVal != 0) {
+        printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
+                          " return value: %d\n", __FUNCTION__, retVal);
+
+        status = -EFAULT;
+      }
     }
   }
 
@@ -1083,41 +1137,52 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
                                  unsigned long args)
 {
   DSP_STATUS status = DSP_SOK;
+  void *srcArgs = (void*) args;
   int osStatus = 0;
   int retVal = 0;
 
-  CMD_Args *srcAddr = (CMD_Args *) args;
+  /* this is the local copy we use for copying user data into. NOTE, since
+     allocated on the stack, make sure to write out any changes back to
+     the user before leaving */
   CMD_Args apiArgs;
 
   TRC_3ENTER ("DRV_Ioctl", filp, cmd, args);
 
-  retVal = DRV_copy_data_from_user(filp, cmd, args, &apiArgs);
+  /* first of all, copy the main structure from user space. As known, this
+     only results in a 'shallow copy'. Pointers are copied (however, their
+     destinations are not, thus copy them additionally where required) */
+  retVal = copy_from_user(&apiArgs, srcArgs, sizeof(CMD_Args));
 
-  if (retVal != 0) osStatus = -EFAULT;
+  if (retVal != 0) {
+    printk(KERN_ALERT "*** error: bad 'copy_from_user' in %s,"
+                      " status: %d\n", __FUNCTION__, retVal);
+    osStatus = -EFAULT;
+  }
 
   if (osStatus == 0) {
     status = DRV_CallAPI(cmd, &apiArgs);
 
-    if (DSP_FAILED (status)) {
+    if (DSP_FAILED(status)) {
       if (status == -ERESTARTSYS) {
         osStatus = -ERESTARTSYS;
       }
       else {
-        osStatus = -1 ;
+        osStatus = -1;
       }
     }
 
-    /* always do this regardless of previous success status */
+    /* always do this regardless of previous success status. This is a one
+       shot trigger, clear the 'snoop' value */
     if (cmd == CMD_PROC_SENDTERMEVT) {
-      /* this is a one shot trigger, clear snoop value */
       DRV_dspId = 0xffff;
     }
   }
 
+  /* now, to finalize the API call, write back the main 'args' struct, if
+     there are any changes (as indicated by 'osStatus'). The result of the
+     DSP operation is found in 'args->apiStatus' */
   if (osStatus == 0) {
-    retVal = copy_to_user ((Pvoid) srcAddr,
-                           (const Pvoid) &apiArgs,
-                           sizeof (CMD_Args));
+    retVal = copy_to_user(srcArgs, &apiArgs, sizeof(CMD_Args));
 
     if (retVal != 0) {
       printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
@@ -1163,7 +1228,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 
   TRC_2ENTER ("DRV_CallAPI", cmd, args) ;
 
-  args->apiStatus = DSP_SOK ;
+  args->apiStatus = DSP_SOK;
 
   switch (cmd) {
 
@@ -1387,11 +1452,15 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 #endif /* if defined (MPCS_COMPONENT) */
 
 #if defined (RINGIO_COMPONENT)
+
+    /* 'LDRV_RINGIO_getMemInfo' takes an argument that is 'in' and 'out'.
+       Fortunately we don't need to copy anything, since no pointers are
+       involved */
     case CMD_RINGIO_MAPREGION:
     {
       printk(KERN_ALERT "      executing command: 'CMD_RINGIO_MAPREGION'\n");
 
-      retStatus = LDRV_RINGIO_getMemInfo (
+      retStatus = LDRV_RINGIO_getMemInfo(
         &args->apiArgs.ringIoArgs.ringioRegionArgs);
 
       args->apiStatus = retStatus;
@@ -1444,16 +1513,40 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       args->apiStatus = retStatus;
       break;
 
+    /* this is quite complicated. We need to provide a string argument for
+       the image path as well as 'argv' which is of type 'Char8**'. All
+       arguments are 'in' */
     case CMD_PROC_LOAD:
+    {
       printk(KERN_ALERT "      executing command: 'CMD_PROC_LOAD'\n");
 
-      retStatus = PMGR_PROC_load (args->apiArgs.procLoadArgs.procId,
-                                  args->apiArgs.procLoadArgs.imagePath,
-                                  args->apiArgs.procLoadArgs.argc,
-                                  args->apiArgs.procLoadArgs.argv);
+      Char8 path[DSP_MAX_STRLEN] = { 0 };
+
+      if (args->apiArgs.procLoadArgs.imagePath != NULL) {
+        int retVal = copy_from_user(
+          path, args->apiArgs.procLoadArgs.imagePath, DSP_MAX_STRLEN);
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                            "<CMD_PROC_LOAD>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+      }
+
+      if (status != -EFAULT) {
+        printk(KERN_ALERT "extracted IMAGE path: %s\n", path);
+
+        retStatus = PMGR_PROC_load(args->apiArgs.procLoadArgs.procId,
+                                   path,
+                                   args->apiArgs.procLoadArgs.argc,
+                                   args->apiArgs.procLoadArgs.argv);
+      }
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_PROC_LOADSECTION:
       printk(KERN_ALERT "      executing command: 'CMD_PROC_LOADSECTION'\n");
@@ -1744,18 +1837,69 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       args->apiStatus = retStatus;
       break ;
 
+    /* the second argument to 'PMGR_MSGQ_open' is 'out', while the third is
+       'in'. Proceed in the same manner as we did for other commands */
     case CMD_MSGQ_OPEN:
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_OPEN'\n");
 
-      /* Only NULL attributes are supported for Linux for MSGQ_open (). */
+      /* Only NULL attributes are supported for Linux for MSGQ_open () */
       if (args->apiArgs.msgqOpenArgs.attrs != NULL) {
-        retStatus = DSP_ENOTSUPPORTED ;
+        retStatus = DSP_ENOTSUPPORTED;
       }
       else {
-        retStatus = PMGR_MSGQ_open (args->apiArgs.msgqOpenArgs.queueName,
-                                    args->apiArgs.msgqOpenArgs.msgqQueue,
-                                    args->apiArgs.msgqOpenArgs.attrs,
-                                    NULL) ;
+        Char8 name[DSP_MAX_STRLEN] = { 0 };
+        MSGQ_Queue queue;
+        MSGQ_Attrs attrs;
+        MSGQ_Attrs *pAttrs = NULL;
+
+        if (args->apiArgs.msgqOpenArgs.attrs != NULL)
+        {
+          printk(KERN_ALERT "****************** ATTRIBUTES NON ZERO!\n");
+
+          /* use a local copy 'attrs' for the third argument */
+          int retVal = copy_from_user(
+            &attrs, args->apiArgs.msgqOpenArgs.attrs, sizeof(MSGQ_Attrs));
+
+          if (retVal != 0) {
+            printk(KERN_ALERT "*** error: bad 'copy_from_user' (1) in '%s' "
+                            "<CMD_MSGQ_OPEN>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+            status = -EFAULT;
+          }
+          else pAttrs = &attrs;
+        }
+
+        /* use a local copy 'attrs' for the third argument */
+        int retVal = copy_from_user(
+          name, args->apiArgs.msgqOpenArgs.queueName, DSP_MAX_STRLEN);
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' (2) in '%s' "
+                            "<CMD_MSGQ_OPEN>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+
+        if (status != -EFAULT) {
+          retStatus = PMGR_MSGQ_open(name, &queue, pAttrs, NULL);
+
+          if (DSP_SUCCEEDED(retStatus)) {
+            /* write the local copy 'queue' back to the user */
+            retVal = copy_to_user(args->apiArgs.msgqOpenArgs.msgqQueue,
+                                  &queue,
+                                  sizeof(MSGQ_Queue));
+
+            if (retVal != 0) {
+              printk(KERN_ALERT "*** error: bad 'copy_to_user' in '%s' "
+                                "<CMD_MSGQ_OPEN>, status: %d\n",
+                                __FUNCTION__, retVal);
+
+              status = -EFAULT;
+            }
+          }
+        }
       }
 
       args->apiStatus = retStatus;
@@ -1865,12 +2009,32 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       break;
     }
 
+    /* 'LDRV_POOL_open' requires an 'in' pointer to a valid struct of type
+       'POOL_OpenParams'. Copy the value explicitly via additional call to
+       'copy_from_user' */
     case CMD_POOL_OPEN:
     {
       printk(KERN_ALERT "      executing command: 'CMD_POOL_OPEN'\n");
 
-      retStatus = LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId,
-                                 args->apiArgs.poolOpenArgs.params);
+      POOL_OpenParams params;
+
+      if (args->apiArgs.poolOpenArgs.params != NULL) {
+        retVal = copy_from_user(
+            (void*) &params,
+            (void*) args->apiArgs.poolOpenArgs.params,
+            sizeof(POOL_OpenParams));
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                            "<CMD_POOL_OPEN>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+      }
+
+      retStatus =
+        LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
 
       args->apiStatus = retStatus;
       break;
@@ -1973,6 +2137,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
                             args->apiArgs.notifyNotifyArgs.ipsId,
                             args->apiArgs.notifyNotifyArgs.eventNo,
                             args->apiArgs.notifyNotifyArgs.payload);
+
       args->apiStatus = retStatus;
       break;
     }
@@ -2013,11 +2178,32 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       break;
     }
 
+    /* here, the main function 'IDM_create' accesses 'attrs' contained in
+       'args' as a pointer. Thus, we copy the value and pass the copy for a
+       safe reference */
     case CMD_IDM_CREATE:
     {
       printk(KERN_ALERT "      executing command: 'CMD_IDM_CREATE'\n");
-      retStatus = IDM_create(args->apiArgs.idmCreateArgs.key,
-                             args->apiArgs.idmCreateArgs.attrs);
+
+      IDM_Attrs attrs;
+
+      int retVal = copy_from_user(
+        (void*) &attrs,
+        (void*) args->apiArgs.idmCreateArgs.attrs,
+        sizeof(IDM_Attrs));
+
+      if (retVal != 0) {
+        printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s', "
+                          "<CMD_IDM_CREATE>, status: %d\n",
+                          __FUNCTION__, retVal);
+
+        status = -EFAULT;
+      }
+      else {
+        /* as mentioned, pass the local 'attrs' object. This should be ok,
+           since declared as 'in' argument */
+        retStatus = IDM_create(args->apiArgs.idmCreateArgs.key, &attrs);
+      }
 
       args->apiStatus = retStatus;
       break;
@@ -2033,14 +2219,50 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       break;
     }
 
+    /* the actual operation 'IDM_acquireId' produces one 'out' value, which
+       is the 'id'. Thus, we need to write it back upon completion */
     case CMD_IDM_ACQUIREID:
     {
       printk(KERN_ALERT "      executing command: 'CMD_IDM_ACQUIREID'\n");
 
-      retStatus = IDM_acquireId(
-        args->apiArgs.idmAcquireIdArgs.key,
-        args->apiArgs.idmAcquireIdArgs.idKey,
-        args->apiArgs.idmAcquireIdArgs.id);
+      Uint32 id;
+      Char8 dstKey[DSP_MAX_STRLEN] = { 0 };
+
+      /* copy the id-key into a local buffer. Accessing it directly (user-
+         space) might (and most probably will) result in page faults */
+      int retVal = copy_from_user(
+                         (void*) dstKey,
+                         (void*) args->apiArgs.idmAcquireIdArgs.idKey,
+                         DSP_MAX_STRLEN);
+
+      if (retVal != 0) {
+        printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                          "<CMD_IDM_ACQUIREID>, status: %d\n",
+                          __FUNCTION__, retVal);
+
+        status = -EFAULT;
+      }
+      else {
+        Uint32 *userIdAddr = args->apiArgs.idmAcquireIdArgs.id;
+
+        retStatus = IDM_acquireId(
+          args->apiArgs.idmAcquireIdArgs.key, dstKey, &id);
+
+        if (DSP_SUCCEEDED(retStatus)) {
+          /* write the created 'id' value back. I guess this is safe (i.e.
+             will not be overwritten when writing the entire 'args' struct
+             back to the user space) */
+          retVal = copy_to_user(userIdAddr, &id, sizeof(Uint32));
+
+          if (retVal != 0) {
+            printk(KERN_ALERT "*** error: bad 'copy_to_user' in '%s' "
+                              "<CMD_IDM_ACQUIREID>, status: %d\n",
+                              __FUNCTION__, retVal);
+
+            status = -EFAULT;
+          }
+        }
+      }
 
       args->apiStatus = retStatus;
       break;
@@ -2050,8 +2272,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_IDM_RELEASED'\n");
 
-      retStatus = IDM_releaseId (args->apiArgs.idmReleaseIdArgs.key,
-                                 args->apiArgs.idmReleaseIdArgs.id);
+      retStatus = IDM_releaseId(args->apiArgs.idmReleaseIdArgs.key,
+                                args->apiArgs.idmReleaseIdArgs.id);
 
       args->apiStatus = retStatus;
       break;
@@ -2068,7 +2290,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       break;
   }
 
-  /* If any call returned -ERESTARTSYS, it must be propagated further. */
+  /* If any call returned -ERESTARTSYS, it must be propagated further */
   if (retStatus == -ERESTARTSYS) {
     status = retStatus;
   }

@@ -594,8 +594,6 @@ LDRV_POOL_exit (IN ProcessorId procId)
  *  ============================================================================
  */
 
-#include <linux/module.h>
-
 EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
                                      IN POOL_OpenParams *poolOpenParams)
 {
@@ -621,8 +619,6 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
   if (poolNo < poolState->numPools) {
     poolInfo = &(poolState->poolInfo[poolNo]);
 
-    printk(KERN_ALERT "TRYING TO OPEN INTERFACE ...");
-    
     /* goes to 'SMA/DMA/BUFPOOL_open', which accesses 'params' as part
        of 'poolOpenParams', which is generic (void*) and is cast to
        particular struct depending on the pool function called. Thus
@@ -632,22 +628,16 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
                                        poolInfo->object,
                                        poolOpenParams);
 
-
-    printk(KERN_ALERT "done\n");
-
-    if (DSP_FAILED (status)) {
+    if (DSP_FAILED(status)) {
       SET_FAILURE_REASON;
     }
     else {
-      printk(KERN_ALERT "SUCCEEDED OPENING INTERFACE, writing data...");
-      poolAddrPtr = &LDRV_POOL_addrConfig [procId][poolNo] ;
-      poolAddrPtr->addr [AddrType_Usr] = 0 ;
-      poolAddrPtr->addr [AddrType_Phy] = poolOpenParams->physAddr ;
-      poolAddrPtr->addr [AddrType_Knl] = poolOpenParams->virtAddr ;
-      poolAddrPtr->addr [AddrType_Dsp] = poolOpenParams->dspAddr ;
-      poolAddrPtr->size                = poolOpenParams->size ;
-
-      printk(KERN_ALERT "done\n");
+      poolAddrPtr = &LDRV_POOL_addrConfig [procId][poolNo];
+      poolAddrPtr->addr[AddrType_Usr] = 0;
+      poolAddrPtr->addr[AddrType_Phy] = poolOpenParams->physAddr;
+      poolAddrPtr->addr[AddrType_Knl] = poolOpenParams->virtAddr;
+      poolAddrPtr->addr[AddrType_Dsp] = poolOpenParams->dspAddr;
+      poolAddrPtr->size = poolOpenParams->size;
     }
   }
   else {
@@ -655,11 +645,9 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
     SET_FAILURE_REASON;
   }
 
-    TRC_1LEAVE ("LDRV_POOL_open", status) ;
-
-    return status ;
+  TRC_1LEAVE ("LDRV_POOL_open", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @name   LDRV_POOL_close

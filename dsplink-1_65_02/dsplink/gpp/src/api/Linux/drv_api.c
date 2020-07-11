@@ -886,28 +886,29 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
             break ;
 #endif /* if defined (MPLIST_COMPONENT) */
 
-        case CMD_PROC_SETUP:
-            {
-                /* Install cleanup routines. */
-                DRV_installCleanupRoutines (
-                                         args->apiArgs.procSetupArgs.linkCfg) ;
+      case CMD_PROC_SETUP:
+      {
+        /* Install cleanup routines */
+        DRV_installCleanupRoutines(
+          args->apiArgs.procSetupArgs.linkCfg);
 
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                TRC_1PRINT (
-                        TRC_LEVEL4,
-                        "osStatus: %x\n", osStatus) ;
+        osStatus = ioctl (drvObj->driverHandle, cmdId, args);
 
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
+        TRC_1PRINT(TRC_LEVEL4, "osStatus: %x\n", osStatus);
+
+        if (osStatus < 0) {
+          status = DSP_EFAIL;
+          SET_FAILURE_REASON;
+        }
+
 #if defined (POOL_COMPONENT)
-                else {
-                    _POOL_init () ;
-                }
+        else {
+          _POOL_init();
+        }
 #endif /* if defined (POOL_COMPONENT) */
-            }
-            break ;
+
+        break;
+      }
 
         case CMD_PROC_DESTROY:
             {
@@ -924,40 +925,33 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
             }
             break ;
 
-        case CMD_PROC_ATTACH:
-        {
-          if (DRV_handle == NULL) {
-            status = DRV_Initialize(&DRV_handle, NULL);
-
-            if (DSP_SUCCEEDED (status)) {
-              /* Install cleanup routines. This is needed for the case in
-                 in multi-application case where app has not called
-                 PROC_setup and has directly called PROC_attach */
-              DRV_installCleanupRoutines (PROC_linkCfgPtr) ;
-            }
-            else {
-              SET_FAILURE_REASON;
-            }
-          }
+      case CMD_PROC_ATTACH:
+      {
+        if (DRV_handle == NULL) {
+          status = DRV_Initialize(&DRV_handle, NULL);
 
           if (DSP_SUCCEEDED (status)) {
-            printf("***** calling 'ioctl' <CMD_PROC_ATTACH> in %s, "
-                   "args:\n", __FUNCTION__);
-
-            printf("      handle: 0x%lx\n", drvObj->driverHandle);
-            printf("      cmdId: %ld\n", cmdId);
-            printf("      args: 0x%lx\n", &args);
-
-            osStatus = ioctl (DRV_handle->driverHandle, cmdId, args);
-
-            if (osStatus < 0) {
-              status = DSP_EFAIL;
-              SET_FAILURE_REASON;
-            }
+            /* Install cleanup routines. This is needed for the case in
+               in multi-application case where app has not called
+               PROC_setup and has directly called PROC_attach */
+            DRV_installCleanupRoutines (PROC_linkCfgPtr) ;
           }
-
-          break;
+          else {
+            SET_FAILURE_REASON;
+          }
         }
+
+        if (DSP_SUCCEEDED(status)) {
+          osStatus = ioctl(DRV_handle->driverHandle, cmdId, args);
+
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+        }
+
+        break;
+      }
 
         case CMD_PROC_DETACH:
             {
@@ -1130,81 +1124,73 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
             }
             break ;
 
-        case CMD_POOL_OPEN:
-            {
-                POOL_OpenParams *   retParams ;
-                Uint32              addr ;
-                Uint32              size;
-                Uint32              userAddr ;
-                Uint8               poolNo ;
-                ProcessorId         procId ;
-                POOL_AddrInfo *     poolAddrPtr ;
+      case CMD_POOL_OPEN:
+      {
+        POOL_OpenParams *retParams;
+        Uint32 addr;
+        Uint32 size;
+        Uint32 userAddr;
+        Uint8 poolNo;
+        ProcessorId procId;
+        POOL_AddrInfo *poolAddrPtr;
 
-                /** ------------------------------------------------------------
-                 *  Call the POOL OPEN function.
-                 *  ------------------------------------------------------------
-                 */
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                if ((osStatus < 0) || (DSP_FAILED (args->apiStatus))) {
-                    if (osStatus < 0) {
-                        status = DSP_EFAIL ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
-                else {
-                    retParams = args->apiArgs.poolOpenArgs.params ;
+        /* trigger 'ioctl' which goes to DRV_IOctl which subsequently calls
+           'LDRV_POOL_open' */
+        osStatus = ioctl(drvObj->driverHandle, cmdId, args);
 
-                    size = retParams->size ;
-                    addr = retParams->physAddr ;
-                    /** --------------------------------------------------------
-                     *  Align the physical address to page boundary
-                     *  --------------------------------------------------------
-                     */
-                    size = size + (addr % drvObj->pageSize) ;
-                    addr = addr - (addr % drvObj->pageSize) ;
+        if ((osStatus < 0) || (DSP_FAILED(args->apiStatus))) {
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+        }
+        else {
+          retParams = args->apiArgs.poolOpenArgs.params;
+          size = retParams->size;
+          addr = retParams->physAddr;
 
-                    userAddr = (Uint32) mmap (NULL,
-                                              size,
-                                              PROT_READ|PROT_WRITE,
-                                              MAP_SHARED,
-                                              drvObj->driverHandle,
-                                              addr) ;
+          /* Align the physical address to page boundary */
+          size = size + (addr % drvObj->pageSize);
+          addr = addr - (addr % drvObj->pageSize);
 
-                    if (userAddr == (Uint32) MAP_FAILED) {
-                        TRC_0PRINT (TRC_LEVEL7, "Map to user space failed") ;
-                        status = DSP_EFAIL ;
-                        SET_FAILURE_REASON ;
-                    }
-                    else {
-                        /** ----------------------------------------------------
-                         *  change the user address to reflect the actual user
-                         *  address of memory block mapped. This is done since
-                         *  during mmap memory block was shifted(+-) so that it
-                         *  is aligned to page boundary.
-                         *  ----------------------------------------------------
-                         */
-                        userAddr =    userAddr
-                                   +  (retParams->physAddr % drvObj->pageSize) ;
+          userAddr = (Uint32) mmap(NULL,
+                                   size,
+                                   PROT_READ | PROT_WRITE,
+                                   MAP_SHARED,
+                                   drvObj->driverHandle,
+                                   addr);
 
-                        /* Get the proc Number for the processor */
-                        procId =
-                            POOL_getProcId (args->apiArgs.poolOpenArgs.poolId) ;
-                        /* Get the pool Number on the processor */
-                        poolNo =
-                            POOL_getPoolNo (args->apiArgs.poolOpenArgs.poolId) ;
+          if (userAddr == (Uint32) MAP_FAILED) {
+            TRC_0PRINT (TRC_LEVEL7, "Map to user space failed");
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+          else {
+            /* change the user address to reflect the actual user address of
+               memory block mapped. This is done since during 'mmap' the
+               memory block was shifted(+-) so that it is aligned to the page
+               boundary */
+            userAddr = userAddr + (retParams->physAddr % drvObj->pageSize);
 
-                        /* update the pool information */
-                        poolAddrPtr = &POOL_addrConfig [procId][poolNo] ;
-                        poolAddrPtr->addr [AddrType_Usr] = userAddr ;
-                        poolAddrPtr->addr [AddrType_Phy] = retParams->physAddr ;
-                        poolAddrPtr->addr [AddrType_Knl] = retParams->virtAddr ;
-                        poolAddrPtr->addr [AddrType_Dsp] = retParams->dspAddr ;
-                        poolAddrPtr->size                = retParams->size ;
-                        poolAddrPtr->isInit              = TRUE ;
-                    }
-                }
-            }
-            break ;
+            /* Get the proc Number for the processor */
+            procId = POOL_getProcId(args->apiArgs.poolOpenArgs.poolId);
+
+            /* Get the pool Number on the processor */
+            poolNo = POOL_getPoolNo(args->apiArgs.poolOpenArgs.poolId);
+
+            /* update the pool information */
+            poolAddrPtr = &POOL_addrConfig [procId][poolNo];
+            poolAddrPtr->addr [AddrType_Usr] = userAddr;
+            poolAddrPtr->addr [AddrType_Phy] = retParams->physAddr;
+            poolAddrPtr->addr [AddrType_Knl] = retParams->virtAddr;
+            poolAddrPtr->addr [AddrType_Dsp] = retParams->dspAddr;
+            poolAddrPtr->size = retParams->size;
+            poolAddrPtr->isInit = TRUE;
+          }
+        }
+
+        break;
+      }
 
         case CMD_POOL_CLOSE:
             {

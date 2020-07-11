@@ -264,47 +264,48 @@ MSGQ_transportClose (IN  ProcessorId procId)
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-MSGQ_open (IN     Pstr         queueName,
-           OUT    MSGQ_Queue * msgqQueue,
-           IN     MSGQ_Attrs * attrs)
+EXPORT_API DSP_STATUS MSGQ_open(IN Pstr queueName,
+                                OUT MSGQ_Queue *msgqQueue,
+                                IN MSGQ_Attrs *attrs)
 {
-    DSP_STATUS  status = DSP_SOK ;
-    CMD_Args    args             ;
-    Uint32      length           ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
+  Uint32 length;
 
-    TRC_3ENTER ("MSGQ_open", queueName, msgqQueue, attrs) ;
+  TRC_3ENTER("MSGQ_open", queueName, msgqQueue, attrs);
 
-    DBC_Require (msgqQueue != NULL) ;
+  DBC_Require(msgqQueue != NULL);
 
-    if (msgqQueue == NULL) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (queueName != NULL){
-        length = strlen (queueName) ;
-            if (length >= DSP_MAX_STRLEN) {
-                status = DSP_EINVALIDARG ;
-                SET_FAILURE_REASON ;
-            }
-        }
-        if (DSP_SUCCEEDED(status)) {
-            args.apiArgs.msgqOpenArgs.queueName = queueName ;
-            args.apiArgs.msgqOpenArgs.msgqQueue = msgqQueue ;
-            args.apiArgs.msgqOpenArgs.attrs     = attrs ;
+  if (msgqQueue == NULL) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (queueName != NULL) {
+      length = strlen (queueName);
 
-            status = DRV_INVOKE (DRV_handle, CMD_MSGQ_OPEN, &args) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
+      if (length >= DSP_MAX_STRLEN) {
+        status = DSP_EINVALIDARG;
+        SET_FAILURE_REASON;
+      }
     }
 
-    TRC_1LEAVE ("MSGQ_open", status) ;
+    if (DSP_SUCCEEDED(status)) {
+      args.apiArgs.msgqOpenArgs.queueName = queueName;
+      args.apiArgs.msgqOpenArgs.msgqQueue = msgqQueue;
+      args.apiArgs.msgqOpenArgs.attrs = attrs;
 
-    return status ;
+      status = DRV_INVOKE(DRV_handle, CMD_MSGQ_OPEN, &args);
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+    }
+  }
+
+  TRC_1LEAVE("MSGQ_open", status);
+
+  return status;
 }
 
 

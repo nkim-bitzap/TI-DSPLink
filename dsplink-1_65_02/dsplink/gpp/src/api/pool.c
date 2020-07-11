@@ -114,70 +114,73 @@ extern PROC_Object PROC_stateObj ;
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-POOL_open (IN PoolId poolId, IN Pvoid params)
+
+EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
 {
-    DSP_STATUS       status      = DSP_SOK ;
-    DSP_STATUS       tmpStatus   = DSP_SOK ;
-    Bool             csObjExists = FALSE   ;
-    Uint8            poolNo      = POOL_getPoolNo (poolId) ;
-    ProcessorId      procId      = POOL_getProcId (poolId) ;
-    CMD_Args         args                  ;
-    POOL_OpenParams  poolOpenParams        ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  Bool csObjExists = FALSE;
+  Uint8 poolNo = POOL_getPoolNo (poolId);
+  ProcessorId procId = POOL_getProcId(poolId);
 
-    TRC_2ENTER ("POOL_open", poolId, params) ;
+  POOL_OpenParams poolOpenParams;
+  CMD_Args args;
 
-    DBC_Require (IS_VALID_POOLID (poolId)) ;
+  TRC_2ENTER("POOL_open", poolId, params);
+  DBC_Require(IS_VALID_POOLID (poolId));
 
-    if (!IS_VALID_POOLID (poolId)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (PROC_stateObj.syncCsObj != NULL) {
-            status = _SYNC_USR_enterCS (PROC_stateObj.syncCsObj) ;
-            csObjExists = TRUE ;
-        }
-
-        if (DSP_SUCCEEDED (status)) {
-            if (    DRV_CHECK_CURSTATUS (
-                          PROC_stateObj.curStatus.poolIsOpened [procId][poolNo])
-                ==  TRUE) {
-                /* Check if the specific POOL has been opened in this process.*/
-                status = DSP_EALREADYOPENED ;
-                SET_FAILURE_REASON ;
-            }
-            else {
-                args.apiArgs.poolOpenArgs.poolId  = poolId ;
-                poolOpenParams.params             = params ;
-                args.apiArgs.poolOpenArgs.params  = &poolOpenParams ;
-
-                status = DRV_INVOKE (DRV_handle, CMD_POOL_OPEN, &args) ;
-                if (DSP_SUCCEEDED (status)) {
-                    DRV_SET_CURSTATUS (
-                        PROC_stateObj.curStatus.poolIsOpened [procId][poolNo]) ;
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (csObjExists == TRUE) {
-                tmpStatus = _SYNC_USR_leaveCS (PROC_stateObj.syncCsObj) ;
-                if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-                    status = tmpStatus ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-        }
+  if (!IS_VALID_POOLID(poolId)) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (PROC_stateObj.syncCsObj != NULL) {
+      status = _SYNC_USR_enterCS(PROC_stateObj.syncCsObj);
+      csObjExists = TRUE;
     }
 
-    TRC_1LEAVE ("POOL_open", status) ;
+    if (DSP_SUCCEEDED (status)) {
 
-    return status ;
+      /* Check if the specific POOL has already been opened in this process */
+      if (DRV_CHECK_CURSTATUS(
+            PROC_stateObj.curStatus.poolIsOpened [procId][poolNo]) ==  TRUE)
+      {
+        status = DSP_EALREADYOPENED;
+        SET_FAILURE_REASON;
+      }
+      else {
+        args.apiArgs.poolOpenArgs.poolId = poolId;
+        poolOpenParams.params = params;
+        args.apiArgs.poolOpenArgs.params = &poolOpenParams;
+
+        /* goes to 'DRV_Invoke' which then triggers 'ioctl', which calls the
+           actual implementation in 'DRV_Invoke' which issues a call to
+           'LDRV_POOL_open' */
+        status = DRV_INVOKE(DRV_handle, CMD_POOL_OPEN, &args);
+
+        if (DSP_SUCCEEDED(status)) {
+          DRV_SET_CURSTATUS(
+            PROC_stateObj.curStatus.poolIsOpened[procId][poolNo]);
+        }
+        else {
+          SET_FAILURE_REASON;
+        }
+      }
+
+      if (csObjExists == TRUE) {
+        tmpStatus = _SYNC_USR_leaveCS(PROC_stateObj.syncCsObj);
+
+        if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+          status = tmpStatus;
+          SET_FAILURE_REASON;
+        }
+      }
+    }
+  }
+
+  TRC_1LEAVE("POOL_open", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   POOL_close

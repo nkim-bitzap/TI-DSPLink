@@ -321,112 +321,74 @@ MESSAGE_Create (IN Char8 * dspExecutable,
     NOLOADER_ImageInfo  imageInfo ;
 #endif
 
-    MESSAGE_0Print ("Entered MESSAGE_Create ()\n") ;
+    MESSAGE_0Print ("Executing 'MESSAGE_Create'\n") ;
 
-    /*
-     *  Create and initialize the proc object.
-     */
+    /* Create and initialize the proc object */
+    status = PROC_setup(NULL);
 
-    status = PROC_setup (NULL) ;
+    MESSAGE_1Print("'PROC_setup' done, status: %ld\n", status);
 
-    /*
-     *  Attach the Dsp with which the transfers have to be done.
-     */
+    /* Attach the Dsp with which the transfers have to be done */
     if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print ("Executing 'PROC_attach'\n");
+      status = PROC_attach(processorId, NULL);
 
-      status = PROC_attach (processorId, NULL) ;
-
-      MESSAGE_1Print ("PROC_attach executed, status: %ld\n", status) ;
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("PROC_attach () failed. Status = [0x%x]\n",
-                        status) ;
-      }
+      MESSAGE_1Print("'PROC_attach' done, status: %ld\n", status);
     }
 
-    /*
-     *  Open the pool.
-     */
+    /* Open the pool */
     if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print ("Executing 'POOL_makePoolId'\n");
+      status = POOL_open(
+        POOL_makePoolId(processorId, SAMPLE_POOL_ID),
+        &SamplePoolAttrs);
 
-      status = POOL_open (POOL_makePoolId(processorId, SAMPLE_POOL_ID),
-                          &SamplePoolAttrs);
-
-      MESSAGE_1Print ("POOL_open executed, status: %ld\n", status);
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("POOL_open () failed. Status = [0x%x]\n",
-                        status) ;
-      }
-    }
-    else {
-      MESSAGE_1Print ("PROC_setup () failed. Status = [0x%x]\n", status) ;
+      MESSAGE_1Print("'POOL_open' done, status: %ld\n", status);
     }
 
-    /*
-     *  Open the GPP's message queue
-     */
+    /* Open the GPP's message queue */
     if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print ("Executing 'MSGQ_open'\n");
+      MESSAGE_0Print("Executing 'MSGQ_open'\n");
 
-      status = MSGQ_open (SampleGppMsgqName, &SampleGppMsgq, NULL) ;
+      status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
 
-      MESSAGE_1Print ("MSGQ_open executed, status: 0x%x\n", status);
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("MSGQ_open () failed. Status = [0x%x]\n",
-                        status) ;
-      }
+      MESSAGE_1Print("'MSGQ_open' done, status: %ld\n", status);
     }
 
-    /*
-     *  Set the message queue that will receive any async. errors
-     */
+    /* Set the message queue that will receive any async. errors */
     if (DSP_SUCCEEDED (status)) {
       MESSAGE_0Print ("Executing 'MSGQ_setErrorHandler'\n");
 
       status = MSGQ_setErrorHandler(SampleGppMsgq,
                                     POOL_makePoolId(processorId,
-                                                    SAMPLE_POOL_ID)) ;
+                                    SAMPLE_POOL_ID));
 
-      MESSAGE_1Print ("MSGQ_setErrorHandler executed, status: 0x%x\n", status);
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("MSGQ_setErrorHandler () failed. Status = [0x%x]\n",
-                        status) ;
-      }
+      MESSAGE_1Print(
+        "MSGQ_setErrorHandler executed, status: %ld\n", status);
     }
 
-    /*
-     *  Load the executable on the DSP.
-     */
+    /* Load the executable on the DSP */
     if (DSP_SUCCEEDED (status)) {
-
       args [0] = strNumIterations;
 
 #if defined (DA8XXGEM)
-      if  ( LINKCFG_config.dspConfigs [processorId]->dspObject->doDspCtrl
-                  ==  DSP_BootMode_NoBoot) {
-            imageInfo.dspRunAddr  = MESSAGE_dspAddr ;
-            imageInfo.shmBaseAddr = MESSAGE_shmAddr ;
-            imageInfo.argsAddr    = MESSAGE_argsAddr ;
-            imageInfo.argsSize    = 50 ;        ;
-            status = PROC_load (processorId, (Char8 *) &imageInfo, numArgs, args) ;
-        }
-        else
+      if (LINKCFG_config.dspConfigs[processorId]->dspObject->doDspCtrl ==
+          DSP_BootMode_NoBoot)
+      {
+        imageInfo.dspRunAddr = MESSAGE_dspAddr;
+        imageInfo.shmBaseAddr = MESSAGE_shmAddr;
+        imageInfo.argsAddr = MESSAGE_argsAddr;
+        imageInfo.argsSize = 50;
+
+        status =
+          PROC_load(processorId, (Char8 *) &imageInfo, numArgs, args);
+      }
+      else
 #endif
       {
         MESSAGE_0Print ("Executing 'PROC_load'\n");
 
-        status = PROC_load (processorId, dspExecutable, numArgs, args);
+        status = PROC_load(processorId, dspExecutable, numArgs, args);
 
-        MESSAGE_1Print ("PROC_load executed, status: 0x%x\n", status);
-      }
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("PROC_load () failed. Status = [0x%x]\n", status) ;
+        MESSAGE_1Print ("PROC_load executed, status: %ld\n", status);
       }
     }
 

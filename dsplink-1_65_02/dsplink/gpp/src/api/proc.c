@@ -234,45 +234,28 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
     }
   }
 
-  printf("  'DRV_INITIALIZE' done in '%s', status: %ld\n",
-         __FUNCTION__, status);
-
   if (DSP_SUCCEEDED (status)) {
     status = DRV_PROTECT_INIT (DRV_handle);
-
-    printf("  'DRV_PROTECT_INIT' done in '%s', status: %ld\n",
-           __FUNCTION__, status);
 
     if (DSP_SUCCEEDED(status)) {
       status = DRV_PROTECT_ENTER (DRV_handle);
 
-      printf("  'DRV_PROTECT_ENTER' done in '%s', status: %ld\n",
-             __FUNCTION__, status);
-
-      if (DSP_SUCCEEDED (status)) {
+      if (DSP_SUCCEEDED(status)) {
         args.apiArgs.procSetupArgs.linkCfg = PROC_linkCfgPtr;
 
-        status = DRV_INVOKE (DRV_handle, CMD_PROC_SETUP, &args);
-
-        printf("  'DRV_INVOKE (CMD_PROC_SETUP)' done in '%s', "
-               "status: %ld\n", __FUNCTION__, status);
+        status = DRV_INVOKE(DRV_handle, CMD_PROC_SETUP, &args);
 
         /* Check if it is the first call to setup. Subsequent calls
-           return DSP_SAREADYSETUP */
+           return 'DSP_SAREADYSETUP' */
         if (status == DSP_SOK) {
           tmpStatus = _MEM_USR_init ();
-
-          printf("  '_MEM_USR_init' done in '%s', status: %ld\n",
-                 __FUNCTION__, tmpStatus);
 
           if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
             status = tmpStatus;
             SET_FAILURE_REASON;
           }
           else {
-            tmpStatus = _IDM_USR_init ();
-            printf("  '_IDM_USR_init' done in '%s', status: %ld\n",
-                   __FUNCTION__, tmpStatus);
+            tmpStatus = _IDM_USR_init();
 
             if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
               status = tmpStatus;
@@ -280,8 +263,6 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
             }
             else {
               tmpStatus = _SYNC_USR_init();
-              printf("  '_SYNC_USR_init' done in '%s', status: %ld\n",
-                     __FUNCTION__, tmpStatus);
 
               if (DSP_SUCCEEDED (status) &&  DSP_FAILED (tmpStatus)) {
                 status = tmpStatus;
@@ -291,31 +272,18 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
           }
 
           if (DSP_FAILED (status)) {
-            printf("  exiting '_SYNC/_IDM/_MEM_USR' in '%s'...",
-                    __FUNCTION__);
-
             _SYNC_USR_exit();
             _IDM_USR_exit();
             _MEM_USR_exit();
-
-            printf("done\n");
           }
         }
         else {
-          printf("  calling '_SYNC_USR_stateObjInit' in '%s'...",
-                 __FUNCTION__);
-
           _SYNC_USR_stateObjInit();
-
-          printf("done\n");
         }
 
         if (DSP_SUCCEEDED (status)) {
           tmpStatus = _SYNC_USR_createCS(COMPONENT_ID_KEY,
                                          &PROC_stateObj.syncCsObj);
-
-          printf("  '_SYNC_USR_createCS' done in '%s', status: %ld\n",
-                 __FUNCTION__, tmpStatus);
 
           if (DSP_SUCCEEDED (status) &&  DSP_FAILED (tmpStatus)) {
             status = tmpStatus;
@@ -325,19 +293,13 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
 
         tmpStatus = DRV_PROTECT_LEAVE (DRV_handle);
 
-        printf("  'DRV_PROTECT_LEAVE' done in '%s', status: %ld\n",
-               __FUNCTION__, tmpStatus);
-
         if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
           status = tmpStatus;
           SET_FAILURE_REASON;
         }
 
-        if (DSP_FAILED (status)) {
+        if (DSP_FAILED(status)) {
           tmpStatus = DRV_PROTECT_EXIT (DRV_handle);
-
-          printf("  'DRV_PROTECT_EXIT' done in %s, status: %ld\n",
-                 __FUNCTION__, tmpStatus);
         }
       }
       else {
@@ -348,13 +310,9 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
       SET_FAILURE_REASON;
     }
 
-    if (DSP_SUCCEEDED (status)) {
-      printf("  resetting status in %s...", __FUNCTION__);
-
+    if (DSP_SUCCEEDED(status)) {
       DRV_SET_CURSTATUS(PROC_stateObj.curStatus.isSetup);
       PROC_resetCurStatus ();
-
-      printf("done\n");
     }
   }
 
@@ -363,7 +321,6 @@ EXPORT_API DSP_STATUS PROC_setup(IN LINKCFG_Object * linkCfg)
 
   return status;
 }
-
 
 /** ============================================================================
  *  @func   PROC_destroy
@@ -517,20 +474,14 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
     /* PROC_attach may be directly called in multi-application scenario */
     status = DRV_INITIALIZE (&DRV_handle);
 
-    printf("  'DRV_INITIALIZE' done in '%s', status: %ld\n",
-           __FUNCTION__, status);
-
-    if (DSP_FAILED (status)) {
+    if (DSP_FAILED(status)) {
       SET_FAILURE_REASON;
     }
     else {
       tmpStatus = DRV_STARTUP_INIT(DRV_handle);
-
-      printf("  'DRV_STARTUP_INIT' done in '%s', status: %ld\n",
-              __FUNCTION__, tmpStatus);
     }
 
-    if (DSP_SUCCEEDED (status)) {
+    if (DSP_SUCCEEDED(status)) {
       if (PROC_stateObj.syncCsObj == NULL) {
         status = _SYNC_USR_stateObjInit();
 
@@ -554,13 +505,10 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
       }
     }
 
-    if (DSP_SUCCEEDED (status)) {
+    if (DSP_SUCCEEDED(status)) {
       status = _SYNC_USR_enterCS(PROC_stateObj.syncCsObj);
 
-      printf("  '_SYNC_USR_enterCS' done in '%s', status: %ld\n",
-             __FUNCTION__, status);
-
-      if (DSP_SUCCEEDED (status)) {
+      if (DSP_SUCCEEDED(status)) {
         if (PROC_linkCfgPtr == NULL) {
           PROC_linkCfgPtr = &LINKCFG_config;
         }
@@ -575,13 +523,11 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
         args.apiArgs.procAttachArgs.procId = procId;
         args.apiArgs.procAttachArgs.attr = attr;
 
-        status = DRV_INVOKE (DRV_handle, CMD_PROC_ATTACH, &args);
+        /* off we go, trigger 'ioctl' now and try to attach */
+        status = DRV_INVOKE(DRV_handle, CMD_PROC_ATTACH, &args);
 
-        printf("  'DRV_INVOKE' done in '%s', status: %ld\n",
-               __FUNCTION__, status);
-
-#if defined     (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
-             || (MPLIST_COMPONENT) || (RINGIO_COMPONENT)
+#if defined (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
+         || (MPLIST_COMPONENT) || (RINGIO_COMPONENT)
 
         /* Check if it is the first call to attach. Subsequent calls
            return DSP_SALREADYATTACHED */
@@ -589,8 +535,8 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
           firstAttach = TRUE;
         }
 
-#endif /* #if defined     (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
-                       || (MPLIST_COMPONENT) || (RINGIO_COMPONENT) */
+#endif /* #if defined (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
+                   || (MPLIST_COMPONENT) || (RINGIO_COMPONENT) */
 
         if (DSP_SUCCEEDED(status)) {
           /* Check if this is being called from a forked process.
@@ -606,9 +552,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
 #if defined (NOTIFY_COMPONENT)
           tmpStatus = _NOTIFY_init(procId);
 
-          printf("  '_NOTIFY_init' done in '%s', status: %ld\n",
-                 __FUNCTION__, tmpStatus);
-
           if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
             status = tmpStatus;
             SET_FAILURE_REASON;
@@ -618,9 +561,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
 #if defined (MPCS_COMPONENT)
           if (DSP_SUCCEEDED (status)) {
             tmpStatus = _MPCS_init (procId);
-
-            printf("  '_MPCS_init' done in '%s', status: %ld\n",
-                   __FUNCTION__, tmpStatus);
 
             if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
               status = tmpStatus;
@@ -637,9 +577,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
             if (DSP_SUCCEEDED(status)) {
               tmpStatus = _MPLIST_moduleInit (procId);
 
-              printf("  '_MPLIST_moduleInit' done in '%s', "
-                     "status: %ld\n", __FUNCTION__, tmpStatus);
-
               if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
                 status = tmpStatus;
                 SET_FAILURE_REASON;
@@ -649,7 +586,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
 
 #if defined (RINGIO_COMPONENT)
             if (DSP_SUCCEEDED(status)) {
-              tmpStatus = _RingIO_moduleInit (procId);
+              tmpStatus = _RingIO_moduleInit(procId);
 
               printf("  '_RingIO_moduleInit' done in '%s', "
                      "status: %ld\n", __FUNCTION__, tmpStatus);
@@ -955,70 +892,74 @@ PROC_getState (IN   ProcessorId  procId,
  *  @modif  None
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-PROC_load (IN   ProcessorId  procId,
-           IN   Char8 *      imagePath,
-           IN   Uint32       argc,
-           IN   Char8 **     argv)
+
+EXPORT_API DSP_STATUS PROC_load(IN ProcessorId procId,
+                                IN Char8 *imagePath,
+                                IN Uint32 argc,
+                                IN Char8 **argv)
 {
-    DSP_STATUS status      = DSP_SOK ;
-    DSP_STATUS tmpStatus   = DSP_SOK ;
-    Bool       csObjExists = FALSE ;
-    CMD_Args   args ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  Bool csObjExists = FALSE;
+  CMD_Args args;
 
-    TRC_4ENTER ("PROC_load", procId, imagePath, argc, argv) ;
+  TRC_4ENTER("PROC_load", procId, imagePath, argc, argv);
+  printf("Executing 'PROC_load'\n");
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (imagePath != NULL ) ;
-    DBC_Require (   ((argc != 0) && (argv != NULL))
-                 || ((argc == 0) && (argv == NULL))) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(imagePath != NULL );
+  DBC_Require(((argc != 0) && (argv != NULL))
+           || ((argc == 0) && (argv == NULL)));
 
-    if (   ((IS_VALID_PROCID (procId)) == FALSE)
-        || (imagePath == NULL)
-        || (((argc == 0) && (argv != NULL)))
-        || (((argc != 0) && (argv == NULL)))) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (PROC_stateObj.syncCsObj != NULL) {
-            status = _SYNC_USR_enterCS (PROC_stateObj.syncCsObj) ;
-            csObjExists = TRUE ;
-        }
-
-        if (DSP_SUCCEEDED (status)) {
-            if (    DRV_CHECK_CURSTATUS (
-                                PROC_stateObj.curStatus.isAttached [procId])
-                ==  FALSE) {
-                status = DSP_EATTACHED ;
-                SET_FAILURE_REASON ;
-            }
-            else {
-                args.apiArgs.procLoadArgs.procId    = procId    ;
-                args.apiArgs.procLoadArgs.imagePath = imagePath ;
-                args.apiArgs.procLoadArgs.argc      = argc      ;
-                args.apiArgs.procLoadArgs.argv      = argv      ;
-
-                status = DRV_INVOKE (DRV_handle, CMD_PROC_LOAD, &args) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (csObjExists == TRUE) {
-                tmpStatus = _SYNC_USR_leaveCS (PROC_stateObj.syncCsObj) ;
-                if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-                    status = tmpStatus ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-        }
+  if (((IS_VALID_PROCID (procId)) == FALSE)
+  || (imagePath == NULL)
+  || (((argc == 0) && (argv != NULL)))
+  || (((argc != 0) && (argv == NULL))))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (PROC_stateObj.syncCsObj != NULL) {
+      status = _SYNC_USR_enterCS(PROC_stateObj.syncCsObj);
+      csObjExists = TRUE;
     }
 
-    TRC_1LEAVE ("PROC_load", status) ;
+    if (DSP_SUCCEEDED(status)) {
+      if (DRV_CHECK_CURSTATUS(
+           PROC_stateObj.curStatus.isAttached[procId]) ==  FALSE)
+      {
+        status = DSP_EATTACHED;
+        SET_FAILURE_REASON;
+      }
+      else {
+        args.apiArgs.procLoadArgs.procId = procId;
+        args.apiArgs.procLoadArgs.imagePath = imagePath;
+        args.apiArgs.procLoadArgs.argc = argc;
+        args.apiArgs.procLoadArgs.argv = argv;
 
-    return status ;
+        status = DRV_INVOKE(DRV_handle, CMD_PROC_LOAD, &args);
+
+        if (DSP_FAILED (status)) {
+          SET_FAILURE_REASON;
+        }
+      }
+
+      if (csObjExists == TRUE) {
+        tmpStatus = _SYNC_USR_leaveCS (PROC_stateObj.syncCsObj);
+
+        if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+          status = tmpStatus;
+          SET_FAILURE_REASON;
+        }
+      }
+    }
+  }
+
+  printf("'PROC_load' executed, status: %ld\n", status);
+  TRC_1LEAVE ("PROC_load", status) ;
+
+  return status;
 }
 
 

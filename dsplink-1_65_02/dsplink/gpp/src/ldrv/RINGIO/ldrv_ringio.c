@@ -371,28 +371,27 @@ LDRV_RINGIO_exit (IN ProcessorId dspId)
  *  @modif  None
  *  ============================================================================
  */
+
 NORMAL_API
-DSP_STATUS
-LDRV_RINGIO_getMemInfo (IN OUT RingIO_MemInfo * ringIoMemInfo)
+DSP_STATUS LDRV_RINGIO_getMemInfo(IN OUT RingIO_MemInfo * ringIoMemInfo)
 {
-    DSP_STATUS           status = DSP_SOK ;
-    LDRV_RINGIO_Object * ringIoState ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_RINGIO_Object *ringIoState;
 
-    TRC_1ENTER ("LDRV_RINGIO_getMemInfo", ringIoMemInfo) ;
+  TRC_1ENTER ("LDRV_RINGIO_getMemInfo", ringIoMemInfo);
 
-    DBC_Require (ringIoMemInfo != NULL) ;
-    DBC_Require (IS_VALID_PROCID (ringIoMemInfo->procId)) ;
-    DBC_Assert  (LDRV_RINGIO_IsInitialized [ringIoMemInfo->procId] == TRUE) ;
+  DBC_Require(ringIoMemInfo != NULL) ;
+  DBC_Require(IS_VALID_PROCID(ringIoMemInfo->procId));
+  DBC_Assert(LDRV_RINGIO_IsInitialized[ringIoMemInfo->procId] == TRUE);
 
-    ringIoState  = &(LDRV_RINGIO_State [ringIoMemInfo->procId]) ;
+  ringIoState  = &(LDRV_RINGIO_State[ringIoMemInfo->procId]);
 
-    ringIoMemInfo->kernAddr = (Uint32) ringIoState->ctrlPtr ;
-    ringIoMemInfo->physAddr = ringIoState->physCtrlAddr ;
-    ringIoMemInfo->size     = ringIoState->ctrlSize ;
+  ringIoMemInfo->kernAddr = (Uint32) ringIoState->ctrlPtr;
+  ringIoMemInfo->physAddr = ringIoState->physCtrlAddr;
+  ringIoMemInfo->size = ringIoState->ctrlSize;
 
-    TRC_1LEAVE ("LDRV_RINGIO_getMemInfo", status) ;
-
-    return status ;
+  TRC_1LEAVE ("LDRV_RINGIO_getMemInfo", status);
+  return status;
 }
 
 

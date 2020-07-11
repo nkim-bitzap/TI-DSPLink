@@ -58,6 +58,8 @@
 #include <ldrv_smm.h>
 #include <ldrv.h>
 
+/* NKim, added for additional 'copy_from_user' calls */
+#include <linux/uaccess.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -408,9 +410,6 @@ SMAPOOL_exit (IN  ProcessorId dspId,
  *  ============================================================================
  */
 
-#include <linux/module.h>
-#include <linux/uaccess.h>
-
 EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                                    IN Uint32 poolId,
                                    IN Void *object,
@@ -425,8 +424,8 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   SMAPOOL_Ctrl *ctrlPtr = NULL;
   SMAPOOL_Object *smaState;
 
-  /* maintain a local copy instead of using 'poolOpenParams' which
-     still may reference data in a protected user memory space */
+  /* maintain a local copy instead of using 'poolOpenParams' argument,
+     which still may reference data in a protected user memory space */
   SMAPOOL_Attrs smaAttrs;
 
   /* Holds the start address of buffers in DSP address space */
@@ -435,14 +434,18 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   SmaBufObj *smaBufObj;    /* Holds the buffer handles */
   Uint8 *bufHeader;        /* Holds the buffer handles */
 
-  Uint32 *bufSize;
-  Uint32 *numBufs;
+  /* pointers to temporary dynamically allocated arrays extracted from
+     'smaAttrs' which in turn is copied from the user space. Dropped at
+      the end of this function */
+  Uint32 *bufSizes = NULL;
+  Uint32 *numBuffers = NULL;
+  Uint32 BUF_MEM_SIZE = 0;
+
   Uint32 temp;
   Uint32 irqFlags;
   int retVal;
 
   TRC_4ENTER ("SMAPOOL_open", dspId, poolId, object, poolOpenParams);
-  printk(KERN_ALERT "Entered SMAPOOL_open\n");
 
   DBC_Require(IS_VALID_PROCID (dspId));
   DBC_Require(poolId != POOL_INVALIDID);
@@ -465,7 +468,7 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   if (first == TRUE) {
     DBC_Require(poolOpenParams->params != NULL);
 
-    /* Attributes are required for the first call to SMAPOOL_open () */
+    /* Attributes are required to exist for the first call to SMAPOOL_open() */
     if (poolOpenParams->params == NULL) {
       status = DSP_EINVALIDARG;
       SET_FAILURE_REASON;
@@ -484,27 +487,44 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
         SET_FAILURE_REASON;
       }
       else {
-        printk(KERN_ALERT "Accessing oolOpenParams->params...");
         DBC_Require(smaAttrs.numBufPools > 0);
         DBC_Require(smaAttrs.numBufPools <= MAX_SMABUFENTRIES);
-
-        printk(KERN_ALERT "done\n");
 
         if (smaAttrs.numBufPools == 0) {
           status = DSP_EINVALIDARG;
           SET_FAILURE_REASON;
         }
         else {
-          /* Check for pool sizes being cache line aligned */
-          for (i = 0 ; i < smaAttrs.numBufPools ; i++) {
-            if  (smaAttrs.numBuffers[i] != 0u) {
-              printk(KERN_ALERT "smaAttrs->numBuffers[i]...");
-          
-              for (j = 0 ; j < smaAttrs.numBuffers[i]; j++) {
+          /* Check for pool sizes being cache line aligned. First reserve the
+             space for the array containing buffer sizes, then copy the data
+             from the user space using addresses submitted via args. Repeat
+             for the buffer array then */
+          BUF_MEM_SIZE = sizeof(Uint32) * smaAttrs.numBufPools;
 
-                printk(KERN_ALERT "smaAttrs.bufSizes[%d]: %d\n", i, smaAttrs.bufSizes[i]);
+          status =
+            MEM_Alloc((Void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
 
-                if ((smaAttrs.bufSizes[i] % CACHE_L2_LINESIZE) != 0u) {
+          retVal = copy_from_user(
+            bufSizes, smaAttrs.bufSizes, BUF_MEM_SIZE);
+
+          if (DSP_SUCCEEDED(status) && retVal == 0) {
+            status =
+              MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
+
+            retVal = copy_from_user(
+              numBuffers, smaAttrs.numBuffers, BUF_MEM_SIZE);
+
+            if (DSP_SUCCEEDED(status) && retVal == 0) {
+
+              /* NOTE, this serves as a temporary container, which we later
+                 will read to write to yet another container */
+              smaAttrs.numBuffers = numBuffers;
+              smaAttrs.bufSizes = bufSizes;
+
+              for (i = 0 ; i < smaAttrs.numBufPools ; i++) {
+                /* buffer size is not aligned with the L2 cache line size */
+                if (numBuffers[i] != 0 && (bufSizes[i] % CACHE_L2_LINESIZE))
+                {
                   status = DSP_EINVALIDARG;
                   SET_FAILURE_REASON;
                   break;
@@ -514,63 +534,62 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
             else {
               status = DSP_EINVALIDARG;
               SET_FAILURE_REASON;
-              break;
             }
+          }
+          else {
+            status = DSP_EINVALIDARG;
+            SET_FAILURE_REASON;
           }
         }
 
         if (DSP_SUCCEEDED (status)) {
-          printk(KERN_ALERT "Converting buffer handle...");
-
-
-          ctrlPtr = smaState->ctrlPtr;
           smaState->smaShmObj->exactMatchReq = (Uint16)smaAttrs.exactMatchReq;
+          ctrlPtr = smaState->ctrlPtr;
 
           /* Convert the buffer handle from DSP to GPP address space */
           smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs;
 
-          /* Buffer header are created at a distance 
-             "sizeof(SmaBufObj) * MAX_SMABUFENTRIES", to provide a
-             provision for adding new buffer pools later on */
+          /* We use a distance of "sizeof(SmaBufObj) * MAX_SMABUFENTRIES", to
+             create a buffer header (to provide a provision for adding new
+             buffer pools later on) */
           bufHeader = (Uint8 *) smaState->bufGppMemAddr;
           bufDspHeader = smaState->bufDspMemAddr;
 
           printk(KERN_ALERT "DONE\n");
 
           TRC_1PRINT(TRC_LEVEL4,
-                     "SMAPOOL buffers start GPP address: 0x%x\n", bufHeader);
+               "SMAPOOL buffers start GPP address: 0x%x\n", bufHeader);
           TRC_1PRINT (TRC_LEVEL4,
-                     "SMAPOOL buffers start DSP address: 0x%x\n", bufDspHeader);
+               "SMAPOOL buffers start DSP address: 0x%x\n", bufDspHeader);
   
-          /* Check for duplicate size entries in SMA attributes */
-          status = MEM_Alloc((Void **) &bufSize,
-                           (smaAttrs.numBufPools * sizeof (Uint32)),
-                           MEM_DEFAULT);
+          /* Check for duplicate size entries in SMA attributes. NKim, guess
+             it is safe to overwrite 'bufSizes' and 'numBuffers' since we
+             have provided copies and saved them above */
+          status =
+            MEM_Alloc((Void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
 
           if (DSP_SUCCEEDED (status)) {
-            status = MEM_Calloc((Void **) &numBufs,
-                                (smaAttrs.numBufPools * sizeof (Uint32)),
-                                MEM_DEFAULT);
+            status =
+              MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
 
             if (DSP_SUCCEEDED (status)) {
 
-              printk(KERN_ALERT "Checking BUFPOOLS...");
-
+              /* rearrange stuff by reading 'smaAttrs'-array and writing to
+                 newly created arrays on the heap */
               for (i = 0; i < smaAttrs.numBufPools; i++) {
-                if (numBufs [i] != (Uint32) -1) {
-                  bufSize[count] =
+                if (numBuffers[i] != (Uint32) -1) {
+                  bufSizes[count] =
                     DSPLINK_ALIGN(smaAttrs.bufSizes[i], BUS_WIDTH);
 
-                  DBC_Assert(bufSize [count] % BUS_WIDTH == 0);
-
-                  numBufs[count] = smaAttrs.numBuffers[i];
+                  DBC_Assert(bufSizes[count] % BUS_WIDTH == 0);
+                  numBuffers[count] = smaAttrs.numBuffers[i];
 
                   for (j = i + 1; j < smaAttrs.numBufPools; j++) {
-                    if (bufSize [count] ==
-                        DSPLINK_ALIGN(smaAttrs.bufSizes [j], BUS_WIDTH))
+                    if (bufSizes[count] ==
+                        DSPLINK_ALIGN(smaAttrs.bufSizes[j], BUS_WIDTH))
                     {
-                      numBufs[count] += smaAttrs.numBuffers[j];
-                      numBufs[j] = (Uint32) -1;
+                      numBuffers[count] += smaAttrs.numBuffers[j];
+                      numBuffers[j] = (Uint32) -1;
                     }
                   }
 
@@ -578,19 +597,23 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                 }
               }
 
-              printk(KERN_ALERT "done\n");
+              /* NKim, NOTE, the array we used as a temporary to read from,
+                 is gone now. Make sure not to use it. Use local variables
+                 'bufSizes' and 'numBuffers' instead */
+              FREE_PTR(smaAttrs.bufSizes);
+              FREE_PTR(smaAttrs.numBuffers);
             }
             else {
-              irqFlags = SYNC_SpinLockStartEx (smaState->lock);
+              irqFlags = SYNC_SpinLockStartEx(smaState->lock);
               smaState->refCount--;
 
               SYNC_SpinLockEndEx(smaState->lock, irqFlags);
               SET_FAILURE_REASON;
-              FREE_PTR(bufSize);
+              FREE_PTR(bufSizes);
             }
           }
           else {
-            irqFlags = SYNC_SpinLockStartEx (smaState->lock);
+            irqFlags = SYNC_SpinLockStartEx(smaState->lock);
             smaState->refCount--;
 
             SYNC_SpinLockEndEx(smaState->lock, irqFlags);
@@ -599,46 +622,40 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
 
           if (DSP_SUCCEEDED (status)) {
 
-          printk(KERN_ALERT "Sorting buffers...");
-
-            /* sort the buf size first, awesome bubble-sort */
+            /* NKim, now sort the buffer sizes and buffers, awesome bubble-
+               sort stuff going on here */
             for (i = 0; i < count; i++) {
               for (j = i + 1; j < count; j++) {
-                if (bufSize[i] > bufSize[j]) {
-                  temp = bufSize[i];
-                  bufSize[i] = bufSize[j];
-                  bufSize[j] = temp;
+                if (bufSizes[i] > bufSizes[j]) {
+                  temp = bufSizes[i];
+                  bufSizes[i] = bufSizes[j];
+                  bufSizes[j] = temp;
 
-                  /* Also arrange the numbufs in accordance to sizes */
-                  temp = numBufs[i];
-                  numBufs[i] = numBufs[j];
-                  numBufs[j] = temp;
+                  temp = numBuffers[i];
+                  numBuffers[i] = numBuffers[j];
+                  numBuffers[j] = temp;
                 }
               }
             }
 
-            printk(KERN_ALERT "done\n");
-
             /* Update the control structure for number of buffer pools */
             ctrlPtr->numBufs = count;
 
-            printk(KERN_ALERT "Updating control structure...");
-
             for (i = 0; (i < count) && DSP_SUCCEEDED(status); i++) {
-              if (((numBufs[i] * bufSize[i]) + (Uint32) bufHeader) <=
+              if (((numBuffers[i] * bufSizes[i]) + (Uint32) bufHeader) <=
                   (smaState->bufGppMemAddr + smaState->bufPoolSize))
               {
                 smaBufObj[i].dspMaduSize = smaState->dspMaduSize;
                 smaBufObj[i].wordSwap = smaState->wordSwap;
 
                 smaBufObj[i].size = BYTE_TO_MADU(
-                  bufSize[i], smaBufObj[i].dspMaduSize);
+                  bufSizes[i], smaBufObj[i].dspMaduSize);
 
                 smaBufObj[i].size = SWAP_LONG(
                   smaBufObj[i].size, smaBufObj[i].wordSwap);
 
-                smaBufObj[i].totalBuffers = numBufs [i];
-                smaBufObj[i].freeBuffers = numBufs [i];
+                smaBufObj[i].totalBuffers = numBuffers[i];
+                smaBufObj[i].freeBuffers = numBuffers[i];
                 smaBufObj[i].startAddress = (Uint32) bufHeader;
                 smaBufObj[i].bufDspAddress = bufDspHeader;
                 smaBufObj[i].nextFree = 0;
@@ -646,16 +663,16 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                 bufHeader = (Uint8 *) (smaBufObj[i].startAddress);
 
                 /* Create the buffer pools */
-                for (j = 0; j < numBufs[i] ; j++) {
+                for (j = 0; j < numBuffers[i] ; j++) {
                   ((SmaBufHeader*) bufHeader)->next =
                     (SmaBufHeader *) SWAP_LONG(smaBufObj[i].size * (j + 1),
                                                smaBufObj[i].wordSwap);
 
-                  bufHeader += bufSize[i];
+                  bufHeader += bufSizes[i];
                 }
 
-                bufDspHeader += BYTE_TO_MADU((bufSize[i] * numBufs [i]),
-                                             smaState->dspMaduSize);
+                bufDspHeader += BYTE_TO_MADU((bufSizes[i] * numBuffers[i]),
+                                              smaState->dspMaduSize);
               }
               else {
                 status = DSP_ERANGE;
@@ -672,8 +689,8 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
 
           /* Free the allocated memory for 'numBufs' and 'bufSize' regardless
              of the status */
-          FREE_PTR(bufSize);
-          FREE_PTR(numBufs);
+          FREE_PTR(bufSizes);
+          FREE_PTR(numBuffers);
         }
         else {
           irqFlags = SYNC_SpinLockStartEx(smaState->lock);
@@ -692,19 +709,17 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   }
 
   if (DSP_SUCCEEDED(status)) {
-    /* Update the pool parameters for translation. later to be used with
-       alloc and free, when called from user process */
+    /* Update the pool parameters for translation. This is to be used later
+       with alloc and free, when called from the user process */
     poolOpenParams->physAddr = smaState->bufPhysMemAddr;
     poolOpenParams->virtAddr = smaState->bufGppMemAddr;
     poolOpenParams->dspAddr = smaState->bufDspMemAddr;
     poolOpenParams->size = smaState->bufPoolSize;
   }
 
-  printk(KERN_ALERT "SMAPOOL_open DONE\n");
   TRC_1LEAVE("SMAPOOL_open", status);
   return status;
 }
-
 
 /** ============================================================================
  *  @func   SMAPOOL_close

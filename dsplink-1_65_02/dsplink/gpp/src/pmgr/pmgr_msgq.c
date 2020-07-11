@@ -372,49 +372,49 @@ PMGR_MSGQ_transportClose (IN  ProcessorId procId)
  *  @modif  PMGR_MSGQ_State.msgqOwner
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-PMGR_MSGQ_open (IN     Pstr        queueName,
-                OUT    MSGQ_Queue * msgqQueue,
-                IN     MSGQ_Attrs * attrs,
-                IN     Void *       optArgs)
+
+EXPORT_API DSP_STATUS PMGR_MSGQ_open(IN Pstr queueName,
+                                     OUT MSGQ_Queue *msgqQueue,
+                                     IN MSGQ_Attrs *attrs,
+                                     IN Void *optArgs)
 {
-    DSP_STATUS   status     = DSP_SOK ;
-    PrcsObject * prcsInfo   = NULL    ;
-    MSGQ_Id       msgqId ;
+  DSP_STATUS status = DSP_SOK;
+  PrcsObject *prcsInfo = NULL;
+  MSGQ_Id msgqId;
 
-    TRC_3ENTER ("PMGR_MSGQ_open", queueName, msgqQueue, attrs) ;
+  TRC_3ENTER ("PMGR_MSGQ_open", queueName, msgqQueue, attrs) ;
 
-    DBC_Require (PMGR_MSGQ_IsInitialized == TRUE) ;
-    DBC_Require (msgqQueue != NULL) ;
+  DBC_Require(PMGR_MSGQ_IsInitialized == TRUE);
+  DBC_Require(msgqQueue != NULL);
 
-    status = LDRV_MSGQ_open (queueName, msgqQueue, attrs) ;
-    if (DSP_SUCCEEDED (status)) {
-        msgqId = (MSGQ_Id) *msgqQueue ;
-        if (PMGR_MSGQ_State.msgqOwner [msgqId] == NULL) {
-            status = PRCS_Create (&prcsInfo, optArgs) ;
-            if (DSP_SUCCEEDED (status)) {
-                PMGR_MSGQ_State.msgqOwner [msgqId] = prcsInfo ;
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-        }
-        else {
-            /* Message queue already opened */
-            status = DSP_EALREADYEXISTS ;
-            SET_FAILURE_REASON ;
-        }
+  status = LDRV_MSGQ_open(queueName, msgqQueue, attrs);
+
+  if (DSP_SUCCEEDED (status)) {
+    msgqId = (MSGQ_Id) *msgqQueue;
+
+    if (PMGR_MSGQ_State.msgqOwner [msgqId] == NULL) {
+      status = PRCS_Create (&prcsInfo, optArgs);
+
+      if (DSP_SUCCEEDED (status)) {
+        PMGR_MSGQ_State.msgqOwner [msgqId] = prcsInfo;
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
     }
     else {
-        SET_FAILURE_REASON ;
+      /* Message queue already opened */
+      status = DSP_EALREADYEXISTS;
+      SET_FAILURE_REASON;
     }
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("PMGR_MSGQ_open", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_MSGQ_open", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_MSGQ_close

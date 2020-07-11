@@ -409,147 +409,150 @@ LDRV_MSGQ_transportClose (IN  ProcessorId procId)
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-LDRV_MSGQ_open (IN     Pstr         queueName,
-                OUT    MSGQ_Queue * msgqQueue,
-                IN     MSGQ_Attrs * attrs)
+
+EXPORT_API DSP_STATUS LDRV_MSGQ_open(IN Pstr queueName,
+                                     OUT MSGQ_Queue *msgqQueue,
+                                     IN MSGQ_Attrs *attrs)
 {
-    DSP_STATUS        status       = DSP_SOK ;
-    LDRV_MSGQ_Handle  msgqHandle   = NULL ;
-    Bool              found        = FALSE ;
-    MSGQ_Id           msgqId       = (MSGQ_Id) MSGQ_INVALIDMSGQ ;
-    Uint32            irqFlags ;
-    SyncAttrs         attr ;
-    MSGQ_Attrs        msgqAttrs ;
-    Uint16            i ;
-    Int32             cmpResult ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_MSGQ_Handle msgqHandle = NULL;
+  Bool found = FALSE;
+  MSGQ_Id msgqId = (MSGQ_Id) MSGQ_INVALIDMSGQ;
+  Uint32 irqFlags;
+  SyncAttrs attr;
+  MSGQ_Attrs msgqAttrs;
+  Uint16 i;
+  Int32 cmpResult;
 
-    TRC_3ENTER ("LDRV_MSGQ_open", queueName, msgqQueue, attrs) ;
+  TRC_3ENTER("LDRV_MSGQ_open", queueName, msgqQueue, attrs);
 
-    DBC_Require (msgqQueue != NULL) ;
-    
-    DBC_Require (LDRV_MSGQ_IsInitialized == TRUE) ;
+  DBC_Require(msgqQueue != NULL);
+  DBC_Require(LDRV_MSGQ_IsInitialized == TRUE);
 
-    if (attrs == NULL) {
-        msgqAttrs.notifyHandle = NULL ;
-        msgqAttrs.pend         = NULL ;
-        msgqAttrs.post         = NULL ;
-        attrs = &msgqAttrs ;
-    }
+  if (attrs == NULL) {
+    msgqAttrs.notifyHandle = NULL;
+    msgqAttrs.pend = NULL;
+    msgqAttrs.post = NULL;
+    attrs = &msgqAttrs;
+  }
 
-    /*  Search the local message queue array to find a free slot in it. */
-    for (i = 0 ;
-         (   (i < LDRV_MSGQ_StateObj.maxMsgqs)
-          && (DSP_SUCCEEDED(status))) ;
-         i++) {
-        irqFlags = SYNC_SpinLockStartEx (LDRV_MSGQ_StateObj.lock) ;
+  /*  Search the local message queue array to find a free slot in it */
+  for (i = 0; 
+      ((i < LDRV_MSGQ_StateObj.maxMsgqs) && (DSP_SUCCEEDED(status)));
+      i++)
+  {
+    irqFlags = SYNC_SpinLockStartEx(LDRV_MSGQ_StateObj.lock);
 
-        if ( (queueName!=NULL) &&  (LDRV_MSGQ_StateObj.msgqHandles [i] != NULL)
-            && (LDRV_MSGQ_StateObj.msgqHandles [i] !=
-               (LDRV_MSGQ_Handle) (TRUE))) {
-            status = GEN_Strcmp (queueName,
-                    LDRV_MSGQ_StateObj.msgqHandles [i]->name,
-                    &cmpResult) ;
-            if (DSP_SUCCEEDED (status)) {
-                if (cmpResult == 0) {
-                    status = DSP_EALREADYEXISTS ;
-                    SET_FAILURE_REASON ;
-                }
-            }
+    if ((queueName != NULL)
+    && (LDRV_MSGQ_StateObj.msgqHandles[i] != NULL)
+    && (LDRV_MSGQ_StateObj.msgqHandles[i] != (LDRV_MSGQ_Handle) (TRUE)))
+    {
+      status = GEN_Strcmp(queueName,
+                          LDRV_MSGQ_StateObj.msgqHandles[i]->name,
+                          &cmpResult);
+
+      if (DSP_SUCCEEDED(status)) {
+        if (cmpResult == 0) {
+          status = DSP_EALREADYEXISTS;
+          SET_FAILURE_REASON;
         }
+      }
+    }
 
-        if (   (LDRV_MSGQ_StateObj.msgqHandles [i] == NULL)
-            && (msgqId == (MSGQ_Id) MSGQ_INVALIDMSGQ)
-            && (DSP_SUCCEEDED(status))) {
-            /* Block the slot obtained. */
-            LDRV_MSGQ_StateObj.msgqHandles [i] = (LDRV_MSGQ_Handle) TRUE ;
-            msgqId = i ;
-            found = TRUE ;
+    if ((LDRV_MSGQ_StateObj.msgqHandles [i] == NULL)
+    && (msgqId == (MSGQ_Id) MSGQ_INVALIDMSGQ)
+    && (DSP_SUCCEEDED(status)))
+    {
+      /* Block the slot obtained */
+      LDRV_MSGQ_StateObj.msgqHandles[i] = (LDRV_MSGQ_Handle) TRUE;
+      msgqId = i;
+      found = TRUE;
+    }
+
+    SYNC_SpinLockEndEx (LDRV_MSGQ_StateObj.lock, irqFlags) ;
+  }
+
+  /* Existing matching name was not found, but all slots are full */
+  if (DSP_SUCCEEDED(status) && (found == FALSE)) {
+    status = DSP_ENOTFOUND;
+    SET_FAILURE_REASON;
+  }
+
+  /* Create and initialize the MSGQ object */
+  if (DSP_SUCCEEDED(status)) {
+
+    status = MEM_Calloc((Void **) &msgqHandle,
+                        (sizeof (LDRV_MSGQ_Object)),
+                                 MEM_DEFAULT);
+
+    if (DSP_SUCCEEDED (status)) {
+      msgqHandle->msgqQueue = (msgqId) | ((Uint32) ID_GPP << 16);
+
+      if (queueName != NULL) {
+        status = GEN_Strcpyn((Char8 *) msgqHandle->name,
+                             (Char8 *) queueName,
+                             DSP_MAX_STRLEN);
+      }
+    }
+    else {
+      SET_FAILURE_REASON;
+    }
+
+    if (DSP_SUCCEEDED (status)) {
+      /*  Create the list for the local queue */
+      status = LIST_Create (&(msgqHandle->queue));
+
+      if (DSP_SUCCEEDED (status)) {
+        /* Create a semaphore if 'notifyHandle' is not provided by user */
+        if (attrs->notifyHandle == NULL) {
+
+          attr.flag = SyncSemType_Binary;
+          msgqHandle->defaultNtfyHandle = TRUE;
+
+          status = SYNC_CreateSEM(
+            (SyncSemObject **) ((Pvoid) &(msgqHandle->ntfyHandle)), &attr);
+
+          if (DSP_SUCCEEDED (status)) {
+            msgqHandle->pend = (MsgqPend) ((Uint32) &SYNC_WaitSEM);
+            msgqHandle->post = (MsgqPost) ((Uint32) &SYNC_SignalSEM);
+
+            /* Return the MSGQ_Queue handle */
+            *msgqQueue = msgqHandle->msgqQueue;
+          }
+          else {
+            SET_FAILURE_REASON;
+          }
         }
-        SYNC_SpinLockEndEx (LDRV_MSGQ_StateObj.lock, irqFlags) ;
-    }
-
-
-    /* Existing matching name was not found, but all slots are full. */
-    if (DSP_SUCCEEDED(status) && (found == FALSE)) {
-        status = DSP_ENOTFOUND ;
-        SET_FAILURE_REASON ;
-    }
-
-    /*   Create and initialize the MSGQ object.  */
-    if (DSP_SUCCEEDED(status)) {
-            status = MEM_Calloc ((Void **) &msgqHandle,
-                                 (sizeof (LDRV_MSGQ_Object)),
-                                 MEM_DEFAULT) ;
-            if (DSP_SUCCEEDED (status)) {
-                msgqHandle->msgqQueue = (msgqId) | ((Uint32) ID_GPP << 16) ;
-                if (queueName != NULL) {
-                    status = GEN_Strcpyn ((Char8 *) msgqHandle->name,
-                                          (Char8 *) queueName,
-                                          DSP_MAX_STRLEN) ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                /*  Create the list for the local queue.  */
-                status = LIST_Create (&(msgqHandle->queue)) ;
-                if (DSP_SUCCEEDED (status)) {
-                    /* Create a semaphore if a notifyHandle is not provided by
-                     * the user.
-                     */
-                    if (attrs->notifyHandle == NULL) {
-                        attr.flag = SyncSemType_Binary ;
-                        msgqHandle->defaultNtfyHandle = TRUE ;
-                        status = SYNC_CreateSEM (
-                             (SyncSemObject **) ((Pvoid) &(msgqHandle->ntfyHandle)),
-                             &attr) ;
-                        if (DSP_SUCCEEDED (status)) {
-                                msgqHandle->pend =
-                                    (MsgqPend) ((Uint32) &SYNC_WaitSEM) ;
-                                msgqHandle->post =
-                                    (MsgqPost) ((Uint32) &SYNC_SignalSEM) ;
-
-                            /* Return the MSGQ_Queue handle */
-                            *msgqQueue = msgqHandle->msgqQueue ;
-                        }
-                        else {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else {
-                        msgqHandle->defaultNtfyHandle = FALSE ;
-                    }
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                LDRV_MSGQ_StateObj.msgqHandles [msgqId] = msgqHandle ;
+        else {
+          msgqHandle->defaultNtfyHandle = FALSE;
         }
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
     }
 
-    /*  Cleanup on failure. */
-    if (DSP_FAILED (status)) {
-        if (msgqHandle != NULL) {
-            LDRV_MSGQ_close (msgqHandle->msgqQueue) ;
-        }
-        *msgqQueue = (MSGQ_Queue) MSGQ_INVALIDMSGQ ;
+    if (DSP_SUCCEEDED (status)) {
+      LDRV_MSGQ_StateObj.msgqHandles[msgqId] = msgqHandle;
+    }
+  }
+
+  /*  Cleanup on failure */
+  if (DSP_FAILED (status)) {
+    if (msgqHandle != NULL) {
+      LDRV_MSGQ_close(msgqHandle->msgqQueue);
     }
 
-    DBC_Ensure (   (   (*msgqQueue != (MSGQ_Queue) MSGQ_INVALIDMSGQ)
-                    && (DSP_SUCCEEDED (status)))
-                || (   (*msgqQueue == (MSGQ_Queue) MSGQ_INVALIDMSGQ)
-                    && (DSP_FAILED (status)))) ;
+    *msgqQueue = (MSGQ_Queue) MSGQ_INVALIDMSGQ;
+  }
 
-    TRC_1LEAVE ("LDRV_MSGQ_open", status) ;
+  DBC_Ensure(((*msgqQueue != (MSGQ_Queue) MSGQ_INVALIDMSGQ) &&
+             (DSP_SUCCEEDED (status))) ||
+             ((*msgqQueue == (MSGQ_Queue) MSGQ_INVALIDMSGQ) &&
+             (DSP_FAILED(status))));
 
-    return status ;
+  TRC_1LEAVE("LDRV_MSGQ_open", status);
+  return status;
 }
 
 

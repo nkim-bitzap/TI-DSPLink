@@ -333,35 +333,39 @@ _RingIO_isOffsetInBetween (IN Uint32 offset,
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-_RingIO_moduleInit (IN ProcessorId procId)
+EXPORT_API DSP_STATUS _RingIO_moduleInit(IN ProcessorId procId)
 {
-    DSP_STATUS           status    = DSP_SOK ;
-    DSP_STATUS           tmpStatus = DSP_SOK ;
-    CMD_Args             args ;
-    MPCS_Attrs           mpcsAttrs ;
-    LINKCFG_RingIo *     ringIoObject ;
-    LINKCFG_Dsp *        dspObj ;
-    LINKCFG_DspConfig *  dspConfig ;
-    LINKCFG_LinkDrv *    linkDrv   ;
-    RingIO_Ctrl *        ctrlPtr   ;
-    RingIO_Entry *       entryPtr  ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
 
-    TRC_1ENTER ("_RingIO_moduleInit", procId) ;
+  CMD_Args args;
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
+  MPCS_Attrs mpcsAttrs;
+  LINKCFG_RingIo *ringIoObject;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_DspConfig *dspConfig;
+  LINKCFG_LinkDrv *linkDrv;
+  RingIO_Ctrl *ctrlPtr;
+  RingIO_Entry *entryPtr;
 
-    if (IS_VALID_PROCID (procId) == FALSE) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  TRC_1ENTER("_RingIO_moduleInit", procId);
+
+  DBC_Require(IS_VALID_PROCID (procId));
+
+  if (IS_VALID_PROCID (procId) == FALSE) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.ringIoArgs.ringioRegionArgs.procId = procId;
+
+    status = DRV_INVOKE(DRV_handle, CMD_RINGIO_MAPREGION, &args);
+
+    printf("");
+
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.ringIoArgs.ringioRegionArgs.procId = procId ;
-        status = DRV_INVOKE (DRV_handle, CMD_RINGIO_MAPREGION, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
         else {
             dspConfig = PROC_linkCfgPtr->dspConfigs [procId] ;
             dspObj  = dspConfig->dspObject ;
