@@ -214,6 +214,9 @@ BUFPOOL_exit (IN  ProcessorId dspId,
  *  @modif  None
  *  ============================================================================
  */
+
+#include <linux/module.h>
+
 NORMAL_API
 DSP_STATUS
 BUFPOOL_open (IN  ProcessorId       dspId,
@@ -239,6 +242,7 @@ BUFPOOL_open (IN  ProcessorId       dspId,
     Uint32           irqFlags ;
 
     TRC_2ENTER ("BUFPOOL_open", object, poolOpenParams) ;
+    printk(KERN_ALERT "Entered BUFPOOL_open\n");
 
     DBC_Require (IS_VALID_PROCID (dspId)) ;
     DBC_Require (poolId         != POOL_INVALIDID) ;

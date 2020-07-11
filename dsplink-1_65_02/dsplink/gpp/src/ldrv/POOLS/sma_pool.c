@@ -407,264 +407,302 @@ SMAPOOL_exit (IN  ProcessorId dspId,
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-SMAPOOL_open (IN  ProcessorId       dspId,
-              IN  Uint32            poolId,
-              IN  Void *            object,
-              IN  POOL_OpenParams * poolOpenParams)
+
+#include <linux/module.h>
+#include <linux/uaccess.h>
+
+EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
+                                   IN Uint32 poolId,
+                                   IN Void *object,
+                                   IN POOL_OpenParams *poolOpenParams)
 {
-    DSP_STATUS       status   = DSP_SOK ;
-    Uint32           i        = 0 ;
-    Uint32           j        = 0 ;
-    Uint16           count    = 0 ;
-    Bool             first    = FALSE ;
-    SMAPOOL_Ctrl *   ctrlPtr  = NULL ;
-    SMAPOOL_Attrs *  smaAttrs ;
-    SMAPOOL_Object * smaState ;
-    Uint32           bufDspHeader ; /* Holds the start address of buffers in DSP
-                                     * address space.
-                                     */
-    SmaBufObj *      smaBufObj ;    /* Holds the buffer handles */
-    Uint8 *          bufHeader ;    /* Holds the buffer handles */
-    Uint32 *         bufSize ;
-    Uint32 *         numBufs ;
-    Uint32           temp ;
-    Uint32           irqFlags ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i = 0;
+  Uint32 j = 0;
+  Uint16 count = 0;
+  Bool first = FALSE;
 
-    TRC_4ENTER ("SMAPOOL_open", dspId, poolId, object, poolOpenParams) ;
+  SMAPOOL_Ctrl *ctrlPtr = NULL;
+  SMAPOOL_Object *smaState;
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (poolId         != POOL_INVALIDID) ;
-    DBC_Require (object         != NULL) ;
-    DBC_Require (poolOpenParams != NULL) ;
+  /* maintain a local copy instead of using 'poolOpenParams' which
+     still may reference data in a protected user memory space */
+  SMAPOOL_Attrs smaAttrs;
 
-    smaState = (SMAPOOL_Object *) object ;
+  /* Holds the start address of buffers in DSP address space */
+  Uint32 bufDspHeader;
 
-    irqFlags = SYNC_SpinLockStartEx (smaState->lock) ;
-    if (smaState->refCount == 0) {
-        first = TRUE ;
+  SmaBufObj *smaBufObj;    /* Holds the buffer handles */
+  Uint8 *bufHeader;        /* Holds the buffer handles */
+
+  Uint32 *bufSize;
+  Uint32 *numBufs;
+  Uint32 temp;
+  Uint32 irqFlags;
+  int retVal;
+
+  TRC_4ENTER ("SMAPOOL_open", dspId, poolId, object, poolOpenParams);
+  printk(KERN_ALERT "Entered SMAPOOL_open\n");
+
+  DBC_Require(IS_VALID_PROCID (dspId));
+  DBC_Require(poolId != POOL_INVALIDID);
+  DBC_Require(object != NULL);
+  DBC_Require(poolOpenParams != NULL);
+
+  smaState = (SMAPOOL_Object*) object;
+  irqFlags = SYNC_SpinLockStartEx(smaState->lock);
+
+  if (smaState->refCount == 0) {
+    first = TRUE;
+  }
+  else {
+    status = DSP_SALREADYOPENED;
+  }
+
+  smaState->refCount++;
+  SYNC_SpinLockEndEx(smaState->lock, irqFlags);
+
+  if (first == TRUE) {
+    DBC_Require(poolOpenParams->params != NULL);
+
+    /* Attributes are required for the first call to SMAPOOL_open () */
+    if (poolOpenParams->params == NULL) {
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
     }
     else {
-        status = DSP_SALREADYOPENED ;
-    }
-    smaState->refCount++ ;
+      /* NKim, still wondering how this could have worked earlier. The pointer
+         is non-null, thus, we copy required buffer data from user-space here.
+         This was not done earlier */
+      retVal = copy_from_user(
+        (void*) &smaAttrs,
+        (void*) poolOpenParams->params,
+        sizeof(SMAPOOL_Attrs));
 
-    SYNC_SpinLockEndEx (smaState->lock, irqFlags) ;
+      if (retVal != 0) {
+        status = DSP_EINVALIDARG;
+        SET_FAILURE_REASON;
+      }
+      else {
+        printk(KERN_ALERT "Accessing oolOpenParams->params...");
+        DBC_Require(smaAttrs.numBufPools > 0);
+        DBC_Require(smaAttrs.numBufPools <= MAX_SMABUFENTRIES);
 
-    if (first == TRUE) {
-        smaAttrs = (SMAPOOL_Attrs *) poolOpenParams->params ;
-        DBC_Require (smaAttrs != NULL) ;
-        /* Attributes are required for the first call to SMAPOOL_open () */
-        if (smaAttrs == NULL) {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
+        printk(KERN_ALERT "done\n");
+
+        if (smaAttrs.numBufPools == 0) {
+          status = DSP_EINVALIDARG;
+          SET_FAILURE_REASON;
         }
         else {
-            DBC_Require (smaAttrs->numBufPools > 0) ;
-            DBC_Require (smaAttrs->numBufPools <= MAX_SMABUFENTRIES) ;
+          /* Check for pool sizes being cache line aligned */
+          for (i = 0 ; i < smaAttrs.numBufPools ; i++) {
+            if  (smaAttrs.numBuffers[i] != 0u) {
+              printk(KERN_ALERT "smaAttrs->numBuffers[i]...");
+          
+              for (j = 0 ; j < smaAttrs.numBuffers[i]; j++) {
 
-            if (smaAttrs->numBufPools == 0) {
-                status = DSP_EINVALIDARG ;
-                SET_FAILURE_REASON ;
+                printk(KERN_ALERT "smaAttrs.bufSizes[%d]: %d\n", i, smaAttrs.bufSizes[i]);
+
+                if ((smaAttrs.bufSizes[i] % CACHE_L2_LINESIZE) != 0u) {
+                  status = DSP_EINVALIDARG;
+                  SET_FAILURE_REASON;
+                  break;
+                }
+              }
             }
             else {
-                /* Check for pool sizes being cache line aligned */
-                for (i = 0 ; i < smaAttrs->numBufPools ; i++) {
-                    if  (smaAttrs->numBuffers [i] != 0u) {
-                        for (j = 0 ; j < smaAttrs->numBuffers [i]; j++) {
-                            if ((smaAttrs->bufSizes [i] % CACHE_L2_LINESIZE) != 0u) {
-                                status = DSP_EINVALIDARG ;
-                                SET_FAILURE_REASON ;
-                                break ;
-                            }
-                        }
-                    }
-                    else {
-                        status = DSP_EINVALIDARG ;
-                        SET_FAILURE_REASON ;
-                        break ;
-                    }
-                }
+              status = DSP_EINVALIDARG;
+              SET_FAILURE_REASON;
+              break;
             }
-
-            if (DSP_SUCCEEDED (status)) {
-                ctrlPtr = smaState->ctrlPtr ;
-                smaState->smaShmObj->exactMatchReq = (Uint16)
-                                                     smaAttrs->exactMatchReq ;
-
-                /* -------------------------------------------------------------
-                 * Convert the buffer handle from DSP to GPP address space.
-                 * -------------------------------------------------------------
-                 */
-                smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs ;
-
-                /* -------------------------------------------------------------
-                 * Buffer header are created at a distance
-                 * "sizeof(SmaBufObj) * MAX_SMABUFENTRIES", to provide a
-                 * provision for adding new buffer pools later on.
-                 * -------------------------------------------------------------
-                 */
-                bufHeader    =  (Uint8 *) smaState->bufGppMemAddr ;
-                bufDspHeader =  smaState->bufDspMemAddr ;
-                TRC_1PRINT (TRC_LEVEL4,
-                            "SMAPOOL buffers start GPP address      [0x%x]\n",
-                            bufHeader) ;
-                TRC_1PRINT (TRC_LEVEL4,
-                            "SMAPOOL buffers start DSP address      [0x%x]\n",
-                            bufDspHeader) ;
-
-                /* -------------------------------------------------------------
-                 * Check for duplicate size entries in SMA attributes.
-                 * -------------------------------------------------------------
-                 */
-                status = MEM_Alloc ((Void **) &bufSize,
-                                    (smaAttrs->numBufPools * sizeof (Uint32)),
-                                    MEM_DEFAULT) ;
-                if (DSP_SUCCEEDED (status)) {
-                    status = MEM_Calloc ((Void **) &numBufs,
-                                        (smaAttrs->numBufPools * sizeof (Uint32)),
-                                        MEM_DEFAULT) ;
-                    if (DSP_SUCCEEDED (status)) {
-                        for (i = 0 ; i < smaAttrs->numBufPools ; i++) {
-                            if (numBufs [i] != (Uint32) -1) {
-                                bufSize [count] = DSPLINK_ALIGN (
-                                                         smaAttrs->bufSizes [i],
-                                                         BUS_WIDTH) ;
-                                DBC_Assert (bufSize [count] % BUS_WIDTH == 0) ;
-                                numBufs [count] = smaAttrs->numBuffers [i] ;
-                                for (j = i + 1 ; j < smaAttrs->numBufPools ; j++) {
-                                    if (    bufSize [count]
-                                        ==  DSPLINK_ALIGN (
-                                                        smaAttrs->bufSizes [j],
-                                                        BUS_WIDTH)) {
-                                        numBufs [count] +=
-                                                      smaAttrs->numBuffers [j] ;
-                                        numBufs [j] = (Uint32) -1 ;
-                                    }
-                                }
-                                count++ ;
-                            }
-                        }
-                    }
-                    else {
-                        irqFlags = SYNC_SpinLockStartEx (smaState->lock) ;
-                        smaState->refCount -- ;
-                        SYNC_SpinLockEndEx (smaState->lock, irqFlags) ;
-                        SET_FAILURE_REASON ;
-                        FREE_PTR (bufSize) ;
-                    }
-                }
-                else {
-                    irqFlags = SYNC_SpinLockStartEx (smaState->lock) ;
-                    smaState->refCount -- ;
-                    SYNC_SpinLockEndEx (smaState->lock, irqFlags) ;
-                    SET_FAILURE_REASON ;
-                }
-
-                if (DSP_SUCCEEDED (status)) {
-                    /* sort the buf size first */
-                    for (i = 0 ; i < count ; i++) {
-                        for (j = i + 1 ; j < count ; j++) {
-                            if (bufSize [i] > bufSize [j]) {
-                                temp = bufSize [i] ;
-                                bufSize [i] = bufSize [j] ;
-                                bufSize [j] = temp ;
-
-                                /* Also arrange the numbufs in accordance to sizes. */
-                                temp = numBufs [i] ;
-                                numBufs [i] = numBufs [j] ;
-                                numBufs [j] = temp ;
-                            }
-                        }
-                    }
-
-                    /* ---------------------------------------------------------
-                     * Update the control structure for number of buffer pools
-                     * ---------------------------------------------------------
-                     */
-                    ctrlPtr->numBufs = count ;
-
-                    for (i = 0 ; (i < count) && DSP_SUCCEEDED (status) ; i++) {
-                         if (   ((numBufs [i] * bufSize [i]) + (Uint32) bufHeader)
-                             <= (smaState->bufGppMemAddr + smaState->bufPoolSize)) {
-                            smaBufObj[i].dspMaduSize = smaState->dspMaduSize ;
-                            smaBufObj[i].wordSwap    = smaState->wordSwap ;
-                            smaBufObj [i].size = BYTE_TO_MADU (bufSize [i],
-                                                            smaBufObj [i].dspMaduSize) ;
-                            smaBufObj [i].size = SWAP_LONG (smaBufObj [i].size,
-                                                            smaBufObj [i].wordSwap) ;
-                            smaBufObj [i].totalBuffers   = numBufs [i] ;
-                            smaBufObj [i].freeBuffers    = numBufs [i] ;
-                            smaBufObj [i].startAddress   = (Uint32) bufHeader ;
-                            smaBufObj [i].bufDspAddress  = bufDspHeader ;
-                            smaBufObj [i].nextFree       = 0 ;
-
-                            bufHeader = (Uint8 *) (smaBufObj [i].startAddress) ;
-                            /* -------------------------------------------------
-                             * Create the buffer pools.
-                             * -------------------------------------------------
-                             */
-                            for (j = 0 ; j < numBufs [i] ; j++) {
-                                ((SmaBufHeader *) bufHeader)->next = (SmaBufHeader *)
-                                                SWAP_LONG (smaBufObj [i].size * (j + 1),
-                                                           smaBufObj [i].wordSwap) ;
-                                bufHeader += bufSize [i] ;
-                            }
-
-                            bufDspHeader =   bufDspHeader
-                                           + BYTE_TO_MADU ((bufSize [i] * numBufs [i]),
-                                                           smaState->dspMaduSize) ;
-                        }
-                        else {
-                            status = DSP_ERANGE ;
-                            PRINT_Printf (
-                                    "Error: Configured pool size is insufficient for "
-                                    "passed parameters.\n"
-                                    "Check /dsplink/config/all/CFG_<PLATFORM>.c\n") ;
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                }
-
-                /* Free the allocated memory for numBufs and bufSize regardless of
-                 * status.
-                 */
-                FREE_PTR (bufSize) ;
-                FREE_PTR (numBufs) ;
-            }
-            else {
-                irqFlags = SYNC_SpinLockStartEx (smaState->lock) ;
-                smaState->refCount -- ;
-                SYNC_SpinLockEndEx (smaState->lock, irqFlags) ;
-                SET_FAILURE_REASON ;
-            }
+          }
         }
 
         if (DSP_SUCCEEDED (status)) {
-            /* -----------------------------------------------------------------
-             * Set the GPP Side SMA flag to initialize condition.
-             * -----------------------------------------------------------------
-             */
-            ctrlPtr->isGppInit = (Uint16) INIT_VALUE ;
+          printk(KERN_ALERT "Converting buffer handle...");
+
+
+          ctrlPtr = smaState->ctrlPtr;
+          smaState->smaShmObj->exactMatchReq = (Uint16)smaAttrs.exactMatchReq;
+
+          /* Convert the buffer handle from DSP to GPP address space */
+          smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs;
+
+          /* Buffer header are created at a distance 
+             "sizeof(SmaBufObj) * MAX_SMABUFENTRIES", to provide a
+             provision for adding new buffer pools later on */
+          bufHeader = (Uint8 *) smaState->bufGppMemAddr;
+          bufDspHeader = smaState->bufDspMemAddr;
+
+          printk(KERN_ALERT "DONE\n");
+
+          TRC_1PRINT(TRC_LEVEL4,
+                     "SMAPOOL buffers start GPP address: 0x%x\n", bufHeader);
+          TRC_1PRINT (TRC_LEVEL4,
+                     "SMAPOOL buffers start DSP address: 0x%x\n", bufDspHeader);
+  
+          /* Check for duplicate size entries in SMA attributes */
+          status = MEM_Alloc((Void **) &bufSize,
+                           (smaAttrs.numBufPools * sizeof (Uint32)),
+                           MEM_DEFAULT);
+
+          if (DSP_SUCCEEDED (status)) {
+            status = MEM_Calloc((Void **) &numBufs,
+                                (smaAttrs.numBufPools * sizeof (Uint32)),
+                                MEM_DEFAULT);
+
+            if (DSP_SUCCEEDED (status)) {
+
+              printk(KERN_ALERT "Checking BUFPOOLS...");
+
+              for (i = 0; i < smaAttrs.numBufPools; i++) {
+                if (numBufs [i] != (Uint32) -1) {
+                  bufSize[count] =
+                    DSPLINK_ALIGN(smaAttrs.bufSizes[i], BUS_WIDTH);
+
+                  DBC_Assert(bufSize [count] % BUS_WIDTH == 0);
+
+                  numBufs[count] = smaAttrs.numBuffers[i];
+
+                  for (j = i + 1; j < smaAttrs.numBufPools; j++) {
+                    if (bufSize [count] ==
+                        DSPLINK_ALIGN(smaAttrs.bufSizes [j], BUS_WIDTH))
+                    {
+                      numBufs[count] += smaAttrs.numBuffers[j];
+                      numBufs[j] = (Uint32) -1;
+                    }
+                  }
+
+                  count++;
+                }
+              }
+
+              printk(KERN_ALERT "done\n");
+            }
+            else {
+              irqFlags = SYNC_SpinLockStartEx (smaState->lock);
+              smaState->refCount--;
+
+              SYNC_SpinLockEndEx(smaState->lock, irqFlags);
+              SET_FAILURE_REASON;
+              FREE_PTR(bufSize);
+            }
+          }
+          else {
+            irqFlags = SYNC_SpinLockStartEx (smaState->lock);
+            smaState->refCount--;
+
+            SYNC_SpinLockEndEx(smaState->lock, irqFlags);
+            SET_FAILURE_REASON;
+          }
+
+          if (DSP_SUCCEEDED (status)) {
+
+          printk(KERN_ALERT "Sorting buffers...");
+
+            /* sort the buf size first, awesome bubble-sort */
+            for (i = 0; i < count; i++) {
+              for (j = i + 1; j < count; j++) {
+                if (bufSize[i] > bufSize[j]) {
+                  temp = bufSize[i];
+                  bufSize[i] = bufSize[j];
+                  bufSize[j] = temp;
+
+                  /* Also arrange the numbufs in accordance to sizes */
+                  temp = numBufs[i];
+                  numBufs[i] = numBufs[j];
+                  numBufs[j] = temp;
+                }
+              }
+            }
+
+            printk(KERN_ALERT "done\n");
+
+            /* Update the control structure for number of buffer pools */
+            ctrlPtr->numBufs = count;
+
+            printk(KERN_ALERT "Updating control structure...");
+
+            for (i = 0; (i < count) && DSP_SUCCEEDED(status); i++) {
+              if (((numBufs[i] * bufSize[i]) + (Uint32) bufHeader) <=
+                  (smaState->bufGppMemAddr + smaState->bufPoolSize))
+              {
+                smaBufObj[i].dspMaduSize = smaState->dspMaduSize;
+                smaBufObj[i].wordSwap = smaState->wordSwap;
+
+                smaBufObj[i].size = BYTE_TO_MADU(
+                  bufSize[i], smaBufObj[i].dspMaduSize);
+
+                smaBufObj[i].size = SWAP_LONG(
+                  smaBufObj[i].size, smaBufObj[i].wordSwap);
+
+                smaBufObj[i].totalBuffers = numBufs [i];
+                smaBufObj[i].freeBuffers = numBufs [i];
+                smaBufObj[i].startAddress = (Uint32) bufHeader;
+                smaBufObj[i].bufDspAddress = bufDspHeader;
+                smaBufObj[i].nextFree = 0;
+
+                bufHeader = (Uint8 *) (smaBufObj[i].startAddress);
+
+                /* Create the buffer pools */
+                for (j = 0; j < numBufs[i] ; j++) {
+                  ((SmaBufHeader*) bufHeader)->next =
+                    (SmaBufHeader *) SWAP_LONG(smaBufObj[i].size * (j + 1),
+                                               smaBufObj[i].wordSwap);
+
+                  bufHeader += bufSize[i];
+                }
+
+                bufDspHeader += BYTE_TO_MADU((bufSize[i] * numBufs [i]),
+                                             smaState->dspMaduSize);
+              }
+              else {
+                status = DSP_ERANGE;
+                PRINT_Printf("Error: Configured pool size is not sufficient "
+                             "for passed parameters. "
+                             "Check /dsplink/config/all/CFG_<PLATFORM>.c\n");
+
+                SET_FAILURE_REASON;
+              }
+            }
+
+            printk(KERN_ALERT "done\n");
+          }
+
+          /* Free the allocated memory for 'numBufs' and 'bufSize' regardless
+             of the status */
+          FREE_PTR(bufSize);
+          FREE_PTR(numBufs);
         }
+        else {
+          irqFlags = SYNC_SpinLockStartEx(smaState->lock);
+          smaState->refCount--;
+
+          SYNC_SpinLockEndEx(smaState->lock, irqFlags);
+          SET_FAILURE_REASON;
+        }
+      }
+
+      if (DSP_SUCCEEDED(status)) {
+        /* Set the GPP Side SMA flag to initialize condition */
+        ctrlPtr->isGppInit = (Uint16) INIT_VALUE;
+      }
     }
+  }
 
-    if (DSP_SUCCEEDED (status)) {
-        /* ---------------------------------------------------------------------
-         * Update the pool parameters for translation. later to be used with
-         * alloc and free, when called from user process.
-         * ---------------------------------------------------------------------
-         */
-        poolOpenParams->physAddr = smaState->bufPhysMemAddr ;
-        poolOpenParams->virtAddr = smaState->bufGppMemAddr  ;
-        poolOpenParams->dspAddr  = smaState->bufDspMemAddr  ;
-        poolOpenParams->size     = smaState->bufPoolSize    ;
-    }
+  if (DSP_SUCCEEDED(status)) {
+    /* Update the pool parameters for translation. later to be used with
+       alloc and free, when called from user process */
+    poolOpenParams->physAddr = smaState->bufPhysMemAddr;
+    poolOpenParams->virtAddr = smaState->bufGppMemAddr;
+    poolOpenParams->dspAddr = smaState->bufDspMemAddr;
+    poolOpenParams->size = smaState->bufPoolSize;
+  }
 
-    TRC_1LEAVE ("SMAPOOL_open", status) ;
-
-    return status ;
+  printk(KERN_ALERT "SMAPOOL_open DONE\n");
+  TRC_1LEAVE("SMAPOOL_open", status);
+  return status;
 }
 
 

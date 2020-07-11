@@ -476,95 +476,126 @@ DSP_Interface OMAP3530_Interface = {
  *  @modif  None.
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-OMAP3530_init (IN ProcessorId  dspId, IN DSP_Object * dspState)
+
+#include <linux/module.h>
+
+NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
+                                    IN DSP_Object *dspState)
 {
-    DSP_STATUS          status = DSP_SOK ;
-    OMAP3530_HalObj  *  halObj    = NULL ;
-    LINKCFG_DspConfig * dspCfg           ;
-    MemMapInfo          mapInfo          ;
-    LINKCFG_Dsp *       dspObj           ;
-    LINKCFG_MemEntry *  memTable         ;
-    Uint32              i                ;
-    Uint32              cpuFreq          ;
+  DSP_STATUS status = DSP_SOK;
+  OMAP3530_HalObj  *halObj = NULL;
+  LINKCFG_DspConfig *dspCfg;
+  MemMapInfo mapInfo;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_MemEntry *memTable;
+  Uint32 i;
+  Uint32 cpuFreq;
 
-    TRC_2ENTER ("OMAP3530_init", dspId, dspState) ;
+  TRC_2ENTER ("OMAP3530_init", dspId, dspState);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require (IS_VALID_PROCID (dspId));
 
-    if (IS_VALID_PROCID (dspId) == FALSE) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if (IS_VALID_PROCID(dspId) == FALSE) {
+    printk(KERN_ALERT "DSP_init error: invalid proc ID\n");
+
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+    dspObj = dspCfg->dspObject;
+    memTable = dspCfg->memTables[dspObj->memTableId];
+
+    if ((dspObj->doDspCtrl != DSP_BootMode_Boot_Pwr)
+    && (dspObj->doDspCtrl != DSP_BootMode_NoLoad_NoPwr)
+    && (dspObj->doDspCtrl != DSP_BootMode_NoLoad_Pwr)
+    && (dspObj->doDspCtrl != DSP_BootMode_NoBoot)
+    && (dspObj->doDspCtrl != DSP_BootMode_Boot_NoPwr))
+    {
+      /* Check if the doDspCtrl is valid */
+      printk(KERN_ALERT "Configuration error: "
+                        "Incorrect DSP 'doDspCtrl' specified: 0x%x\n",
+                          dspObj->doDspCtrl);
+
+      status = DSP_ECONFIG;
+      SET_FAILURE_REASON;
     }
     else {
-        dspCfg    = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-        dspObj    = dspCfg->dspObject ;
-        memTable  = dspCfg->memTables [dspObj->memTableId] ;
-        if (     (dspObj->doDspCtrl != DSP_BootMode_Boot_Pwr)
-             &&  (dspObj->doDspCtrl != DSP_BootMode_NoLoad_NoPwr)
-             &&  (dspObj->doDspCtrl != DSP_BootMode_NoLoad_Pwr)
-             &&  (dspObj->doDspCtrl != DSP_BootMode_NoBoot)
-             &&  (dspObj->doDspCtrl != DSP_BootMode_Boot_NoPwr)) {
-            /* Check if the doDspCtrl is valid. */
-            PRINT_Printf ("Configuration error:"
-                          " Incorrect DSP doDspCtrl specified [0x%x]\n",
-                          dspObj->doDspCtrl) ;
-            status = DSP_ECONFIG ;
-            SET_FAILURE_REASON ;
+      for (i = 0;
+          (i < dspObj->memEntries) && DSP_SUCCEEDED (status);
+          i++)
+      {
+        printk(KERN_ALERT "  memTable[%d].gppVirtAddr: 0x%lx\n",
+               i, memTable[i].gppVirtAddr);
+
+        printk(KERN_ALERT "  memTable[%d].physAddr: 0x%lx\n",
+               i, memTable[i].physAddr);
+
+        /* If the configured GPP virtual address is invalid, get the
+           actual address by mapping the physical address into GPP kernel
+           memory space */
+        if ((memTable[i].gppVirtAddr == (Uint32) -1)
+        && (memTable[i].shared == TRUE))
+        {
+          printk(KERN_ALERT "Mapping %d bytes from address: 0x%lx\n",
+                             memTable[i].size,
+                             memTable[i].physAddr);
+
+          mapInfo.src = memTable[i].physAddr;
+          mapInfo.size = memTable[i].size;
+          mapInfo.memAttrs = MEM_UNCACHED;
+
+          status = MEM_Map(&mapInfo);
+
+          if (DSP_SUCCEEDED (status)) {
+            memTable[i].gppVirtAddr = mapInfo.dst;
+          }
+          else {
+            printk(KERN_ALERT "'MEM_Map' failed in '%s', status: %ld\n",
+                   __FUNCTION__, status);
+
+            SET_FAILURE_REASON;
+          }
+        }
+      }
+
+      if (DSP_SUCCEEDED (status)) {
+        status = OMAP3530_halInit(&dspState->halObject, NULL);
+
+        printk(KERN_ALERT "'OMAP3530_halInit' done in '%s', "
+                          "status: %ld\n", __FUNCTION__, status);
+
+        if (DSP_FAILED (status)) {
+          SET_FAILURE_REASON ;
         }
         else {
-            for (i = 0 ;
-                 (i < dspObj->memEntries) && DSP_SUCCEEDED (status) ;
-                 i++) {
-                /* If the configured GPP virtual address is invalid, get the actual
-                 * address by mapping the physical address into GPP kernel memory
-                 * space.
-                 */
-                if ((memTable [i].gppVirtAddr == (Uint32) -1) &&
-                    (memTable [i].shared == TRUE)) {
-                    mapInfo.src  = memTable [i].physAddr ;
-                    mapInfo.size = memTable [i].size ;
-                    mapInfo.memAttrs = MEM_UNCACHED ;
+          halObj = (OMAP3530_HalObj *) dspState->halObject ;
+          halObj->procId = dspId ;
+        }
+      }
 
-                    status = MEM_Map (&mapInfo) ;
-                    if (DSP_SUCCEEDED (status)) {
-                        memTable [i].gppVirtAddr = mapInfo.dst ;
-                    }
-                    else {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                status = OMAP3530_halInit (&dspState->halObject, NULL) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-                else  {
-                    halObj = (OMAP3530_HalObj *) dspState->halObject ;
-                    halObj->procId = dspId ;
-                }
-            }
-
-            if (DSP_SUCCEEDED (status)) {
+      if (DSP_SUCCEEDED (status)) {
 #if defined (OS_WINCE)
-                status = OMAP3530_getDspClkRate ((Pvoid)dspState->halObject, &cpuFreq) ;
+        status = OMAP3530_getDspClkRate((Pvoid)dspState->halObject, &cpuFreq) ;
 #else
-                status = OMAP3530_getDspClkRate ("iva2_ck", &cpuFreq) ;
-#endif
-                if (DSP_SUCCEEDED (status)) {
-                    /* Use default by getting clock rate from Linux
-                     * Override the configured value
-                     */
-                    dspObj->cpuFreq = cpuFreq ;
-                }
-            }
-            TRC_1PRINT (TRC_LEVEL3, "Setting DSP Clk Rate %d\n", dspObj->cpuFreq) ;
+        status = OMAP3530_getDspClkRate("iva2_ck", &cpuFreq);
 
-            if (DSP_SUCCEEDED (status)) {
-                if (   (dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
+        printk(KERN_ALERT "'OMAP3530_getDspClkRate' done in '%s', "
+                          "status: %ld\n", __FUNCTION__, status);
+#endif
+        if (DSP_SUCCEEDED (status)) {
+          /* Use default by getting clock rate from Linux
+             Override the configured value */
+          dspObj->cpuFreq = cpuFreq;
+
+          printk(KERN_ALERT "DSP CPU FREQ: %d\n", cpuFreq);
+        }
+      }
+
+      TRC_1PRINT (TRC_LEVEL3, "Setting DSP Clk Rate %d\n", dspObj->cpuFreq);
+
+      if (DSP_SUCCEEDED(status)) {
+        if ((dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
                     || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)) {
                     status = halObj->interface->pwrCtrl ((Pvoid) halObj,
                                                          DSP_PwrCtrlCmd_PowerUp,

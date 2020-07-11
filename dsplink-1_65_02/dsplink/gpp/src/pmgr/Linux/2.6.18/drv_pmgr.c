@@ -955,13 +955,128 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
   return(status);
 }
 
+/********************************************************************************
+  @name  DRV_copy_data_from_user
 
-/** ----------------------------------------------------------------------------
- *  @name   DRV_Ioctl
- *
- *  @desc   Function to invoke the APIs through ioctl.
- *  ----------------------------------------------------------------------------
- */
+  @desc  Depending on a particular operation, copy ALL required data from
+         user space
+
+********************************************************************************/
+
+STATIC long DRV_copy_data_from_user(struct file * filp,
+                                    unsigned int cmd,
+                                    unsigned long args,
+                                    CMD_Args *dstArgs)
+{
+  int status = 0;
+  void *srcArgs = (void*) args;
+
+  /* first of all, copy the main structure from user space. As known,
+     this only results in a 'shallow copy'. Pointers are copied,
+     their destinations are not */
+  int retVal =
+    copy_from_user(dstArgs, srcArgs, sizeof(CMD_Args));
+
+  if (retVal != 0) {
+    printk(KERN_ALERT "*** error: bad 'copy_from_user' in %s,"
+                      " status: %d\n", __FUNCTION__, retVal);
+    status = -EFAULT;
+  }
+  else {
+    /* a particular operation requires more than just a shallow copy,
+       we need to provide copy those data as well. I wonder how this
+       worked ok (without additional copies) in old kernel versions */
+    switch (cmd)
+    {
+      /* this operation requires to read the data as provided by the
+         'attr' member, therefore we need to additionally copy it */
+      case CMD_IDM_CREATE:
+      {
+        IDM_Attrs *dstAttrs = vmalloc(sizeof(IDM_Attrs));
+
+        retVal = copy_from_user(
+          (void*) dstAttrs,
+          (void*) dstArgs->apiArgs.idmCreateArgs.attrs,
+          sizeof(IDM_Attrs));
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s', "
+                            "<CMD_IDM_CREATE>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+
+        /* 'attrs' now refers to out copy created in the kernel space,
+           which can safely be used by subsequent calls */
+        dstArgs->apiArgs.idmCreateArgs.attrs = dstAttrs;
+        break;
+      }
+
+      /* this operation requires one 'in' string argument and one 'out'
+         argument which we need to copy back later */
+      case CMD_IDM_ACQUIREID:
+      {
+        Char8 *dstKey = vmalloc(DSP_MAX_STRLEN);
+        Uint32 *id = (Uint32*) vmalloc(sizeof(Uint32));
+
+        retVal = copy_from_user(
+          (void*) dstKey,
+          (void*) dstArgs->apiArgs.idmAcquireIdArgs.idKey,
+          sizeof(DSP_MAX_STRLEN));
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                            "<CMD_IDM_ACQUIREID>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+
+        dstArgs->apiArgs.idmAcquireIdArgs.idKey = dstKey;
+        dstArgs->apiArgs.idmAcquireIdArgs.id = id;
+        break;
+      }
+
+      /* this is quite complicated. Here we need to provide a structure
+         'POOL_OpenParams' which contains a generic (void*). The pointer
+         is cast depending on the pool interface being called, e.g.
+         DMA/SMA/BUFF. This means, we need copy stuff (yet again) upon
+         accessing in those functions */
+      case CMD_POOL_OPEN:
+      {
+        POOL_OpenParams *dstParams = vmalloc(sizeof(POOL_OpenParams));
+
+        retVal = copy_from_user(
+          (void*) dstParams,
+          (void*) dstArgs->apiArgs.poolOpenArgs.params,
+          sizeof(POOL_OpenParams));
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
+                            "<CMD_POOL_OPEN>, status: %d\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+
+        dstArgs->apiArgs.poolOpenArgs.params = dstParams;
+        break;
+      }
+
+      default: break;
+    }
+  }
+
+  return status;
+}
+
+/********************************************************************************
+  @name   DRV_Ioctl
+
+  @desc   Function to invoke the APIs through ioctl
+
+********************************************************************************/
 
 STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
                                  unsigned int cmd,
@@ -976,15 +1091,9 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
 
   TRC_3ENTER ("DRV_Ioctl", filp, cmd, args);
 
-  retVal = copy_from_user(
-    (Pvoid) &apiArgs, (const Pvoid) srcAddr, sizeof(CMD_Args));
+  retVal = DRV_copy_data_from_user(filp, cmd, args, &apiArgs);
 
-  if (retVal != 0) {
-    printk(KERN_ALERT "    error: bad 'copy_from_user' in %s,"
-           " return value: %d\n", __FUNCTION__, retVal);
-
-    osStatus = -EFAULT;
-  }
+  if (retVal != 0) osStatus = -EFAULT;
 
   if (osStatus == 0) {
     status = DRV_CallAPI(cmd, &apiArgs);
@@ -1027,11 +1136,11 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
  *  @desc   Macro calls that indicate initialization and finalization functions
  *          to the kernel.
  *  ============================================================================
- */
+*/
 
 MODULE_LICENSE ("GPL v2") ;
-module_init (DRV_InitializeModule) ;
-module_exit (DRV_FinalizeModule) ;
+module_init (DRV_InitializeModule);
+module_exit (DRV_FinalizeModule);
 
 /** ----------------------------------------------------------------------------
  *  @name   DRV_CallAPI
@@ -1041,6 +1150,7 @@ module_exit (DRV_FinalizeModule) ;
  *  @modif  None.
  *  ----------------------------------------------------------------------------
  */
+
 STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 {
   DSP_STATUS status    = DSP_SOK ; /* status of driver's ioctl    */
@@ -1759,8 +1869,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_POOL_OPEN'\n");
 
-      retStatus = LDRV_POOL_open (args->apiArgs.poolOpenArgs.poolId,
-                                  args->apiArgs.poolOpenArgs.params);
+      retStatus = LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId,
+                                 args->apiArgs.poolOpenArgs.params);
 
       args->apiStatus = retStatus;
       break;
@@ -1906,35 +2016,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     case CMD_IDM_CREATE:
     {
       printk(KERN_ALERT "      executing command: 'CMD_IDM_CREATE'\n");
+      retStatus = IDM_create(args->apiArgs.idmCreateArgs.key,
+                             args->apiArgs.idmCreateArgs.attrs);
 
-      /* NKim, since 'arg' as copied by 'DRV_IOctl' may still contain
-         pointers to the user-space data, we therefore need to copy
-         each additional component we want to access here */
-      IDM_Attrs attrs;
-
-      printk(KERN_ALERT  "**** copying attrs from user address 0x%lx"
-                         " to kernel address 0x%lx\n",
-                         &args->apiArgs.idmCreateArgs.attrs, &attrs);
-
-      retVal = copy_from_user(
-        (void *) &attrs,
-        (void *) &args->apiArgs.idmCreateArgs.attrs,
-        sizeof(IDM_Attrs));
-
-      if (retVal != 0) {
-        printk(KERN_ALERT "    error: bad 'copy_from_user' in %s,"
-             " return value: %d\n", __FUNCTION__, retVal);
-
-        status = DSP_EFAIL;
-      }
-      else {
-        retStatus = IDM_create(
-          args->apiArgs.idmCreateArgs.key,
-          args->apiArgs.idmCreateArgs.attrs = &attrs);
-
-        args->apiStatus = retStatus;
-      }
-
+      args->apiStatus = retStatus;
       break;
     }
 
@@ -1942,7 +2027,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_IDM_DELETE'\n");
 
-      retStatus = IDM_delete (args->apiArgs.idmDeleteArgs.key);
+      retStatus = IDM_delete(args->apiArgs.idmDeleteArgs.key);
 
       args->apiStatus = retStatus;
       break;
@@ -1950,27 +2035,14 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 
     case CMD_IDM_ACQUIREID:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_ACQUIRED'\n");
+      printk(KERN_ALERT "      executing command: 'CMD_IDM_ACQUIREID'\n");
 
-      Char8 idKeyStr [DSP_MAX_STRLEN];
+      retStatus = IDM_acquireId(
+        args->apiArgs.idmAcquireIdArgs.key,
+        args->apiArgs.idmAcquireIdArgs.idKey,
+        args->apiArgs.idmAcquireIdArgs.id);
 
-      retVal = copy_from_user ((Pvoid) &idKeyStr,
-                   (const Pvoid) args->apiArgs.idmAcquireIdArgs.idKey,
-                    sizeof (idKeyStr));
-
-      if (retVal != 0) {
-        printk(KERN_ALERT "      error: bad 'copy_from_user' in %s\n",
-               __FUNCTION__);
-
-        status = DSP_EFAIL;
-      }
-      else {
-        retStatus = IDM_acquireId(args->apiArgs.idmAcquireIdArgs.key,
-                                  (Pstr)idKeyStr,
-                                  args->apiArgs.idmAcquireIdArgs.id);
-        args->apiStatus = retStatus;
-      }
-
+      args->apiStatus = retStatus;
       break;
     }
 

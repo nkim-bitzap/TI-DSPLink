@@ -206,21 +206,6 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
 
   TRC_3ENTER ("MEM_Alloc", ptr, cBytes, arg);
 
-  if (ptr == NULL)
-  {
-    printk(KERN_ALERT "  error: expected a valid pointer\n");
-  }
-
-  if (MEM_IsInitialized != TRUE)
-  {
-    printk(KERN_ALERT "  error: uninitialized memory\n");
-  }
-
-  if (cBytes == 0)
-  {
-    printk(KERN_ALERT "  error: invalid (0) number of bytes\n");
-  }
-
   printk(KERN_ALERT "  allocating %d bytes\n", cBytes);
 
   DBC_Require (ptr != NULL);
@@ -469,22 +454,22 @@ MEM_Free (IN Pvoid * ptr, IN Pvoid arg)
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-MEM_Map (IN OUT MemMapInfo * mapInfo)
+
+EXPORT_API DSP_STATUS MEM_Map(IN OUT MemMapInfo *mapInfo)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_1ENTER ("MEM_Map", mapInfo) ;
+  TRC_1ENTER ("MEM_Map", mapInfo);
 
-    DBC_Require (mapInfo != NULL) ;
+  DBC_Require (mapInfo != NULL);
     
-    if (mapInfo != NULL) {
-        mapInfo->dst = 0 ;
-        if (mapInfo->memAttrs == MEM_UNCACHED) {
-        mapInfo->dst = (Uint32) ioremap_nocache ((dma_addr_t) (mapInfo->src),
-                                                  mapInfo->size) ;
-        }
+  if (mapInfo != NULL) {
+    mapInfo->dst = 0;
+
+    if (mapInfo->memAttrs == MEM_UNCACHED) {
+      mapInfo->dst = (Uint32) ioremap_nocache(
+        (dma_addr_t) (mapInfo->src), mapInfo->size);
+    }
         else if (mapInfo->memAttrs == MEM_CACHED) {
             mapInfo->dst = (Uint32) ioremap ((dma_addr_t) (mapInfo->src),
                                              mapInfo->size) ;

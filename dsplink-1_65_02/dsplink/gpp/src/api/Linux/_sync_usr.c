@@ -233,7 +233,7 @@ NORMAL_API DSP_STATUS _SYNC_USR_init (Void)
     SYNC_USR_stateObj.csObjs [i] = NULL;
   }
 
-  /* Generate the unique key. */
+  /* Generate the unique key */
   key = ftok (SYNC_KEY_FILE_NAME, SYNC_KEY_CS);
 
   if (key == OS_EFAILURE) {
@@ -241,7 +241,7 @@ NORMAL_API DSP_STATUS _SYNC_USR_init (Void)
     SET_FAILURE_REASON;
   }
   else {
-    /* Create a semaphore set based on the unique key. */
+    /* Create a semaphore set based on the unique key */
     semId = semget (key, MAX_SYNC_CS, 0666 | IPC_CREAT);
 
     if (semId == OS_EFAILURE) {
@@ -259,7 +259,7 @@ NORMAL_API DSP_STATUS _SYNC_USR_init (Void)
 
         for (i = 0 ; i < MAX_SYNC_CS ; i++) {
           /* Initialize the semaphores as initially available */
-          if (semctl (semId, i, SETVAL, INIT_RESOURCE_COUNT) ==
+          if (semctl(semId, i, SETVAL, INIT_RESOURCE_COUNT) ==
               OS_EFAILURE)
           {
             status = DSP_EFAIL;

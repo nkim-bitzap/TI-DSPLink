@@ -244,22 +244,19 @@ LOOP_Create (IN Char8 * dspExecutable,
 
     LOOP_0Print ("Entered LOOP_Create ()\n") ;
 
-    /*
-     *  Create and initialize the proc object.
-     */
-    status = PROC_setup (NULL) ;
+    /* Create and initialize the proc object */
+    status = PROC_setup (NULL);
 
-    /*
-     *  Attach the Dsp with which the transfers have to be done.
-     */
+    /* Attach the Dsp with which the transfers have to be done */
     if (DSP_SUCCEEDED (status)) {
-        status = PROC_attach (processorId, NULL) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("PROC_attach failed . Status = [0x%x]\n", status) ;
-        }
+      status = PROC_attach (processorId, NULL);
+
+      if (DSP_FAILED(status)) {
+        LOOP_1Print("PROC_attach failed . Status = [0x%x]\n", status);
+      }
     }
     else {
-        LOOP_1Print ("PROC_setup failed. Status =  [0x%x]\n", status) ;
+      LOOP_1Print("PROC_setup failed. Status = [0x%x]\n", status);
     }
 
     /*

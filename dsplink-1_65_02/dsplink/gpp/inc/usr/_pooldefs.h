@@ -463,7 +463,7 @@ struct POOL_OpenParams_tag {
     Uint32  virtAddr ;
     Uint32  dspAddr ;
     Uint32  size ;
-} ;
+};
 
 
 #if defined (__cplusplus)

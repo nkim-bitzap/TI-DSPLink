@@ -20,7 +20,6 @@
  *  ============================================================================
  */
 
-
 /*  ----------------------------------- DSP/BIOS Link               */
 #include <dsplink.h>
 #include <_dsplink.h>
@@ -594,51 +593,67 @@ LDRV_POOL_exit (IN ProcessorId procId)
  *  @modif  None.
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-LDRV_POOL_open (IN PoolId poolId, IN POOL_OpenParams  * poolOpenParams)
+
+#include <linux/module.h>
+
+EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
+                                     IN POOL_OpenParams *poolOpenParams)
 {
-    DSP_STATUS         status    = DSP_SOK ;
-    LDRV_POOL_Object * poolState = NULL    ;
-    LDRV_POOL_Info *   poolInfo  = NULL    ;
-    Uint8              poolNo    = POOL_getPoolNo (poolId) ;
-    ProcessorId        procId    = POOL_getProcId (poolId) ;
-    POOL_AddrInfo *    poolAddrPtr ;
+  DSP_STATUS status = DSP_SOK ;
+  LDRV_POOL_Object *poolState = NULL;
+  LDRV_POOL_Info *poolInfo = NULL;
+  Uint8 poolNo = POOL_getPoolNo (poolId);
+  ProcessorId procId = POOL_getProcId(poolId);
+  POOL_AddrInfo *poolAddrPtr;
 
-    TRC_2ENTER ("LDRV_POOL_open", poolId, poolOpenParams) ;
+  TRC_2ENTER("LDRV_POOL_open", poolId, poolOpenParams);
 
-    DBC_Require (IS_VALID_POOLID (poolId)) ;
-    DBC_Require (poolOpenParams != NULL) ;
+  DBC_Require(IS_VALID_POOLID(poolId));
+  DBC_Require(poolOpenParams != NULL);
 
-    DBC_Assert  (IS_VALID_PROCID (procId)) ;
-    DBC_Assert  (LDRV_POOL_IsInitialized [procId] == TRUE) ;
+  DBC_Assert(IS_VALID_PROCID(procId));
+  DBC_Assert(LDRV_POOL_IsInitialized[procId] == TRUE);
 
-    poolState = &(LDRV_POOL_State [procId]) ;
-    DBC_Assert (poolNo < poolState->numPools) ;
+  poolState = &(LDRV_POOL_State[procId]);
+  DBC_Assert(poolNo < poolState->numPools);
 
-    /* Check if pool is configured. */
-    if (poolNo < poolState->numPools) {
-        poolInfo = &(poolState->poolInfo [poolNo]) ;
-        status = poolInfo->interface->open (procId,
-                                            poolNo,
-                                            poolInfo->object,
-                                            poolOpenParams) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-        else {
-            poolAddrPtr = &LDRV_POOL_addrConfig [procId][poolNo] ;
-            poolAddrPtr->addr [AddrType_Usr] = 0 ;
-            poolAddrPtr->addr [AddrType_Phy] = poolOpenParams->physAddr ;
-            poolAddrPtr->addr [AddrType_Knl] = poolOpenParams->virtAddr ;
-            poolAddrPtr->addr [AddrType_Dsp] = poolOpenParams->dspAddr ;
-            poolAddrPtr->size                = poolOpenParams->size ;
-        }
+  /* Check if pool is configured */
+  if (poolNo < poolState->numPools) {
+    poolInfo = &(poolState->poolInfo[poolNo]);
+
+    printk(KERN_ALERT "TRYING TO OPEN INTERFACE ...");
+    
+    /* goes to 'SMA/DMA/BUFPOOL_open', which accesses 'params' as part
+       of 'poolOpenParams', which is generic (void*) and is cast to
+       particular struct depending on the pool function called. Thus
+       make sure to provide a valid data it points to */
+    status = poolInfo->interface->open(procId,
+                                       poolNo,
+                                       poolInfo->object,
+                                       poolOpenParams);
+
+
+    printk(KERN_ALERT "done\n");
+
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
     else {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+      printk(KERN_ALERT "SUCCEEDED OPENING INTERFACE, writing data...");
+      poolAddrPtr = &LDRV_POOL_addrConfig [procId][poolNo] ;
+      poolAddrPtr->addr [AddrType_Usr] = 0 ;
+      poolAddrPtr->addr [AddrType_Phy] = poolOpenParams->physAddr ;
+      poolAddrPtr->addr [AddrType_Knl] = poolOpenParams->virtAddr ;
+      poolAddrPtr->addr [AddrType_Dsp] = poolOpenParams->dspAddr ;
+      poolAddrPtr->size                = poolOpenParams->size ;
+
+      printk(KERN_ALERT "done\n");
     }
+  }
+  else {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
 
     TRC_1LEAVE ("LDRV_POOL_open", status) ;
 

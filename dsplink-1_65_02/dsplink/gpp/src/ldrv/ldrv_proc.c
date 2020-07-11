@@ -216,193 +216,215 @@ LDRV_PROC_moduleExit (Void)
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-LDRV_PROC_init (IN ProcessorId dspId)
+
+#include <linux/module.h>
+
+NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 {
-    DSP_STATUS          status = DSP_SOK  ;
-    LDRV_PROC_Object *  procState  = NULL ;
-    DSP_Interface *     interface = NULL  ;
-    LINKCFG_Dsp *      dspObj ;
-    Int32              strCmpResult ;
-    Uint32             mapId ;
-    LINKCFG_DspConfig * dspConfig ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_PROC_Object *procState  = NULL;
+  DSP_Interface *interface = NULL ;
+  LINKCFG_Dsp *dspObj;
+  Int32 strCmpResult;
+  Uint32 mapId;
+  LINKCFG_DspConfig *dspConfig;
 
-    TRC_1ENTER ("LDRV_PROC_init", dspId) ;
+  TRC_1ENTER ("LDRV_PROC_init", dspId);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  procState = &(LDRV_PROC_State[dspId]);
 
-    procState = &(LDRV_PROC_State [dspId]) ;
+  if (LDRV_PROC_IsInitialized[dspId] == FALSE) {
+    /* Initialize the IsInitialized flags for the DSP */
+    LDRV_PROC_IsInitialized[dspId] = FALSE;
 
-    if (LDRV_PROC_IsInitialized [dspId] == FALSE) {
-        /* Initialize the IsInitialized flags for the DSP. */
-        LDRV_PROC_IsInitialized [dspId] = FALSE ;
+    dspConfig = LDRV_LinkCfgPtr->dspConfigs[dspId];
+    dspObj = dspConfig->dspObject;
 
-        procState = &(LDRV_PROC_State [dspId]) ;
-        dspConfig = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-        dspObj    = dspConfig->dspObject ;
+    /* Initialize the state object */
+    procState->procId = dspId;
+    procState->interface = NULL;
+    procState->dspState = ProcState_Unknown;
 
-        /* Initialize the state object. */
-        procState->procId    = dspId ;
-        procState->interface = NULL ;
-        procState->dspState  = ProcState_Unknown ;
+    /*  --------------------------------------------------------------------
+     * Validate the setup configuration parameters for the DSP.
+     *  --------------------------------------------------------------------
+     */
 
-        /*  --------------------------------------------------------------------
-         * Validate the setup configuration parameters for the DSP.
-         *  --------------------------------------------------------------------
-         */
-        /* Check if the configured DSP is available and set the interface table
-         * if the configuration is valid.
-         */
-        for (mapId = 0 ; mapId < CFGMAP_Config [dspId]->numDsps ; mapId++) {
-            status = GEN_Strcmp (dspObj->name,
-                                 CFGMAP_Config [dspId]->dspObjects [mapId].name,
-                                 &strCmpResult) ;
-            DBC_Assert (DSP_SUCCEEDED (status)) ;
-            if (strCmpResult == 0) {
-                interface = CFGMAP_Config [dspId]->dspObjects [mapId].interface ;
-                break ;
-            }
-        }
+    /* Check if the configured DSP is available and set the interface table
+     * if the configuration is valid */
+    for (mapId = 0; mapId < CFGMAP_Config[dspId]->numDsps ; mapId++) {
+      status = GEN_Strcmp(dspObj->name,
+                          CFGMAP_Config [dspId]->dspObjects [mapId].name,
+                          &strCmpResult);
 
-        if (mapId == CFGMAP_Config [dspId]->numDsps) {
-            /* Configured DSP is not available. */
-            PRINT_Printf ("Configuration error:"
-                          " Incorrect DSP name specified [%s]\n",
-                          dspObj->name) ;
-            status = DSP_ECONFIG ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            /* Check if the configured loader is available and set the interface
-             * table if the configuration is valid.
-             */
-            for (mapId = 0 ; mapId < CFGMAP_Config [dspId]->numLoaders ; mapId++) {
-                status = GEN_Strcmp (dspObj->loaderName,
-                                     CFGMAP_Config [dspId]->loaders [mapId].name,
-                                     &strCmpResult) ;
-                DBC_Assert (DSP_SUCCEEDED (status)) ;
-                if (strCmpResult == 0) {
-                    procState->loaderIntf =
-                               CFGMAP_Config [dspId]->loaders [mapId].interface ;
-                    procState->kfileIntf =
-                                      CFGMAP_Config [dspId]->loaders [mapId].kfileIntf ;
-                    break ;
-                }
-            }
+      DBC_Assert (DSP_SUCCEEDED(status));
 
-            if (mapId == CFGMAP_Config [dspId]->numLoaders) {
-                /* Configured loader is not available. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect loader name specified [%s]\n",
-                              dspObj->loaderName) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
-            else if (    (dspObj->dspArch != DspArch_Unknown)
-                     &&  (dspObj->dspArch != DspArch_C55x)
-                     &&  (dspObj->dspArch != DspArch_C64x_Bios5)
-                     &&  (dspObj->dspArch != DspArch_C64x_Bios6)
-                     &&  (dspObj->dspArch != DspArch_C64x)) {
-                /* Check if the dspArch is valid. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect DSP architecture specified [0x%x]\n",
-                              dspObj->dspArch) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
-            else if (    (dspObj->autoStart != TRUE)
-                     &&  (dspObj->autoStart != FALSE)) {
-                /* Check if the autoStart is valid. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect DSP autoStart specified [0x%x]\n",
-                              dspObj->autoStart) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
-            else if (    (dspObj->endian != Endianism_Default)
-                     &&  (dspObj->endian != Endianism_Big)
-                     &&  (dspObj->endian != Endianism_Little)) {
-                /* Check if the endian is valid. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect DSP endian specified [0x%x]\n",
-                              dspObj->endian) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
-            else if (    (dspObj->wordSwap != TRUE)
-                     &&  (dspObj->wordSwap != FALSE)) {
-                /* Check if the wordSwap is valid. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect DSP wordSwap specified [0x%x]\n",
-                              dspObj->wordSwap) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
-            else if (dspObj->memTableId >= dspConfig->numMemTables) {
-                /* Check if the memTableId is in valid range. */
-                PRINT_Printf ("Configuration error:"
-                              " Incorrect DSP memTableId specified [0x%x]\n",
-                              dspObj->memTableId) ;
-                status = DSP_ECONFIG ;
-                SET_FAILURE_REASON ;
-            }
+      if (strCmpResult == 0) {
+        interface = CFGMAP_Config [dspId]->dspObjects [mapId].interface;
+        break;
+      }
     }
 
-        /*  --------------------------------------------------------------------
-         *  Setup and initialize the DSP.
-         *  --------------------------------------------------------------------
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = DSP_init (dspId, interface) ;
-            if (DSP_SUCCEEDED (status)) {
-                procState->dspState = ProcState_Reset ;
-            }
-            else {
-                SET_FAILURE_REASON ;
-                PRINT_Printf (" DSP_init status [0x%x] \n",status) ;
-            }
+    if (mapId == CFGMAP_Config[dspId]->numDsps) {
+      /* Configured DSP is not available */
+      printk(KERN_ALERT "Configuration error: "
+                        "Incorrect DSP name specified[%s]\n",
+                        dspObj->name);
+
+      status = DSP_ECONFIG;
+      SET_FAILURE_REASON;
+    }
+    else {
+      /* Check if the configured loader is available and set the interface
+       * table if the configuration is valid */
+      for (mapId = 0; mapId < CFGMAP_Config[dspId]->numLoaders; mapId++)
+      {
+        status = GEN_Strcmp(dspObj->loaderName,
+                            CFGMAP_Config[dspId]->loaders[mapId].name,
+                            &strCmpResult);
+
+        DBC_Assert(DSP_SUCCEEDED (status));
+
+        if (strCmpResult == 0) {
+          procState->loaderIntf =
+            CFGMAP_Config [dspId]->loaders[mapId].interface;
+
+          procState->kfileIntf =
+            CFGMAP_Config [dspId]->loaders[mapId].kfileIntf;
+
+          break;
         }
+      }
+
+      if (mapId == CFGMAP_Config [dspId]->numLoaders) {
+        /* Configured loader is not available */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect loader name specified [%s]\n",
+                          dspObj->loaderName);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+      }
+      else if ((dspObj->dspArch != DspArch_Unknown)
+           &&  (dspObj->dspArch != DspArch_C55x)
+           &&  (dspObj->dspArch != DspArch_C64x_Bios5)
+           &&  (dspObj->dspArch != DspArch_C64x_Bios6)
+           &&  (dspObj->dspArch != DspArch_C64x))
+      {
+        /* Check if the dspArch is valid */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect DSP architecture specified [0x%x]\n",
+                           dspObj->dspArch);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+      }
+      else if ((dspObj->autoStart != TRUE)
+           &&  (dspObj->autoStart != FALSE))
+      {
+        /* Check if the autoStart is valid */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect DSP autoStart specified [0x%x]\n",
+                          dspObj->autoStart);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+      }
+      else if ((dspObj->endian != Endianism_Default)
+           &&  (dspObj->endian != Endianism_Big)
+           &&  (dspObj->endian != Endianism_Little))
+      {
+        /* Check if the endian is valid */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect DSP endian specified [0x%x]\n",
+                          dspObj->endian);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+      }
+      else if ((dspObj->wordSwap != TRUE)
+           &&  (dspObj->wordSwap != FALSE))
+      {
+        /* Check if the wordSwap is valid */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect DSP wordSwap specified [0x%x]\n",
+                          dspObj->wordSwap);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+      }
+      else if (dspObj->memTableId >= dspConfig->numMemTables) {
+        /* Check if the memTableId is in valid range */
+        printk(KERN_ALERT "Configuration error: "
+                          "Incorrect DSP memTableId specified [0x%x]\n",
+                          dspObj->memTableId);
+
+        status = DSP_ECONFIG;
+        SET_FAILURE_REASON;
+       }
+    }
+
+    /*  --------------------------------------------------------------------
+     *  Setup and initialize the DSP.
+     *  --------------------------------------------------------------------
+     */
+
+    if (DSP_SUCCEEDED(status)) {
+      status = DSP_init(dspId, interface);
+
+      if (DSP_SUCCEEDED(status)) {
+        procState->dspState = ProcState_Reset;
+      }
+      else {
+        printk(KERN_ALERT " 'DSP_init' failed, status: 0x%x\n", status);
+        SET_FAILURE_REASON;
+      }
+    }
 
 #if !(defined (ONLY_PROC_COMPONENT))
-        if (DSP_SUCCEEDED (status)) {
-            status = LDRV_DRV_init (dspId) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-                PRINT_Printf(" LDRV_DRV_init status [0x%x] \n",status) ;
-            }
-        }
+    if (DSP_SUCCEEDED (status)) {
+      status = LDRV_DRV_init (dspId);
+
+      printk(KERN_ALERT "'LDRV_DRV_init' done in '%s', status: %ld\n",
+             __FUNCTION__, status);
+
+      if (DSP_FAILED (status)) {
+        SET_FAILURE_REASON ;
+        printk(KERN_ALERT " LDRV_DRV_init status [0x%x] \n",status);
+      }
+    }
 #endif /* if !(defined (ONLY_PROC_COMPONENT)) */
 
-        if (DSP_FAILED (status)) {
-            procState->dspState = ProcState_Unknown ;
-        }
-
-#if defined (DDSP_PROFILE)
-        if (DSP_SUCCEEDED (status)) {
-            /* Increment the count of active links */
-            procState->procStats.procData [dspId].activeLinks++ ;
-        }
-#endif
-        LDRV_PROC_IsInitialized [dspId] = TRUE ;
-        if (DSP_FAILED (status)) {
-            /* LDRV_PROC_exit executes cleanup only if the initialized flag is
-             * TRUE.
-             */
-            LDRV_PROC_exit (dspId) ;
-            LDRV_PROC_IsInitialized [dspId] = FALSE ;
-        }
+    if (DSP_FAILED (status)) {
+      procState->dspState = ProcState_Unknown;
     }
 
-    DBC_Ensure (   (   (DSP_SUCCEEDED (status))
-                    && (procState->dspState == ProcState_Reset))
-                || (DSP_FAILED (status))) ;
+#if defined (DDSP_PROFILE)
+    if (DSP_SUCCEEDED (status)) {
+      /* Increment the count of active links */
+      procState->procStats.procData [dspId].activeLinks++;
+    }
+#endif
 
-    TRC_1LEAVE ("LDRV_PROC_init", status) ;
+    LDRV_PROC_IsInitialized[dspId] = TRUE;
 
-    return status ;
+    if (DSP_FAILED (status)) {
+      /* LDRV_PROC_exit executes cleanup only if the initialized flag
+         is TRUE */
+      LDRV_PROC_exit(dspId);
+      LDRV_PROC_IsInitialized[dspId] = FALSE;
+    }
+  }
+
+  DBC_Ensure(((DSP_SUCCEEDED (status)) &&
+              (procState->dspState == ProcState_Reset)) ||
+              (DSP_FAILED (status)));
+
+  TRC_1LEAVE("LDRV_PROC_init", status);
+
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_PROC_exit

@@ -400,112 +400,146 @@ PMGR_PROC_destroy (Void)
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-PMGR_PROC_attach (IN  ProcessorId   procId,
-                  IN     PROC_Attrs *  attr,
-                  IN     Void *        optArgs)
+
+#include <linux/module.h>
+
+NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
+                                       IN PROC_Attrs *attr,
+                                       IN Void *optArgs)
 {
-    DSP_STATUS        status     = DSP_SOK ;
-    DSP_STATUS        tmpStatus  = DSP_SOK ;
-    PMGR_ClientInfo * client     = NULL    ;
-    PrcsObject *      prcsInfo   = NULL    ;
-    Bool              toAttach   = FALSE   ;
-    Bool              isAttached = FALSE   ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK ;
+  PMGR_ClientInfo *client = NULL;
+  PrcsObject *prcsInfo = NULL;
+  Bool toAttach = FALSE;
+  Bool isAttached = FALSE;
 
-    TRC_2ENTER ("PMGR_PROC_attach", procId, attr) ;
+  TRC_2ENTER ("PMGR_PROC_attach", procId, attr);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
+  DBC_Require (IS_VALID_PROCID (procId));
+  DBC_Assert (PMGR_SetupRefCount != 0);
 
-    DBC_Assert (PMGR_SetupRefCount != 0) ;
+  if (PMGR_SetupRefCount == 0) {
+    status = DSP_ESETUP;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_ProtectionStart();
 
-    if (PMGR_SetupRefCount == 0) {
-        status = DSP_ESETUP ;
-        SET_FAILURE_REASON ;
+    if (PMGR_ProcObj[procId].attachRefCount == 0) {
+      toAttach = TRUE;
     }
-    else {
-        SYNC_ProtectionStart () ;
-        if (PMGR_ProcObj [procId].attachRefCount == 0) {
-            toAttach = TRUE ;
-        }
-        PMGR_ProcObj [procId].attachRefCount++ ;
-        SYNC_ProtectionEnd () ;
 
-        status = PRCS_Create (&prcsInfo, optArgs) ;
+    PMGR_ProcObj[procId].attachRefCount++;
+    SYNC_ProtectionEnd();
+
+    status = PRCS_Create(&prcsInfo, optArgs);
+
+    printk(KERN_ALERT"  'PRCS_Create' done in '%s', status: %ld\n",
+           __FUNCTION__, status);
+
+    if (DSP_SUCCEEDED (status)) {
+      if (toAttach == TRUE) {
+        status = SYNC_EnterCS (PMGR_SetupObj.mutex [procId]);
+
+        printk(KERN_ALERT"  'SYNC_EnterCS' done in '%s', status: %ld\n",
+               __FUNCTION__, status);
+
         if (DSP_SUCCEEDED (status)) {
-            if (toAttach == TRUE) {
-                status = SYNC_EnterCS (PMGR_SetupObj.mutex [procId]) ;
-                if (DSP_SUCCEEDED (status)) {
-                    /*  --------------------------------------------------------
-                     *  This is the first attach for this processor.
-                     *  Create the client list and initialize the DSP.
-                     *  --------------------------------------------------------
-                     */
-                    status = LIST_Create (&(PMGR_ProcObj [procId].clients)) ;
 
-                    if (DSP_SUCCEEDED (status)) {
-                        /* User wants load DSP with new values. */
-                        if (attr != NULL) {
-                            status = LDRV_init (procId, attr->dspCfgPtr) ;
-                        }
-                        else {
-                            /* Use the values provided at setup time. */
-                            status = LDRV_init (procId, NULL) ;
-                        }
+          /*  --------------------------------------------------------
+           *  This is the first attach for this processor.
+           *  Create the client list and initialize the DSP.
+           *  --------------------------------------------------------
+           */
+  
+          status = LIST_Create(&(PMGR_ProcObj[procId].clients));
 
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
+          printk(KERN_ALERT"  'LIST_Create' done in '%s', status: %ld\n",
+                 __FUNCTION__, status);
 
-                    if (DSP_SUCCEEDED (status)) {
-                        status = LDRV_PROC_init (procId) ;
-                        if (DSP_SUCCEEDED (status)) {
-                            PMGR_ProcObj [procId].objCtx     = NULL      ;
-                            PMGR_ProcObj [procId].loaderIntf = NULL      ;
-                            PMGR_ProcObj [procId].signature  = SIGN_PROC ;
-                        }
-                        else {
-                            LIST_Delete (PMGR_ProcObj [procId].clients) ;
-                            PMGR_ProcObj [procId].clients = NULL ;
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else {
-                        SET_FAILURE_REASON ;
-                    }
+          if (DSP_SUCCEEDED (status)) {
+            /* User wants load DSP with new values */
 
-#if defined (CHNL_COMPONENT)
-                    if (DSP_SUCCEEDED (status)) {
-                        status = PMGR_CHNL_init (procId) ;
-                        if (DSP_FAILED (status)) {
-                            LIST_Delete (PMGR_ProcObj [procId].clients) ;
-                            PMGR_ProcObj [procId].clients   = NULL ;
-                            PMGR_ProcObj [procId].signature = SIGN_NULL ;
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-#endif  /* if defined (CHNL_COMPONENT) */
+            if (attr != NULL) {
+              status = LDRV_init (procId, attr->dspCfgPtr);
 
-                    tmpStatus = SYNC_LeaveCS (PMGR_SetupObj.mutex [procId]) ;
-                    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-                        status = tmpStatus ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
-
+              printk(KERN_ALERT"  'LDRV_init' done in '%s', status: %ld\n",
+                     __FUNCTION__, status);
             }
             else {
-                /* Check if caller is already attached to the DSP. */
-                status = PMGR_PROC_isAttached (procId,
-                                               prcsInfo,
-                                               &isAttached) ;
-                if (DSP_SUCCEEDED (status)) {
-                    if (isAttached == TRUE) {
-                        status = DSP_EALREADYCONNECTED ;
-                    }
-                }
+              /* Use the values provided at setup time */
+              status = LDRV_init(procId, NULL);
+
+              printk(KERN_ALERT"  'LDRV_init' done in '%s', status: %ld\n",
+                     __FUNCTION__, status);
             }
+
+            if (DSP_FAILED (status)) {
+              SET_FAILURE_REASON;
+            }
+          }
+
+          if (DSP_SUCCEEDED (status)) {
+            status = LDRV_PROC_init(procId);
+
+            printk(KERN_ALERT"  'LDRV_PROC_init' done in '%s', status: %ld\n",
+                   __FUNCTION__, status);
+
+            if (DSP_SUCCEEDED (status)) {
+              PMGR_ProcObj [procId].objCtx = NULL;
+              PMGR_ProcObj [procId].loaderIntf = NULL;
+              PMGR_ProcObj [procId].signature = SIGN_PROC;
+            }
+            else {
+              LIST_Delete (PMGR_ProcObj [procId].clients);
+              PMGR_ProcObj [procId].clients = NULL;
+              SET_FAILURE_REASON;
+            }
+          }
+          else {
+            SET_FAILURE_REASON;
+          }
+
+#if defined (CHNL_COMPONENT)
+          if (DSP_SUCCEEDED (status)) {
+            status = PMGR_CHNL_init (procId);
+
+            printk(KERN_ALERT"  'PMGR_CHNL_init' done in '%s', status: %ld\n",
+                   __FUNCTION__, status);
+
+            if (DSP_FAILED (status)) {
+              LIST_Delete (PMGR_ProcObj [procId].clients);
+              PMGR_ProcObj [procId].clients = NULL;
+              PMGR_ProcObj [procId].signature = SIGN_NULL;
+              SET_FAILURE_REASON;
+            }
+          }
+#endif  /* if defined (CHNL_COMPONENT) */
+
+          tmpStatus = SYNC_LeaveCS (PMGR_SetupObj.mutex[procId]);
+
+          printk(KERN_ALERT"  'SYNC_LeaveCS' done in '%s', status: %ld\n",
+                 __FUNCTION__, status);
+
+          if (DSP_SUCCEEDED(status) && DSP_FAILED (tmpStatus)) {
+            status = tmpStatus;
+            SET_FAILURE_REASON;
+          }
+        }
+      }
+      else {
+        /* Check if caller is already attached to the DSP. */
+        status = PMGR_PROC_isAttached(procId,
+                                      prcsInfo,
+                                      &isAttached);
+
+        if (DSP_SUCCEEDED (status)) {
+          if (isAttached == TRUE) {
+            status = DSP_EALREADYCONNECTED ;
+          }
+        }
+      }
 
             if (DSP_SUCCEEDED (status)) {
                 status = SYNC_EnterCS (PMGR_SetupObj.mutex [procId]) ;

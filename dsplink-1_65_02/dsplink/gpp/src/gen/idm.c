@@ -256,15 +256,15 @@ IDM_exit (Void)
 
 #include <linux/module.h>
 
-EXPORT_API DSP_STATUS IDM_create (IN Uint32 key, IN IDM_Attrs * attrs)
+EXPORT_API DSP_STATUS IDM_create(IN Uint32 key, IN IDM_Attrs *attrs)
 {
   DSP_STATUS status = DSP_ERESOURCE;
 
-  Bool found  = FALSE;
+  Bool found = FALSE;
   Uint32 i;
   Uint32 j;
 
-  printk(KERN_ALERT "        Executing 'IDM_create', args:\n");
+  printk(KERN_ALERT "Executing 'IDM_create', args:\n");
   printk(KERN_ALERT "          key: %ud\n");
   printk(KERN_ALERT "          attrs: 0x%lx\n", attrs);
 
@@ -278,25 +278,12 @@ EXPORT_API DSP_STATUS IDM_create (IN Uint32 key, IN IDM_Attrs * attrs)
     SET_FAILURE_REASON;
   }
   else {
-    printk(KERN_ALERT "          max. number of objects: %d\n", MAX_IDM_OBJECTS);
-
     for (i = 0; ((i < MAX_IDM_OBJECTS) && (found == FALSE)); i++)
     {
       /* Find a free IDM object */
-      printk(KERN_ALERT "  idm object %d:\n", i);
-
       if (IDM_StateObj.idmObjs[i].key == IDM_INVALID_KEY)
       {
         found = TRUE;
-
-        printk(KERN_ALERT "    key: %d\n", IDM_StateObj.idmObjs[i].key);
-        printk(KERN_ALERT "    baseId: %d\n", IDM_StateObj.idmObjs[i].baseId);
-        printk(KERN_ALERT "    maxIds: %d\n", IDM_StateObj.idmObjs[i].maxIds);
-        printk(KERN_ALERT "    idArray: 0x%lx\n", IDM_StateObj.idmObjs[i].idArray);
-
-        printk(KERN_ALERT "    attrs: 0x%lx\n", attrs);
-        printk(KERN_ALERT "    attrs->baseId: 0x%lx\n", attrs->baseId);
-        printk(KERN_ALERT "    attrs->baseId: 0x%lx\n", attrs->maxIds);
 
         IDM_StateObj.idmObjs[i].key = key;
         IDM_StateObj.idmObjs[i].baseId = attrs->baseId;
@@ -307,34 +294,30 @@ EXPORT_API DSP_STATUS IDM_create (IN Uint32 key, IN IDM_Attrs * attrs)
 
         status = MEM_Alloc(buf, size, MEM_DEFAULT);
 
-        printk(KERN_ALERT "        'MEM_Alloc' done in '%s', status: %ld\n",
-               __FUNCTION__, status);
-
         if (DSP_SUCCEEDED (status))
         {
           /* Initialize all IDs to indicate that they are free to be
              acquired */
           for (j = 0 ; j < attrs->maxIds ; j++) {
-            printk(KERN_ALERT "writing idArray[%d].refCount\n", j);
-            IDM_StateObj.idmObjs[i].idArray[j].refCount  = 0;
-
-            printk(KERN_ALERT "writing idArray[%d].idkey[0]\n", j);
             IDM_StateObj.idmObjs[i].idArray[j].idKey[0] = '\0';
+            IDM_StateObj.idmObjs[i].idArray[j].refCount = 0;
           }
         }
         else {
+          printk(KERN_ALERT "error: 'MEM_Alloc' failed in '%s', "
+                            "status: %ld\n",  __FUNCTION__, status);
+
           SET_FAILURE_REASON;
         }
       }
     }
   }
 
-  printk(KERN_ALERT "        'IDM_create' executed, status: 0x%x\n", status);
+  printk(KERN_ALERT "'IDM_create' executed, status: 0x%x\n", status);
   TRC_1LEAVE ("IDM_create", status);
 
   return status;
 }
-
 
 /** ============================================================================
  *  @func   IDM_delete
@@ -376,7 +359,6 @@ IDM_delete (IN Uint32 key)
     return status ;
 }
 
-
 /** ============================================================================
  *  @func   IDM_acquireId
  *
@@ -385,106 +367,113 @@ IDM_delete (IN Uint32 key)
  *  @modif  None
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-IDM_acquireId (IN Uint32 key, IN Pstr idKey, OUT Uint32 * id)
+
+EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
+                                    IN Pstr idKey,
+                                    OUT Uint32 *id)
 {
-    DSP_STATUS   status      = DSP_SOK ;
-    Bool         idFound     = FALSE ;
-    Bool         freeIdFound = FALSE ;
-    IDM_Object * idmObject   = NULL ;
-    Uint32       freeId      = 0 ;
-    Uint32       i ;
-    Uint32       j ;
-    Int32        cmpResult ;
+  DSP_STATUS status = DSP_SOK;
+  Bool idFound = FALSE;
+  Bool freeIdFound = FALSE;
+  IDM_Object *idmObject = NULL;
+  Uint32 freeId = 0;
+  Uint32 i;
+  Uint32 j;
+  Int32 cmpResult;
 
-    TRC_3ENTER ("IDM_acquireId", key, idKey, id) ;
+  TRC_3ENTER ("IDM_acquireId", key, idKey, id) ;
 
-    DBC_Require (id    != NULL) ;
-    DBC_Require (idKey != NULL) ;
-    DBC_Require (IDM_StateObj.isInitialized == TRUE) ;
+  printk(KERN_ALERT "Executing 'IDM_acquireId', args:\n");
+  printk(KERN_ALERT "  key: %ud\n", key);
+  printk(KERN_ALERT "  idKey: %s\n", idKey);
+  printk(KERN_ALERT "  id: 0x%lx\n", id);
 
-    if ((id == NULL) || (idKey == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-		SYNC_ProtectionStart () ;
-        for (i = 0 ;
-                (i < MAX_IDM_OBJECTS)
-             && DSP_SUCCEEDED (status)
-             && (idmObject == NULL) ;
-             i++) {
-            /* Find the IDM object based on the key. */
-            if (IDM_StateObj.idmObjs [i].key == key) {
-                idmObject = &(IDM_StateObj.idmObjs [i]) ;
-                /* Check if the specified idKey already exists. Also find and
-                 * store the first free ID in case the idKey does not exist.
-                 */
-                for (j = 0 ; ((j < idmObject->maxIds) && (idFound == FALSE)) ; j++) {
-                    /* Check for free key. */
-                    if (    (freeIdFound == FALSE)
-                        &&  (idmObject->idArray [j].idKey [0] == '\0')) {
-                        /* Found a free key. Store the free slot to use in case
-                         * existing key is not found.
-                         */
-                        freeId = j ;
-                        freeIdFound = TRUE ;
-                    }
-                    else {
-                        status = GEN_Strcmp (idmObject->idArray [j].idKey,
-                                             idKey,
-                                             &cmpResult) ;
-                        /* Validity of parameters is ensured for success. */
-                        DBC_Assert (DSP_SUCCEEDED (status)) ;
-                        if (cmpResult == 0) {
-                            /* Found existing idKey. Increment refCount and
-                             * return the ID.
-                             */
-                            idmObject->idArray [j].refCount++ ;
-                            *id = idmObject->baseId + j ;
-                            idFound = TRUE ;
-                            status = DSP_SEXISTS ;
-                        }
-                    }
-                }
+  DBC_Require(id != NULL);
+  DBC_Require(idKey != NULL);
+  DBC_Require(IDM_StateObj.isInitialized == TRUE);
 
-                if (idFound == FALSE) {
-                    if (freeIdFound == FALSE) {
-                        /* No free ID found. All IDs have been used. */
-                        status = DSP_ERESOURCE ;
-                        SET_FAILURE_REASON ;
-                    }
-                    else {
-                        /* Existing key was not found. Now use the free ID and
-                         * set the specified key.
-                         */
-                        status = GEN_Strcpyn (idmObject->idArray [freeId].idKey,
-                                              idKey,
-                                              DSP_MAX_STRLEN) ;
-                        /* Validity of parameters is ensured for success. */
-                        DBC_Assert (DSP_SUCCEEDED (status)) ;
-                        idmObject->idArray [freeId].refCount = 1 ;
-                        *id = idmObject->baseId + freeId ;
-                    }
-                }
+  if ((id == NULL) || (idKey == NULL)) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_ProtectionStart();
+
+    for (i = 0;
+         (i < MAX_IDM_OBJECTS) && DSP_SUCCEEDED(status) && (idmObject == NULL);
+         i++)
+    {
+      /* Find the IDM object based on the key */
+      if (IDM_StateObj.idmObjs[i].key == key) {
+        idmObject = &(IDM_StateObj.idmObjs[i]);
+
+        /* Check if the specified idKey already exists. Also find and
+           store the first free ID in case the idKey does not exist */
+        for (j = 0; ((j < idmObject->maxIds) && (idFound == FALSE)); j++)
+        {
+          /* Check for free key */
+          if ((freeIdFound == FALSE) &&
+              (idmObject->idArray[j].idKey[0] == '\0'))
+          {
+            /* Found a free key. Store the free slot to use in case
+               existing key is not found */
+            freeId = j;
+            freeIdFound = TRUE;
+          }
+          else {
+            status = GEN_Strcmp(
+              idmObject->idArray [j].idKey, idKey, &cmpResult);
+              DBC_Assert (DSP_SUCCEEDED (status));
+
+            if (cmpResult == 0) {
+              /* Found existing idKey. Increment refCount and
+                 return the ID */
+              idmObject->idArray [j].refCount++;
+              *id = idmObject->baseId + j;
+
+              idFound = TRUE;
+              status = DSP_SEXISTS;
             }
+          }
         }
 
-        if (idmObject == NULL) {
-            /* Object corresponding to key not found */
-            status = DSP_ENOTFOUND ;
-            SET_FAILURE_REASON ;
-        }
+        if (idFound == FALSE) {
+          if (freeIdFound == FALSE) {
+            /* No free ID found All IDs have been used */
+            status = DSP_ERESOURCE;
+            SET_FAILURE_REASON;
+          }
+          else {
+            /* Existing key was not found. Now use the free ID and
+               set the specified key */
+            status = GEN_Strcpyn(idmObject->idArray [freeId].idKey,
+                                 idKey,
+                                 DSP_MAX_STRLEN);
 
-		SYNC_ProtectionEnd () ;
+            /* Validity of parameters is ensured for success */
+            DBC_Assert (DSP_SUCCEEDED(status));
+
+            idmObject->idArray [freeId].refCount = 1;
+            *id = idmObject->baseId + freeId;
+          }
+        }
+      }
     }
 
-    TRC_1LEAVE ("IDM_acquireId", status) ;
+    if (idmObject == NULL) {
+      /* Object corresponding to key not found */
+      status = DSP_ENOTFOUND;
+      SET_FAILURE_REASON;
+    }
 
-    return status ;
+    SYNC_ProtectionEnd();
+  }
+
+  printk(KERN_ALERT "'IDM_acquireId' executed, status: %ld\n", status);
+  TRC_1LEAVE("IDM_acquireId", status);
+
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   IDM_releaseId

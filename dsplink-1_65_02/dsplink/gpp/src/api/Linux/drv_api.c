@@ -511,10 +511,10 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
  *  ============================================================================
  */
 
-NORMAL_API DSP_STATUS DRV_Invoke (IN DRV_Object * drvObj,
-                                  IN Uint32 cmdId,
-                                  IN OUT Pvoid arg1,
-                                  IN OUT Pvoid arg2)
+NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
+                                 IN Uint32 cmdId,
+                                 IN OUT Pvoid arg1,
+                                 IN OUT Pvoid arg2)
 {
   DSP_STATUS status = DSP_SOK;
   CMD_Args *args = arg1;
@@ -529,19 +529,19 @@ NORMAL_API DSP_STATUS DRV_Invoke (IN DRV_Object * drvObj,
   {
     DBC_Assert (args != NULL) ;
 
-        switch (cmdId) {
+    switch (cmdId) {
 
 #if defined (MSGQ_COMPONENT)
-        case CMD_MSGQ_PUT:
-            {
-                /* Get the pool Id from the poolno and dsp processor Id
-                 * args->apiArgs.msgqPutArgs.msg->poolId is poolno and not
-                 * poolid in  1.60 stream.
-                 */
-                status = _POOL_xltBuf (args->apiArgs.msgqPutArgs.msg->poolId,
-                                      (Pvoid *) &args->apiArgs.msgqPutArgs.msg,
-                                       USR_TO_KNL) ;
-                if (DSP_SUCCEEDED (status)) {
+      case CMD_MSGQ_PUT:
+      {
+         /* Get the pool Id from the poolno and dsp processor Id
+            args->apiArgs.msgqPutArgs.msg->poolId is poolno and not
+            poolid in 1.60 stream */
+         status = _POOL_xltBuf(args->apiArgs.msgqPutArgs.msg->poolId,
+                               (Pvoid *) &args->apiArgs.msgqPutArgs.msg,
+                               USR_TO_KNL);
+
+         if (DSP_SUCCEEDED (status)) {
                     osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
                     if (osStatus < 0) {
                         status = DSP_EFAIL ;
@@ -925,30 +925,39 @@ NORMAL_API DSP_STATUS DRV_Invoke (IN DRV_Object * drvObj,
             break ;
 
         case CMD_PROC_ATTACH:
-            {
-                if (DRV_handle == NULL) {
-                    status = DRV_Initialize (&DRV_handle, NULL) ;
-                    if (DSP_SUCCEEDED (status)) {
-                        /* Install cleanup routines. This is needed for the case
-                         * in multi-application case where app has not called
-                         * PROC_setup and has directly called PROC_attach.
-                         */
-                        DRV_installCleanupRoutines (PROC_linkCfgPtr) ;
-                    }
-                    else {
-                        SET_FAILURE_REASON ;
-                    }
-                }
+        {
+          if (DRV_handle == NULL) {
+            status = DRV_Initialize(&DRV_handle, NULL);
 
-                if (DSP_SUCCEEDED (status)) {
-                    osStatus = ioctl (DRV_handle->driverHandle, cmdId, args) ;
-                    if (osStatus < 0) {
-                        status = DSP_EFAIL ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
+            if (DSP_SUCCEEDED (status)) {
+              /* Install cleanup routines. This is needed for the case in
+                 in multi-application case where app has not called
+                 PROC_setup and has directly called PROC_attach */
+              DRV_installCleanupRoutines (PROC_linkCfgPtr) ;
             }
-            break ;
+            else {
+              SET_FAILURE_REASON;
+            }
+          }
+
+          if (DSP_SUCCEEDED (status)) {
+            printf("***** calling 'ioctl' <CMD_PROC_ATTACH> in %s, "
+                   "args:\n", __FUNCTION__);
+
+            printf("      handle: 0x%lx\n", drvObj->driverHandle);
+            printf("      cmdId: %ld\n", cmdId);
+            printf("      args: 0x%lx\n", &args);
+
+            osStatus = ioctl (DRV_handle->driverHandle, cmdId, args);
+
+            if (osStatus < 0) {
+              status = DSP_EFAIL;
+              SET_FAILURE_REASON;
+            }
+          }
+
+          break;
+        }
 
         case CMD_PROC_DETACH:
             {

@@ -252,14 +252,13 @@ ISR_Finalize ()
  *  @modif  None
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-ISR_Create (IN  IsrProc             fnISR,
-            IN  Pvoid               refData,
-            IN  InterruptObject *   intObj,
-            OUT IsrObject **        isrObj)
+
+EXPORT_API DSP_STATUS ISR_Create(IN IsrProc fnISR,
+                                 IN Pvoid refData,
+                                 IN InterruptObject *intObj,
+                                 OUT IsrObject **isrObj)
 {
-    DSP_STATUS   status   = DSP_SOK ;
+    DSP_STATUS   status   = DSP_SOK;
 
     TRC_4ENTER ("ISR_Create", fnISR, refData, intObj, isrObj) ;
 
@@ -286,13 +285,17 @@ ISR_Create (IN  IsrProc             fnISR,
 
         if (DSP_SUCCEEDED (status)) {
             (*isrObj)->signature = SIGN_ISR       ;
-            (*isrObj)->irq       = intObj->intId  ;
-            (*isrObj)->enabled   = FALSE          ;
-            (*isrObj)->dspId     = intObj->dspId  ;
-            (*isrObj)->checkFunc = intObj->checkFunc  ;
+
+            /* NKim, as suggested by the community, this needs to be changed in
+               order to support new kernel versions (i.e.  >= 3.7) */
+            (*isrObj)->irq = intObj->intId + NR_IRQS;
+
+            (*isrObj)->enabled = FALSE;
+            (*isrObj)->dspId = intObj->dspId;
+            (*isrObj)->checkFunc = intObj->checkFunc;
+
             /* If shared is TRUE, checkFunc must be provided to check if the
-             * interrupt is asserted.
-             */
+             * interrupt is asserted */
             if (intObj->shared == TRUE) {
                 if (intObj->checkFunc == NULL) {
                     status = DSP_EINVALIDARG ;

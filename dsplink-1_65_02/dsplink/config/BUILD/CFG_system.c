@@ -4,7 +4,7 @@
  *   CAUTION! This is a generated file.
  *            All changes will be lost.
  *
- *   This file was generated on JUL 8, 2020  16:5:03
+ *   This file was generated on JUL 10, 2020  16:6:36
  *   Target platform for DSP/BIOS LINK: OMAP3530
  *   =========================================================
  */
@@ -27,11 +27,10 @@ extern LINKCFG_DspConfig OMAP3530_SHMEM_Config ;
  *  @desc   Configuration object for the overall system.
  *  ============================================================================
  */
+LINKCFG_Object LINKCFG_config = { &LINKCFG_gppObject,
+                                        {&OMAP3530_SHMEM_Config, } ,
+                                      }  ;
 
-LINKCFG_Object LINKCFG_config = {
-  &LINKCFG_gppObject,
-  { &OMAP3530_SHMEM_Config, },
-};
 
 #if defined (__cplusplus)
 }

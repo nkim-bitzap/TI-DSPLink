@@ -410,6 +410,9 @@ DMAPOOL_exit (IN  ProcessorId dspId,
  *  @modif  None.
  *  ============================================================================
  */
+
+#include <linux/module.h>
+
 EXPORT_API
 DSP_STATUS
 DMAPOOL_open (IN  ProcessorId       dspId,
@@ -437,6 +440,7 @@ DMAPOOL_open (IN  ProcessorId       dspId,
     DspDmaArgs       dmaArgs            ;
 
     TRC_4ENTER ("DMAPOOL_open", dspId, poolId, object, poolOpenParams) ;
+    printk(KERN_ALERT "Entered DMAPOOL_open\n");
 
     DBC_Require (IS_VALID_PROCID (dspId)) ;
     DBC_Require (poolId         != POOL_INVALIDID) ;
