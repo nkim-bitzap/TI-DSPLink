@@ -28,6 +28,8 @@
 #else
 #include <linux/autoconf.h>
 #endif
+
+#include <linux/module.h>
 #include <linux/spinlock.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -220,242 +222,242 @@ KFILE_Interface KFILEDEF_Interface =
     NULL
 } ;
 
+/*******************************************************************************
+  @func  KFILEDEF_Open
+  @desc  Opens a file specified by name of file.
+  @note  Slight changes for kernel versions > 4.14
+*******************************************************************************/
 
-
-/** ============================================================================
- *  @func   KFILEDEF_Open
- *
- *  @desc   Opens a file specified by name of file.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-KFILEDEF_Open (IN CONST FileName       fileName,
-               IN CONST Char8 *        mode,
-               OUT      Void **        fileHandlePtr)
+EXPORT_API DSP_STATUS KFILEDEF_Open(IN CONST FileName fileName,
+                                    IN CONST Char8 *mode,
+                                    OUT Void **fileHandlePtr)
 {
-    DSP_STATUS    status   = DSP_SOK ;
-    Uint32        length   = 0       ;
-    struct file * fileDesc = NULL    ;
-    mm_segment_t  fs                 ;
-    KFILEDEF_Object * fileObj = NULL ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 length = 0;
+  Bool fdErr = FALSE;
 
-    TRC_3ENTER ("KFILEDEF_Open ()", fileName, mode, fileHandlePtr) ;
+  struct file *fd = NULL;
+  mm_segment_t fs;
+  KFILEDEF_Object *fileObj = NULL;
 
-    DBC_Require (fileName != NULL) ;
-    DBC_Require (mode != NULL) ;
-    DBC_Require (fileHandlePtr != NULL) ;
+  TRC_3ENTER("KFILEDEF_Open ()", fileName, mode, fileHandlePtr);
 
-    if (   (fileName      == NULL)
-        || (fileHandlePtr == NULL)
-        || (mode          == NULL)
-        || (mode [0]      != 'r')) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  DBC_Require(fileName != NULL);
+  DBC_Require(mode != NULL);
+  DBC_Require(fileHandlePtr != NULL);
+
+  if ((fileName == NULL) || (fileHandlePtr == NULL)
+      || (mode == NULL) || (mode[0] != 'r'))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    *fileHandlePtr = NULL;
+
+    status = GEN_Strlen(fileName, &length);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
+    }
+    else if (length == 0) {
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
     }
     else {
-        *fileHandlePtr = NULL ;
-
-        status = GEN_Strlen (fileName, &length) ;
-
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-        else if (length == 0) {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            status = MEM_Alloc ((Void **) &fileObj,
-                                sizeof (KFILEDEF_Object),
-                                MEM_DEFAULT) ;
-        }
+      status = MEM_Alloc((Void **) &fileObj,
+                         sizeof (KFILEDEF_Object),
+                         MEM_DEFAULT);
     }
+  }
 
-    if (DSP_SUCCEEDED (status)) {
-        fs = get_fs () ;
-        set_fs (KERNEL_DS) ;
+  if (DSP_SUCCEEDED(status)) {
 
-        /*  --------------------------------------------------------------------
-         *  Open the file. Initialize the file object
-         *  after validating the object returned by kernel.
-         *  The third argument is ignored unless creating files.
-         *  --------------------------------------------------------------------
-         */
-        fileDesc = filp_open (fileName, O_RDONLY, 0) ;
-        if (   (IS_ERR (fileDesc))
-            || (fileDesc == NULL)
-            || (fileDesc->f_op == NULL)
-            || (fileDesc->f_op->read == NULL)){ 
-            status = DSP_EFILE ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            fileObj->fileDesc  = fileDesc   ;
-            fileObj->fileName  = fileName   ;           
-            fileObj->curPos    = 0          ;
+    fs = get_fs();
+    set_fs(KERNEL_DS);
 
-            /* Get the file size  */
-            fileDesc->f_pos = 0u ;
+    /* Open the file. Initialize the file object after validating the object
+       returned by kernel. The third argument is ignored unless creating
+       files */
+    fd = filp_open(fileName, O_RDONLY, 0);
 
-            *fileHandlePtr = (Void *) fileObj ;
-
-	        /* Changes for yaffs2 support */
-	        if (fileDesc->f_op->llseek != NULL) {
-                fileObj->size = fileDesc->f_op->llseek (fileDesc,
-                                                        0,
-                                                        SEEK_END) ;
-                fileDesc->f_op->llseek (fileDesc, 0, SEEK_SET) ;
-            }
-            else {
-                fileObj->size = default_llseek (fileDesc,
-                                                0,
-                                                SEEK_END) ;
-                default_llseek (fileDesc, 0, SEEK_SET) ;
-            }
-	    }
-
-        /*  --------------------------------------------------------------------
-         *  If the function call failed then free the object allocated before.
-         *  --------------------------------------------------------------------
-         */
-        if (DSP_FAILED (status)) {
-            FREE_PTR (*fileHandlePtr) ;
-            *fileHandlePtr = NULL ;
-        }
-
-        set_fs (fs) ;
-
+    if (IS_ERR(fd) || fd == NULL || fd->f_op == NULL)
+    {
+      printk(KERN_ALERT "*** error in '%s': invalid file descriptor\n",
+                        __FUNCTION__);
+      fdErr = TRUE;
     }
     else {
-        status = DSP_EFILE ;
-        SET_FAILURE_REASON ;
+      /* since kernel version 4.14 the 'read_iter' function can be used as
+         alternative to 'read', thus, we need to check both */
+      if (fd->f_op->read == NULL && fd->f_op->read_iter == NULL)
+      {
+        printk(KERN_ALERT "*** error in '%s': no 'read' function found "
+                          "in the file descriptor\n", __FUNCTION__);
+
+        fdErr = TRUE;
+      }
     }
 
-
-    DBC_Ensure (   DSP_SUCCEEDED (status)
-                || (   DSP_FAILED (status)
-                    && (fileHandlePtr != NULL)
-                    && (*fileHandlePtr == NULL))) ;
-
-    TRC_1LEAVE ("KFILEDEF_Open", status) ;
-
-    return status ;
-}
-
-
-/** ============================================================================
- *  @func   KFILEDEF_Close
- *
- *  @desc   Closes a file handle.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-KFILEDEF_Close (IN Void * fileHandle)
-{
-    DSP_STATUS   status = DSP_SOK ;
-    mm_segment_t fs               ;
-    KFILEDEF_Object * fileObj = NULL ;
-
-    TRC_1ENTER ("KFILEDEF_Close", fileHandle) ;
-
-    DBC_Require (fileHandle != NULL);
-
-    if (fileHandle == NULL) {
-        status = DSP_EFILE ;
-        SET_FAILURE_REASON ;
+    if (fdErr == TRUE) {
+      status = DSP_EFILE;
+      SET_FAILURE_REASON;
     }
     else {
-        fileObj = (KFILEDEF_Object *) fileHandle ;
-        fs = get_fs () ;
-        set_fs (KERNEL_DS) ;
-        filp_close (fileObj->fileDesc, NULL) ;
-        set_fs (fs) ;
-        FREE_PTR (fileObj) ;
+      fileObj->fileDesc = fd;
+      fileObj->fileName = fileName;
+      fileObj->curPos = 0;
 
+      /* get the file size  */
+      fd->f_pos = 0u;
+      *fileHandlePtr = (Void *)fileObj;
+
+      /* Changes for yaffs2 support */
+      if (fd->f_op->llseek != NULL) {
+        fileObj->size = fd->f_op->llseek(fd, 0, SEEK_END);
+        fd->f_op->llseek(fd, 0, SEEK_SET);
+      }
+      else {
+        fileObj->size = default_llseek(fd, 0, SEEK_END);
+        default_llseek(fd, 0, SEEK_SET);
+      }
     }
 
-    DBC_Ensure (   (DSP_SUCCEEDED (status) && (fileObj == NULL))
-                || (DSP_FAILED (status))) ;
+    /* If the function call failed then free the object allocated before */
+    if (DSP_FAILED(status)) {
+      FREE_PTR (*fileHandlePtr);
+      *fileHandlePtr = NULL;
+    }
 
-    TRC_1LEAVE ("KFILEDEF_Close", status) ;
+    set_fs(fs);
+  }
+  else {
+    status = DSP_EFILE;
+    SET_FAILURE_REASON;
+  }
 
-    return status ;
+  DBC_Ensure(DSP_SUCCEEDED(status)
+             || (DSP_FAILED(status)
+                 && (fileHandlePtr != NULL)
+                 && (*fileHandlePtr == NULL)));
+
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                       __FUNCTION__, status);
+  }
+
+  TRC_1LEAVE ("KFILEDEF_Open", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  KFILEDEF_Close
+  @desc  Closes a file handle
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   KFILEDEF_Read
- *
- *  @desc   Reads a specified number of items of specified size
- *          bytes from file to a buffer.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-KFILEDEF_Read (IN OUT  Char8 *       buffer,
-               IN      Uint32        size,
-               IN      Uint32        count,
-               IN      Void *        fileHandle)
+EXPORT_API DSP_STATUS KFILEDEF_Close(IN Void *fileHandle)
 {
-    DSP_STATUS      status    = DSP_SOK ;
-    Int32           bytesRead = 0       ;
-    mm_segment_t    fs                  ;
-    KFILEDEF_Object * fileObj = NULL    ;
+  DSP_STATUS status = DSP_SOK;
+  mm_segment_t fs;
+  KFILEDEF_Object *fileObj = NULL;
 
-    TRC_4ENTER ("KFILEDEF_Read", buffer, size, count, fileHandle) ;
+  TRC_1ENTER("KFILEDEF_Close", fileHandle);
 
-    DBC_Require (fileHandle != NULL) ;
-    DBC_Require (buffer != NULL) ;
+  DBC_Require(fileHandle != NULL);
 
-    if (buffer == NULL) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else if ((size != 0) && (count != 0)) {
-        fileObj = (KFILEDEF_Object *) fileHandle ;
+  if (fileHandle == NULL) {
+    status = DSP_EFILE;
+    SET_FAILURE_REASON;
+  }
+  else {
+    fileObj = (KFILEDEF_Object *) fileHandle;
 
-        if ((fileObj->curPos + (size * count)) > fileObj->size) {
-            status = DSP_ERANGE ;
-            SET_FAILURE_REASON  ;
-        }
-        else {
-            /* read from file */
-            fs = get_fs () ;
-            set_fs (KERNEL_DS) ;
+    fs = get_fs();
+    set_fs (KERNEL_DS);
 
-            bytesRead = fileObj->fileDesc->f_op->read (fileObj->fileDesc,
-                                      buffer,
-                                      size * count,
-                                      &(fileObj->fileDesc->f_pos));
-            set_fs (fs) ;
+    filp_close (fileObj->fileDesc, NULL);
+    set_fs(fs);
 
-            if (bytesRead >= 0) {
-                fileObj->curPos += bytesRead ;
-                DBC_Assert ((bytesRead / size) == (Uint32) count) ;
-            }
-            else {
-                status = DSP_EFILE;
-                TRC_2PRINT (TRC_LEVEL1,
-                            "File Read failed with status [0x%x]\n"
-                            "Error value[0x%x]\n",
-                            status, bytesRead) ;
-            }
-        }
-    }
+    FREE_PTR(fileObj);
+  }
 
-    TRC_1LEAVE ("KFILEDEF_Read", status) ;
+  DBC_Ensure((DSP_SUCCEEDED(status) && (fileObj == NULL))
+          || (DSP_FAILED(status)));
 
-    return status ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
+  }
+
+  TRC_1LEAVE("KFILEDEF_Close", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  KFILEDEF_Read
+  @desc  Reads a specified number of items of specified size
+         bytes from file to a buffer
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS KFILEDEF_Read(IN OUT Char8 *buffer,
+                                    IN Uint32 size,
+                                    IN Uint32 count,
+                                    IN Void *fileHandle)
+{
+  DSP_STATUS status = DSP_SOK;
+  Int32 bytesRead = 0;
+  mm_segment_t fs;
+  KFILEDEF_Object *fileObj = NULL;
+
+  TRC_4ENTER ("KFILEDEF_Read", buffer, size, count, fileHandle);
+
+  DBC_Require(fileHandle != NULL);
+  DBC_Require(buffer != NULL);
+
+  if (buffer == NULL) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else if ((size != 0) && (count != 0)) {
+    fileObj = (KFILEDEF_Object *) fileHandle;
+
+    if ((fileObj->curPos + (size * count)) > fileObj->size) {
+      status = DSP_ERANGE;
+      SET_FAILURE_REASON;
+    }
+    else {
+      DBC_Require(fileObj->fileDesc->f_op->read != NULL
+               || fileObj->fileDesc->f_op->read_iter != NULL);
+
+      fs = get_fs();
+      set_fs (KERNEL_DS);
+
+      /* NKim, instead of triggering the 'read' or 'read_iter' functions
+         directly, we now employ 'vfs_read' that selects the proper
+         function for us upon availability in the specified descriptor */
+      bytesRead = vfs_read(fileObj->fileDesc,
+                           buffer,
+                           size *count,
+                           &(fileObj->fileDesc->f_pos));
+
+      set_fs(fs);
+
+      if (bytesRead >= 0) {
+        fileObj->curPos += bytesRead;
+        DBC_Assert((bytesRead / size) == (Uint32) count);
+      }
+      else status = DSP_EFILE;
+    }
+  }
+
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s': reading file failed, result "
+                      "0x%x\n", __FUNCTION__, status);
+  }
+
+  TRC_1LEAVE("KFILEDEF_Read", status);
+  return status;
+}
 
 /** ============================================================================
  *  @func   KFILEDEF_Seek

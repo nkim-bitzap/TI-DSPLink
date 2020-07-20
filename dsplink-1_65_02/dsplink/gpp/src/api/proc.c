@@ -485,15 +485,9 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
       if (PROC_stateObj.syncCsObj == NULL) {
         status = _SYNC_USR_stateObjInit();
 
-        printf("  '_SYNC_USR_stateObjInit' done in '%s', status: %ld\n",
-               __FUNCTION__, status);
-
         if (DSP_SUCCEEDED(status)) {
           status = _SYNC_USR_createCS(
             COMPONENT_ID_KEY, &PROC_stateObj.syncCsObj);
-
-          printf("  '_SYNC_USR_createCS' done in '%s', "
-                 "status: %ld\n", __FUNCTION__, status);
 
           if (DSP_FAILED (status)) {
             SET_FAILURE_REASON;
@@ -588,9 +582,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
             if (DSP_SUCCEEDED(status)) {
               tmpStatus = _RingIO_moduleInit(procId);
 
-              printf("  '_RingIO_moduleInit' done in '%s', "
-                     "status: %ld\n", __FUNCTION__, tmpStatus);
-
               if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
                 status = tmpStatus;
                 SET_FAILURE_REASON;
@@ -604,9 +595,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
           if (DSP_SUCCEEDED(status)) {
             tmpStatus = _MPLIST_init (procId);
 
-            printf("  '_MPLIST_init' done in '%s', status: %ld\n",
-                   __FUNCTION__, tmpStatus);
-
             if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
               status = tmpStatus;
               SET_FAILURE_REASON;
@@ -617,9 +605,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
 #if defined (RINGIO_COMPONENT)
           if (DSP_SUCCEEDED(status)) {
             tmpStatus = _RingIO_init(procId);
-
-            printf("  '_RingIO_init' done in '%s', "
-                   "status: %ld\n", __FUNCTION__, tmpStatus);
 
             if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
               status = tmpStatus;
@@ -636,9 +621,6 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
 
         tmpStatus = _SYNC_USR_leaveCS (PROC_stateObj.syncCsObj);
 
-        printf("  '_SYNC_USR_leaveCS' done in '%s', "
-               "status: %ld\n", __FUNCTION__, tmpStatus);
-
         if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
           status = tmpStatus;
           SET_FAILURE_REASON;
@@ -650,7 +632,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
     }
   }
 
-  printf("'PROC_attach' executed, status: %ld\n", status);
+  printf("'PROC_attach' executed, status: 0x%lx\n", status);
   TRC_1LEAVE ("PROC_attach", status);
 
   return status;
@@ -961,7 +943,6 @@ EXPORT_API DSP_STATUS PROC_load(IN ProcessorId procId,
 
   return status;
 }
-
 
 /** ============================================================================
  *  @func   PROC_loadSection

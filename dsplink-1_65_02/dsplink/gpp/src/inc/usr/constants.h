@@ -24,18 +24,17 @@
 #if !defined (CONSTANTS_H)
 #define CONSTANTS_H
 
-
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
 
+/*******************************************************************************
+  @const DSP_MAX_STRLEN
+  @desc  Maximum length of string
 
-/** ============================================================================
- *  @const  DSP_MAX_STRLEN
- *
- *  @desc   Maximum length of string.
- *  ============================================================================
- */
+  @note  Also defined in 'gpp/inc/usr/constants.h'
+  @note  Increased to 64 to capture long linux paths
+*******************************************************************************/
 
 #define DSP_MAX_STRLEN 64
 

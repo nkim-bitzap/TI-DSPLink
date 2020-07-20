@@ -239,7 +239,7 @@ STATIC LINKCFG_MemEntry  LINKCFG_memTable_00[] =
     "DSPIRAM",          /* NAME         : Name of the memory region */
     0x5c7f8000,         /* ADDRPHYS     : Physical address */
     0x107f8000,         /* ADDRDSPVIRT  : DSP virtual address */
-    (Uint32) -1,        /* ADDRGPPVIRT  : GPP virtual address (if known) */
+    (Uint32) -1u,       /* ADDRGPPVIRT  : GPP virtual address (if known) */
     0x00018000,         /* SIZE         : Size of the memory region */
     TRUE,               /* SHARED       : Shared access memory? */
     FALSE               /* SYNCD        : Synchronized? */
@@ -250,7 +250,7 @@ STATIC LINKCFG_MemEntry  LINKCFG_memTable_00[] =
     "DSPL1PRAM",        /* NAME         : Name of the memory region */
     0x5cE00000,         /* ADDRPHYS     : Physical address */
     0x10E00000,         /* ADDRDSPVIRT  : DSP virtual address */
-    (Uint32) -1,        /* ADDRGPPVIRT  : GPP virtual address (if known) */
+    (Uint32) -1u,       /* ADDRGPPVIRT  : GPP virtual address (if known) */
     0x00008000,         /* SIZE         : Size of the memory region */
     TRUE,               /* SHARED       : Shared access memory? */
     FALSE               /* SYNCD        : Synchronized? */

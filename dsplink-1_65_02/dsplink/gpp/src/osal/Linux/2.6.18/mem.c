@@ -128,94 +128,72 @@ STATIC Uint32 MEM_SpecialAlloc = 0 ;
 STATIC Uint32 MEM_SpecialFree = 0 ;
 #endif
 
+/*******************************************************************************
+  @func  MEM_Initialize
+  @desc  Initializes the MEM sub-component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Initialize
- *
- *  @desc   Initializes the MEM sub-component.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Initialize ()
+EXPORT_API DSP_STATUS MEM_Initialize(Void)
 {
-    DSP_STATUS  status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_0ENTER ("MEM_Initialize") ;
+  TRC_0ENTER("MEM_Initialize");
 
-    DBC_Require (MEM_IsInitialized == FALSE) ;
+  DBC_Require(MEM_IsInitialized == FALSE);
 
-    MEM_IsInitialized = TRUE ;
+  MEM_IsInitialized = TRUE;
 
-    TRC_1LEAVE ("MEM_Initialize", status) ;
-
-    return status ;
+  TRC_1LEAVE("MEM_Initialize", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  MEM_Finalize
+  @desc  Releases resources used by this sub-component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Finalize
- *
- *  @desc   Releases resources used by this sub-component.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Finalize ()
+EXPORT_API DSP_STATUS MEM_Finalize(Void)
 {
-    DSP_STATUS  status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_0ENTER ("MEM_Finalize") ;
+  TRC_0ENTER("MEM_Finalize");
 
-    DBC_Require (MEM_IsInitialized == TRUE) ;
+  DBC_Require(MEM_IsInitialized == TRUE);
 
-    MEM_IsInitialized = FALSE ;
+  MEM_IsInitialized = FALSE;
 
-    TRC_1LEAVE ("MEM_Finalize", status) ;
-
-    return status ;
+  TRC_1LEAVE("MEM_Finalize", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  MEM_Alloc
+  @desc  Allocates the specified number of bytes
+  @note  Extends functionality on top of 'vmalloc', resp. allows allocation
+         of 'special' memory areas
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Alloc
- *
- *  @desc   Allocates the specified number of bytes.
- *
- *  @modif  None
- *  ============================================================================
- */
 EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
                                 IN Uint32 cBytes,
                                 IN OUT Pvoid arg)
 {
-  DSP_STATUS       status   = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
   MemAllocAttrs *allocArg = NULL;
 
-  printk(KERN_ALERT "Executing 'MEM_Alloc'\n");
+#if ((defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM642_PHYINTERFACE) && (DM642_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM648_PHYINTERFACE) && (DM648_PHYINTERFACE == PCI_INTERFACE)))
 
-#if (  (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE  == PCI_INTERFACE))                                 \
-     ||(defined (DM642_PHYINTERFACE)  && (DM642_PHYINTERFACE  == PCI_INTERFACE))                                 \
-     ||(defined (DM648_PHYINTERFACE)  && (DM648_PHYINTERFACE  == PCI_INTERFACE)))
-    Uint32           pages   = 0 ;
+  Uint32 pages = 0;
 #endif /* if (DM6437_PHYINTERFACE == PCI)... */
 
-  TRC_3ENTER ("MEM_Alloc", ptr, cBytes, arg);
+  TRC_3ENTER("MEM_Alloc", ptr, cBytes, arg);
 
-  printk(KERN_ALERT "  allocating %d bytes\n", cBytes);
+  DBC_Require(ptr != NULL);
+  DBC_Require(MEM_IsInitialized == TRUE);
+  DBC_Require(cBytes != 0);
 
-  DBC_Require (ptr != NULL);
-  DBC_Require (MEM_IsInitialized == TRUE);
-  DBC_Require (cBytes != 0);
-
-  /*  ------------------------------------------------------------------------
-   *  Validate arguments
-   *  ------------------------------------------------------------------------
-   */
+  /* validate arguments */
   if (ptr == NULL) {
     status = DSP_EINVALIDARG;
     SET_FAILURE_REASON;
@@ -227,42 +205,29 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
     *ptr = NULL;
   }
   else {
-    printk(KERN_ALERT "  allocating %d bytes from ");
-
     if (arg == MEM_DEFAULT) {
-      /*  ----------------------------------------------------------------
-       *  Allocations from 'default' memory area
-       *  ----------------------------------------------------------------
-       */
-
-      printk(KERN_ALERT "'default' memory area...");
-
-      *ptr = vmalloc (cBytes);
+      /* allocate in 'default' memory area */
+      *ptr = vmalloc(cBytes);
 
       if (*ptr == NULL) {
         status = DSP_EMEMORY;
         SET_FAILURE_REASON;
       }
+
 #if defined (DDSP_DEBUG)
       else {
         MEM_DefaultAlloc++ ;
       }
-#endif    /* if defined (DDSP_DEBUG) */
+#endif
     }
     else {
-      /*  ----------------------------------------------------------------
-       *  OS dependent allocation from 'special' memory area(s).
-       *  ----------------------------------------------------------------
-       */
-
+      /* OS dependent allocation from 'special' memory area(s) */
       allocArg = (MemAllocAttrs *) arg;
 
       if (allocArg->bigArea == TRUE) {
-        printk(KERN_ALERT "'big memory area'...");
-
-#if (  (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE  == PCI_INTERFACE))                                  \
-     ||(defined (DM642_PHYINTERFACE)  && (DM642_PHYINTERFACE  == PCI_INTERFACE))                                \
-     ||(defined (DM648_PHYINTERFACE)  && (DM648_PHYINTERFACE  == PCI_INTERFACE)) )
+#if ((defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM642_PHYINTERFACE) && (DM642_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM648_PHYINTERFACE) && (DM648_PHYINTERFACE == PCI_INTERFACE)))
         pages = (cBytes + PAGE_SIZE - 1) / PAGE_SIZE;
 
         *ptr = (Void *) bigphysarea_alloc_pages (pages, 0, GFP_KERNEL);
@@ -273,19 +238,16 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
 #elif (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == VLYNQ_INTERFACE))
 
 #else
-                TRC_0PRINT (
-                           TRC_LEVEL4,
-                           "BigPhys allocation is supported on this platform") ;
+        TRC_0PRINT(
+          TRC_LEVEL4, "BigPhys allocation is supported on this platform");
 #endif /* if (DM6437_PHYINTERFACE == PCI)... */
       }
       else {
-        printk(KERN_ALERT "'dma coherent memory'...");
-
-        *ptr = (void *) dma_alloc_coherent (
+        *ptr = (void *) dma_alloc_coherent(
                                    NULL,
                                    cBytes,
                                    (dma_addr_t *) &(allocArg->physicalAddress),
-                                   GFP_KERNEL) ;
+                                   GFP_KERNEL);
       }
 
       if (*ptr == NULL) {
@@ -295,165 +257,136 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
 
 #if defined (DDSP_DEBUG)
       else {
-        MEM_SpecialAlloc++ ;
+        MEM_SpecialAlloc++;
       }
 #endif    /* if defined (DDSP_DEBUG) */
     }
   }
 
-  printk(KERN_ALERT  "done\n");
-  printk(KERN_ALERT  "pointer: 0x%lx\n", ptr);
+  DBC_Ensure(((ptr == NULL) && DSP_FAILED(status))
+          || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED(status))
+          || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED(status)));
 
-  if (ptr != NULL) {
-    printk(KERN_ALERT  "*pointer: 0x%lx\n", *ptr);
+  if (DSP_FAILED(status) || ptr == NULL || *ptr == NULL) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
   }
 
-  printk(KERN_ALERT  "status: 0x%x\n", status);
-  printk(KERN_ALERT  "DSP_FAILED(status): %ld\n", DSP_FAILED(status));
-  printk(KERN_ALERT  "DSP_SUCCEEDED(status): %ld\n", DSP_SUCCEEDED(status));
-
-  DBC_Ensure (((ptr == NULL) && DSP_FAILED (status))
-              || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED (status))
-              || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED (status))) ;
-
   TRC_1LEAVE ("MEM_Alloc", status);
-
-  printk(KERN_ALERT "'MEM_Alloc' executed\n");
   return status;
 }
 
-/** ============================================================================
- *  @func   MEM_Calloc
- *
- *  @desc   Allocates the specified number of bytes and memory is set to zero.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Calloc (OUT Void ** ptr, IN Uint32 cBytes, IN OUT Pvoid arg)
+/*******************************************************************************
+  @func  MEM_Calloc
+  @desc  Allocates the specified number of bytes and memory is set to zero
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS MEM_Calloc(OUT Void **ptr,
+                                 IN Uint32 cBytes,
+                                 IN OUT Pvoid arg)
 {
-    DSP_STATUS status = DSP_SOK ;
-    Uint32       i                ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i;
 
-    TRC_3ENTER ("MEM_Calloc", ptr, cBytes, arg) ;
+  TRC_3ENTER("MEM_Calloc", ptr, cBytes, arg);
 
-    DBC_Require (ptr != NULL) ;
-    DBC_Require (MEM_IsInitialized == TRUE) ;
-    DBC_Require (cBytes != 0) ;
+  DBC_Require(ptr != NULL);
+  DBC_Require(MEM_IsInitialized == TRUE);
+  DBC_Require(cBytes != 0);
 
-    status = MEM_Alloc (ptr, cBytes, arg) ;
+  status = MEM_Alloc (ptr, cBytes, arg);
 
-    if (DSP_SUCCEEDED (status)) {
-        for (i = 0 ; i < cBytes ; i++) {
-            (*(Uint8 **) ptr)[i] = 0 ;
-        }
+  if (DSP_SUCCEEDED(status)) {
+    for (i = 0 ; i < cBytes ; i++) {
+      (*(Uint8 **) ptr)[i] = 0;
     }
+  }
 
-    DBC_Ensure (   ((ptr == NULL) && DSP_FAILED (status))
-                || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED (status))
-                || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED (status))) ;
+  DBC_Ensure(((ptr == NULL) && DSP_FAILED(status))
+          || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED(status))
+          || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED(status)));
 
-    TRC_1LEAVE ("MEM_Calloc", status) ;
+  if (DSP_FAILED(status) || ptr == NULL || *ptr == NULL) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
+  }
 
-    return  status ;
+  TRC_1LEAVE("MEM_Calloc", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  MEM_Free
+  @desc  Frees up the specified chunk of memory
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Free
- *
- *  @desc   Frees up the specified chunk of memory.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Free (IN Pvoid * ptr, IN Pvoid arg)
+EXPORT_API DSP_STATUS MEM_Free(IN Pvoid *ptr, IN Pvoid arg)
 {
-    DSP_STATUS       status   = DSP_SOK ;
-    MemFreeAttrs *   freeArg  = NULL    ;
+  DSP_STATUS status = DSP_SOK;
+  MemFreeAttrs *freeArg = NULL;
 
-    TRC_2ENTER ("MEM_Free", ptr, arg) ;
+  TRC_2ENTER("MEM_Free", ptr, arg);
 
-    DBC_Require (ptr != NULL) ;
-    DBC_Require (MEM_IsInitialized == TRUE) ;
+  DBC_Require(ptr != NULL);
+  DBC_Require(MEM_IsInitialized == TRUE);
 
-    /*  ------------------------------------------------------------------------
-     *  Validate arguments
-     *  ------------------------------------------------------------------------
-     */
-    if (ptr == NULL) {
-        status = DSP_EPOINTER ;
-        SET_FAILURE_REASON ;
-    }
-    else if (*ptr == NULL) {
-        status = DSP_EPOINTER ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (arg == MEM_DEFAULT) {
-            /*  ----------------------------------------------------------------
-             *  Free allocations from 'default' memory area
-             *  ----------------------------------------------------------------
-             */
-            vfree (*ptr) ;
+  /* validate arguments */
+  if (ptr == NULL) {
+    status = DSP_EPOINTER;
+    SET_FAILURE_REASON;
+  }
+  else if (*ptr == NULL) {
+    status = DSP_EPOINTER;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (arg == MEM_DEFAULT) {
+      /* Free allocations from 'default' memory area */
+      vfree(*ptr);
 
 #if defined (DDSP_DEBUG)
-            MEM_DefaultFree++ ;
-#endif    /* if defined (DDSP_DEBUG) */
-        }
-        else {
-            /*  ----------------------------------------------------------------
-             *  Free OS dependent allocation from 'special' memory area(s).
-             *  ----------------------------------------------------------------
-             */
-            freeArg = (MemFreeAttrs *) arg ;
+      MEM_DefaultFree++;
+#endif
+    }
+    else {
+      /* Free OS dependent allocation from 'special' memory area(s) */
+      freeArg = (MemFreeAttrs *) arg;
 
-            if (freeArg->bigArea == TRUE) {
-#if (  (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE  == PCI_INTERFACE))                                  \
-     ||(defined (DM642_PHYINTERFACE)  && (DM642_PHYINTERFACE  == PCI_INTERFACE))                                  \
-     ||(defined (DM648_PHYINTERFACE)  && (DM648_PHYINTERFACE  == PCI_INTERFACE)))
-                bigphysarea_free_pages ((caddr_t) *ptr) ;
+      if (freeArg->bigArea == TRUE) {
+#if ((defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM642_PHYINTERFACE) && (DM642_PHYINTERFACE == PCI_INTERFACE)) \
+  || (defined (DM648_PHYINTERFACE) && (DM648_PHYINTERFACE == PCI_INTERFACE)))
+        bigphysarea_free_pages((caddr_t) *ptr);
 #elif (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == VLYNQ_INTERFACE))
 
 #else
-                TRC_0PRINT (
-                           TRC_LEVEL4,
-                           "BigPhys allocation is supported on this platform") ;
+        TRC_0PRINT(
+          TRC_LEVEL4, "BigPhys allocation is supported on this platform");
 #endif /* if (DM6437_PHYINTERFACE == PCI_INTERFACE)... */
-            }
-            else {
-                dma_free_coherent (NULL,
-                                   freeArg->size,
-                                   *ptr,
-                                   (dma_addr_t) freeArg->physicalAddress) ;
-            }
+      }
+      else {
+        dma_free_coherent(NULL,
+                          freeArg->size,
+                          *ptr,
+                          (dma_addr_t) freeArg->physicalAddress);
+      }
 
 #if defined (DDSP_DEBUG)
             MEM_SpecialFree++ ;
 #endif    /* if defined (DDSP_DEBUG) */
-        }
-
-        *ptr = NULL ;
     }
 
-    TRC_1LEAVE ("MEM_Free", status) ;
+    *ptr = NULL;
+  }
 
-    return status ;
+  TRC_1LEAVE("MEM_Free", status);
+  return status;
 }
 
-
-/** ============================================================================
- *  @func   MEM_Map
- *
- *  @desc   Maps a memory area into virtual space.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  MEM_Map
+  @desc  Maps a memory area into virtual space
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS MEM_Map(IN OUT MemMapInfo *mapInfo)
 {
@@ -470,116 +403,107 @@ EXPORT_API DSP_STATUS MEM_Map(IN OUT MemMapInfo *mapInfo)
       mapInfo->dst = (Uint32) ioremap_nocache(
         (dma_addr_t) (mapInfo->src), mapInfo->size);
     }
-        else if (mapInfo->memAttrs == MEM_CACHED) {
-            mapInfo->dst = (Uint32) ioremap ((dma_addr_t) (mapInfo->src),
-                                             mapInfo->size) ;
-        }
-        else {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
-
-        if (mapInfo->dst == 0) {
-            status = DSP_EMEMORY ;
-            SET_FAILURE_REASON ;
-        }
+    else if (mapInfo->memAttrs == MEM_CACHED) {
+      mapInfo->dst = (Uint32) ioremap(
+        (dma_addr_t) (mapInfo->src), mapInfo->size);
     }
     else {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
     }
 
-    DBC_Ensure (  (DSP_SUCCEEDED (status) && (mapInfo->dst != 0))
-               || (DSP_FAILED (status)    && (mapInfo->dst == 0))) ;
+    if (mapInfo->dst == 0) {
+      status = DSP_EMEMORY;
+      SET_FAILURE_REASON;
+    }
+  }
+  else {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("MEM_Map", status) ;
+  DBC_Ensure((DSP_SUCCEEDED(status) && (mapInfo->dst != 0))
+          || (DSP_FAILED(status) && (mapInfo->dst == 0)));
 
-    return status ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
+  }
+
+  TRC_1LEAVE("MEM_Map", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  MEM_Unmap
+  @desc  Unmaps a virtual memory area
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Unmap
- *
- *  @desc   Unmaps a virtual memory area.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Unmap (IN MemUnmapInfo * unmapInfo)
+EXPORT_API DSP_STATUS MEM_Unmap(IN MemUnmapInfo *unmapInfo)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_1ENTER ("MEM_Unmap", unmapInfo) ;
+  TRC_1ENTER("MEM_Unmap", unmapInfo);
+  DBC_Require(unmapInfo != NULL);
 
-    DBC_Require (unmapInfo != NULL) ;
+  if (unmapInfo != NULL) {
+    DBC_Assert(unmapInfo->addr != 0);
 
-    if (unmapInfo != NULL) {
-        DBC_Assert (unmapInfo->addr != 0) ;
-        iounmap ((unsigned int *) unmapInfo->addr) ;
-    }
-    else {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
+    iounmap((unsigned int *) unmapInfo->addr);
+  }
+  else {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
 
-    TRC_1LEAVE ("MEM_Unmap", status) ;
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
+  }
 
-    return status ;
+  TRC_1LEAVE("MEM_Unmap", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  MEM_Copy
+  @desc  Copies the data between memory areas (the endianism is currently
+         not used)
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MEM_Copy
- *
- *  @desc   Copies the data between memory areas.
- *          (The endianism is currently not used.)
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MEM_Copy (IN Uint8 * dst, OUT Uint8 * src, IN Uint32 len, IN Endianism end)
+EXPORT_API DSP_STATUS MEM_Copy(IN Uint8 *dst,
+                               OUT Uint8 *src,
+                               IN Uint32 len,
+                               IN Endianism end)
 {
-    DSP_STATUS  status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_4ENTER ("MEM_Copy", dst, src, len, end) ;
+  TRC_4ENTER("MEM_Copy", dst, src, len, end);
 
-    memcpy (dst, src, len) ;
+  memcpy(dst, src, len);
 
-    TRC_1LEAVE ("MEM_Copy", status) ;
-
-    return status ;
+  TRC_1LEAVE("MEM_Copy", status);
+  return status;
 }
-
 
 #if defined (DDSP_DEBUG)
-/** ============================================================================
- *  @func   MEM_Debug
- *
- *  @desc   Prints debug information for MEM.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-Void
-MEM_Debug ()
+
+/*******************************************************************************
+  @func  MEM_Debug
+  @desc  Prints debug information for MEM
+*******************************************************************************/
+
+EXPORT_API Void MEM_Debug(Void)
 {
-    TRC_0ENTER ("MEM_Debug") ;
+  TRC_0ENTER("MEM_Debug");
 
-    TRC_4PRINT (TRC_LEVEL4,
-                "    MEM_DefaultAlloc [%d]\n"
-                "    MEM_DefaultFree  [%d]\n"
-                "    MEM_SpecialAlloc [%d]\n"
-                "    MEM_SpecialFree  [%d]\n",
-                 MEM_DefaultAlloc, MEM_DefaultFree,
-                 MEM_SpecialAlloc, MEM_SpecialFree) ;
+  TRC_4PRINT(TRC_LEVEL4,
+             "    MEM_DefaultAlloc [%d]\n"
+             "    MEM_DefaultFree  [%d]\n"
+             "    MEM_SpecialAlloc [%d]\n"
+             "    MEM_SpecialFree  [%d]\n",
+             MEM_DefaultAlloc, MEM_DefaultFree,
+             MEM_SpecialAlloc, MEM_SpecialFree);
 
-    TRC_0LEAVE ("MEM_Debug") ;
+  TRC_0LEAVE("MEM_Debug");
 }
 #endif /* defined (DDSP_DEBUG) */
 

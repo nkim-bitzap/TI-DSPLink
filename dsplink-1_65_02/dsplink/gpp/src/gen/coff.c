@@ -46,6 +46,7 @@
 #include <coff_55x.h>
 #include <coff_64x.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -723,131 +724,121 @@ COFF_getStringTable (IN  COFF_Context  *  obj,
                      OUT Char8        **  strTable) ;
 
 
-/** ============================================================================
- *  @func   COFF_init
- *
- *  @desc   Initializes the context object for loading a base image file or
- *          a section. This function is required to be called before any other
- *          function is called from this sub component.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-COFF_init (IN  ProcessorId      procId,
-           IN  Pstr             baseImage,
-           IN  LoaderInitArgs * args,
-           IN  Void *           objCtx)
+/*******************************************************************************
+  @func  COFF_init
+  @desc  Initializes the context object for loading a base image file or a
+         section. This function is required to be called before any other
+         function is called from this sub component
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS COFF_init(IN ProcessorId procId,
+                                IN Pstr baseImage,
+                                IN LoaderInitArgs *args,
+                                IN Void *objCtx)
 {
-    DSP_STATUS      status       = DSP_SOK ;
-    DSP_STATUS      tmpStatus    = DSP_SOK ;
-    Bool            isValidArch  = FALSE ;
-    Bool            isSwapped    = FALSE ;
-    COFF_Context *  obj          = (COFF_Context *) objCtx ;
-    Uint32          offsetSymTab = 0 ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  Bool isValidArch = FALSE;
+  Bool isSwapped = FALSE;
+  COFF_Context *obj = (COFF_Context *) objCtx;
+  Uint32 offsetSymTab = 0;
 
-    TRC_4ENTER ("COFF_init", procId, baseImage, args, objCtx) ;
+  TRC_4ENTER("COFF_init", procId, baseImage, args, objCtx);
+  printk(KERN_ALERT "Executing 'COFF_init'\n");
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (baseImage != NULL) ;
-    DBC_Require (objCtx != NULL) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(baseImage != NULL);
+  DBC_Require(objCtx != NULL);
 
-    obj->isSwapped  = FALSE ;
-    obj->dspArch    = args->dspArch ;
+  obj->isSwapped = FALSE;
+  obj->dspArch = args->dspArch;
 
-    status = COFF_isValidFile (obj->fileObj, obj->dspArch, &isValidArch) ;
-    if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
+  status = COFF_isValidFile(obj->fileObj, obj->dspArch, &isValidArch);
+
+  if (DSP_FAILED (status)) {
+    SET_FAILURE_REASON;
+  }
+  else if (isValidArch == FALSE) {
+    status = DSP_ECORRUPTFILE;
+    SET_FAILURE_REASON;
+  }
+  else {
+    status = COFF_isSwapped(obj->fileObj, obj->dspArch, &isSwapped);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else if (isValidArch == FALSE) {
-        status = DSP_ECORRUPTFILE ;
-        SET_FAILURE_REASON ;
+    else if (isSwapped == TRUE) {
+      obj->isSwapped = TRUE;
     }
-    else {
-        status = COFF_isSwapped (obj->fileObj, obj->dspArch, &isSwapped) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
+  }
+
+  /* Populate the string table */
+  if (DSP_SUCCEEDED(status)) {
+    status = COFF_getSymTabDetails(obj->fileObj,
+                                   obj->isSwapped,
+                                   &offsetSymTab,
+                                   &(obj->numSymbols));
+
+    if (DSP_SUCCEEDED(status)) {
+      if (obj->numSymbols != 0) {
+
+        status = COFF_getStringTable(obj,
+                                     obj->numSymbols,
+                                     offsetSymTab,
+                                     &(obj->strTab));
+      }
+    }
+  }
+
+  /* Get the symbol table */
+  if (DSP_SUCCEEDED(status)) {
+    if (obj->numSymbols != 0) {
+      status = COFF_getSymbolTable(obj,
+                                   offsetSymTab,
+                                   &(obj->symTab),
+                                   &(obj->numSymbols));
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+    }
+  }
+
+  if (DSP_FAILED (status)) {
+    if (obj != NULL) {
+      /* Free the symbol table */
+      if (obj->symTab != NULL) {
+        tmpStatus = FREE_PTR(obj->symTab);
+
+        if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+          status = tmpStatus;
+          SET_FAILURE_REASON;
         }
-        else if (isSwapped == TRUE) {
-            obj->isSwapped = TRUE ;
+      }
+
+      /* Free the string table */
+      if (obj->strTab != NULL) {
+        if (obj->isFileBased != COFF_MEM_LOADER) {
+          tmpStatus = FREE_PTR(obj->strTab);
+
+          if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+            status = tmpStatus;
+            SET_FAILURE_REASON;
+          }
         }
-    }
-
-    /*  ------------------------------------------------------------------------
-     *  Populate the string table.
-     *  ------------------------------------------------------------------------
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = COFF_getSymTabDetails (obj->fileObj,
-                                        obj->isSwapped,
-                                        &offsetSymTab,
-                                        &(obj->numSymbols)) ;
-
-        if (DSP_SUCCEEDED (status)) {
-            if (obj->numSymbols != 0) {
-                status = COFF_getStringTable (obj,
-                                              obj->numSymbols,
-                                              offsetSymTab,
-                                              &(obj->strTab)) ;
-            }
+        else {
+          obj->strTab = NULL;
         }
+      }
     }
+  }
 
-    /*  ------------------------------------------------------------------------
-     *  Get the symbol table.
-     *  ------------------------------------------------------------------------
-     */
-    if (DSP_SUCCEEDED (status))  {
-        if (obj->numSymbols != 0) {
-            status = COFF_getSymbolTable (obj,
-                                          offsetSymTab,
-                                          &(obj->symTab),
-                                          &(obj->numSymbols)) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
-    }
+  printk(KERN_ALERT "'COFF_init' executed, status: 0x%x\n", status);
+  TRC_1LEAVE("COFF_init", status);
 
-    if (DSP_FAILED (status)) {
-         if (obj != NULL) {
-            /*  ----------------------------------------------------------------
-             *  Free the symbol table.
-             *  ----------------------------------------------------------------
-             */
-            if (obj->symTab != NULL) {
-                tmpStatus = FREE_PTR (obj->symTab) ;
-                if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-                    status = tmpStatus ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            /*  ----------------------------------------------------------------
-             *  Free the string table.
-             *  ----------------------------------------------------------------
-             */
-            if (obj->strTab != NULL) {
-                if (obj->isFileBased != COFF_MEM_LOADER) {
-                    tmpStatus = FREE_PTR (obj->strTab) ;
-                    if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-                        status = tmpStatus ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
-                else {
-                    obj->strTab = NULL ;
-                }
-            }
-         }
-    }
-
-    TRC_1LEAVE ("COFF_init", status) ;
-
-    return status ;
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   COFF_exit
@@ -913,337 +904,321 @@ COFF_exit (IN  Pvoid objCtx)
     return status ;
 }
 
+/*******************************************************************************
+  @func  COFF_load
+  @desc  Loads the Coff format file on the DSP. This is called by
+         PMGR_PROC_load through the function pointer table
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   COFF_load
- *
- *  @desc   Loads the Coff format file on the DSP. This is called by
- *          PMGR_PROC_load through the function pointer table.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-COFF_load (IN  ProcessorId     procId,
-           IN  LoaderObject *  loaderObj,
-           IN  Uint32          argc,
-           IN  Char8 **        argv,
-           OUT Uint32 *        entryPt)
+NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
+                                IN LoaderObject *loaderObj,
+                                IN Uint32 argc,
+                                IN Char8 **argv,
+                                OUT Uint32 *entryPt)
 {
-    DSP_STATUS         status         = DSP_SOK ;
-    DSP_STATUS         tempStatus     = DSP_SOK ;
-    Int32              cmpResult      = -1      ;
-    Bool               loadedArgs     = FALSE   ;
-    Bool               argsSection    = FALSE   ;
-    Char8 *            sectName       = NULL    ;
-    Uint32             virtAddr       = ADDRMAP_INVALID ;
-    Uint32             symbolFromStrTab [3]     ;
-    COFF_Context *     obj                      ;
-    COFF_FileHeader    fileHeader     = {0}     ;
-    COFF_OptHeader     optHeader      = {0}     ;
-    COFF_SectionHeader sectHeader               ;
-    Uint32             i                        ;
-    Uint32             virtualAddress           ;
-    Uint32             sectHeaderSize           ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tempStatus = DSP_SOK;
+  Int32 cmpResult = -1;
+  Bool loadedArgs = FALSE;
+  Bool argsSection = FALSE;
+  Char8 *sectName = NULL;
+  Uint32 virtAddr = ADDRMAP_INVALID;
+  Uint32 symbolFromStrTab[3];
+  COFF_Context *obj;
+  COFF_FileHeader fileHeader= { 0 };
+  COFF_OptHeader optHeader = { 0 };
+  COFF_SectionHeader sectHeader;
+  Uint32 i;
+  Uint32 virtualAddress;
+  Uint32 sectHeaderSize;
 
-    TRC_5ENTER ("COFF_load",
-                procId,
-                loaderObj,
-                argc,
-                argv,
-                entryPt) ;
+  TRC_5ENTER ("COFF_load", procId, loaderObj, argc, argv, entryPt);
+  printk(KERN_ALERT "Executing 'COFF_load'\n");
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (loaderObj != NULL) ;
-    DBC_Require (entryPt != NULL) ;
-    DBC_Require (   ((argc == 0) && (argv == NULL))
-                 || ((argc != 0) && (argv != NULL))) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(loaderObj != NULL);
+  DBC_Require(entryPt != NULL);
+  DBC_Require(((argc == 0) && (argv == NULL))
+              || ((argc != 0) && (argv != NULL)));
 
-    DBC_Assert (loaderObj->objCtx != NULL) ;
+  DBC_Assert(loaderObj->objCtx != NULL);
 
-    obj = loaderObj->objCtx ;
-    DBC_Assert (obj != NULL) ;
+  obj = loaderObj->objCtx;
 
-    status = COFF_getFileHeader (obj, &fileHeader) ;
+  DBC_Assert(obj != NULL);
 
-    if (DSP_SUCCEEDED (status)) {
-        status = COFF_getOptionalHeader (obj, &optHeader) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-    else {
-        SET_FAILURE_REASON ;
-    }
+  status = COFF_getFileHeader(obj, &fileHeader);
 
-    status = COFF_getDspBiosVersion (obj, fileHeader.numSections) ;
-    if (DSP_SUCCEEDED (status)) {
-        for (i = 0 ;   (DSP_SUCCEEDED (status))
-                    && (i < fileHeader.numSections) ; i++) {
+  if (DSP_SUCCEEDED (status)) {
 
-            /*  --------------------------------------------------------------------
-             *  A DSP executable image can contains some sections that
-             *  are not-loadable.
-             *  So check if the section is a loadable section and contains
-             *  data to be written.
-             *  --------------------------------------------------------------------
-             */
-            status = COFF_getSectionHeader (i, obj, &sectHeader) ;
-            if (DSP_SUCCEEDED (status)) {
-                if ((argc > 0) && (loadedArgs == FALSE)) {
-                    MEM_Copy ((Uint8 *)&(symbolFromStrTab [0]),
-                              (Uint8 *)&(sectHeader.name),
-                              COFF_NAME_LEN,
-                              Endianism_Default) ;
-                    symbolFromStrTab [2] = '\0' ;
-
-                    status = COFF_getString ((Char8 *) symbolFromStrTab,
-                                             obj,
-                                             &sectName) ;
-                }
-                if (DSP_SUCCEEDED (status)) {
-                    if (IS_LOADABLE_SECTION (sectHeader)) {
-                        sectHeader.isLoadSection = TRUE ;
-                    }
-                    else {
-                        sectHeader.isLoadSection = FALSE ;
-                    }
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-
-            if ((DSP_SUCCEEDED (status)) && (TRUE == sectHeader.isLoadSection)) {
-                /* -----------------------------------------------------------
-                 * Memory allocation for all section data is done for COFF
-                 * i.e. file based loader.
-                 * -----------------------------------------------------------
-                 */
-                if (obj->isFileBased == COFF_LOADER) {
-                    status = MEM_Alloc ((Void **) &(sectHeader.data),
-                                        sectHeader.size,
-                                        MEM_DEFAULT) ;
-                }
-
-                if (DSP_SUCCEEDED (status)) {
-                    if ((argc > 0) && (loadedArgs == FALSE)) {
-                    /* -----------------------------------------------------------
-                     * Args processing
-                     * -----------------------------------------------------------
-                     */
-                        status = GEN_Strcmp (sectName, ".args", &cmpResult) ;
-
-                        if ((DSP_SUCCEEDED (status)) && (cmpResult == 0)) {
-                            loadedArgs = TRUE ;
-                            argsSection = TRUE ;
-                            /* If the section name is .args then load
-                             * the user arguments.
-                             * For COFF SHM and COFF MEM
-                             * allocate a section for the .args data.
-                             */
-                            if (   (obj->isFileBased == COFF_SHM_LOADER)
-                                || (obj->isFileBased == COFF_MEM_LOADER)) {
-                                status = MEM_Alloc ((Void **)&(sectHeader.data),
-                                                    sectHeader.size,
-                                                    MEM_DEFAULT) ;
-                            }
-
-                            /* Load args into an internally allocated buffer */
-                            if (DSP_SUCCEEDED (status)) {
-                                status = COFF_fillArgsBuffer (obj->dspArch,
-                                             (Uint32) argc,
-                                             argv,
-                                             (Uint32) sectHeader.size,
-                                             (Uint32) sectHeader.virtualAddress,
-                                             (Uint32) loaderObj->maduSize,
-                                             loaderObj->endian,
-                                             sectHeader.data) ;
-                                if (DSP_FAILED (status)) {
-                                    SET_FAILURE_REASON ;
-                                }
-                            }
-
-                            /* Write the args to memory for COFFSHM & COFFMEM */
-                            if (    (DSP_SUCCEEDED (status))
-                                 && (   (obj->isFileBased == COFF_SHM_LOADER)
-                                     || (obj->isFileBased == COFF_MEM_LOADER))){
-                                virtualAddress =
-                                            (Uint32) sectHeader.virtualAddress ;
-                                sectHeaderSize = (Uint32) sectHeader.size ;
-                                status = (*(loaderObj->fnWriteDspMem))
-                                        (procId,
-                                         virtualAddress,
-                                         loaderObj->endian,
-                                         sectHeaderSize,
-                                         (Uint8 *) ((Pvoid)
-                                         sectHeader.data)) ;
-                                if (DSP_FAILED (status)) {
-                                    SET_FAILURE_REASON ;
-                                }
-
-                                tempStatus = FREE_PTR (sectHeader.data) ;
-                                if (    DSP_FAILED (tempStatus)
-                                    &&  DSP_SUCCEEDED (status)) {
-                                    status = tempStatus ;
-                                    SET_FAILURE_REASON ;
-                                }
-                            }
-                        }
-                        else if ((DSP_SUCCEEDED (status)) && (cmpResult != 0)) {
-                            /* Write section data for sections other than args*/
-                            if (obj->isFileBased == COFF_SHM_LOADER) {
-                                virtualAddress = (Uint32)
-                                                    sectHeader.virtualAddress ;
-                                virtAddr = (*(loaderObj->fnAddrConvert))
-                                                                (procId,
-                                                                 virtualAddress,
-                                                                 DspToGpp)  ;
-
-                                /* Directly write section data in
-                                 * DSP address space
-                                 */
-                                if (virtAddr != ADDRMAP_INVALID) {
-                                    status    =
-                                        COFF_getSectionData (i,
-                                                             obj,
-                                                          (Char8 **)&virtAddr) ;
-                                    if (DSP_FAILED (status)) {
-                                        SET_FAILURE_REASON ;
-                                    }
-                                }
-                            }
-                            else {
-                                /* Write section data in buffer */
-                                status = COFF_getSectionData
-                                                          ( i,
-                                                            obj,
-                                                            &sectHeader.data) ;
-                                if (DSP_FAILED (status)) {
-                                    SET_FAILURE_REASON ;
-                                }
-                            }
-                        }
-                        else {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else {
-                        /* Optimization once .args processing is done */
-                        if (obj->isFileBased == COFF_SHM_LOADER) {
-                            virtualAddress = (Uint32)
-                                                    sectHeader.virtualAddress ;
-                            virtAddr = (*(loaderObj->fnAddrConvert))
-                                                                (procId,
-                                                                 virtualAddress,
-                                                                 DspToGpp)  ;
-
-
-                            /* Directly write section data in
-                             * DSP address space
-                             */
-                            if (virtAddr != ADDRMAP_INVALID) {
-                                status    =
-                                    COFF_getSectionData (i,
-                                                         obj,
-                                                      (Char8 **)&virtAddr) ;
-                                if (DSP_FAILED (status)) {
-                                    SET_FAILURE_REASON ;
-                                }
-                            }
-                        }
-                        else {
-                            /* Write section data in buffer */
-                            status = COFF_getSectionData (i,
-                                                          obj,
-                                                          &sectHeader.data) ;
-
-                            if (DSP_FAILED (status)) {
-                                SET_FAILURE_REASON ;
-                            }
-                        }
-                    }
-
-                    /* Write section data from buffer to DSP memory space.
-                     * For COFFSHM loader, data is written separately directly
-                     * to memory earlier.
-                     * Here, for COFF loader, write the data into DSP memory
-                     * space.
-                     * For COFFMEM loader, all sections except .args are written
-                     * here. .args section is written earlier in a separate
-                     * handling.
-                     */
-                    if (   (DSP_SUCCEEDED (status))
-                        && (    (obj->isFileBased == COFF_LOADER)
-                            ||  (   (obj->isFileBased == COFF_MEM_LOADER)
-                                 && (argsSection == FALSE)))) {
-                        virtualAddress = (Uint32) sectHeader.virtualAddress ;
-                        sectHeaderSize = (Uint32) sectHeader.size ;
-                        status = (*(loaderObj->fnWriteDspMem))
-                                                 (procId,
-                                                  virtualAddress,
-                                                  loaderObj->endian,
-                                                  sectHeaderSize,
-                                                  (Uint8 *) ((Pvoid)
-                                                  sectHeader.data)) ;
-
-                        if (DSP_SUCCEEDED (status)) {
-                            status = KFILE_Seek (obj->fileObj,
-                                                sectHeaderSize,
-                                                KFILE_SeekSet) ;
-                            if (DSP_FAILED (status)) {
-                                SET_FAILURE_REASON ;
-                            }
-                        }
-
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else if (argsSection == TRUE) {
-                        argsSection = FALSE ;
-                    }
-
-                    if (obj->isFileBased == COFF_LOADER) {
-                        tempStatus = FREE_PTR (sectHeader.data) ;
-                        if (DSP_FAILED (tempStatus) && DSP_SUCCEEDED (status)) {
-                            status = tempStatus ;
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-        }
-    }
-    /* Close the file handle since it is not needed anymore. */
-    if (obj->fileObj != NULL) {
-        tempStatus = KFILE_Close (obj->fileObj) ;
-        if (DSP_FAILED (tempStatus) && DSP_SUCCEEDED (status)) {
-            status = tempStatus ;
-            SET_FAILURE_REASON ;
-        }
-        obj->fileObj = NULL  ;
-    }
+    status = COFF_getOptionalHeader(obj, &optHeader);
 
     if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
+      SET_FAILURE_REASON;
     }
-    else {
-        *entryPt = (Uint32) optHeader.entry ;
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
+
+  status = COFF_getDspBiosVersion(obj, fileHeader.numSections);
+
+  if (DSP_SUCCEEDED (status)) {
+    for (i = 0;
+         (DSP_SUCCEEDED(status)) && (i < fileHeader.numSections);
+         i++)
+    {
+      /* A DSP executable image can contain some sections that are not
+         loadable. So check if the section is a loadable section that
+         contains data to be written */
+      status = COFF_getSectionHeader(i, obj, &sectHeader);
+
+      if (DSP_SUCCEEDED(status)) {
+        if ((argc > 0) && (loadedArgs == FALSE)) {
+          MEM_Copy((Uint8 *)&(symbolFromStrTab [0]),
+                   (Uint8 *)&(sectHeader.name),
+                   COFF_NAME_LEN,
+                   Endianism_Default);
+
+          symbolFromStrTab[2] = '\0';
+
+          status = COFF_getString((Char8 *) symbolFromStrTab,
+                                   obj,
+                                   &sectName);
+        }
+
+        if (DSP_SUCCEEDED(status)) {
+          if (IS_LOADABLE_SECTION(sectHeader)) {
+            sectHeader.isLoadSection = TRUE;
+          }
+          else sectHeader.isLoadSection = FALSE;
+        }
+        else SET_FAILURE_REASON;
+      }
+      else SET_FAILURE_REASON;
+
+      if ((DSP_SUCCEEDED(status)) && (TRUE == sectHeader.isLoadSection))
+      {
+        /* Memory allocation for all section data is done for COFF, i.e.
+           file based loader */
+        if (obj->isFileBased == COFF_LOADER) {
+          status = MEM_Alloc((Void **) &(sectHeader.data),
+                             sectHeader.size,
+                             MEM_DEFAULT);
+        }
+
+        if (DSP_SUCCEEDED(status)) {
+
+          if ((argc > 0) && (loadedArgs == FALSE)) {
+            /* Args processing */
+            status = GEN_Strcmp(sectName, ".args", &cmpResult);
+
+            if ((DSP_SUCCEEDED(status)) && (cmpResult == 0)) {
+              loadedArgs = TRUE;
+              argsSection = TRUE;
+
+              /* If the section name is '.args' then load user arguments.
+                 For COFF SHM and COFF MEM allocate a section for the
+                 .args data */
+              if ((obj->isFileBased == COFF_SHM_LOADER)
+              || (obj->isFileBased == COFF_MEM_LOADER))
+              {
+                status = MEM_Alloc((Void **)&(sectHeader.data),
+                                   sectHeader.size,
+                                   MEM_DEFAULT);
+              }
+
+              /* Load 'argv' array into an internally allocated buffer */
+              if (DSP_SUCCEEDED(status)) {
+
+                status = COFF_fillArgsBuffer(
+                                   obj->dspArch,
+                                   (Uint32) argc,
+                                   argv,
+                                   (Uint32) sectHeader.size,
+                                   (Uint32) sectHeader.virtualAddress,
+                                   (Uint32) loaderObj->maduSize,
+                                   loaderObj->endian,
+                                   sectHeader.data);
+
+                if (DSP_FAILED (status)) {
+                  SET_FAILURE_REASON;
+                }
+              }
+
+              /* Write the args to memory for COFFSHM & COFFMEM */
+              if ((DSP_SUCCEEDED (status))
+              && ((obj->isFileBased == COFF_SHM_LOADER)
+              || (obj->isFileBased == COFF_MEM_LOADER)))
+              {
+                virtualAddress = (Uint32) sectHeader.virtualAddress;
+                sectHeaderSize = (Uint32) sectHeader.size;
+
+                status = (*(loaderObj->fnWriteDspMem))(procId,
+                                                       virtualAddress,
+                                                       loaderObj->endian,
+                                                       sectHeaderSize,
+                                                       (Uint8 *) ((Pvoid)
+                                                       sectHeader.data));
+
+                if (DSP_FAILED(status)) {
+                  SET_FAILURE_REASON;
+                }
+
+                tempStatus = FREE_PTR(sectHeader.data);
+
+                if (DSP_FAILED(tempStatus) && DSP_SUCCEEDED(status)) {
+                  status = tempStatus;
+                  SET_FAILURE_REASON;
+                }
+              }
+            }
+            else if ((DSP_SUCCEEDED (status)) && (cmpResult != 0)) {
+              /* Write section data for sections other than .args */
+              if (obj->isFileBased == COFF_SHM_LOADER) {
+                virtualAddress = (Uint32) sectHeader.virtualAddress;
+                virtAddr = (*(loaderObj->fnAddrConvert))(procId,
+                                                         virtualAddress,
+                                                         DspToGpp);
+
+                /* Directly write section data in DSP address space */
+                if (virtAddr != ADDRMAP_INVALID) {
+
+                  status = COFF_getSectionData(i, obj, (Char8 **)&virtAddr);
+
+                  if (DSP_FAILED (status)) {
+                    SET_FAILURE_REASON;
+                  }
+                }
+              }
+              else {
+                /* Write section data in buffer */
+                status = COFF_getSectionData(i, obj, &sectHeader.data);
+
+                if (DSP_FAILED(status)) {
+                  SET_FAILURE_REASON;
+                }
+              }
+            }
+            else {
+              SET_FAILURE_REASON;
+            }
+          }
+          else {
+            /* Optimization once '.args' processing is done */
+            if (obj->isFileBased == COFF_SHM_LOADER) {
+              virtualAddress = (Uint32)sectHeader.virtualAddress;
+
+              virtAddr = (*(loaderObj->fnAddrConvert))(procId,
+                                                       virtualAddress,
+                                                       DspToGpp);
+
+              /* Directly write section data in DSP address space */
+              if (virtAddr != ADDRMAP_INVALID) {
+                status = COFF_getSectionData(i, obj, (Char8 **)&virtAddr);
+
+                if (DSP_FAILED(status)) {
+                  SET_FAILURE_REASON;
+                }
+              }
+            }
+            else {
+              /* Write section data in buffer */
+              status = COFF_getSectionData(i, obj, &sectHeader.data);
+
+              if (DSP_FAILED(status)) {
+                SET_FAILURE_REASON;
+              }
+            }
+          }
+
+          /* Write the section data from buffer to DSP memory space. For
+             'COFFSHM' loader, data is written separately directly to the
+             memory earlier. Here, for 'COFF' loader, write the data into
+             DSP memory space. For 'COFFMEM' loader, all sections except
+             '.args' are written here. '.args' section is written earlier
+             in a separate handling */
+          if ((DSP_SUCCEEDED(status))
+          && ((obj->isFileBased == COFF_LOADER)
+          || ((obj->isFileBased == COFF_MEM_LOADER)
+          && (argsSection == FALSE))))
+          {
+            virtualAddress = (Uint32) sectHeader.virtualAddress;
+            sectHeaderSize = (Uint32) sectHeader.size;
+
+            /* for the BeagleBoard C4 (OMAP3530) target setup this invokes
+               'LDRV_PROC_write', which among other things does writing to
+                the DSP memory space (via 'OMAP3530_write' in the end) */
+            status = (*loaderObj->fnWriteDspMem)(
+                                     procId,
+                                     virtualAddress,
+                                     loaderObj->endian,
+                                     sectHeaderSize,
+                                     (Uint8 *)sectHeader.data);
+
+  printk(KERN_ALERT "fnWriteDspMem, status: 0x%x\n", status);
+
+            if (DSP_SUCCEEDED(status)) {
+              status = KFILE_Seek(
+                obj->fileObj, sectHeaderSize, KFILE_SeekSet);
+
+  printk(KERN_ALERT "KFILE_Seek, status: 0x%x\n", status);
+
+              if (DSP_FAILED(status)) {
+                SET_FAILURE_REASON;
+              }
+            }
+
+            if (DSP_FAILED (status)) {
+              SET_FAILURE_REASON;
+            }
+          }
+          else if (argsSection == TRUE) {
+            argsSection = FALSE;
+          }
+
+          if (obj->isFileBased == COFF_LOADER) {
+            tempStatus = FREE_PTR(sectHeader.data);
+
+            if (DSP_FAILED(tempStatus) && DSP_SUCCEEDED(status)) {
+              status = tempStatus;
+              SET_FAILURE_REASON;
+            }
+          }
+        }
+        else {
+          SET_FAILURE_REASON;
+        }
+      }
+    }
+  }
+ 
+  /* Housekeeping, close the file handle since it is not needed anymore */
+  if (obj->fileObj != NULL) {
+    tempStatus = KFILE_Close(obj->fileObj);
+
+  printk(KERN_ALERT "KFILE_Close, status: 0x%x\n", tempStatus);
+
+    if (DSP_FAILED(tempStatus) && DSP_SUCCEEDED(status)) {
+      status = tempStatus;
+      SET_FAILURE_REASON;
     }
 
-    TRC_1LEAVE ("COFF_load", status) ;
+    obj->fileObj = NULL;
+  }
 
-    return status ;
+  if (DSP_FAILED (status)) {
+    SET_FAILURE_REASON;
+  }
+  else {
+    *entryPt = (Uint32) optHeader.entry;
+  }
+
+  printk(KERN_ALERT "'COFF_load' executed, status: 0x%x\n", status);
+  TRC_1LEAVE("COFF_load", status);
+
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   COFF_getSymbolAddress
@@ -2306,48 +2281,48 @@ COFF_getNumSections (IN  KFileObject * fileObj,
  *  @modif  None
  *  ----------------------------------------------------------------------------
  */
-STATIC
-NORMAL_API
-DSP_STATUS
-COFF_isValidFile (IN  KFileObject * fileObj,
-                  IN  DspArch       dspArch,
-                  OUT Bool *        isValid)
+
+STATIC NORMAL_API DSP_STATUS COFF_isValidFile(IN KFileObject *fileObj,
+                                              IN DspArch dspArch,
+                                              OUT Bool *isValid)
 {
-    DSP_STATUS status  = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_3ENTER ("COFF_isValidFile", fileObj, dspArch, isValid) ;
+  TRC_3ENTER ("COFF_isValidFile", fileObj, dspArch, isValid);
 
-    DBC_Require (fileObj != NULL) ;
-    DBC_Require (isValid != NULL) ;
+  DBC_Require(fileObj != NULL);
+  DBC_Require(isValid != NULL);
 
-    *isValid = FALSE ;
-    switch (dspArch) {
+  *isValid = FALSE;
+
+  switch (dspArch) {
     case DspArch_C55x:
-        status = COFF_isValidFile_55x (fileObj, isValid) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-        break ;
+      status = COFF_isValidFile_55x (fileObj, isValid);
+
+      if (DSP_FAILED (status)) {
+        SET_FAILURE_REASON;
+      }
+      break;
 
     case DspArch_C64x:
     case DspArch_C64x_Bios5:
     case DspArch_C64x_Bios6:
-        status = COFF_isValidFile_64x (fileObj, isValid) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-        break ;
+      status = COFF_isValidFile_64x(fileObj, isValid);
+
+      if (DSP_FAILED (status)) {
+        SET_FAILURE_REASON;
+      }
+      break;
 
     default:
-        TRC_0PRINT (TRC_LEVEL7, "Invalid architecture specified.\n") ;
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-        break ;
-    }
+      TRC_0PRINT(TRC_LEVEL7, "Invalid architecture specified.\n") ;
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
+      break;
+  }
 
-    TRC_1LEAVE ("COFF_isValidFile", status) ;
-
-    return status ;
+  TRC_1LEAVE("COFF_isValidFile", status);
+  return status;
 }
 
 

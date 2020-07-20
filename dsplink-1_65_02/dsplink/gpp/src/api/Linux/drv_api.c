@@ -314,18 +314,15 @@ NORMAL_API DSP_STATUS DRV_Initialize(OUT DRV_Object ** drvObj,
   Int32 osStatus;
 
 #if defined (CHNL_COMPONENT)
-  Void *     physicalAddr = NULL    ;
-  size_t     length                 ;
-  CMD_Args   cmdArgs                ;
+  Void *physicalAddr = NULL;
+  size_t length;
+  CMD_Args cmdArgs;
 #endif
 
-  printf("  Executing 'DRV_Initialize'\n");
-  TRC_2ENTER ("DRV_Initialize", drvObj, arg) ;
-
-  DBC_Require (drvObj != NULL) ;
+  TRC_2ENTER ("DRV_Initialize", drvObj, arg);
+  DBC_Require (drvObj != NULL);
 
   if (drvObj == NULL) {
-    printf("    error: invalid driver object (null)\n");
     status = DSP_EPOINTER;
     SET_FAILURE_REASON;
   }
@@ -426,8 +423,7 @@ NORMAL_API DSP_STATUS DRV_Initialize(OUT DRV_Object ** drvObj,
     }
   }
 
-  TRC_1LEAVE ("DRV_Initialize", status) ;
-  printf("  'DRV_Initialize' executed, status: %ld\n", status);
+  TRC_1LEAVE("DRV_Initialize", status);
   return status;
 }
 
@@ -1360,26 +1356,21 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
 
 #if defined (NOTIFY_COMPONENT)
         case CMD_NOTIFY_NOTIFY:
-            {
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-            break ;
+        {
+          osStatus = ioctl (drvObj->driverHandle, cmdId, args);
+
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+        }
+
+        break;
 #endif /* #if defined (NOTIFY_COMPONENT) */
 
         default:
         {
-          printf("***** calling 'ioctl' in %s, args:\n", __FUNCTION__);
-          printf("      handle: 0x%lx\n", drvObj->driverHandle);
-          printf("      cmdId: %ld\n", cmdId);
-          printf("      args: 0x%lx\n", args);
-
           osStatus = ioctl(drvObj->driverHandle, cmdId, args);
-
-          printf("***** done");
 
           if (osStatus < 0) {
             status = DSP_EFAIL;

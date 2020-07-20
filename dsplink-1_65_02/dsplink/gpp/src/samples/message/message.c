@@ -326,13 +326,13 @@ MESSAGE_Create (IN Char8 * dspExecutable,
     /* Create and initialize the proc object */
     status = PROC_setup(NULL);
 
-    MESSAGE_1Print("'PROC_setup' done, status: %ld\n", status);
+    MESSAGE_1Print("'PROC_setup' done, status: 0x%lx\n", status);
 
     /* Attach the Dsp with which the transfers have to be done */
     if (DSP_SUCCEEDED (status)) {
       status = PROC_attach(processorId, NULL);
 
-      MESSAGE_1Print("'PROC_attach' done, status: %ld\n", status);
+      MESSAGE_1Print("'PROC_attach' done, status: 0x%lx\n", status);
     }
 
     /* Open the pool */
@@ -341,7 +341,7 @@ MESSAGE_Create (IN Char8 * dspExecutable,
         POOL_makePoolId(processorId, SAMPLE_POOL_ID),
         &SamplePoolAttrs);
 
-      MESSAGE_1Print("'POOL_open' done, status: %ld\n", status);
+      MESSAGE_1Print("'POOL_open' done, status: 0x%lx\n", status);
     }
 
     /* Open the GPP's message queue */
@@ -350,7 +350,7 @@ MESSAGE_Create (IN Char8 * dspExecutable,
 
       status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
 
-      MESSAGE_1Print("'MSGQ_open' done, status: %ld\n", status);
+      MESSAGE_1Print("'MSGQ_open' done, status: 0x%lx\n", status);
     }
 
     /* Set the message queue that will receive any async. errors */
@@ -362,7 +362,7 @@ MESSAGE_Create (IN Char8 * dspExecutable,
                                     SAMPLE_POOL_ID));
 
       MESSAGE_1Print(
-        "MSGQ_setErrorHandler executed, status: %ld\n", status);
+        "MSGQ_setErrorHandler executed, status: 0x%lx\n", status);
     }
 
     /* Load the executable on the DSP */
@@ -388,7 +388,7 @@ MESSAGE_Create (IN Char8 * dspExecutable,
 
         status = PROC_load(processorId, dspExecutable, numArgs, args);
 
-        MESSAGE_1Print ("PROC_load executed, status: %ld\n", status);
+        MESSAGE_1Print ("PROC_load executed, status: 0x%lx\n", status);
       }
     }
 

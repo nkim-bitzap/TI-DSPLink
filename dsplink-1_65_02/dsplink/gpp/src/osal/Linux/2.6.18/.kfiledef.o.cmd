@@ -16,28 +16,25 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/retpoline.h) \
     $(wildcard include/config/arch/use/builtin/bswap.h) \
   include/generated/uapi/linux/version.h \
-  include/linux/spinlock.h \
-    $(wildcard include/config/smp.h) \
-    $(wildcard include/config/debug/spinlock.h) \
-    $(wildcard include/config/preempt.h) \
-    $(wildcard include/config/debug/lock/alloc.h) \
-  include/linux/typecheck.h \
-  include/linux/preempt.h \
-    $(wildcard include/config/preempt/count.h) \
-    $(wildcard include/config/debug/preempt.h) \
-    $(wildcard include/config/trace/preempt/toggle.h) \
-    $(wildcard include/config/preempt/notifiers.h) \
-  include/linux/linkage.h \
-  include/linux/compiler_types.h \
-  include/linux/stringify.h \
-  include/linux/export.h \
+  include/linux/module.h \
     $(wildcard include/config/modules.h) \
-    $(wildcard include/config/modversions.h) \
-    $(wildcard include/config/module/rel/crcs.h) \
-    $(wildcard include/config/have/arch/prel32/relocations.h) \
-    $(wildcard include/config/trim/unused/ksyms.h) \
+    $(wildcard include/config/sysfs.h) \
+    $(wildcard include/config/modules/tree/lookup.h) \
+    $(wildcard include/config/livepatch.h) \
     $(wildcard include/config/unused/symbols.h) \
-  arch/arm/include/asm/linkage.h \
+    $(wildcard include/config/module/sig.h) \
+    $(wildcard include/config/generic/bug.h) \
+    $(wildcard include/config/kallsyms.h) \
+    $(wildcard include/config/smp.h) \
+    $(wildcard include/config/tracepoints.h) \
+    $(wildcard include/config/jump/label.h) \
+    $(wildcard include/config/tracing.h) \
+    $(wildcard include/config/event/tracing.h) \
+    $(wildcard include/config/ftrace/mcount/record.h) \
+    $(wildcard include/config/module/unload.h) \
+    $(wildcard include/config/constructors.h) \
+    $(wildcard include/config/function/error/injection.h) \
+    $(wildcard include/config/strict/module/rwx.h) \
   include/linux/list.h \
     $(wildcard include/config/debug/list.h) \
   include/linux/types.h \
@@ -57,6 +54,7 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
   include/uapi/linux/posix_types.h \
   include/linux/stddef.h \
   include/uapi/linux/stddef.h \
+  include/linux/compiler_types.h \
   arch/arm/include/uapi/asm/posix_types.h \
   include/uapi/asm-generic/posix_types.h \
   include/linux/poison.h \
@@ -71,9 +69,15 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/prove/locking.h) \
     $(wildcard include/config/arch/has/refcount.h) \
     $(wildcard include/config/panic/timeout.h) \
-    $(wildcard include/config/tracing.h) \
-    $(wildcard include/config/ftrace/mcount/record.h) \
   /home/admin/Projects/embedded/gcc/7.5/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/7.5.0/include/stdarg.h \
+  include/linux/linkage.h \
+  include/linux/stringify.h \
+  include/linux/export.h \
+    $(wildcard include/config/modversions.h) \
+    $(wildcard include/config/module/rel/crcs.h) \
+    $(wildcard include/config/have/arch/prel32/relocations.h) \
+    $(wildcard include/config/trim/unused/ksyms.h) \
+  arch/arm/include/asm/linkage.h \
   include/linux/compiler.h \
     $(wildcard include/config/trace/branch/profiling.h) \
     $(wildcard include/config/profile/all/branches.h) \
@@ -97,6 +101,7 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/irqsoff/tracer.h) \
     $(wildcard include/config/preempt/tracer.h) \
     $(wildcard include/config/trace/irqflags/support.h) \
+  include/linux/typecheck.h \
   arch/arm/include/asm/irqflags.h \
     $(wildcard include/config/cpu/v7m.h) \
   arch/arm/include/asm/ptrace.h \
@@ -163,20 +168,33 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/dynamic/debug.h) \
   include/linux/init.h \
     $(wildcard include/config/strict/kernel/rwx.h) \
-    $(wildcard include/config/strict/module/rwx.h) \
   include/linux/kern_levels.h \
   include/linux/cache.h \
     $(wildcard include/config/arch/has/cache/line/size.h) \
   include/uapi/linux/kernel.h \
   include/uapi/linux/sysinfo.h \
   include/linux/dynamic_debug.h \
-    $(wildcard include/config/jump/label.h) \
   include/linux/jump_label.h \
   arch/arm/include/asm/jump_label.h \
   include/linux/build_bug.h \
   arch/arm/include/asm/div64.h \
   arch/arm/include/asm/compiler.h \
   include/asm-generic/div64.h \
+  include/linux/stat.h \
+  arch/arm/include/uapi/asm/stat.h \
+  include/uapi/linux/stat.h \
+  include/linux/time.h \
+    $(wildcard include/config/arch/uses/gettimeoffset.h) \
+  include/linux/seqlock.h \
+    $(wildcard include/config/debug/lock/alloc.h) \
+  include/linux/spinlock.h \
+    $(wildcard include/config/debug/spinlock.h) \
+    $(wildcard include/config/preempt.h) \
+  include/linux/preempt.h \
+    $(wildcard include/config/preempt/count.h) \
+    $(wildcard include/config/debug/preempt.h) \
+    $(wildcard include/config/trace/preempt/toggle.h) \
+    $(wildcard include/config/preempt/notifiers.h) \
   arch/arm/include/generated/asm/preempt.h \
   include/asm-generic/preempt.h \
   include/linux/thread_info.h \
@@ -184,7 +202,6 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/have/arch/within/stack/frames.h) \
     $(wildcard include/config/hardened/usercopy.h) \
   include/linux/bug.h \
-    $(wildcard include/config/generic/bug.h) \
     $(wildcard include/config/bug/on/data/corruption.h) \
   arch/arm/include/asm/bug.h \
     $(wildcard include/config/debug/bugverbose.h) \
@@ -276,63 +293,40 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/inline/write/unlock/irq.h) \
     $(wildcard include/config/inline/read/unlock/irqrestore.h) \
     $(wildcard include/config/inline/write/unlock/irqrestore.h) \
-  include/linux/mm.h \
-    $(wildcard include/config/need/multiple/nodes.h) \
-    $(wildcard include/config/sysctl.h) \
-    $(wildcard include/config/have/arch/mmap/rnd/bits.h) \
-    $(wildcard include/config/have/arch/mmap/rnd/compat/bits.h) \
-    $(wildcard include/config/mem/soft/dirty.h) \
-    $(wildcard include/config/arch/uses/high/vma/flags.h) \
-    $(wildcard include/config/arch/has/pkeys.h) \
-    $(wildcard include/config/ppc.h) \
-    $(wildcard include/config/x86.h) \
-    $(wildcard include/config/parisc.h) \
-    $(wildcard include/config/ia64.h) \
-    $(wildcard include/config/sparc64.h) \
-    $(wildcard include/config/x86/intel/mpx.h) \
-    $(wildcard include/config/stack/growsup.h) \
-    $(wildcard include/config/numa.h) \
-    $(wildcard include/config/transparent/hugepage.h) \
-    $(wildcard include/config/hugetlb/page.h) \
-    $(wildcard include/config/zone/device.h) \
-    $(wildcard include/config/dev/pagemap/ops.h) \
-    $(wildcard include/config/numa/balancing.h) \
-    $(wildcard include/config/memcg.h) \
-    $(wildcard include/config/fs/dax.h) \
-    $(wildcard include/config/shmem.h) \
-    $(wildcard include/config/have/memblock/node/map.h) \
-    $(wildcard include/config/have/arch/early/pfn/to/nid.h) \
-    $(wildcard include/config/have/memblock.h) \
-    $(wildcard include/config/flat/node/mem/map.h) \
-    $(wildcard include/config/debug/vm/rb.h) \
-    $(wildcard include/config/page/poisoning.h) \
-    $(wildcard include/config/debug/pagealloc.h) \
-    $(wildcard include/config/hibernation.h) \
-    $(wildcard include/config/memory/hotplug.h) \
-    $(wildcard include/config/hugetlbfs.h) \
-  include/linux/errno.h \
-  include/uapi/linux/errno.h \
-  arch/arm/include/generated/uapi/asm/errno.h \
-  include/uapi/asm-generic/errno.h \
-  include/uapi/asm-generic/errno-base.h \
-  include/linux/mmdebug.h \
-    $(wildcard include/config/debug/vm.h) \
-    $(wildcard include/config/debug/vm/pgflags.h) \
+  include/linux/time32.h \
+  include/linux/uidgid.h \
+    $(wildcard include/config/multiuser.h) \
+    $(wildcard include/config/user/ns.h) \
+  include/linux/highuid.h \
+  include/linux/kmod.h \
+  include/linux/umh.h \
   include/linux/gfp.h \
     $(wildcard include/config/zone/dma.h) \
     $(wildcard include/config/zone/dma32.h) \
+    $(wildcard include/config/zone/device.h) \
+    $(wildcard include/config/numa.h) \
     $(wildcard include/config/pm/sleep.h) \
     $(wildcard include/config/memory/isolation.h) \
     $(wildcard include/config/compaction.h) \
     $(wildcard include/config/cma.h) \
+  include/linux/mmdebug.h \
+    $(wildcard include/config/debug/vm.h) \
+    $(wildcard include/config/debug/vm/pgflags.h) \
   include/linux/mmzone.h \
     $(wildcard include/config/force/max/zoneorder.h) \
     $(wildcard include/config/zsmalloc.h) \
+    $(wildcard include/config/memcg.h) \
+    $(wildcard include/config/memory/hotplug.h) \
+    $(wildcard include/config/flat/node/mem/map.h) \
     $(wildcard include/config/page/extension.h) \
     $(wildcard include/config/no/bootmem.h) \
     $(wildcard include/config/deferred/struct/page/init.h) \
+    $(wildcard include/config/transparent/hugepage.h) \
     $(wildcard include/config/have/memory/present.h) \
     $(wildcard include/config/have/memoryless/nodes.h) \
+    $(wildcard include/config/have/memblock/node/map.h) \
+    $(wildcard include/config/need/multiple/nodes.h) \
+    $(wildcard include/config/have/arch/early/pfn/to/nid.h) \
     $(wildcard include/config/sparsemem/extreme.h) \
     $(wildcard include/config/memory/hotremove.h) \
     $(wildcard include/config/holes/in/zone.h) \
@@ -346,7 +340,6 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/base/small.h) \
   include/linux/numa.h \
     $(wildcard include/config/nodes/shift.h) \
-  include/linux/seqlock.h \
   include/linux/nodemask.h \
   include/linux/bitmap.h \
   include/linux/string.h \
@@ -355,8 +348,10 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
   include/uapi/linux/string.h \
   arch/arm/include/asm/string.h \
   include/linux/pageblock-flags.h \
+    $(wildcard include/config/hugetlb/page.h) \
     $(wildcard include/config/hugetlb/page/size/variable.h) \
   include/linux/page-flags-layout.h \
+    $(wildcard include/config/numa/balancing.h) \
   include/generated/bounds.h \
   include/linux/memory_hotplug.h \
     $(wildcard include/config/arch/has/add/pages.h) \
@@ -364,6 +359,11 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/have/bootmem/info/node.h) \
   include/linux/notifier.h \
     $(wildcard include/config/tree/srcu.h) \
+  include/linux/errno.h \
+  include/uapi/linux/errno.h \
+  arch/arm/include/generated/uapi/asm/errno.h \
+  include/uapi/asm-generic/errno.h \
+  include/uapi/asm-generic/errno-base.h \
   include/linux/mutex.h \
     $(wildcard include/config/mutex/spin/on/owner.h) \
     $(wildcard include/config/debug/mutexes.h) \
@@ -399,15 +399,11 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
   include/linux/workqueue.h \
     $(wildcard include/config/debug/objects/work.h) \
     $(wildcard include/config/freezer.h) \
-    $(wildcard include/config/sysfs.h) \
     $(wildcard include/config/wq/watchdog.h) \
   include/linux/timer.h \
     $(wildcard include/config/debug/objects/timers.h) \
     $(wildcard include/config/no/hz/common.h) \
   include/linux/ktime.h \
-  include/linux/time.h \
-    $(wildcard include/config/arch/uses/gettimeoffset.h) \
-  include/linux/time32.h \
   include/linux/jiffies.h \
   include/linux/timex.h \
   include/uapi/linux/timex.h \
@@ -450,7 +446,69 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/arm/cpu/topology.h) \
   include/linux/arch_topology.h \
   include/asm-generic/topology.h \
+  include/linux/sysctl.h \
+    $(wildcard include/config/sysctl.h) \
   include/linux/rbtree.h \
+  include/uapi/linux/sysctl.h \
+  include/linux/elf.h \
+  arch/arm/include/asm/elf.h \
+    $(wildcard include/config/vdso.h) \
+  arch/arm/include/asm/auxvec.h \
+  arch/arm/include/uapi/asm/auxvec.h \
+  arch/arm/include/asm/vdso_datapage.h \
+  arch/arm/include/asm/user.h \
+  include/uapi/linux/elf.h \
+  include/uapi/linux/elf-em.h \
+  include/linux/kobject.h \
+    $(wildcard include/config/uevent/helper.h) \
+    $(wildcard include/config/debug/kobject/release.h) \
+  include/linux/sysfs.h \
+  include/linux/kernfs.h \
+    $(wildcard include/config/kernfs.h) \
+  include/linux/idr.h \
+  include/linux/radix-tree.h \
+    $(wildcard include/config/radix/tree/multiorder.h) \
+  include/linux/kobject_ns.h \
+  include/linux/kref.h \
+  include/linux/refcount.h \
+    $(wildcard include/config/refcount/full.h) \
+  include/linux/moduleparam.h \
+    $(wildcard include/config/alpha.h) \
+    $(wildcard include/config/ia64.h) \
+    $(wildcard include/config/ppc64.h) \
+  include/linux/rbtree_latch.h \
+  include/linux/error-injection.h \
+  include/asm-generic/error-injection.h \
+  include/linux/tracepoint-defs.h \
+  include/linux/static_key.h \
+  arch/arm/include/asm/module.h \
+    $(wildcard include/config/arm/unwind.h) \
+    $(wildcard include/config/arm/module/plts.h) \
+  include/asm-generic/module.h \
+    $(wildcard include/config/have/mod/arch/specific.h) \
+    $(wildcard include/config/modules/use/elf/rel.h) \
+    $(wildcard include/config/modules/use/elf/rela.h) \
+  include/linux/mm.h \
+    $(wildcard include/config/have/arch/mmap/rnd/bits.h) \
+    $(wildcard include/config/have/arch/mmap/rnd/compat/bits.h) \
+    $(wildcard include/config/mem/soft/dirty.h) \
+    $(wildcard include/config/arch/uses/high/vma/flags.h) \
+    $(wildcard include/config/arch/has/pkeys.h) \
+    $(wildcard include/config/ppc.h) \
+    $(wildcard include/config/x86.h) \
+    $(wildcard include/config/parisc.h) \
+    $(wildcard include/config/sparc64.h) \
+    $(wildcard include/config/x86/intel/mpx.h) \
+    $(wildcard include/config/stack/growsup.h) \
+    $(wildcard include/config/dev/pagemap/ops.h) \
+    $(wildcard include/config/fs/dax.h) \
+    $(wildcard include/config/shmem.h) \
+    $(wildcard include/config/have/memblock.h) \
+    $(wildcard include/config/debug/vm/rb.h) \
+    $(wildcard include/config/page/poisoning.h) \
+    $(wildcard include/config/debug/pagealloc.h) \
+    $(wildcard include/config/hibernation.h) \
+    $(wildcard include/config/hugetlbfs.h) \
   include/linux/mm_types.h \
     $(wildcard include/config/have/aligned/struct/page.h) \
     $(wildcard include/config/userfaultfd.h) \
@@ -465,15 +523,12 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/arch/enable/split/pmd/ptlock.h) \
   include/linux/auxvec.h \
   include/uapi/linux/auxvec.h \
-  arch/arm/include/asm/auxvec.h \
-  arch/arm/include/uapi/asm/auxvec.h \
   include/linux/uprobes.h \
     $(wildcard include/config/uprobes.h) \
   arch/arm/include/asm/uprobes.h \
   arch/arm/include/asm/probes.h \
   arch/arm/include/asm/mmu.h \
     $(wildcard include/config/cpu/has/asid.h) \
-    $(wildcard include/config/vdso.h) \
   include/linux/range.h \
   include/linux/percpu-refcount.h \
   include/linux/bit_spinlock.h \
@@ -498,8 +553,6 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/swap.h) \
     $(wildcard include/config/thp/swap.h) \
     $(wildcard include/config/ksm.h) \
-  include/linux/tracepoint-defs.h \
-  include/linux/static_key.h \
   include/linux/memremap.h \
   include/linux/ioport.h \
   arch/arm/include/asm/pgtable.h \
@@ -578,7 +631,6 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
     $(wildcard include/config/kcov.h) \
     $(wildcard include/config/bcache.h) \
     $(wildcard include/config/vmap/stack.h) \
-    $(wildcard include/config/livepatch.h) \
     $(wildcard include/config/security.h) \
     $(wildcard include/config/arch/task/struct/on/stack.h) \
     $(wildcard include/config/debug/rseq.h) \
@@ -588,16 +640,10 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
   include/linux/sem.h \
   include/uapi/linux/sem.h \
   include/linux/ipc.h \
-  include/linux/uidgid.h \
-    $(wildcard include/config/multiuser.h) \
-    $(wildcard include/config/user/ns.h) \
-  include/linux/highuid.h \
   include/linux/rhashtable-types.h \
   include/uapi/linux/ipc.h \
   arch/arm/include/generated/uapi/asm/ipcbuf.h \
   include/uapi/asm-generic/ipcbuf.h \
-  include/linux/refcount.h \
-    $(wildcard include/config/refcount/full.h) \
   arch/arm/include/generated/uapi/asm/sembuf.h \
   include/uapi/asm-generic/sembuf.h \
   include/linux/shm.h \
@@ -680,12 +726,7 @@ deps_/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/../../gpp/
   include/linux/hash.h \
     $(wildcard include/config/have/arch/hash.h) \
   include/linux/path.h \
-  include/linux/stat.h \
-  arch/arm/include/uapi/asm/stat.h \
-  include/uapi/linux/stat.h \
   include/linux/list_lru.h \
-  include/linux/radix-tree.h \
-    $(wildcard include/config/radix/tree/multiorder.h) \
   include/linux/xarray.h \
   include/linux/capability.h \
   include/uapi/linux/capability.h \

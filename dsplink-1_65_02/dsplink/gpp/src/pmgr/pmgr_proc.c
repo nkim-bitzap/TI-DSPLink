@@ -71,6 +71,7 @@
 #include <ldrv.h>
 #include <ldrv_proc.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -389,19 +390,12 @@ PMGR_PROC_destroy (Void)
     return status ;
 }
 
-
-/** ============================================================================
- *  @func   PMGR_PROC_attach
- *
- *  @desc   Attaches the client to the specified DSP and also
- *          initializes the DSP (if required).
- *          The first caller to this function actually initializes the DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-
-#include <linux/module.h>
+/*******************************************************************************
+  @func  PMGR_PROC_attach
+  @desc  Attaches the client to the specified DSP and also initializes
+         the DSP (if required). The first caller to this function actually
+         initializes the DSP
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
                                        IN PROC_Attrs *attr,
@@ -414,10 +408,10 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
   Bool toAttach = FALSE;
   Bool isAttached = FALSE;
 
-  TRC_2ENTER ("PMGR_PROC_attach", procId, attr);
+  TRC_2ENTER("PMGR_PROC_attach", procId, attr);
 
-  DBC_Require (IS_VALID_PROCID (procId));
-  DBC_Assert (PMGR_SetupRefCount != 0);
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Assert(PMGR_SetupRefCount != 0);
 
   if (PMGR_SetupRefCount == 0) {
     status = DSP_ESETUP;
@@ -435,65 +429,43 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
 
     status = PRCS_Create(&prcsInfo, optArgs);
 
-    printk(KERN_ALERT"  'PRCS_Create' done in '%s', status: %ld\n",
-           __FUNCTION__, status);
-
-    if (DSP_SUCCEEDED (status)) {
+    if (DSP_SUCCEEDED(status)) {
       if (toAttach == TRUE) {
-        status = SYNC_EnterCS (PMGR_SetupObj.mutex [procId]);
+        status = SYNC_EnterCS(PMGR_SetupObj.mutex [procId]);
 
-        printk(KERN_ALERT"  'SYNC_EnterCS' done in '%s', status: %ld\n",
-               __FUNCTION__, status);
+        if (DSP_SUCCEEDED(status)) {
 
-        if (DSP_SUCCEEDED (status)) {
-
-          /*  --------------------------------------------------------
-           *  This is the first attach for this processor.
-           *  Create the client list and initialize the DSP.
-           *  --------------------------------------------------------
-           */
-  
+          /* This is the first attach for this processor. Create the client
+             list and initialize the DSP */
           status = LIST_Create(&(PMGR_ProcObj[procId].clients));
 
-          printk(KERN_ALERT"  'LIST_Create' done in '%s', status: %ld\n",
-                 __FUNCTION__, status);
-
-          if (DSP_SUCCEEDED (status)) {
+          if (DSP_SUCCEEDED(status)) {
             /* User wants load DSP with new values */
 
             if (attr != NULL) {
-              status = LDRV_init (procId, attr->dspCfgPtr);
-
-              printk(KERN_ALERT"  'LDRV_init' done in '%s', status: %ld\n",
-                     __FUNCTION__, status);
+              status = LDRV_init(procId, attr->dspCfgPtr);
             }
             else {
               /* Use the values provided at setup time */
               status = LDRV_init(procId, NULL);
-
-              printk(KERN_ALERT"  'LDRV_init' done in '%s', status: %ld\n",
-                     __FUNCTION__, status);
             }
 
-            if (DSP_FAILED (status)) {
+            if (DSP_FAILED(status)) {
               SET_FAILURE_REASON;
             }
           }
 
-          if (DSP_SUCCEEDED (status)) {
+          if (DSP_SUCCEEDED(status)) {
             status = LDRV_PROC_init(procId);
 
-            printk(KERN_ALERT"  'LDRV_PROC_init' done in '%s', status: %ld\n",
-                   __FUNCTION__, status);
-
-            if (DSP_SUCCEEDED (status)) {
-              PMGR_ProcObj [procId].objCtx = NULL;
-              PMGR_ProcObj [procId].loaderIntf = NULL;
-              PMGR_ProcObj [procId].signature = SIGN_PROC;
+            if (DSP_SUCCEEDED(status)) {
+              PMGR_ProcObj[procId].objCtx = NULL;
+              PMGR_ProcObj[procId].loaderIntf = NULL;
+              PMGR_ProcObj[procId].signature = SIGN_PROC;
             }
             else {
-              LIST_Delete (PMGR_ProcObj [procId].clients);
-              PMGR_ProcObj [procId].clients = NULL;
+              LIST_Delete(PMGR_ProcObj [procId].clients);
+              PMGR_ProcObj[procId].clients = NULL;
               SET_FAILURE_REASON;
             }
           }
@@ -502,16 +474,13 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
           }
 
 #if defined (CHNL_COMPONENT)
-          if (DSP_SUCCEEDED (status)) {
-            status = PMGR_CHNL_init (procId);
+          if (DSP_SUCCEEDED(status)) {
+            status = PMGR_CHNL_init(procId);
 
-            printk(KERN_ALERT"  'PMGR_CHNL_init' done in '%s', status: %ld\n",
-                   __FUNCTION__, status);
-
-            if (DSP_FAILED (status)) {
-              LIST_Delete (PMGR_ProcObj [procId].clients);
-              PMGR_ProcObj [procId].clients = NULL;
-              PMGR_ProcObj [procId].signature = SIGN_NULL;
+            if (DSP_FAILED(status)) {
+              LIST_Delete(PMGR_ProcObj[procId].clients);
+              PMGR_ProcObj[procId].clients = NULL;
+              PMGR_ProcObj[procId].signature = SIGN_NULL;
               SET_FAILURE_REASON;
             }
           }
@@ -519,10 +488,7 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
 
           tmpStatus = SYNC_LeaveCS (PMGR_SetupObj.mutex[procId]);
 
-          printk(KERN_ALERT"  'SYNC_LeaveCS' done in '%s', status: %ld\n",
-                 __FUNCTION__, status);
-
-          if (DSP_SUCCEEDED(status) && DSP_FAILED (tmpStatus)) {
+          if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
             status = tmpStatus;
             SET_FAILURE_REASON;
           }
@@ -534,96 +500,102 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
                                       prcsInfo,
                                       &isAttached);
 
-        if (DSP_SUCCEEDED (status)) {
+        if (DSP_SUCCEEDED(status)) {
           if (isAttached == TRUE) {
-            status = DSP_EALREADYCONNECTED ;
+            status = DSP_EALREADYCONNECTED;
           }
         }
       }
 
-            if (DSP_SUCCEEDED (status)) {
-                status = SYNC_EnterCS (PMGR_SetupObj.mutex [procId]) ;
-                if (DSP_SUCCEEDED (status)) {
-                    /* Add information about attached client to client list. */
-                    status = MEM_Alloc ((Void **) &client,
-                                        sizeof (PMGR_ClientInfo),
-                                        MEM_DEFAULT) ;
+      if (DSP_SUCCEEDED(status)) {
+        status = SYNC_EnterCS(PMGR_SetupObj.mutex[procId]);
 
-                    if (DSP_SUCCEEDED (status)) {
-                        DBC_Assert (client != NULL) ;
-                        DBC_Assert (prcsInfo != NULL) ;
+        if (DSP_SUCCEEDED(status)) {
+          /* Add information about attached client to client list */
+          status = MEM_Alloc((Void **) &client,
+                             sizeof (PMGR_ClientInfo),
+                             MEM_DEFAULT);
 
-                        client->prcsInfo = prcsInfo ;
-                        status = LIST_InitializeElement (
-                                                &(client->listElement)) ;
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else {
-                        SET_FAILURE_REASON ;
-                    }
+          if (DSP_SUCCEEDED(status)) {
+            DBC_Assert(client != NULL);
+            DBC_Assert(prcsInfo != NULL);
 
-                    if (DSP_SUCCEEDED (status)) {
-                        status = LIST_PutTail (PMGR_ProcObj [procId].clients,
-                                               &(client->listElement)) ;
+            client->prcsInfo = prcsInfo;
 
-                        if (DSP_FAILED (status)) {
-                            /* Overwriting the failure from LIST to prevent
-                             * confusion with upper layer error codes.
-                             */
-                            status = DSP_EFAIL ;
-                            FREE_PTR (client) ;
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    else {
-                        FREE_PTR (client) ;
-                    }
+            status = LIST_InitializeElement(&(client->listElement));
 
-                    tmpStatus = SYNC_LeaveCS (PMGR_SetupObj.mutex [procId]) ;
-                    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-                        status = tmpStatus ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
+            if (DSP_FAILED(status)) {
+              SET_FAILURE_REASON;
             }
-            else {
-                SET_FAILURE_REASON ;
+          }
+          else {
+            SET_FAILURE_REASON;
+          }
+
+          if (DSP_SUCCEEDED(status)) {
+            status = LIST_PutTail(PMGR_ProcObj[procId].clients,
+                                  &(client->listElement));
+
+            if (DSP_FAILED(status)) {
+              /* Overwriting the failure from LIST to prevent confusion
+                 with upper layer error codes */
+              status = DSP_EFAIL;
+              FREE_PTR(client);
+              SET_FAILURE_REASON;
             }
+          }
+          else {
+            FREE_PTR(client);
+          }
+
+          tmpStatus = SYNC_LeaveCS(PMGR_SetupObj.mutex[procId]);
+
+          if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+            status = tmpStatus;
+            SET_FAILURE_REASON;
+          }
+        }
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
 
 #if defined (NOTIFY_COMPONENT)
-            if (DSP_SUCCEEDED (status)) {
-                UEVENT_AddNewProcess () ;
-            }
+      if (DSP_SUCCEEDED(status)) {
+        UEVENT_AddNewProcess();
+      }
 #endif /* #if defined (NOTIFY_COMPONENT)*/
-            if (DSP_FAILED (status) && (toAttach == TRUE)) {
-                LDRV_exit (procId) ;
-            }
+      if (DSP_FAILED(status) && (toAttach == TRUE)) {
+        LDRV_exit(procId);
+      }
 
-            if (DSP_FAILED (status)) {
-                PRCS_Delete (prcsInfo) ;
-                prcsInfo = NULL ;
-                SYNC_ProtectionStart () ;
-                PMGR_ProcObj [procId].attachRefCount-- ;
-                SYNC_ProtectionEnd () ;
-            }
-            else {
-                if (toAttach == FALSE) {
-                    /* Return status indicating that at least one GPP process
-                     * is already attached to the DSP.
-                     */
-                    status = DSP_SALREADYATTACHED ;
-                }
-            }
+      if (DSP_FAILED(status)) {
+        PRCS_Delete(prcsInfo);
+
+        prcsInfo = NULL;
+        SYNC_ProtectionStart();
+
+        PMGR_ProcObj[procId].attachRefCount--;
+        SYNC_ProtectionEnd();
+      }
+      else {
+        if (toAttach == FALSE) {
+          /* Return the status indicating that at least one GPP process is
+             already attached to the DSP */
+          status = DSP_SALREADYATTACHED;
         }
+      }
     }
+  }
 
-    TRC_1LEAVE ("PMGR_PROC_attach", status) ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s', failed attaching proc, "
+                      "result 0x%x\n", __FUNCTION__, status);
+  }
 
-    return status ;
+  TRC_1LEAVE("PMGR_PROC_attach", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_PROC_detach
@@ -916,143 +888,164 @@ PMGR_PROC_getState (IN   ProcessorId     procId,
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-PMGR_PROC_load (IN   ProcessorId  procId,
-                IN   Char8 *      imagePath,
-                IN   Uint32       argc,
-                IN   Char8 **     argv)
+
+NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
+                                     IN Char8 *imagePath,
+                                     IN Uint32 argc,
+                                     IN Char8 **argv)
 {
-    DSP_STATUS         status       = DSP_SOK ;
-    LOADER_Interface * loaderIntf   = NULL ;
-    KFILE_Interface *  kfileIntf    = NULL ;
-    Bool               toLoad       = FALSE ;
-    LINKCFG_Dsp *      dspObj ;
-    LINKCFG_DspConfig * dspCfg ;
-    LoaderObject       loaderObj ;
-    LoaderInitArgs     loaderArgs ;
+  DSP_STATUS status = DSP_SOK;
+  LOADER_Interface *loaderIntf = NULL;
+  KFILE_Interface *kfileIntf = NULL;
+  Bool toLoad = FALSE;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_DspConfig *dspCfg;
+  LoaderObject loaderObj;
+  LoaderInitArgs loaderArgs;
 
-    TRC_4ENTER ("PMGR_PROC_load", procId, imagePath, argc, argv) ;
+  TRC_4ENTER("PMGR_PROC_load", procId, imagePath, argc, argv);
+  printk(KERN_ALERT "Executing 'PMGR_PROC_load'\n");
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (imagePath != NULL ) ;
-    DBC_Require (   ((argc != 0) && (argv != NULL))
-                 || ((argc == 0) && (argv == NULL))) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(imagePath != NULL);
+  DBC_Require(((argc != 0) && (argv != NULL))
+              || ((argc == 0) && (argv == NULL)));
 
-    if (PMGR_SetupRefCount == 0) {
-        status = DSP_ESETUP ;
-        SET_FAILURE_REASON ;
+  if (PMGR_SetupRefCount == 0) {
+    status = DSP_ESETUP;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_ProtectionStart();
+
+    if (PMGR_ProcObj[procId].attachRefCount == 0) {
+      status = DSP_EATTACHED;
+      SET_FAILURE_REASON;
     }
     else {
-        SYNC_ProtectionStart () ;
-        if (PMGR_ProcObj [procId].attachRefCount == 0) {
-            status = DSP_EATTACHED ;
-            SET_FAILURE_REASON ;
+      /* Check if the DSP has not been loaded yet.*/
+      if (PMGR_ProcObj[procId].isLoaded == FALSE) {
+        toLoad = TRUE;
+        PMGR_ProcObj[procId].isLoaded = TRUE;
+      }
+      else status = DSP_SALREADYLOADED;
+    }
+
+    SYNC_ProtectionEnd();
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    if (toLoad == TRUE) {
+      if (PMGR_ProcObj[procId].loaderIntf != NULL) {
+
+        loaderIntf = PMGR_ProcObj[procId].loaderIntf;
+        DBC_Assert(loaderIntf != NULL) ;
+
+        /* Check if object context from previous load exists. Finalize it
+           if it exists */
+        if (PMGR_ProcObj[procId].objCtx != NULL) {
+          status = (*(loaderIntf->exit)) (PMGR_ProcObj[procId].objCtx);
+
+          PMGR_ProcObj[procId].objCtx = NULL;
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
+        }
+      }
+
+      if (DSP_SUCCEEDED(status)) {
+
+        /* Get the loader interface from LDRV_PROC. All subsequent calls,
+           such as 'init', 'load', 'exit', etc. are done via this interface.
+           For the OMAP3530 target this means the 'COFFFILE_Interface' */
+        LDRV_PROC_getLoader(procId, &loaderIntf, &kfileIntf);
+
+        /* Do not check for NULL kfileIntf, since it is possible that
+           some loaders do not need to use KFILE */
+        if (loaderIntf == NULL) {
+          status = DSP_EFAIL;
+          SET_FAILURE_REASON;
+        }
+      }
+
+      if (DSP_SUCCEEDED(status)) {
+        PMGR_ProcObj[procId].loaderIntf = loaderIntf;
+
+        dspCfg = LDRV_LinkCfgPtr->dspConfigs[procId];
+        dspObj = dspCfg->dspObject;
+
+        loaderArgs.dspArch = (DspArch)dspObj->dspArch;
+        loaderArgs.kfileIntf = kfileIntf;
+
+        /* 'init' function of the 'COFFFILE_Interface', which is mapped to
+           'COFFFILE_init', which in turn calls 'KFILE_Open', 'KFILE_Close',
+           'COFF_init', etc. */
+        status = (*loaderIntf->init)(procId,
+                                     imagePath,
+                                     &loaderArgs,
+                                     &PMGR_ProcObj[procId].objCtx);
+
+        if (DSP_SUCCEEDED (status)) {
+          loaderObj.objCtx = PMGR_ProcObj [procId].objCtx;
+          loaderObj.endian = (Endianism) dspObj->endian;
+          loaderObj.maduSize = dspObj->maduSize;
+          loaderObj.fnWriteDspMem = &LDRV_PROC_write;
+          loaderObj.fnAddrConvert = &LDRV_PROC_addrConvert;
+
+        printk(KERN_ALERT "LOADING 5, loading\n");
+
+          /* for the OMAP3530 architecture this invokes 'COFF_load', which
+             among other things writes to the DSP memory space */
+          status = (*loaderIntf->load)(procId,
+                                       &loaderObj,
+                                       argc,
+                                       argv,
+                                       &(PMGR_ProcObj[procId].entryPoint));
+
+          if (DSP_FAILED (status)) {
+            SET_FAILURE_REASON;
+
+            if (status == DSP_ERANGE) {
+              PRINT_Printf("*** error in '%s': DSP-side memory map does "
+                           "not match configuration. Compare DSP-side "
+                           "TCF/MAP file with the configuration in "
+                           "'/dsplink/config/all/CFG_<PLATFORM>.c'\n",
+                           __FUNCTION__);
+            }
+          }
         }
         else {
-            /* Check if the DSP has not been loaded yet.*/
-            if (PMGR_ProcObj [procId].isLoaded == FALSE) {
-                toLoad = TRUE ;
-                PMGR_ProcObj [procId].isLoaded = TRUE ;
-            }
-            else {
-                status = DSP_SALREADYLOADED ;
-            }
+          SET_FAILURE_REASON;
         }
-        SYNC_ProtectionEnd () ;
-    }
+      }
 
-    if (DSP_SUCCEEDED (status)) {
-        if (toLoad == TRUE) {
-            if (PMGR_ProcObj [procId].loaderIntf != NULL) {
-                loaderIntf = PMGR_ProcObj [procId].loaderIntf ;
-                DBC_Assert (loaderIntf != NULL) ;
+      if (DSP_SUCCEEDED(status)) {
+        status = LDRV_PROC_setState(procId, ProcState_Loaded);
 
-                /* Check if object context from previous load exists.
-                 * Finalize it if it exists.
-                 */
-                if (PMGR_ProcObj [procId].objCtx != NULL) {
-                    status = (*(loaderIntf->exit)) (
-                                         PMGR_ProcObj [procId].objCtx) ;
-                    PMGR_ProcObj [procId].objCtx = NULL ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
+        printk(KERN_ALERT "LOADING 6, setState\n");
 
-            if (DSP_SUCCEEDED (status)) {
-                /* Get the loader interface from LDRV_PROC. */
-                LDRV_PROC_getLoader (procId, &loaderIntf, &kfileIntf) ;
-                /* Do not check for NULL kfileIntf, since it is possible that
-                 * some loaders do not need to use KFILE.
-                 */
-                if (loaderIntf == NULL) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                PMGR_ProcObj [procId].loaderIntf = loaderIntf ;
-
-                dspCfg    = LDRV_LinkCfgPtr->dspConfigs [procId] ;
-                dspObj    = dspCfg->dspObject ;
-                loaderArgs.dspArch     = (DspArch) dspObj->dspArch ;
-                loaderArgs.kfileIntf   = kfileIntf ;
-
-                status = (*(loaderIntf->init)) (procId,
-                                                imagePath,
-                                                &loaderArgs,
-                                                &PMGR_ProcObj [procId].objCtx) ;
-                if (DSP_SUCCEEDED (status)) {
-                    loaderObj.objCtx = PMGR_ProcObj [procId].objCtx ;
-                    loaderObj.endian = (Endianism) dspObj->endian ;
-                    loaderObj.maduSize      = dspObj->maduSize ;
-                    loaderObj.fnWriteDspMem = &LDRV_PROC_write ;
-                    loaderObj.fnAddrConvert = &LDRV_PROC_addrConvert ;
-                    status = (*(loaderIntf->load)) (
-                                          procId,
-                                          &loaderObj,
-                                          argc,
-                                          argv,
-                                          &(PMGR_ProcObj [procId].entryPoint)) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                        if (status == DSP_ERANGE) {
-                            PRINT_Printf (
-                                     "Error: DSP-side memory map does not "
-                                     "match configuration.\n"
-                                     "Compare DSP-side TCF/MAP file with "
-                                     "/dsplink/config/all/CFG_<PLATFORM>.c\n") ;
-                        }
-                    }
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                status = LDRV_PROC_setState (procId, ProcState_Loaded) ;
-
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                SYNC_ProtectionStart () ;
-                /* Reset state to not loaded. */
-                PMGR_ProcObj [procId].objCtx = NULL ;
-                PMGR_ProcObj [procId].isLoaded = FALSE ;
-                SYNC_ProtectionEnd () ;
-            }
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
         }
+      }
+      else {
+        printk(KERN_ALERT "LOADING 7, protectionStart\n");
+
+        SYNC_ProtectionStart ();
+
+        /* Reset state to not loaded */
+        PMGR_ProcObj [procId].objCtx = NULL;
+        PMGR_ProcObj [procId].isLoaded = FALSE;
+        SYNC_ProtectionEnd();
+      }
     }
+  }
 
-    TRC_1LEAVE ("PMGR_PROC_load", status) ;
+  printk(KERN_ALERT "'PMGR_PROC_load' executed, status: 0x%lx\n", status);
+  TRC_1LEAVE ("PMGR_PROC_load", status);
 
-    return status ;
+  return status;
 }
 
 

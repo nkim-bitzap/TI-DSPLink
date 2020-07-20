@@ -46,6 +46,7 @@
 #include <coff_64x.h>
 #include <coff_file.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -97,126 +98,128 @@ LOADER_Interface COFFFILE_Interface = {
     &COFF_getSymbolAddress
 } ;
 
+/*******************************************************************************
+  @func  COFFFILE_init
+  @desc  Initializes the context object for loading a base image file or a
+         section. This function is required to be called before any other
+         function is called from this sub component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   COFFFILE_init
- *
- *  @desc   Initializes the context object for loading a base image file or
- *          a section. This function is required to be called before any other
- *          function is called from this sub component.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-COFFFILE_init (IN  ProcessorId      procId,
-               IN  Pstr             baseImage,
-               IN  LoaderInitArgs * args,
-               OUT Pvoid *          objCtx)
+NORMAL_API DSP_STATUS COFFFILE_init(IN ProcessorId procId,
+                                    IN Pstr baseImage,
+                                    IN LoaderInitArgs *args,
+                                    OUT Pvoid *objCtx)
 {
-    DSP_STATUS      status      = DSP_SOK ;
-    KFileObject *   fileObj     = NULL    ;
-    CONST Char8 *   mode        = "r"     ;
-    COFF_Context *  obj         = NULL    ;
+  DSP_STATUS status = DSP_SOK;
+  KFileObject *fileObj = NULL;
+  CONST Char8 *mode = "r";
+  COFF_Context *obj = NULL;
 
-    TRC_4ENTER ("COFFFILE_init", procId, baseImage, args, objCtx) ;
+  TRC_4ENTER ("COFFFILE_init", procId, baseImage, args, objCtx);
+  printk(KERN_ALERT "Executing 'COFFFILE_init'\n");
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (baseImage != NULL) ;
-    DBC_Require (objCtx != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(baseImage != NULL);
+  DBC_Require(objCtx != NULL);
 
-    /* Allocate memory for the object context. */
-    status = MEM_Calloc (objCtx, sizeof (COFF_Context), MEM_DEFAULT) ;
-    if (DSP_SUCCEEDED (status)) {
-        obj = (COFF_Context *) (*objCtx) ;
-        DBC_Assert (obj != NULL) ;
+  /* Allocate memory for the object context which we return via args */
+  status = MEM_Calloc(objCtx, sizeof(COFF_Context), MEM_DEFAULT);
 
-        DBC_Assert (mode != NULL) ;
-        DBC_Assert (args->kfileIntf != NULL) ;
+  if (DSP_SUCCEEDED(status)) {
 
-        status = KFILE_Open (baseImage, mode, args->kfileIntf, &fileObj) ;
-        if (DSP_SUCCEEDED (status)) {
-            DBC_Assert (fileObj != NULL) ;
-            obj->fileObj = fileObj ;
-            obj->imageInfo.fileAddr = (Uint32) NULL ;
-            obj->imageInfo.size = 0 ;
-            obj->isFileBased = COFF_LOADER ;
-        }
+    obj = (COFF_Context *)(*objCtx);
+
+    DBC_Assert(obj != NULL);
+    DBC_Assert(mode != NULL);
+    DBC_Assert(args->kfileIntf != NULL);
+
+    status = KFILE_Open(baseImage, mode, args->kfileIntf, &fileObj);
+
+    if (DSP_SUCCEEDED(status)) {
+      DBC_Assert(fileObj != NULL);
+
+      obj->fileObj = fileObj;
+      obj->imageInfo.fileAddr = (Uint32) NULL;
+      obj->imageInfo.size = 0;
+      obj->isFileBased = COFF_LOADER;
     }
-    else {
-        SET_FAILURE_REASON ;
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    status = COFF_init(procId, baseImage, args, *objCtx);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
+  }
 
-    if (DSP_SUCCEEDED (status)) {
-        status = COFF_init (procId, baseImage, args, *objCtx) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
+  if (DSP_FAILED (status)) {
+    FREE_PTR(*objCtx);
+    KFILE_Close(fileObj);
+  }
 
-    if (DSP_FAILED (status)) {
-        FREE_PTR (*objCtx) ;
-        KFILE_Close (fileObj) ;
-    }
+  printk(KERN_ALERT "'COFFFILE_init' executed, status: 0x%x\n", status);
+  TRC_1LEAVE("COFFFILE_init", status);
 
-    TRC_1LEAVE ("COFFFILE_init", status) ;
-
-    return status ;
+  return status;
 }
 
+/*******************************************************************************
+  @func  COFFFILE_exit
+  @desc  Deallocates the object(s) created by DSP_STATUS function and
+         releases the context
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   COFFFILE_exit
- *
- *  @desc   Deallocates the object(s) created by DSP_STATUS function and
- *          releases the context.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-COFFFILE_exit (IN  Pvoid objCtx)
+NORMAL_API DSP_STATUS COFFFILE_exit(IN Pvoid objCtx)
 {
-    DSP_STATUS    status    = DSP_SOK ;
-    DSP_STATUS    tmpStatus = DSP_SOK ;
-    COFF_Context * obj                ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  COFF_Context *obj;
 
-    DBC_Require (objCtx != NULL) ;
+  DBC_Require(objCtx != NULL);
 
-    TRC_1ENTER ("COFFFILE_exit", objCtx) ;
+  TRC_1ENTER("COFFFILE_exit", objCtx);
+  printk(KERN_ALERT "Executing 'COFFFILE_exit'\n");
 
-    obj = (COFF_Context *) objCtx ;
-    if (obj == NULL) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (obj->fileObj != NULL) {
-            status = KFILE_Close (obj->fileObj) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-            obj->fileObj = NULL  ;
-        }
+  obj = (COFF_Context *) objCtx;
 
-        tmpStatus = COFF_exit (objCtx) ;
-        if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-            status = tmpStatus ;
-            SET_FAILURE_REASON ;
-        }
+  if (obj == NULL) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (obj->fileObj != NULL) {
+      status = KFILE_Close(obj->fileObj);
 
-        tmpStatus = FREE_PTR (obj) ;
-        if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-            status = tmpStatus ;
-            SET_FAILURE_REASON ;
-        }
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+
+      obj->fileObj = NULL;
     }
 
-    TRC_1LEAVE ("COFFFILE_exit", status) ;
+    tmpStatus = COFF_exit(objCtx);
 
-    return status ;
+    if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+      status = tmpStatus;
+      SET_FAILURE_REASON;
+    }
+
+    tmpStatus = FREE_PTR(obj);
+
+    if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+      status = tmpStatus;
+      SET_FAILURE_REASON;
+    }
+  }
+
+  printk(KERN_ALERT "'COFFFILE_exit' executed, status: 0x%x\n", status);
+  TRC_1LEAVE("COFFFILE_exit", status);
+
+  return status;
 }
 
 

@@ -632,7 +632,7 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
       SET_FAILURE_REASON;
     }
     else {
-      poolAddrPtr = &LDRV_POOL_addrConfig [procId][poolNo];
+      poolAddrPtr = &LDRV_POOL_addrConfig[procId][poolNo];
       poolAddrPtr->addr[AddrType_Usr] = 0;
       poolAddrPtr->addr[AddrType_Phy] = poolOpenParams->physAddr;
       poolAddrPtr->addr[AddrType_Knl] = poolOpenParams->virtAddr;

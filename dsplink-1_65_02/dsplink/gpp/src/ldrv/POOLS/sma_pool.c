@@ -446,6 +446,7 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   int retVal;
 
   TRC_4ENTER ("SMAPOOL_open", dspId, poolId, object, poolOpenParams);
+  printk(KERN_ALERT "Executing 'SMAPOOL_open'\n");
 
   DBC_Require(IS_VALID_PROCID (dspId));
   DBC_Require(poolId != POOL_INVALIDID);
@@ -508,6 +509,7 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
             bufSizes, smaAttrs.bufSizes, BUF_MEM_SIZE);
 
           if (DSP_SUCCEEDED(status) && retVal == 0) {
+
             status =
               MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
 
@@ -555,8 +557,6 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
           bufHeader = (Uint8 *) smaState->bufGppMemAddr;
           bufDspHeader = smaState->bufDspMemAddr;
 
-          printk(KERN_ALERT "DONE\n");
-
           TRC_1PRINT(TRC_LEVEL4,
                "SMAPOOL buffers start GPP address: 0x%x\n", bufHeader);
           TRC_1PRINT (TRC_LEVEL4,
@@ -569,6 +569,7 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
             MEM_Alloc((Void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
 
           if (DSP_SUCCEEDED (status)) {
+
             status =
               MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
 
@@ -683,8 +684,6 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                 SET_FAILURE_REASON;
               }
             }
-
-            printk(KERN_ALERT "done\n");
           }
 
           /* Free the allocated memory for 'numBufs' and 'bufSize' regardless
@@ -717,7 +716,9 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
     poolOpenParams->size = smaState->bufPoolSize;
   }
 
+  printk(KERN_ALERT "'SMAPOOL_open' executed, status: 0x%lx\n", status);
   TRC_1LEAVE("SMAPOOL_open", status);
+
   return status;
 }
 

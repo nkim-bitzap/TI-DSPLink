@@ -88,39 +88,31 @@ COFF_read8 (IN KFileObject * fileObj)
     return retVal ;
 }
 
+/*******************************************************************************
+  @func   COFF_read16
+  @desc   Reads a Int16 from file
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   COFF_read16
- *
- *  @desc   Reads a Int16 from file.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Int16
-COFF_read16 (IN KFileObject * fileObj, IN Bool swap)
+NORMAL_API Int16 COFF_read16(IN KFileObject *fileObj, IN Bool swap)
 {
-    Int16 retVal ;
+  Int16 retVal;
 
-    TRC_2ENTER ("COFF_read16", fileObj, swap) ;
+  TRC_2ENTER("COFF_read16", fileObj, swap);
 
-    DBC_Require (fileObj != NULL) ;
+  DBC_Require(fileObj != NULL);
 
-    KFILE_Read ((Char8 *) ((Pvoid) &retVal),
-                READ_REC_SIZE,
-                sizeof (Int16),
-                fileObj) ;
+  KFILE_Read((Char8 *) ((Pvoid) &retVal),
+             READ_REC_SIZE,
+             sizeof(Int16),
+             fileObj);
 
-    if (swap == TRUE) {
-        retVal = BYTESWAP_WORD (retVal) ;
-    }
+  if (swap == TRUE) {
+    retVal = BYTESWAP_WORD(retVal);
+  }
 
-    TRC_0LEAVE ("COFF_read16") ;
-
-    return retVal ;
+  TRC_0LEAVE("COFF_read16");
+  return retVal;
 }
-
 
 /** ============================================================================
  *  @func   COFF_read32

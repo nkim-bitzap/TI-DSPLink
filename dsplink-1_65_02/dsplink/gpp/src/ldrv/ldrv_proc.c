@@ -60,6 +60,7 @@
 #endif /* if !(defined (ONLY_PROC_COMPONENT)) */
 #include <ldrv_proc.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -217,8 +218,6 @@ LDRV_PROC_moduleExit (Void)
  *  ============================================================================
  */
 
-#include <linux/module.h>
-
 NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 {
   DSP_STATUS status = DSP_SOK;
@@ -246,13 +245,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
     procState->interface = NULL;
     procState->dspState = ProcState_Unknown;
 
-    /*  --------------------------------------------------------------------
-     * Validate the setup configuration parameters for the DSP.
-     *  --------------------------------------------------------------------
-     */
-
-    /* Check if the configured DSP is available and set the interface table
-     * if the configuration is valid */
+    /* Validate the setup configuration parameters for the DSP.  Check if
+       the configured DSP is available and set the interface table if the
+       configuration is valid */
     for (mapId = 0; mapId < CFGMAP_Config[dspId]->numDsps ; mapId++) {
       status = GEN_Strcmp(dspObj->name,
                           CFGMAP_Config [dspId]->dspObjects [mapId].name,
@@ -268,8 +263,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 
     if (mapId == CFGMAP_Config[dspId]->numDsps) {
       /* Configured DSP is not available */
-      printk(KERN_ALERT "Configuration error: "
-                        "Incorrect DSP name specified[%s]\n",
+      printk(KERN_ALERT "*** configuration error: incorrect "
+                        "DSP name specified (%s)\n",
                         dspObj->name);
 
       status = DSP_ECONFIG;
@@ -299,8 +294,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 
       if (mapId == CFGMAP_Config [dspId]->numLoaders) {
         /* Configured loader is not available */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect loader name specified [%s]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "loader name specified (%s)\n",
                           dspObj->loaderName);
 
         status = DSP_ECONFIG;
@@ -313,8 +308,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->dspArch != DspArch_C64x))
       {
         /* Check if the dspArch is valid */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect DSP architecture specified [0x%x]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "DSP architecture specified (0x%x)\n",
                            dspObj->dspArch);
 
         status = DSP_ECONFIG;
@@ -324,8 +319,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->autoStart != FALSE))
       {
         /* Check if the autoStart is valid */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect DSP autoStart specified [0x%x]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "DSP 'autoStart' specified (0x%x)\n",
                           dspObj->autoStart);
 
         status = DSP_ECONFIG;
@@ -336,8 +331,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->endian != Endianism_Little))
       {
         /* Check if the endian is valid */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect DSP endian specified [0x%x]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "DSP endianness specified (0x%x)\n",
                           dspObj->endian);
 
         status = DSP_ECONFIG;
@@ -347,8 +342,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->wordSwap != FALSE))
       {
         /* Check if the wordSwap is valid */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect DSP wordSwap specified [0x%x]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "DSP 'wordSwap' specified (0x%x)\n",
                           dspObj->wordSwap);
 
         status = DSP_ECONFIG;
@@ -356,8 +351,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
       }
       else if (dspObj->memTableId >= dspConfig->numMemTables) {
         /* Check if the memTableId is in valid range */
-        printk(KERN_ALERT "Configuration error: "
-                          "Incorrect DSP memTableId specified [0x%x]\n",
+        printk(KERN_ALERT "*** configuration error: incorrect "
+                          "DSP 'memTableId' specified (0x%x)\n",
                           dspObj->memTableId);
 
         status = DSP_ECONFIG;
@@ -365,11 +360,7 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
        }
     }
 
-    /*  --------------------------------------------------------------------
-     *  Setup and initialize the DSP.
-     *  --------------------------------------------------------------------
-     */
-
+    /* Setup and initialize the DSP */
     if (DSP_SUCCEEDED(status)) {
       status = DSP_init(dspId, interface);
 
@@ -741,80 +732,77 @@ LDRV_PROC_read (IN     ProcessorId   dspId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_PROC_write
+  @desc  Writes to DSP's memory space
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_PROC_write
- *
- *  @desc   Writes to DSP's memory space.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_PROC_write (IN  ProcessorId    dspId,
-                 IN  Uint32         dspAddr,
-                 IN  Endianism      endianInfo,
-                 IN  Uint32         numBytes,
-                 IN  Uint8 *        buffer)
+NORMAL_API DSP_STATUS LDRV_PROC_write(IN ProcessorId dspId,
+                                      IN Uint32 dspAddr,
+                                      IN Endianism endianInfo,
+                                      IN Uint32 numBytes,
+                                      IN Uint8 *buffer)
 {
-    DSP_STATUS         status = DSP_SOK ;
-    Uint32             irqFlags  ;
-    LDRV_PROC_Object * procState ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 irqFlags;
+  LDRV_PROC_Object *procState;
 
-    TRC_5ENTER ("LDRV_PROC_write",
-                dspId,
-                dspAddr,
-                endianInfo,
-                numBytes,
-                buffer) ;
+  TRC_5ENTER("LDRV_PROC_write",
+              dspId,
+              dspAddr,
+              endianInfo,
+              numBytes,
+              buffer);
 
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
 
-    procState = &(LDRV_PROC_State [dspId]) ;
+  procState = &(LDRV_PROC_State[dspId]);
 
-    DBC_Require (numBytes != 0) ;
-    DBC_Require (buffer != NULL) ;
-    DBC_Require (procState->dspState != ProcState_Unknown) ;
-    DBC_Assert  (LDRV_PROC_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(numBytes != 0);
+  DBC_Require(buffer != NULL);
+  DBC_Require(procState->dspState != ProcState_Unknown);
+  DBC_Assert(LDRV_PROC_IsInitialized[dspId] == TRUE);
 
-    if (procState->dspState != ProcState_Unknown) {
-        DSP_intCtrl (dspId,
-                     (Uint32) NULL,
-                     DSP_IntCtrlCmd_Disable,
-                     NULL) ;
-        irqFlags = SYNC_SpinLockStart () ;
-        status = DSP_write (dspId,
-                            dspAddr,
-                            endianInfo,
-                            numBytes,
-                            buffer) ;
-        if (DSP_FAILED (status)) {
-            procState->dspState = ProcState_Unknown ;
-            SET_FAILURE_REASON ;
-        }
+  if (procState->dspState != ProcState_Unknown) {
+    DSP_intCtrl(dspId,
+                (Uint32) NULL,
+                DSP_IntCtrlCmd_Disable,
+                NULL);
+
+    irqFlags = SYNC_SpinLockStart();
+
+    status = DSP_write(dspId,
+                       dspAddr,
+                       endianInfo,
+                       numBytes,
+                       buffer);
+
+    if (DSP_FAILED (status)) {
+      procState->dspState = ProcState_Unknown;
+      SET_FAILURE_REASON;
+    }
+
 #if defined (DDSP_PROFILE)
-        else {
-            procState->procStats.procData [dspId].dataToDsp += numBytes ;
-        }
-#endif /* defined (DDSP_PROFILE) */
-        SYNC_SpinLockEnd (irqFlags) ;
-        DSP_intCtrl (dspId,
-                     (Uint32) NULL,
-                     DSP_IntCtrlCmd_Enable,
-                     NULL) ;
-    }
     else {
-        status = DSP_EWRONGSTATE ;
-        SET_FAILURE_REASON ;
+      procState->procStats.procData[dspId].dataToDsp += numBytes;
     }
+#endif /* defined (DDSP_PROFILE) */
 
-    TRC_1LEAVE ("LDRV_PROC_write", status) ;
+    SYNC_SpinLockEnd(irqFlags);
+    DSP_intCtrl(dspId,
+                (Uint32) NULL,
+                DSP_IntCtrlCmd_Enable,
+                NULL);
+  }
+  else {
+    status = DSP_EWRONGSTATE;
+    SET_FAILURE_REASON;
+  }
 
-    return status ;
+  TRC_1LEAVE("LDRV_PROC_write", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_PROC_addrConvert

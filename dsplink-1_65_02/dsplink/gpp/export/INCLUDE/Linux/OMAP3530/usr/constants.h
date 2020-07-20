@@ -49,14 +49,15 @@ extern "C" {
 #endif /* defined (__cplusplus) */
 
 
-/** ============================================================================
- *  @const  DSP_MAX_STRLEN
- *
- *  @desc   Maximum length of string.
- *  ============================================================================
- */
-#define DSP_MAX_STRLEN      32u
+/*******************************************************************************
+  @const DSP_MAX_STRLEN
+  @desc  Maximum length of string
 
+  @note  Also defined in 'gpp/src/inc/usr/constants.h'
+  @note  Increased to 64 to capture longer linux paths
+*******************************************************************************/
+
+#define DSP_MAX_STRLEN 64
 
 #if defined (__cplusplus)
 }

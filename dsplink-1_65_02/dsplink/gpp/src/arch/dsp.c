@@ -275,6 +275,7 @@ DSP_idle (IN ProcessorId dspId)
  *  @modif  None
  *  ============================================================================
  */
+
 NORMAL_API
 DSP_STATUS
 DSP_intCtrl (IN         ProcessorId       dspId,
@@ -355,51 +356,45 @@ DSP_read (IN  ProcessorId  dspId,
 }
 
 
-/** ============================================================================
- *  @func   DSP_write
- *
- *  @desc   Write data to DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-DSP_write (IN ProcessorId dspId,
-           IN Uint32      dspAddr,
-           IN Endianism   endianInfo,
-           IN Uint32      numBytes,
-           IN Uint8 *     buffer)
+/*******************************************************************************
+  @func  DSP_write
+  @desc  Write data to DSP
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS DSP_write(IN ProcessorId dspId,
+                                IN Uint32 dspAddr,
+                                IN Endianism endianInfo,
+                                IN Uint32 numBytes,
+                                IN Uint8 *buffer)
 {
-    DSP_STATUS     status  = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_5ENTER ("DSP_write",
-                dspId,
-                dspAddr,
-                endianInfo,
-                numBytes,
-                buffer) ;
+  TRC_5ENTER("DSP_write",
+             dspId,
+             dspAddr,
+             endianInfo,
+             numBytes,
+             buffer);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (numBytes != 0) ;
-    DBC_Require (buffer   != NULL) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
+  DBC_Require(numBytes != 0);
+  DBC_Require(buffer != NULL);
 
 #if defined (DDSP_PROFILE)
-    DSP_State [dspId].dspStat.dataGppToDsp += numBytes ;
+  DSP_State[dspId].dspStat.dataGppToDsp += numBytes;
 #endif /* if defined (DDSP_PROFILE) */
 
-    status = (DSP_State [dspId].dspInterface->write) (dspId,
-                                                   &DSP_State [dspId],
-                                                   dspAddr,
-                                                   endianInfo,
-                                                   numBytes,
-                                                   buffer) ;
+  status =
+    (DSP_State[dspId].dspInterface->write)(dspId,
+                                           &DSP_State [dspId],
+                                           dspAddr,
+                                           endianInfo,
+                                           numBytes,
+                                           buffer);
 
-    TRC_1LEAVE ("DSP_write", status) ;
-
-    return status ;
+  TRC_1LEAVE ("DSP_write", status);
+  return status;
 }
-
 
 /*  ============================================================================
  *  @func   DSP_addrConvert

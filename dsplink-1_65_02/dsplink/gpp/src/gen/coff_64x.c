@@ -89,74 +89,67 @@ extern "C" {
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-COFF_isValidFile_64x (IN  KFileObject * fileObj,
-                      OUT Bool *        isValid)
+
+NORMAL_API DSP_STATUS COFF_isValidFile_64x(IN  KFileObject *fileObj,
+                                           OUT Bool *isValid)
 {
-    DSP_STATUS status     = DSP_SOK ;
-    Bool       isValidId  = FALSE   ;
-    Bool       isValidVer = FALSE   ;
-    Int16      swapVal              ;
-    Uint16     version              ;
+  DSP_STATUS status = DSP_SOK;
+  Bool isValidId = FALSE;
+  Bool isValidVer = FALSE;
+  Int16 swapVal;
+  Uint16 version;
 
-    TRC_2ENTER ("COFF_isValidFile_64x", fileObj, isValid) ;
+  TRC_2ENTER("COFF_isValidFile_64x", fileObj, isValid);
 
-    DBC_Require (fileObj != NULL) ;
-    DBC_Require (isValid != NULL) ;
+  DBC_Require(fileObj != NULL);
+  DBC_Require(isValid != NULL);
 
-    *isValid = FALSE ;
-    status = KFILE_Seek (fileObj, 0, KFILE_SeekSet) ;
-    if (DSP_SUCCEEDED (status)) {
-        version = (Uint16) COFF_read16 (fileObj, FALSE) ;
+  *isValid = FALSE;
 
-        if (version != COFF_VERSION) {
-            if (BYTESWAP_WORD (version) != COFF_VERSION) {
-                status = DSP_EFILE ;
-                SET_FAILURE_REASON ;
-            }
-            else {
-                isValidVer = TRUE ;
-            }
+  status = KFILE_Seek(fileObj, 0, KFILE_SeekSet);
+
+  if (DSP_SUCCEEDED(status)) {
+    version = (Uint16) COFF_read16(fileObj, FALSE);
+
+    if (version != COFF_VERSION) {
+      if (BYTESWAP_WORD (version) != COFF_VERSION) {
+        status = DSP_EFILE;
+        SET_FAILURE_REASON;
+      }
+      else isValidVer = TRUE;
+    }
+    else isValidVer = TRUE;
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    status = KFILE_Seek(fileObj, SWAP_LOCATION, KFILE_SeekSet);
+
+    if (DSP_SUCCEEDED(status)) {
+      swapVal = COFF_read16(fileObj, FALSE);
+
+      if (swapVal != COFF_MAGIC_64x) {
+        if (BYTESWAP_WORD(swapVal) != COFF_MAGIC_64x) {
+          status = DSP_EFILE;
+          SET_FAILURE_REASON;
         }
-        else {
-            isValidVer = TRUE ;
-        }
+        else isValidId = TRUE;
+      }
+      else isValidId = TRUE;
     }
     else {
-        SET_FAILURE_REASON ;
+      SET_FAILURE_REASON ;
     }
+  }
 
-    if (DSP_SUCCEEDED (status)) {
-        status = KFILE_Seek (fileObj, SWAP_LOCATION, KFILE_SeekSet) ;
-        if (DSP_SUCCEEDED (status)) {
-            swapVal = COFF_read16 (fileObj, FALSE) ;
+  if (DSP_SUCCEEDED(status)) {
+    *isValid = ((TRUE == isValidId) && (TRUE == isValidVer));
+  }
 
-            if (swapVal != COFF_MAGIC_64x) {
-                if (BYTESWAP_WORD (swapVal) != COFF_MAGIC_64x) {
-                    status = DSP_EFILE ;
-                    SET_FAILURE_REASON ;
-                }
-                else {
-                    isValidId = TRUE ;
-                }
-            }
-            else {
-                isValidId = TRUE ;
-            }
-        }
-        else {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    if (DSP_SUCCEEDED (status)) {
-        *isValid = ((TRUE == isValidId) && (TRUE == isValidVer)) ;
-    }
-
-    TRC_1LEAVE ("COFF_isValidFile_64x", status) ;
-
-    return status ;
+  TRC_1LEAVE("COFF_isValidFile_64x", status);
+  return status;
 }
 
 

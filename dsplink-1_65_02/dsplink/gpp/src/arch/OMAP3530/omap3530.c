@@ -59,11 +59,11 @@
 #include <omap3530_hal_mmu.h>
 #include <omap3530_dspclk.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
-
 
 /** ============================================================================
  *  @macro  COMPONENT_ID
@@ -455,29 +455,22 @@ OMAP3530_control (IN  ProcessorId  dspId,
  *  ============================================================================
  */
 DSP_Interface OMAP3530_Interface = {
-    &OMAP3530_init,
-    &OMAP3530_exit,
-    &OMAP3530_start,
-    &OMAP3530_stop,
-    &OMAP3530_idle,
-    &OMAP3530_intCtrl,
-    &OMAP3530_read,
-    &OMAP3530_write,
-    &OMAP3530_addrConvert,
-    &OMAP3530_control,
-} ;
+  &OMAP3530_init,
+  &OMAP3530_exit,
+  &OMAP3530_start,
+  &OMAP3530_stop,
+  &OMAP3530_idle,
+  &OMAP3530_intCtrl,
+  &OMAP3530_read,
+  &OMAP3530_write,
+  &OMAP3530_addrConvert,
+  &OMAP3530_control
+};
 
-
-/** ============================================================================
- *  @func   OMAP3530_init
- *
- *  @desc   Initializes the DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-
-#include <linux/module.h>
+/*******************************************************************************
+  @func  OMAP3530_init
+  @desc  Initializes the DSP
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
                                     IN DSP_Object *dspState)
@@ -496,7 +489,8 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
   DBC_Require (IS_VALID_PROCID (dspId));
 
   if (IS_VALID_PROCID(dspId) == FALSE) {
-    printk(KERN_ALERT "DSP_init error: invalid proc ID\n");
+    printk(KERN_ALERT "*** error in '%s': invalid proc ID specified "
+                      "(%d)\n", __FUNCTION__, dspId);
 
     status = DSP_EINVALIDARG;
     SET_FAILURE_REASON;
@@ -513,9 +507,8 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
     && (dspObj->doDspCtrl != DSP_BootMode_Boot_NoPwr))
     {
       /* Check if the doDspCtrl is valid */
-      printk(KERN_ALERT "Configuration error: "
-                        "Incorrect DSP 'doDspCtrl' specified: 0x%x\n",
-                          dspObj->doDspCtrl);
+      printk(KERN_ALERT "*** error in '%s': incorrect DSP 'doDspCtrl' "
+                        "specified (0x%x)\n", dspObj->doDspCtrl);
 
       status = DSP_ECONFIG;
       SET_FAILURE_REASON;
@@ -525,127 +518,124 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
           (i < dspObj->memEntries) && DSP_SUCCEEDED (status);
           i++)
       {
-        printk(KERN_ALERT "  memTable[%d].gppVirtAddr: 0x%lx\n",
-               i, memTable[i].gppVirtAddr);
-
-        printk(KERN_ALERT "  memTable[%d].physAddr: 0x%lx\n",
-               i, memTable[i].physAddr);
-
         /* If the configured GPP virtual address is invalid, get the
            actual address by mapping the physical address into GPP kernel
            memory space */
         if ((memTable[i].gppVirtAddr == (Uint32) -1)
         && (memTable[i].shared == TRUE))
         {
-          printk(KERN_ALERT "Mapping %d bytes from address: 0x%lx\n",
-                             memTable[i].size,
-                             memTable[i].physAddr);
-
           mapInfo.src = memTable[i].physAddr;
           mapInfo.size = memTable[i].size;
           mapInfo.memAttrs = MEM_UNCACHED;
 
           status = MEM_Map(&mapInfo);
 
-          if (DSP_SUCCEEDED (status)) {
+          if (DSP_SUCCEEDED(status)) {
             memTable[i].gppVirtAddr = mapInfo.dst;
           }
           else {
-            printk(KERN_ALERT "'MEM_Map' failed in '%s', status: %ld\n",
-                   __FUNCTION__, status);
+            printk(KERN_ALERT "*** error in '%s': failed mem-mapping, "
+                              "result 0x%x\n", __FUNCTION__, status);
 
             SET_FAILURE_REASON;
           }
         }
       }
 
-      if (DSP_SUCCEEDED (status)) {
+      if (DSP_SUCCEEDED(status)) {
         status = OMAP3530_halInit(&dspState->halObject, NULL);
 
-        printk(KERN_ALERT "'OMAP3530_halInit' done in '%s', "
-                          "status: %ld\n", __FUNCTION__, status);
-
-        if (DSP_FAILED (status)) {
-          SET_FAILURE_REASON ;
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
         }
         else {
-          halObj = (OMAP3530_HalObj *) dspState->halObject ;
-          halObj->procId = dspId ;
+          halObj = (OMAP3530_HalObj*) dspState->halObject;
+          halObj->procId = dspId;
         }
       }
 
-      if (DSP_SUCCEEDED (status)) {
+      if (DSP_SUCCEEDED(status)) {
 #if defined (OS_WINCE)
-        status = OMAP3530_getDspClkRate((Pvoid)dspState->halObject, &cpuFreq) ;
+        status = OMAP3530_getDspClkRate((Pvoid)dspState->halObject, &cpuFreq);
 #else
         status = OMAP3530_getDspClkRate("iva2_ck", &cpuFreq);
 
-        printk(KERN_ALERT "'OMAP3530_getDspClkRate' done in '%s', "
-                          "status: %ld\n", __FUNCTION__, status);
 #endif
-        if (DSP_SUCCEEDED (status)) {
+        if (DSP_SUCCEEDED(status)) {
           /* Use default by getting clock rate from Linux
              Override the configured value */
           dspObj->cpuFreq = cpuFreq;
 
-          printk(KERN_ALERT "DSP CPU FREQ: %d\n", cpuFreq);
+          printk(KERN_INFO, "OMAP3530 DSP clock rate: %d\n", cpuFreq);
         }
       }
 
-      TRC_1PRINT (TRC_LEVEL3, "Setting DSP Clk Rate %d\n", dspObj->cpuFreq);
+      TRC_1PRINT(TRC_LEVEL3, "Setting DSP Clk Rate %d\n", dspObj->cpuFreq);
 
       if (DSP_SUCCEEDED(status)) {
         if ((dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
-                    || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)) {
-                    status = halObj->interface->pwrCtrl ((Pvoid) halObj,
-                                                         DSP_PwrCtrlCmd_PowerUp,
-                                                         NULL) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
+        || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr))
+        {
+          status = halObj->interface->pwrCtrl((Pvoid) halObj,
+                                              DSP_PwrCtrlCmd_PowerUp,
+                                              NULL);
 
-                if (   (dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
-                    || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_NoPwr)
-                    || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)
-                    || (dspObj->doDspCtrl == DSP_BootMode_Boot_NoPwr)) {
-                    /* Put the DPS in reset mode */
-                    status = halObj->interface->pwrCtrl ((Pvoid) halObj,
-                                                         DSP_PwrCtrlCmd_Reset,
-                                                         NULL) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-
-                    if (DSP_SUCCEEDED (status)) {
-                        /* Handle the enabling of the DSP's interrupts */
-                        status = halObj->interface->intCtrl ((Pvoid) halObj,
-                                                             DSP_IntCtrlCmd_Enable,
-                                                             0,
-                                                             NULL) ;
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                    if (DSP_SUCCEEDED (status)) {
-                        /* Handle the enabling of the DSP's MMU */
-                        status = halObj->interface->mmuCtrl ((Pvoid) halObj,
-                                         DSP_MmuCtrlCmd_Enable,
-                                         dspCfg->memTables [dspObj->memTableId],
-                                         (Uint32)dspObj->memEntries,
-                                         0);
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                }
-            }
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
         }
+
+        if ((dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
+        || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_NoPwr)
+        || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)
+        || (dspObj->doDspCtrl == DSP_BootMode_Boot_NoPwr))
+        {
+          /* Put the DPS in reset mode */
+          status = halObj->interface->pwrCtrl((Pvoid) halObj,
+                                              DSP_PwrCtrlCmd_Reset,
+                                              NULL);
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
+
+          if (DSP_SUCCEEDED(status)) {
+            /* Handle the enabling of the DSP's interrupts */
+            status = halObj->interface->intCtrl((Pvoid) halObj,
+                                                DSP_IntCtrlCmd_Enable,
+                                                0,
+                                                NULL);
+
+            if (DSP_FAILED(status)) {
+              SET_FAILURE_REASON;
+            }
+          }
+
+          if (DSP_SUCCEEDED(status)) {
+            /* Handle the enabling of the DSP's MMU */
+            status = halObj->interface->mmuCtrl(
+                               (Pvoid) halObj,
+                               DSP_MmuCtrlCmd_Enable,
+                               dspCfg->memTables[dspObj->memTableId],
+                               (Uint32)dspObj->memEntries,
+                               0);
+
+            if (DSP_FAILED(status)) {
+              SET_FAILURE_REASON;
+            }
+          }
+        }
+      }
     }
+  }
 
-    TRC_1LEAVE ("OMAP3530_init", status) ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s': result 0x%x\n",
+                      __FUNCTION__, status);
+  }
 
-    return status ;
+  TRC_1LEAVE("OMAP3530_init", status);
+  return status;
 }
 
 
@@ -1091,189 +1081,217 @@ OMAP3530_read (IN  ProcessorId  dspId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  OMAP3530_write
+  @desc  Write data to DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   OMAP3530_write
- *
- *  @desc   Write data to DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-OMAP3530_write (IN ProcessorId   dspId,
-                  IN DSP_Object *  dspState,
-                  IN Uint32        dspAddr,
-                  IN Endianism     endianInfo,
-                  IN Uint32        numBytes,
-                  IN Uint8 *       buffer)
+NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
+                                     IN DSP_Object *dspState,
+                                     IN Uint32 dspAddr,
+                                     IN Endianism endianInfo,
+                                     IN Uint32 numBytes,
+                                     IN Uint8 *buffer)
 {
-    DSP_STATUS          status  = DSP_SOK ;
-    Uint32              gppAddr = ADDRMAP_INVALID ;
-    Uint8  *            dspPtr8 = NULL ;
-    LINKCFG_Dsp *       dspObj ;
-    LINKCFG_DspConfig * dspCfg ;
-    Uint8               temp8_1 ;
-    Uint8               temp8_2 ;
-    Uint8               temp8_3 ;
-    Uint8               temp8_4 ;
-    Uint32              temp ;
+  DSP_STATUS status  = DSP_SOK;
+  Uint32 gppAddr = ADDRMAP_INVALID;
+  Uint8 *dspPtr8 = NULL;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_DspConfig *dspCfg;
 
-    TRC_6ENTER ("OMAP3530_write",
-                dspId,
-                dspState,
-                dspAddr,
-                endianInfo,
-                numBytes,
-                buffer) ;
+  Uint8 temp8_1;
+  Uint8 temp8_2;
+  Uint8 temp8_3;
+  Uint8 temp8_4;
+  Uint32 temp;
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (buffer != NULL) ;
-    DBC_Require (dspState->halObject != NULL) ;
+  TRC_6ENTER("OMAP3530_write",
+             dspId,
+             dspState,
+             dspAddr,
+             endianInfo,
+             numBytes,
+             buffer);
 
-    if (   (IS_VALID_PROCID (dspId) == FALSE)
-        || (buffer == NULL)
-        || (   (endianInfo != Endianism_Big)
-            && (endianInfo != Endianism_Little)
-            && (endianInfo != Endianism_Default))) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  printk(KERN_ALERT "Executing 'OMAP3530_write'\n");
+
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(buffer != NULL);
+  DBC_Require(dspState->halObject != NULL);
+
+  if ((IS_VALID_PROCID (dspId) == FALSE)
+  || (buffer == NULL)
+  || ((endianInfo != Endianism_Big)
+  && (endianInfo != Endianism_Little)
+  && (endianInfo != Endianism_Default)))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+    dspObj = dspCfg->dspObject;
+
+    printk(KERN_ALERT "+++ dspAddr: 0x%x\n", dspAddr);
+    printk(KERN_ALERT "+++ numBytes: %d\n", numBytes);
+    printk(KERN_ALERT "+++ dspObj->resetVector: 0x%x\n", dspObj->resetVector);
+    printk(KERN_ALERT "+++ dspObj->resetCodeSize: %d\n", dspObj->resetCodeSize);
+
+    /* Check if 'dspAddr' lies in 'Self Loop Area' */
+    if (((dspAddr + numBytes) > dspObj->resetVector)
+    && (dspAddr < (dspObj->resetVector + dspObj->resetCodeSize)))
+    {
+      status = DSP_EFAIL;
+      SET_FAILURE_REASON;
     }
     else {
-        dspCfg    = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-        dspObj    = dspCfg->dspObject ;
+      gppAddr =
+        OMAP3530_addrConvert(dspId,
+                             dspState,
+                             BYTE_TO_MADU(dspAddr, dspObj->maduSize),
+                             DspToGpp);
 
-        /*  --------------------------------------------------------------------
-         *  Check if 'dspAddr' lies in 'Self Loop Area'
-         *  --------------------------------------------------------------------
-         */
-        if (    ((dspAddr + numBytes) > dspObj->resetVector)
-            &&  (dspAddr              < (   dspObj->resetVector
-                                         +  dspObj->resetCodeSize))) {
-            status = DSP_EFAIL ;
-            SET_FAILURE_REASON ;
+  printk(KERN_ALERT "+++ gppdAddr: 0x%x\n", gppAddr);
+
+      if (gppAddr != ADDRMAP_INVALID) {
+        if (numBytes != sizeof(Uint32)) {
+          dspPtr8 = (Uint8 *) gppAddr;
+
+          status = MEM_Copy(dspPtr8,
+                            buffer,
+                            numBytes,
+                            Endianism_Default);
+
+          DBC_Assert(DSP_SUCCEEDED (status));
         }
         else {
-            gppAddr = OMAP3530_addrConvert (
-                                       dspId,
-                                       dspState,
-                                       BYTE_TO_MADU (dspAddr, dspObj->maduSize),
-                                       DspToGpp) ;
-            if (gppAddr != ADDRMAP_INVALID) {
-                if (numBytes != sizeof(Uint32)) {
-                    dspPtr8 = (Uint8 *)  gppAddr ;
-                    status = MEM_Copy (dspPtr8,
-                                        buffer,
-                                        numBytes,
-                                        Endianism_Default) ;
-                    DBC_Assert (DSP_SUCCEEDED (status)) ;
-                }
-                else  {
-                     /* For 4 bytes, directly write as a Uint32 */
-                    temp8_1 = ((Uint8 *)buffer)[0] ;
-                    temp8_2 = ((Uint8 *)buffer)[1] ;
-                    temp8_3 = ((Uint8 *)buffer)[2] ;
-                    temp8_4 = ((Uint8 *)buffer)[3] ;
-                    temp = (Uint32) (    ((Uint32) temp8_4 << 24)
-                                     |   ((Uint32) temp8_3 << 16)
-                                     |   ((Uint32) temp8_2 << 8)
-                                     |   ((Uint32) temp8_1)) ;
-                    *((Uint32*)gppAddr)      = temp ;
-                }
-            }
-            else {
-                status = DSP_ERANGE ;
-                SET_FAILURE_REASON ;
-            }
+          /* For 4 bytes, directly write as a Uint32 */
+          temp8_1 = ((Uint8*) buffer)[0];
+          temp8_2 = ((Uint8*) buffer)[1];
+          temp8_3 = ((Uint8*) buffer)[2];
+          temp8_4 = ((Uint8*) buffer)[3];
+
+          temp = (Uint32) (((Uint32) temp8_4 << 24)
+                         | ((Uint32) temp8_3 << 16)
+                         | ((Uint32) temp8_2 << 8)
+                         | ((Uint32) temp8_1));
+
+          *((Uint32*) gppAddr) = temp;
         }
+      }
+      else {
+  printk(KERN_ALERT "FAIL 2\n");
+
+       status = DSP_ERANGE;
+       SET_FAILURE_REASON;
+      }
+    }
 
 #if defined (DDSP_PROFILE)
-        if (DSP_SUCCEEDED (status)) {
-            DSP_State [dspId].dspStats.dataGppToDsp += numBytes ;
-        }
+    if (DSP_SUCCEEDED(status)) {
+      DSP_State[dspId].dspStats.dataGppToDsp += numBytes;
+    }
 #endif /* defined (DDSP_PROFILE) */
-    }
+  }
 
-    TRC_1LEAVE ("OMAP3530_write", status) ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s': result 0x%x\n",
+                      __FUNCTION__, status);
+  }
 
-    return status ;
+  TRC_1LEAVE("OMAP3530_write", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  OMAP3530_addrConvert
+  @desc  Convert address between GPP and DSP address space
+*******************************************************************************/
 
-/*  ============================================================================
- *  @func   OMAP3530_addrConvert
- *
- *  @desc   Convert address between GPP and DSP address space.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Uint32
-OMAP3530_addrConvert (IN  ProcessorId         dspId,
-                        IN  DSP_Object *       dspState,
-                        IN  Uint32             addr,
-                        IN  DSP_AddrConvType   type)
+NORMAL_API Uint32 OMAP3530_addrConvert(IN ProcessorId dspId,
+                                       IN DSP_Object *dspState,
+                                       IN Uint32 addr,
+                                       IN DSP_AddrConvType type)
 {
-    Uint32              convAddr = (Uint32) ADDRMAP_INVALID ;
-    Bool                found    = FALSE ;
-    LINKCFG_DspConfig * dspCfg ;
-    LINKCFG_Dsp *       dspObj ;
-    LINKCFG_MemEntry *  memEntry ;
-    Uint32              byteAddr ;
-    Uint32              i ;
+  Uint32 convAddr = (Uint32) ADDRMAP_INVALID;
+  Bool found = FALSE;
 
-    TRC_4ENTER ("OMAP3530_addrConvert", dspId, dspState, addr, type) ;
+  LINKCFG_DspConfig *dspCfg;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_MemEntry *memEntry;
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (dspState->halObject != NULL) ;
+  Uint32 byteAddr;
+  Uint32 i;
 
-    dspCfg    = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-    dspObj    = dspCfg->dspObject ;
+  TRC_4ENTER("OMAP3530_addrConvert", dspId, dspState, addr, type);
 
-    for (i = 0 ; (found == FALSE) && (i < dspObj->memEntries) ; i++) {
-        memEntry = &(dspCfg->memTables [dspObj->memTableId][i]) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
+  DBC_Require(dspState->halObject != NULL);
 
-        /* Determine whether which way to convert */
-        if (type == GppToDsp) {
-            if (IS_RANGE_VALID (addr,
-                                memEntry->gppVirtAddr,
-                                (  memEntry->gppVirtAddr
-                                 + memEntry->size))) {
-                found = TRUE ;
-                convAddr = BYTE_TO_MADU ((  (addr - memEntry->gppVirtAddr)
-                                          + memEntry->dspVirtAddr),
-                                         dspObj->maduSize) ;
-            }
-        }
-        else if (type == DspToGpp) {
-            byteAddr = MADU_TO_BYTE (addr, dspObj->maduSize) ;
-            if (IS_RANGE_VALID (byteAddr,
-                                memEntry->dspVirtAddr,
-                                (  memEntry->dspVirtAddr
-                                 + memEntry->size))) {
-                found = TRUE ;
-                convAddr =    byteAddr
-                           -  memEntry->dspVirtAddr
-                           +  memEntry->gppVirtAddr ;
-            }
-        }
-        else {
-            /* Added for MISRAC compliance */
-        }
+  dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+  dspObj = dspCfg->dspObject;
+
+  for (i = 0; (found == FALSE) && (i < dspObj->memEntries); i++) {
+    memEntry = &(dspCfg->memTables[dspObj->memTableId][i]);
+
+    /* Determine which way to convert */
+    if (type == GppToDsp) {
+
+    printk(KERN_ALERT "*** converting GPP->DSP:\n");
+    printk(KERN_ALERT "  addr: 0x%x\n", addr);
+    printk(KERN_ALERT "  memEntry->gppVirtAddr: 0x%x\n", memEntry->gppVirtAddr);
+    printk(KERN_ALERT "  memEntry->size: 0x%x\n", memEntry->size);
+
+      if (IS_RANGE_VALID(addr,
+                         memEntry->gppVirtAddr,
+                         (memEntry->gppVirtAddr + memEntry->size)))
+      {
+        convAddr = BYTE_TO_MADU(
+            (addr - memEntry->gppVirtAddr) + memEntry->dspVirtAddr,
+            dspObj->maduSize);
+
+        found = TRUE;
+      }
+      else {
+        printk(KERN_ALERT "  ADDRESS 0x%x NOT IN RANGE\n", addr);
+      }
     }
+    else if (type == DspToGpp) {
+      byteAddr = MADU_TO_BYTE(addr, dspObj->maduSize);
 
-    TRC_2PRINT (TRC_LEVEL1,
-                "OMAP3530_addrConvert addr [0x%x] convAddr [0x%x]\n",
-                addr,
-                convAddr) ;
+    printk(KERN_ALERT "*** converting DSP->GPP:\n");
+    printk(KERN_ALERT "  addr: 0x%x\n", addr);
+    printk(KERN_ALERT "  byteAddr: 0x%x\n", byteAddr);
+    printk(KERN_ALERT "  dspObj->maduSize: 0x%x\n", dspObj->maduSize);
+    printk(KERN_ALERT "  memEntry->dspVirtAddr: 0x%x\n", memEntry->dspVirtAddr);
+    printk(KERN_ALERT "  memEntry->size: 0x%x\n", memEntry->size);
 
-    TRC_0LEAVE ("OMAP3530_addrConvert") ;
+      if (IS_RANGE_VALID(byteAddr,
+                         memEntry->dspVirtAddr,
+                         (memEntry->dspVirtAddr + memEntry->size)))
+      {
 
-    return convAddr ;
+        convAddr =
+          (byteAddr - memEntry->dspVirtAddr) + memEntry->gppVirtAddr;
+
+        found = TRUE;
+      }
+      else {
+        printk(KERN_ALERT "  ADDRESS 0x%x NOT IN RANGE\n", byteAddr);
+      }
+    }
+    else {
+      /* Added for MISRAC compliance */
+    }
+  }
+
+  TRC_2PRINT(TRC_LEVEL1,
+             "'OMAP3530_addrConvert' converted 'addr' 0x%x to "
+             "'convAddr' 0x%x\n", addr, convAddr);
+
+  TRC_0LEAVE("OMAP3530_addrConvert");
+  return convAddr;
 }
-
 
 /** ============================================================================
  *  @func   OMAP3530_control

@@ -538,39 +538,33 @@ DRV_Mmap (struct file * filp, struct vm_area_struct * vma)
 }
 
 
-/** ----------------------------------------------------------------------------
- *  @func   DRV_InitializeModule
- *
- *  @desc   Module initialization  function for Linux driver.
- *  ----------------------------------------------------------------------------
- */
+/*******************************************************************************
+  @func  DRV_InitializeModule
+  @desc  Module initialization function for Linux driver
+*******************************************************************************/
 
 STATIC int __init DRV_InitializeModule (void)
 {
-  int             result = 0       ;
-  DSP_STATUS      status = DSP_SOK ;
+  int result = 0;
+  DSP_STATUS status = DSP_SOK;
 
 #if defined (CHNL_COMPONENT)
-  Uint32          tabSize          ;
+  Uint32 tabSize;
 #endif /* if defined (CHNL_COMPONENT) */
 
-  printk(KERN_ALERT "Executing 'DRV_InitializeModule'\n");
-
-  status = OSAL_Initialize () ;
+  status = OSAL_Initialize();
 
 #if defined (NOTIFY_COMPONENT)
   /* Initialize the User Event module. */
-  UEVENT_Initialize () ;
+  UEVENT_Initialize();
 #endif /* #if defined (NOTIFY_COMPONENT) */
 
   /* Display the version info and created date/time (NKim, removed) */
-  PRINT_Printf ("DSPLINK Module (%s) created\n", DSPLINK_VERSION);
+  PRINT_Printf("DSPLINK Module (%s) created\n", DSPLINK_VERSION);
 
-  TRC_0ENTER ("DRV_InitializeModule") ;
+  TRC_0ENTER("DRV_InitializeModule");
 
   if (DSP_SUCCEEDED (status)) {
-    printk(KERN_ALERT "  OSAL initialization succeeded\n");
-
     /*  --------------------------------------------------------------------
      *  To enable trace for a component and/or subcomponent, uncomment the
      *  corresponding statements below. (This is not a comprehensive list
@@ -669,29 +663,27 @@ STATIC int __init DRV_InitializeModule (void)
 
     /* TRC_SET_SEVERITY (TRC_ENTER) ; */
 
-    result = register_chrdev (major, "dsplink", &driverOps) ;
+    result = register_chrdev(major, "dsplink", &driverOps);
 
     if (result < 0) {
-      printk(KERN_ALERT "  Error in '%s': bad 'register_chrdev'\n",
-             __FUNCTION__);
+      status = DSP_EFAIL;
+      SET_FAILURE_REASON;
 
-      status = DSP_EFAIL ;
-      SET_FAILURE_REASON ;
-      TRC_1PRINT (TRC_LEVEL7,
-                  "Linux API register_chrdev returned error: %d\n",
-                  result) ;
+      TRC_2PRINT(TRC_LEVEL7,
+                 "*** error in '%s': Linux API 'register_chrdev' "
+                 "failed, result 0x%x\n", __FUNCTION__, result);
     }
 
 #if defined (CHNL_COMPONENT)
     else {
-      tabSize = sizeof (Uint32) * MAX_DSPS * MAX_CHANNELS ;
-      status = MEM_Calloc ((Void **) &DRV_ChnlIdToPoolId,
-                           tabSize,
-                           &DRV_MemAllocAttrs) ;
+      tabSize = sizeof (Uint32) * MAX_DSPS * MAX_CHANNELS;
+      status = MEM_Calloc((Void **) &DRV_ChnlIdToPoolId,
+                          tabSize,
+                          &DRV_MemAllocAttrs);
 
       if (DSP_FAILED (status)) {
-        result = -1 ;
-        SET_FAILURE_REASON ;
+        result = -1;
+        SET_FAILURE_REASON;
       }
     }
 #endif /* if defined (CHNL_COMPONENT) */
@@ -701,25 +693,17 @@ STATIC int __init DRV_InitializeModule (void)
     device_create(dsplink_class, NULL, MKDEV(major, 0), NULL, "dsplink");
 #endif
 
-    if (DSP_SUCCEEDED (status)) {
-      printk(KERN_ALERT "  DSP initialization succeeded\n");
-
-      DRV_IsInitialized = TRUE ;
+    if (DSP_SUCCEEDED(status)) {
+      DRV_IsInitialized = TRUE;
     }
   }
   else {
-    printk(KERN_ALERT "  Error in '%s', DSP initialization failed'\n",
-           __FUNCTION__);
-
     SET_FAILURE_REASON;
-    result = -1 ;
+    result = -1;
   }
 
-  printk(KERN_ALERT "'DRV_InitializeModule' executed, status: 0x%x\n", result);
-
-  TRC_1LEAVE ("DRV_InitializeModule", result) ;
-
-  return result ;
+  TRC_1LEAVE("DRV_InitializeModule", result);
+  return result;
 }
 
 /** ----------------------------------------------------------------------------
@@ -728,29 +712,30 @@ STATIC int __init DRV_InitializeModule (void)
  *  @desc   Linux driver function to finalize the driver module.
  *  ----------------------------------------------------------------------------
  */
+
 STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
 {
-  DSP_STATUS   status    = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
 #if defined (CHNL_COMPONENT)
-  MemFreeAttrs freeAttrs ;
+  MemFreeAttrs freeAttrs;
 #endif /* if defined (CHNL_COMPONENT) */
 
   printk(KERN_ALERT "Executing 'DRV_FinalizeModule'\n");
 
-  TRC_0ENTER ("DRV_FinalizeModule") ;
+  TRC_0ENTER ("DRV_FinalizeModule");
 
 #if defined (CHNL_COMPONENT)
-  freeAttrs.physicalAddress = DRV_MemAllocAttrs.physicalAddress ;
-  freeAttrs.size = sizeof (Uint32) * MAX_DSPS * MAX_CHANNELS ;
+  freeAttrs.physicalAddress = DRV_MemAllocAttrs.physicalAddress;
+  freeAttrs.size = sizeof (Uint32) * MAX_DSPS * MAX_CHANNELS;
 
-  status = MEM_Free ((Pvoid *) &DRV_ChnlIdToPoolId, &freeAttrs) ;
+  status = MEM_Free ((Pvoid *) &DRV_ChnlIdToPoolId, &freeAttrs);
 
   if (DSP_FAILED (status)) {
     printk(KERN_ALERT "  Error in '%s': bad 'MEM_Free'\n",
            __FUNCTION__);
 
-    SET_FAILURE_REASON ;
+    SET_FAILURE_REASON;
   }
 #endif /* if defined (CHNL_COMPONENT) */
 
@@ -759,24 +744,24 @@ STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
   class_destroy(dsplink_class);
 #endif
 
-  unregister_chrdev (major, "dsplink") ;
+  unregister_chrdev(major, "dsplink");
 
-  DRV_IsInitialized = FALSE ;
+  DRV_IsInitialized = FALSE;
 
-  TRC_0LEAVE ("DRV_FinalizeModule") ;
+  TRC_0LEAVE ("DRV_FinalizeModule");
 
 #if defined (NOTIFY_COMPONENT)
-  UEVENT_Finalize () ;
+  UEVENT_Finalize ();
 #endif /* #if defined (NOTIFY_COMPONENT) */
 
   /* Unconditional call OSAL_Finalize */
-  status = OSAL_Finalize (TRUE) ;
+  status = OSAL_Finalize(TRUE);
 
   if (DSP_FAILED (status)) {
     printk(KERN_ALERT "  Error in '%s': bad 'OSAL_Finalize'\n",
            __FUNCTION__);
 
-    SET_FAILURE_REASON ;
+    SET_FAILURE_REASON;
   }
 
   printk(KERN_ALERT "'DRV_FinalizeModule' executed\n");
@@ -788,7 +773,8 @@ STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
  *  @desc   Linux specific function to open the driver.
  *  ----------------------------------------------------------------------------
  */
-int DRV_Open (struct inode * inode, struct file * filp)
+
+int DRV_Open(struct inode * inode, struct file * filp)
 {
   printk(KERN_ALERT "Executing 'DRV_Open'\n");
   return 0 ;
@@ -956,176 +942,6 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
 }
 
 /********************************************************************************
-  @name  DRV_copy_data_from_user
-
-  @desc  Depending on a particular operation, copy ALL required data from
-         user space
-
-********************************************************************************/
-
-STATIC long DRV_copy_data_from_user(struct file * filp,
-                                    unsigned int cmd,
-                                    unsigned long args,
-                                    CMD_Args *dstArgs)
-{
-  int status = 0;
-  void *srcArgs = (void*) args;
-
-  /* first of all, copy the main structure from user space. As known,
-     this only results in a 'shallow copy'. Pointers are copied,
-     their destinations are not */
-  int retVal =
-    copy_from_user(dstArgs, srcArgs, sizeof(CMD_Args));
-
-  if (retVal != 0) {
-    printk(KERN_ALERT "*** error: bad 'copy_from_user' in %s,"
-                      " status: %d\n", __FUNCTION__, retVal);
-    status = -EFAULT;
-  }
-  else {
-    /* a particular operation requires more than just a shallow copy,
-       we need to provide copy those data as well. I wonder how this
-       worked ok (without additional copies) in old kernel versions */
-    switch (cmd)
-    {
-      /* this operation requires to read the data as provided by the
-         'attr' member, therefore we need to additionally copy it */
-      case CMD_IDM_CREATE:
-      {
-        IDM_Attrs *dstAttrs = vmalloc(sizeof(IDM_Attrs));
-
-        retVal = copy_from_user(
-          (void*) dstAttrs,
-          (void*) dstArgs->apiArgs.idmCreateArgs.attrs,
-          sizeof(IDM_Attrs));
-
-        if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s', "
-                            "<CMD_IDM_CREATE>, status: %d\n",
-                            __FUNCTION__, retVal);
-
-          status = -EFAULT;
-        }
-
-        /* 'attrs' now refers to out copy created in the kernel space,
-           which can safely be used by subsequent calls */
-        dstArgs->apiArgs.idmCreateArgs.attrs = dstAttrs;
-        break;
-      }
-
-      /* this operation requires one 'in' string argument and one 'out'
-         argument which we need to copy back later */
-      case CMD_IDM_ACQUIREID:
-      {
-       /* need to reset explicitly, since not allocating on the stack
-           as a simple array anymore */
-        Char8 *dstKey = vmalloc(DSP_MAX_STRLEN);
-        memset(dstKey, DSP_MAX_STRLEN, 0);
-
-        Uint32 *id = (Uint32*) vmalloc(sizeof(Uint32));
-
-        retVal = copy_from_user(
-          (void*) dstKey,
-          (void*) dstArgs->apiArgs.idmAcquireIdArgs.idKey,
-          sizeof(DSP_MAX_STRLEN));
-
-        if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                            "<CMD_IDM_ACQUIREID>, status: %d\n",
-                            __FUNCTION__, retVal);
-
-          status = -EFAULT;
-        }
-
-        dstArgs->apiArgs.idmAcquireIdArgs.idKey = dstKey;
-        dstArgs->apiArgs.idmAcquireIdArgs.id = id;
-        break;
-      }
-
-      /* this is quite complicated. Here we need to provide a structure
-         'POOL_OpenParams' which contains a generic (void*). The pointer
-         is cast depending on the pool interface being called, e.g.
-         DMA/SMA/BUFF. This means, we need copy stuff (yet again) upon
-         accessing in those functions */
-      case CMD_POOL_OPEN:
-      {
-        if (dstArgs->apiArgs.poolOpenArgs.params != NULL) {
-          POOL_OpenParams *dstParams = vmalloc(sizeof(POOL_OpenParams));
-
-          retVal = copy_from_user(
-            (void*) dstParams,
-            (void*) dstArgs->apiArgs.poolOpenArgs.params,
-            sizeof(POOL_OpenParams));
-
-          if (retVal != 0) {
-            printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                              "<CMD_POOL_OPEN>, status: %d\n",
-                              __FUNCTION__, retVal);
-
-            status = -EFAULT;
-          }
-
-          dstArgs->apiArgs.poolOpenArgs.params = dstParams;
-        }
-
-        break;
-      }
-
-      default: break;
-    }
-  }
-
-  return status;
-}
-
-/********************************************************************************
-  @name  DRV_copy_data_to_user
-
-  @desc  Depending on a particular operation, copy ALL (out) data back to
-         the user space
-
-********************************************************************************/
-
-STATIC long DRV_copy_data_to_user(unsigned int cmd,
-                                  unsigned long args,
-                                  CMD_Args *srcArgs)
-{
-  CMD_Args *dstArgs = (CMD_Args*) args;
-  int status = 0;
-
-  int retVal = copy_to_user(
-    (void*) dstArgs, (void*) srcArgs, sizeof (CMD_Args));
-
-  if (retVal != 0) {
-    printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
-           " return value: %d\n", __FUNCTION__, retVal);
-    status = -EFAULT;
-  }
-  else {
-    /* the function to handle 'CMD_IDM_ACQUIREID' produces one out-value,
-       which is 'id' */
-    if (cmd == CMD_IDM_ACQUIREID)
-    {
-      printk(KERN_ALERT "      writing user data: 'CMD_IDM_ACQUIREID'\n");
-
-      retVal = copy_to_user(
-        (void*) dstArgs->apiArgs.idmAcquireIdArgs.id,
-        (void*) srcArgs->apiArgs.idmAcquireIdArgs.id,
-        sizeof(Uint32));
-
-      if (retVal != 0) {
-        printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
-                          " return value: %d\n", __FUNCTION__, retVal);
-
-        status = -EFAULT;
-      }
-    }
-  }
-
-  return status;
-}
-
-/********************************************************************************
   @name   DRV_Ioctl
 
   @desc   Function to invoke the APIs through ioctl
@@ -1154,8 +970,9 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
   retVal = copy_from_user(&apiArgs, srcArgs, sizeof(CMD_Args));
 
   if (retVal != 0) {
-    printk(KERN_ALERT "*** error: bad 'copy_from_user' in %s,"
-                      " status: %d\n", __FUNCTION__, retVal);
+    printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user', "
+                      "result 0x%x\n", __FUNCTION__, retVal);
+
     osStatus = -EFAULT;
   }
 
@@ -1185,8 +1002,9 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
     retVal = copy_to_user(srcArgs, &apiArgs, sizeof(CMD_Args));
 
     if (retVal != 0) {
-      printk(KERN_ALERT "    error: bad 'copy_to_user' in %s,"
-             " return value: %d\n", __FUNCTION__, retVal);
+      printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user', "
+                        "result 0x%x\n", __FUNCTION__, retVal);
+
       osStatus = -EFAULT;
     }
   }
@@ -1207,26 +1025,23 @@ MODULE_LICENSE ("GPL v2") ;
 module_init (DRV_InitializeModule);
 module_exit (DRV_FinalizeModule);
 
-/** ----------------------------------------------------------------------------
- *  @name   DRV_CallAPI
- *
- *  @desc   Function to invoke the APIs through ioctl.
- *
- *  @modif  None.
- *  ----------------------------------------------------------------------------
- */
+
+/********************************************************************************
+  @name   DRV_CallAPI
+ 
+  @desc   Function to invoke the APIs through ioctl.
+
+  @modif  None.
+********************************************************************************/
 
 STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 {
-  DSP_STATUS status    = DSP_SOK ; /* status of driver's ioctl    */
-  DSP_STATUS retStatus = DSP_SOK ; /* status of the PMGR function */
-  int        retVal    = 0       ;
-
-  printk(KERN_ALERT "    Executing 'DRV_CallAPI', args:\n");
-  printk(KERN_ALERT "      cmd: %ud\n", cmd);
-  printk(KERN_ALERT "      args: 0x%lx\n", args);
+  DSP_STATUS status = DSP_SOK;     /* status of driver's ioctl    */
+  DSP_STATUS retStatus = DSP_SOK;  /* status of the PMGR function */
+  int i, retVal = 0;
 
   TRC_2ENTER ("DRV_CallAPI", cmd, args) ;
+  printk(KERN_ALERT "Executing 'DRV_CallAPI'\n");
 
   args->apiStatus = DSP_SOK;
 
@@ -1521,14 +1336,17 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       printk(KERN_ALERT "      executing command: 'CMD_PROC_LOAD'\n");
 
       Char8 path[DSP_MAX_STRLEN] = { 0 };
+      Char8 **argv;
+      Char8 *arg;
+      Uint32 argc;
 
       if (args->apiArgs.procLoadArgs.imagePath != NULL) {
-        int retVal = copy_from_user(
+        retVal = copy_from_user(
           path, args->apiArgs.procLoadArgs.imagePath, DSP_MAX_STRLEN);
 
         if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                            "<CMD_PROC_LOAD>, status: %d\n",
+          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                            "(CMD_PROC_LOAD), result 0x%x\n",
                             __FUNCTION__, retVal);
 
           status = -EFAULT;
@@ -1536,12 +1354,58 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
       }
 
       if (status != -EFAULT) {
-        printk(KERN_ALERT "extracted IMAGE path: %s\n", path);
+        /* this is annoying, first copy the shallow array of strings into
+           provided temporary buffer */
+        argc = args->apiArgs.procLoadArgs.argc;
+        DBC_Assert(argc > 0);
 
-        retStatus = PMGR_PROC_load(args->apiArgs.procLoadArgs.procId,
-                                   path,
-                                   args->apiArgs.procLoadArgs.argc,
-                                   args->apiArgs.procLoadArgs.argv);
+        argv = vmalloc(argc * sizeof(Char8*));
+
+        retVal = copy_from_user(
+          argv, args->apiArgs.procLoadArgs.argv, argc * sizeof(Char8*));
+
+        if (retVal != 0) {
+          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                            "(CMD_PROC_LOAD), result 0x%x\n",
+                            __FUNCTION__, retVal);
+
+          status = -EFAULT;
+        }
+        else {
+          /* now copy each argument into a separate string buffer. Be sure
+             to read/index/dereference the copied array */
+          for (i = 0; i < argc; ++i)
+          {
+            DBC_Assert(argv[i] != NULL);
+
+            arg = vmalloc(DSP_MAX_STRLEN);
+            retVal = copy_from_user(arg, argv[i], DSP_MAX_STRLEN);
+
+            if (retVal != 0) {
+              printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                                "(CMD_PROC_LOAD), result 0x%x\n",
+                                __FUNCTION__, retVal);
+
+              status = -EFAULT;
+              break;
+
+            } else argv[i] = arg;
+          }
+        }
+      }
+
+      /* NOTE, this means, if there are any errors copying data from user-
+         space, the return is -EFAULT, but the 'apiStatus' is DSP_SOK */
+      if (status != -EFAULT)
+      {
+        retStatus = PMGR_PROC_load(
+          args->apiArgs.procLoadArgs.procId, path, argc, argv);
+
+        /* can safely destroy all dynamically created data now, since all
+           arguments are 'in' */
+        for (i = 0; i < argc; ++i) vfree(argv[i]);
+
+        vfree(argv);
       }
 
       args->apiStatus = retStatus;
@@ -1854,16 +1718,14 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 
         if (args->apiArgs.msgqOpenArgs.attrs != NULL)
         {
-          printk(KERN_ALERT "****************** ATTRIBUTES NON ZERO!\n");
-
           /* use a local copy 'attrs' for the third argument */
-          int retVal = copy_from_user(
+          retVal = copy_from_user(
             &attrs, args->apiArgs.msgqOpenArgs.attrs, sizeof(MSGQ_Attrs));
 
           if (retVal != 0) {
-            printk(KERN_ALERT "*** error: bad 'copy_from_user' (1) in '%s' "
-                            "<CMD_MSGQ_OPEN>, status: %d\n",
-                            __FUNCTION__, retVal);
+            printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                              "(CMD_MSGQ_OPEN), result 0x%x\n",
+                              __FUNCTION__, retVal);
 
             status = -EFAULT;
           }
@@ -1871,12 +1733,12 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
         }
 
         /* use a local copy 'attrs' for the third argument */
-        int retVal = copy_from_user(
+        retVal = copy_from_user(
           name, args->apiArgs.msgqOpenArgs.queueName, DSP_MAX_STRLEN);
 
         if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' (2) in '%s' "
-                            "<CMD_MSGQ_OPEN>, status: %d\n",
+          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                            "(CMD_MSGQ_OPEN), result 0x%x\n",
                             __FUNCTION__, retVal);
 
           status = -EFAULT;
@@ -1892,8 +1754,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
                                   sizeof(MSGQ_Queue));
 
             if (retVal != 0) {
-              printk(KERN_ALERT "*** error: bad 'copy_to_user' in '%s' "
-                                "<CMD_MSGQ_OPEN>, status: %d\n",
+              printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user' "
+                                "(CMD_MSGQ_OPEN), result 0x%x\n",
                                 __FUNCTION__, retVal);
 
               status = -EFAULT;
@@ -2025,16 +1887,18 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
             sizeof(POOL_OpenParams));
 
         if (retVal != 0) {
-          printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                            "<CMD_POOL_OPEN>, status: %d\n",
+          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                            "(CMD_POOL_OPEN), result 0x%x\n",
                             __FUNCTION__, retVal);
 
           status = -EFAULT;
         }
       }
 
-      retStatus =
-        LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
+      if (status != -EFAULT) {
+        retStatus =
+          LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
+      }
 
       args->apiStatus = retStatus;
       break;
@@ -2193,8 +2057,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
         sizeof(IDM_Attrs));
 
       if (retVal != 0) {
-        printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s', "
-                          "<CMD_IDM_CREATE>, status: %d\n",
+        printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                          "(CMD_IDM_CREATE), result 0x%x\n",
                           __FUNCTION__, retVal);
 
         status = -EFAULT;
@@ -2230,14 +2094,14 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 
       /* copy the id-key into a local buffer. Accessing it directly (user-
          space) might (and most probably will) result in page faults */
-      int retVal = copy_from_user(
+      retVal = copy_from_user(
                          (void*) dstKey,
                          (void*) args->apiArgs.idmAcquireIdArgs.idKey,
                          DSP_MAX_STRLEN);
 
       if (retVal != 0) {
-        printk(KERN_ALERT "*** error: bad 'copy_from_user' in '%s' "
-                          "<CMD_IDM_ACQUIREID>, status: %d\n",
+        printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
+                          "(CMD_IDM_ACQUIREID), result 0x%x\n",
                           __FUNCTION__, retVal);
 
         status = -EFAULT;
@@ -2255,8 +2119,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
           retVal = copy_to_user(userIdAddr, &id, sizeof(Uint32));
 
           if (retVal != 0) {
-            printk(KERN_ALERT "*** error: bad 'copy_to_user' in '%s' "
-                              "<CMD_IDM_ACQUIREID>, status: %d\n",
+            printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user' "
+                              "(CMD_IDM_ACQUIREID), result 0x%x\n",
                               __FUNCTION__, retVal);
 
             status = -EFAULT;
@@ -2280,12 +2144,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     }
 
     default:
-      printk(KERN_ALERT "      error: incorrect command id %d in '%s'\n",
-             cmd, __FUNCTION__);
+      TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': incorrect command id "
+                             "specified: 0x%x\n", __FUNCTION__, cmd);
 
-      TRC_1PRINT (TRC_LEVEL7,
-                  "Incorrect command id specified [0x%x]\n",
-                  cmd);
       status = DSP_EFAIL;
       break;
   }
@@ -2295,9 +2156,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     status = retStatus;
   }
 
-  printk(KERN_ALERT "    'DRV_CallAPI' executed, status: %ld\n", status);
-
-  TRC_1LEAVE ("DRV_CallAPI", status) ;
+  printk(KERN_ALERT "'DRV_CallAPI' executed, status: 0x%x\n", status);
+  TRC_1LEAVE("DRV_CallAPI", status);
 
   return status;
 }
@@ -2308,22 +2168,22 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
  *  @desc  Clean up the kernel driver.
  *  ----------------------------------------------------------------------------
  */
-STATIC NORMAL_API Void DSPLINK_Cleanup (Void)
-{
-  printk("Executing 'DSPLink_Cleanup'\n");
+
+STATIC NORMAL_API Void DSPLINK_Cleanup(Void) {
 
 #if defined (MSGQ_COMPONENT)
-  DSP_STATUS  status = DSP_SOK ;
-  MSGQ_Queue  msgqQueue ;
-  Uint32      i ;
+  DSP_STATUS status = DSP_SOK;
+  MSGQ_Queue msgqQueue;
+  Uint32 i;
 
   /* Close any open Message Queues */
   for (i = 0 ; i < DRV_MaxMsgqs ; i++) {
-    msgqQueue = ((Uint32) ID_GPP << 16) | i ;
-    status = PMGR_MSGQ_close (msgqQueue, NULL) ;
+    msgqQueue = ((Uint32) ID_GPP << 16) | i;
+
+    status = PMGR_MSGQ_close(msgqQueue, NULL);
 
     if (DSP_SUCCEEDED (status)) {
-      TRC_0PRINT (TRC_LEVEL4, "PMGR_MSGQ_close done\n") ;
+      TRC_0PRINT(TRC_LEVEL4, "PMGR_MSGQ_close done\n");
     }
   }
 #endif /* if defined (MSGQ_COMPONENT) */

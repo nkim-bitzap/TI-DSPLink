@@ -34,8 +34,9 @@
 #include <osal.h>
 
 /*  ----------------------------------- Generic Function            */
-#include<gen_utils.h>
+#include <gen_utils.h>
 
+#include <linux/module.h>
 
 #if defined (__cplusplus)
 extern "C" {
@@ -124,85 +125,77 @@ KFILE_Finalize ()
     return status ;
 }
 
+/*******************************************************************************
+  @func  KFILE_Open
+  @desc  Opens a file specified by name of file.
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   KFILE_Open
- *
- *  @desc   Opens a file specified by name of file.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-KFILE_Open (IN CONST FileName          fileName,
-            IN CONST Char8 *           mode,
-            IN CONST KFILE_Interface * fnTable,
-            OUT      KFileObject **    fileHandlePtr)
+EXPORT_API DSP_STATUS KFILE_Open(IN CONST FileName fileName,
+                                 IN CONST Char8 *mode,
+                                 IN CONST KFILE_Interface *fnTable,
+                                 OUT KFileObject **fileHandlePtr)
 {
-    DSP_STATUS  status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_3ENTER ("KFILE_Open", fileName, mode, fileHandlePtr) ;
+  TRC_3ENTER("KFILE_Open", fileName, mode, fileHandlePtr);
 
-    DBC_Require (KFILE_IsInitialized == TRUE) ;
-    DBC_Require (fileName != NULL) ;
-    DBC_Require (mode != NULL) ;
-    DBC_Require (fileHandlePtr != NULL) ;
+  DBC_Require(KFILE_IsInitialized == TRUE);
+  DBC_Require(fileName != NULL);
+  DBC_Require(mode != NULL);
+  DBC_Require(fileHandlePtr != NULL);
 
-    if (   (fileName == NULL)
-        || (fileHandlePtr == NULL)
-        || (mode == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((fileName == NULL) || (fileHandlePtr == NULL) || (mode == NULL))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    *fileHandlePtr = NULL;
+
+    status = MEM_Alloc((Void **) fileHandlePtr,
+                       sizeof (KFileObject),
+                       MEM_DEFAULT);
+
+    if (DSP_SUCCEEDED(status)) {
+
+      (*fileHandlePtr)->signature = SIGN_KFILE;
+      (*fileHandlePtr)->fnTable = (KFILE_Interface*) fnTable;
+      (*fileHandlePtr)->fileObj = NULL;
+
+      status = fnTable->kfileOpen(
+        fileName, mode, &((*fileHandlePtr)->fileObj));
+
+      if (DSP_SUCCEEDED(status)) {
+        (*fileHandlePtr)->isOpen = TRUE;
+      }
+      else SET_FAILURE_REASON;
     }
-    else {
-        *fileHandlePtr = NULL ;
-        status = MEM_Alloc ((Void **) fileHandlePtr,
-                            sizeof (KFileObject),
-                            MEM_DEFAULT) ;
+    else SET_FAILURE_REASON;
 
-        if (DSP_SUCCEEDED (status)) {
-            (*fileHandlePtr)->signature = SIGN_KFILE ;
-            (*fileHandlePtr)->fnTable = (KFILE_Interface *) fnTable ;
-            (*fileHandlePtr)->fileObj = NULL ;
-            status = fnTable->kfileOpen (fileName,
-                                         mode,
-                                         &((*fileHandlePtr)->fileObj)) ;
-            if (DSP_SUCCEEDED (status)) {
-                (*fileHandlePtr)->isOpen = TRUE ;
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-        }
-        else {
-            SET_FAILURE_REASON ;
-        }
-
-        /*  --------------------------------------------------------------------
-         *  If the function call failed then free the object allocated before.
-         *  --------------------------------------------------------------------
-         */
-        if (DSP_FAILED (status)) {
-            (*fileHandlePtr)->signature = SIGN_NULL ;
-            FREE_PTR (*fileHandlePtr) ;
-        }
+    /*If the function call failed then free the object allocated before */
+    if (DSP_FAILED(status)) {
+      (*fileHandlePtr)->signature = SIGN_NULL;
+      FREE_PTR (*fileHandlePtr);
     }
+  }
 
-    DBC_Ensure (   (   DSP_SUCCEEDED (status)
-                    && IS_OBJECT_VALID (*fileHandlePtr, SIGN_KFILE))
-                || DSP_FAILED (status)) ;
+  DBC_Ensure((DSP_SUCCEEDED(status)
+             && IS_OBJECT_VALID(*fileHandlePtr, SIGN_KFILE))
+             || DSP_FAILED(status));
 
-    DBC_Ensure (   DSP_SUCCEEDED (status)
-                || (   DSP_FAILED (status)
-                    && (fileHandlePtr != NULL)
-                    && (*fileHandlePtr == NULL))) ;
+  DBC_Ensure(DSP_SUCCEEDED(status)
+             || (DSP_FAILED(status)
+                 && (fileHandlePtr != NULL)
+                 && (*fileHandlePtr == NULL)));
 
-    TRC_1LEAVE ("KFILE_Open", status) ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
+                      __FUNCTION__, status);
+  }
 
-    return status ;
+  TRC_1LEAVE("KFILE_Open", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   KFILE_Close
@@ -262,49 +255,48 @@ KFILE_Close (IN KFileObject * fileHandle)
  *  @modif  None
  *  ============================================================================
  */
-EXPORT_API
-DSP_STATUS
-KFILE_Read (IN OUT  Char8 *       buffer,
-            IN      Uint32        size,
-            IN      Uint32        count,
-            IN      KFileObject * fileHandle)
+
+EXPORT_API DSP_STATUS KFILE_Read(IN OUT Char8 *buffer,
+                                 IN Uint32 size,
+                                 IN Uint32 count,
+                                 IN KFileObject *fileHandle)
 {
-    DSP_STATUS status  = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_4ENTER ("KFILE_Read", buffer, size, count, fileHandle) ;
+  TRC_4ENTER("KFILE_Read", buffer, size, count, fileHandle);
 
-    DBC_Require (KFILE_IsInitialized == TRUE) ;
-    DBC_Require (fileHandle != NULL) ;
-    DBC_Require (IS_OBJECT_VALID (fileHandle, SIGN_KFILE)) ;
-    DBC_Require (buffer != NULL) ;
-    DBC_Require ((fileHandle != NULL) && (fileHandle->isOpen == TRUE)) ;
+  DBC_Require(KFILE_IsInitialized == TRUE);
+  DBC_Require(fileHandle != NULL);
+  DBC_Require(IS_OBJECT_VALID (fileHandle, SIGN_KFILE));
+  DBC_Require(buffer != NULL);
+  DBC_Require((fileHandle != NULL) && (fileHandle->isOpen == TRUE));
 
-    if (IS_OBJECT_VALID (fileHandle, SIGN_KFILE) == FALSE) {
-        status = DSP_EPOINTER ;
-        SET_FAILURE_REASON ;
+  if (IS_OBJECT_VALID(fileHandle, SIGN_KFILE) == FALSE) {
+    status = DSP_EPOINTER;
+    SET_FAILURE_REASON;
+  }
+  else if (fileHandle->isOpen == FALSE) {
+    status = DSP_EFILE;
+    SET_FAILURE_REASON;
+  }
+  else if (buffer == NULL) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    DBC_Assert(fileHandle->fnTable != NULL);
+
+    status = fileHandle->fnTable->kfileRead(buffer,
+                                            size,
+                                            count,
+                                            fileHandle->fileObj) ;
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
-    else if (fileHandle->isOpen == FALSE) {
-        status = DSP_EFILE ;
-        SET_FAILURE_REASON ;
-    }
-    else if (buffer == NULL) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        DBC_Assert (fileHandle->fnTable != NULL) ;
-        status = fileHandle->fnTable->kfileRead (buffer,
-                                                 size,
-                                                 count,
-                                                 fileHandle->fileObj) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
+  }
 
-    TRC_1LEAVE ("KFILE_Read", status) ;
-
-    return status ;
+  TRC_1LEAVE("KFILE_Read", status);
+  return status;
 }
 
 
