@@ -39,16 +39,7 @@
  *  ============================================================================
  */
 
-/*******************************************************************************
-  Load assert support
-*******************************************************************************/
-
 utils.importFile("assert.tci");
-
-/*******************************************************************************
-  Load base TCI file.
-*******************************************************************************/
-
 utils.loadPlatform("ti.platforms.evm3530");
 
 /*******************************************************************************
@@ -71,55 +62,61 @@ bios.enableTskManager(prog);
 *******************************************************************************/
 
 prog.module("GBL").ENABLEALLTRC       = false;
-prog.module("GBL").PROCID             = parseInt(arguments [0]);
+prog.module("GBL").PROCID             = parseInt(arguments[0]);
 
-prog.module("GBL").C64PLUSCONFIGURE   = true;
+prog.module("GBL").C64PLUSCONFIGURE   = true ;
 prog.module("GBL").C64PLUSL2CFG       = "32k";
 prog.module("GBL").C64PLUSL1DCFG      = "32k";
 prog.module("GBL").C64PLUSL1PCFG      = "16k";
 prog.module("GBL").C64PLUSMAR128to159 = 0xFF00;
 
 var IRAM = prog.module("MEM").instance("IRAM");
-IRAM.len = IRAM.len - 0x8000;
+IRAM.len              = IRAM.len - 0x8000;
 
 var L1DSRAM = prog.module("MEM").instance("L1DSRAM");
-L1DSRAM.len = L1DSRAM.len - 0x8000;
+L1DSRAM.len           = L1DSRAM.len - 0x8000;
 
-/* Was defined for sdp3430, but not for evm3530, hence commented
-var L1PSRAM = prog.module("MEM").instance("L1PSRAM");
-L1PSRAM.len           = L1PSRAM.len - 0x4000;
-*/
+/* Was defined for sdp3430, but not for evm3530, hence commented */
+/* var L1PSRAM = prog.module("MEM").instance("L1PSRAM"); */
+/* L1PSRAM.len           = L1PSRAM.len - 0x4000; */
+
+/*******************************************************************************
+  MEM : Stack
+*******************************************************************************/
 
 prog.module("MEM").STACKSIZE = 0x1000;
 
 /*******************************************************************************
- MEM : DSPLINKMEM (NKim, contiguous, including shared regions 0 and 1
-                   (see 'CFG_OMAP3530_SHMEM.c') which we don't distinguish
-                   on the DSP)
+  MEM : DSPLINKMEM (NKim, contiguous, including shared regions 0 and 1
+                    (see 'CFG_OMAP3530_SHMEM.c') which we don't distinguish
+                    on the DSP)
 *******************************************************************************/
 
 var DSPLINKMEM = prog.module("MEM").create("DSPLINKMEM");
+
 DSPLINKMEM.base             = 0x88000000;
 DSPLINKMEM.len              = 0x00030000;
 DSPLINKMEM.createHeap       = false;
 DSPLINKMEM.comment          = "DSPLINKMEM";
 
 /*******************************************************************************
-  MEM : POOLMEM
+  MEM : POOLMEM (starts at 0x88030000)
 *******************************************************************************/
 
 var POOLMEM = prog.module("MEM").create("POOLMEM");
+
 POOLMEM.base             = DSPLINKMEM.base + DSPLINKMEM.len;
 POOLMEM.len              = 0xD0000;
 POOLMEM.createHeap       = false;
 POOLMEM.comment          = "POOLMEM";
 
 /*******************************************************************************
-  MEM : RESET_VECTOR
+  MEM : RESET_VECTOR (starts at 0x88100000)
 *******************************************************************************/
 
 var RESET_VECTOR = prog.module("MEM").create("RESET_VECTOR");
-RESET_VECTOR.base        = POOLMEM.base + POOLMEM.len; 
+
+RESET_VECTOR.base        = POOLMEM.base + POOLMEM.len;
 RESET_VECTOR.len         = 0x00000080;
 RESET_VECTOR.space       = "code/data";
 RESET_VECTOR.createHeap  = false;
@@ -132,7 +129,8 @@ RESET_VECTOR.comment     = "RESET_VECTOR";
 *******************************************************************************/
 
 var DDR2 = prog.module("MEM").instance("DDR2");
-DDR2.base             = RESET_VECTOR.base + RESET_VECTOR.base;
+
+DDR2.base             = RESET_VECTOR.base + RESET_VECTOR.len;
 DDR2.len              = 0x7EFFF80;
 DDR2.space            = "code/data";
 DDR2.createHeap       = true;

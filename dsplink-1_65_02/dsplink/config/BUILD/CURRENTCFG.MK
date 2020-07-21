@@ -4,14 +4,14 @@
 #   CAUTION! This is a generated file.
 #            All changes will be lost.
 #
-#   This file was generated on JUL 19, 2020  16:28:34
+#   This file was generated on JUL 20, 2020  10:42:16
 #   =========================================================
 
 
 #   =========================================================
 #   When this file was created.
 #   =========================================================
-export  TI_DSPLINK_CFGDATE            := JUL 19, 2020  16:28:34
+export  TI_DSPLINK_CFGDATE            := JUL 20, 2020  10:42:16
 
 
 #   =========================================================
@@ -116,12 +116,6 @@ export TI_DSPLINK_TRACE  := 0
 
 
 #   =========================================================
-#   Enable/Diable Legacy support.
-#   =========================================================
-export TI_DSPLINK_LEGACY_SUPPORT  := 1
-
-
-#   =========================================================
 #   GPP INC PATH
 #   =========================================================
 export  TI_DSPLINK_GPP_INC_PATH := ${DSPLINK}/gpp/inc ${DSPLINK}/gpp/inc/usr ${DSPLINK}/gpp/inc/sys ${DSPLINK}/gpp/inc/sys/arch ${DSPLINK}/gpp/inc/sys/arch/OMAP3530 ${DSPLINK}/gpp/inc/sys/arch/OMAP3530/Linux ${DSPLINK}/gpp/inc/sys/Linux ${DSPLINK}/gpp/inc/sys/Linux/2.6.18 ${DSPLINK}/gpp/src/gen ${DSPLINK}/gpp/src/gen/Linux ${DSPLINK}/gpp/src/gen/Linux/2.6.18 ${DSPLINK}/gpp/src/osal ${DSPLINK}/gpp/src/osal/Linux ${DSPLINK}/gpp/src/osal/Linux/2.6.18 ${DSPLINK}/gpp/src/pmgr ${DSPLINK}/gpp/src/pmgr/Linux ${DSPLINK}/gpp/src/pmgr/Linux/2.6.18 ${DSPLINK}/gpp/src/api ${DSPLINK}/gpp/src/api/Linux ${DSPLINK}/gpp/src/api/Linux/2.6.18 ${DSPLINK}/gpp/src/ldrv ${DSPLINK}/gpp/src/ldrv/Linux ${DSPLINK}/gpp/src/ldrv/Linux/2.6.18 ${DSPLINK}/gpp/src/ldrv/DRV ${DSPLINK}/gpp/src/ldrv/DATA ${DSPLINK}/gpp/src/ldrv/MPCS ${DSPLINK}/gpp/src/ldrv/MPLIST ${DSPLINK}/gpp/src/ldrv/MQT ${DSPLINK}/gpp/src/ldrv/IPS ${DSPLINK}/gpp/src/ldrv/SMM ${DSPLINK}/gpp/src/ldrv/RINGIO ${DSPLINK}/gpp/src/ldrv/POOLS
@@ -131,7 +125,7 @@ export  TI_DSPLINK_GPP_INC_PATH := ${DSPLINK}/gpp/inc ${DSPLINK}/gpp/inc/usr ${D
 #   =========================================================
 #   GPP DEFINES
 #   =========================================================
-export  TI_DSPLINK_GPP_DEFINES :=  OS_LINUX MAX_DSPS=1 MAX_PROCESSORS=2 ID_GPP=1 OMAP3530 DSPLINK_LEGACY_SUPPORT PROC_COMPONENT POOL_COMPONENT NOTIFY_COMPONENT MPCS_COMPONENT RINGIO_COMPONENT MPLIST_COMPONENT MSGQ_COMPONENT MSGQ_ZCPY_LINK CHNL_COMPONENT CHNL_ZCPY_LINK ZCPY_LINK KFILE_DEFAULT  OMAP3530 OMAP3530_PHYINTERFACE=SHMEM_INTERFACE GPP_SWI_MODE
+export  TI_DSPLINK_GPP_DEFINES :=  OS_LINUX MAX_DSPS=1 MAX_PROCESSORS=2 ID_GPP=1 OMAP3530 PROC_COMPONENT POOL_COMPONENT NOTIFY_COMPONENT MPCS_COMPONENT RINGIO_COMPONENT MPLIST_COMPONENT MSGQ_COMPONENT MSGQ_ZCPY_LINK CHNL_COMPONENT CHNL_ZCPY_LINK ZCPY_LINK KFILE_DEFAULT  OMAP3530 OMAP3530_PHYINTERFACE=SHMEM_INTERFACE GPP_SWI_MODE
 
 #   =========================================================
 #   DSP INC PATH
@@ -148,5 +142,5 @@ export  TI_DSPLINK_DSP0_DEFINES :=  PROCID=0 OMAP3530 OMAP3530_INTERFACE=SHMEM_I
 #   =========================================================
 #   DSP COMMON DEFINES
 #   =========================================================
-export  TI_DSPLINK_DSP_COMMON_DEFINES :=  MAX_DSPS=1 MAX_PROCESSORS=2 ID_GPP=1 OMAP3530 DSPLINK_LEGACY_SUPPORT PROC_COMPONENT POOL_COMPONENT NOTIFY_COMPONENT MPCS_COMPONENT RINGIO_COMPONENT MPLIST_COMPONENT MSGQ_COMPONENT MSGQ_ZCPY_LINK CHNL_COMPONENT CHNL_ZCPY_LINK ZCPY_LINK
+export  TI_DSPLINK_DSP_COMMON_DEFINES :=  MAX_DSPS=1 MAX_PROCESSORS=2 ID_GPP=1 OMAP3530 PROC_COMPONENT POOL_COMPONENT NOTIFY_COMPONENT MPCS_COMPONENT RINGIO_COMPONENT MPLIST_COMPONENT MSGQ_COMPONENT MSGQ_ZCPY_LINK CHNL_COMPONENT CHNL_ZCPY_LINK ZCPY_LINK
 

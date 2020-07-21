@@ -111,7 +111,7 @@ type GlobalStatus {
         prop Visible :: 0
         prop Writable :: 1
     }
-    global DATE :: "Tue Jul  7 14:15:01 2020" { 
+    global DATE :: "Tue Jul 21 18:16:54 2020" { 
         prop Type :: "{21455EA3-B96A-11cf-9BFE-0000C0AC14C7}"
         prop Visible :: 0
         prop Writable :: 0
@@ -1210,7 +1210,7 @@ type GBL {
         prop NoGen :: 0
         prop TabName :: "64PLUS"
     }
-    global L2MAR128_159 :: 128 { 
+    global L2MAR128_159 :: 65280 { 
         prop Type :: "{3EE4CB80-E273-11d0-BB8F-0000C008F2E9}"
         prop Label :: "MAR 128-159 - bitmask"
         prop JSName :: "C64PLUSMAR128to159"
@@ -10841,8 +10841,8 @@ object DDR2 :: MEM {
     param iId :: 0
     param iDelUser :: "USER"
     param iDelMsg :: "ok"
-    param base :: -2015362944
-    param len :: 1048448
+    param base :: -2012217216
+    param len :: 133169024
     param iAllocHeap :: 1
     param iHeapSize :: 65536
     param iUserHeapId :: 0
@@ -10889,31 +10889,13 @@ object IRAM :: MEM {
     param iIsModifiable :: 1
 }
 
-object RESET_VECTOR :: MEM {
-    param iComment :: "RESET_VECTOR"
-    param iIsUsed :: 1
-    param iId :: 0
-    param iDelUser :: "USER"
-    param iDelMsg :: "ok"
-    param base :: -2015363072
-    param len :: 128
-    param iAllocHeap :: 0
-    param iHeapSize :: 32768
-    param iUserHeapId :: 0
-    param iHeapId :: @segment_name
-    param iReqHeapCount :: 0
-    param space :: "code/data"
-    param dynamicLoading :: 0
-    param iIsModifiable :: 1
-}
-
 object DSPLINKMEM :: MEM {
     param iComment :: "DSPLINKMEM"
     param iIsUsed :: 1
     param iId :: 0
     param iDelUser :: "USER"
     param iDelMsg :: "ok"
-    param base :: -2014314496
+    param base :: -2013265920
     param len :: 196608
     param iAllocHeap :: 0
     param iHeapSize :: 32768
@@ -10931,7 +10913,7 @@ object POOLMEM :: MEM {
     param iId :: 0
     param iDelUser :: "USER"
     param iDelMsg :: "ok"
-    param base :: -2014117888
+    param base :: -2013069312
     param len :: 851968
     param iAllocHeap :: 0
     param iHeapSize :: 32768
@@ -10939,6 +10921,24 @@ object POOLMEM :: MEM {
     param iHeapId :: @segment_name
     param iReqHeapCount :: 0
     param space :: "data"
+    param dynamicLoading :: 0
+    param iIsModifiable :: 1
+}
+
+object RESET_VECTOR :: MEM {
+    param iComment :: "RESET_VECTOR"
+    param iIsUsed :: 1
+    param iId :: 0
+    param iDelUser :: "USER"
+    param iDelMsg :: "ok"
+    param base :: -2012217344
+    param len :: 128
+    param iAllocHeap :: 0
+    param iHeapSize :: 32768
+    param iUserHeapId :: 0
+    param iHeapId :: @segment_name
+    param iReqHeapCount :: 0
+    param space :: "code/data"
     param dynamicLoading :: 0
     param iIsModifiable :: 1
 }
