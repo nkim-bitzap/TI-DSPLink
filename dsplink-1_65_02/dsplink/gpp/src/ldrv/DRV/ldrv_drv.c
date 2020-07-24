@@ -737,211 +737,224 @@ LDRV_DRV_exit (IN ProcessorId dspId)
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_DRV_handshake
+  @desc  Does the necessary handshake (if required) between the drivers
+         on the GPP & DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_DRV_handshake
- *
- *  @desc   Does the necessary handshake (if required) between the drivers
- *          on the GPP & DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_DRV_handshake (IN ProcessorId dspId, IN DRV_Handshake hshkCtrl)
+NORMAL_API DSP_STATUS LDRV_DRV_handshake(IN ProcessorId dspId,
+                                         IN DRV_Handshake hshkCtrl)
 {
-    DSP_STATUS        status    = DSP_SOK ;
-    LDRV_DRV_Object * drvState ;
-    Uint32            dspShmBase ;
-    LDRV_DRV_Ctrl *   drvCtrl ;
-    Int32             strCmpResult ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_DRV_Object *drvState;
+  Uint32 dspShmBase;
+  LDRV_DRV_Ctrl *drvCtrl;
+  Int32 strCmpResult;
 
-    TRC_2ENTER ("LDRV_DRV_handshake", dspId, hshkCtrl) ;
+  TRC_2ENTER("LDRV_DRV_handshake", dspId, hshkCtrl);
+  PRINT_Printf("Executing 'LDRV_DRV_handshake'\n");
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Assert (LDRV_DRV_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Assert(LDRV_DRV_IsInitialized[dspId] == TRUE);
 
-    drvState = &(LDRV_DRV_State [dspId]) ;
-    drvCtrl  = drvState->ctrlPtr ;
+  drvState = &(LDRV_DRV_State[dspId]);
+  drvCtrl = drvState->ctrlPtr;
 
-    if (hshkCtrl == DRV_HandshakeSetup) {
-        /* Set all DSP-side modules to uninitialized state. */
-        drvCtrl->drvDspInitDone    = (Uint32) -1 ;
-        drvCtrl->ipsDspInitDone    = (Uint32) -1 ;
+  if (hshkCtrl == DRV_HandshakeSetup) {
+    /* Set all DSP-side modules to uninitialized state */
+    drvCtrl->drvDspInitDone = (Uint32) -1;
+    drvCtrl->ipsDspInitDone = (Uint32) -1;
+
 #if defined (POOL_COMPONENT)
-        drvCtrl->poolDspInitDone   = (Uint32) -1 ;
-#endif /* if defined (POOL_COMPONENT) */
-#if defined (MPCS_COMPONENT)
-        drvCtrl->mpcsDspInitDone   = (Uint32) -1 ;
-#endif /* if defined (MPCS_COMPONENT) */
-#if defined (MPLIST_COMPONENT)
-        drvCtrl->mplistDspInitDone = (Uint32) -1 ;
-#endif /* if defined (MPLIST_COMPONENT) */
-#if defined (MSGQ_COMPONENT)
-        drvCtrl->mqtDspInitDone    = (Uint32) -1 ;
-#endif /* if defined (MSGQ_COMPONENT) */
-#if defined (CHNL_COMPONENT)
-        drvCtrl->dataDspInitDone   = (Uint32) -1 ;
-#endif /* if defined (CHNL_COMPONENT) */
-#if defined (RINGIO_COMPONENT)
-        drvCtrl->ringIoDspInitDone = (Uint32) -1 ;
-#endif /* if defined (RINGIO_COMPONENT) */
+    drvCtrl->poolDspInitDone = (Uint32) -1;
+#endif
 
-        /*  --------------------------------------------------------------------
-         *  Get the DSP address of location where the value of shared memory
-         *  start location is to be written and write the value at this location
-         *  --------------------------------------------------------------------
-         */
-        status = PMGR_PROC_getSymbolAddress (dspId,
-                                             DRV_SHMBASESYMBOL,
-                                             &dspShmBase) ;
-        if (DSP_SUCCEEDED (status)) {
-            TRC_1PRINT (TRC_LEVEL4,
-                        "DRV shared memory base symbol DSP address [0x%x]n",
-                        dspShmBase) ;
-            status = LDRV_PROC_write (
-                                 dspId,
-                                 dspShmBase,
-                                 Endianism_Default,
-                                 sizeof (Uint32),
-                                 (Uint8 *) ((Pvoid) &(drvState->dspCtrlAddr))) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-                PRINT_Printf (
-                      "Error: Failed to write shared memory base address into"
-                      " DSP-side symbol: .data:DSPLINK_shmBaseAddress\n"
-                      "Ensure DSP-side memory map (TCF/MAP) matches with "
-                      "/dsplink/config/all/CFG_<PLATFORM>.c\n") ;
+#if defined (MPCS_COMPONENT)
+    drvCtrl->mpcsDspInitDone = (Uint32) -1;
+#endif
+
+#if defined (MPLIST_COMPONENT)
+    drvCtrl->mplistDspInitDone = (Uint32) -1;
+#endif
+
+#if defined (MSGQ_COMPONENT)
+    drvCtrl->mqtDspInitDone = (Uint32) -1;
+#endif
+
+#if defined (CHNL_COMPONENT)
+    drvCtrl->dataDspInitDone = (Uint32) -1;
+#endif
+
+#if defined (RINGIO_COMPONENT)
+    drvCtrl->ringIoDspInitDone = (Uint32) -1;
+#endif
+
+    /* Now get the DSP address of location where the value of shared memory
+       start location is to be written and then write the value at this
+       location */
+    status = PMGR_PROC_getSymbolAddress(dspId,
+                                        DRV_SHMBASESYMBOL,
+                                        &dspShmBase);
+
+    if (DSP_SUCCEEDED(status)) {
+      TRC_1PRINT(TRC_LEVEL4,
+                 "DRV shared memory base symbol DSP address 0x%x\n",
+                 dspShmBase);
+
+      status = LDRV_PROC_write(dspId,
+                               dspShmBase,
+                               Endianism_Default,
+                               sizeof (Uint32),
+                               (Uint8 *) (&drvState->dspCtrlAddr));
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+
+        PRINT_Printf("*** error in '%s': failed to write shared memory "
+                     "base address into the (DSP-side) symbol "
+                     "'.data:DSPLINK_shmBaseAddress'. Ensure the DSP "
+                     "memory map (TCF/MAP) matches the configuration in "
+                     "'/dsplink/config/all/CFG_<PLATFORM>.c'\n",
+                     __FUNCTION__);
+      }
+    }
+    else {
+      /* If symbol table is stripped, allow starting DSP executable. This
+         assumes that DSP-side application has used SECTIONS directive to
+         set the value of the shm base symbol to shared memory start
+         address in its linker command file.
+
+         For example:
+            SECTIONS {
+              .data:DSPLINK_shmBaseAddress: fill=0x8FE05000 {} > DDR
             }
-        }
-        else {
-            /* If symbol table is stripped, allow starting DSP executable. This
-             * assumes that DSP-side application has used SECTIONS directive to
-             * set the value of the shm base symbol to shared memory start
-             * address in its linker command file.
-             * For example:
-             * SECTIONS {
-             *     .data:DSPLINK_shmBaseAddress: fill=0x8FE05000 {} > DDR
-             * }
-             */
-            if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTSUPPORTED)) {
-                status = DSP_SOK ;
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-        }
+      */
+
+      if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTSUPPORTED)) {
+        status = DSP_SOK;
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
+    }
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    /* Perform the handshake with the DSP now */
+    status = (drvState->interface->handshake)(
+                dspId, drvState->linkDrvId, hshkCtrl);
+
+    PRINT_Printf("Completing driver handshake (1), status: 0x%x\n", status);
+
+    if (DSP_FAILED(status)) {
+      TRC_1PRINT(TRC_LEVEL4,
+                 "Driver handshake with DSP failed (0x%x)\n",
+                 status);
+
+      SET_FAILURE_REASON;
+    }
+  }
+
+  if (hshkCtrl == DRV_HandshakeCompl) {
+    /* Check whether the DSPLINK version on the DSP and GPP sides match */
+    DBC_Assert(drvCtrl != NULL);
+
+    GEN_Strcmpn(drvCtrl->version,
+                DSPLINK_VERSION,
+                NUM_CHARS_VERSION - 1,
+                &strCmpResult);
+
+    if (strCmpResult != 0) {
+      status = DSP_EVERSION;
+      SET_FAILURE_REASON;
+
+      PRINT_Printf("*** error in '%s': DSPLINK version mismatch between "
+                   "GPP (version %s) and DSP (version %s)\n",
+                   __FUNCTION__, DSPLINK_VERSION, drvCtrl->version);
     }
 
-    if (DSP_SUCCEEDED (status)) {
-        /*  --------------------------------------------------------------------
-         *  Handshake with the DSP
-         *  --------------------------------------------------------------------
-         */
-        status = (drvState->interface->handshake) (dspId,
-                                                   drvState->linkDrvId,
-                                                   hshkCtrl) ;
-        if (DSP_FAILED (status)) {
-            TRC_1PRINT (TRC_LEVEL4,
-                        "    Driver handshake with DSP failed [0x%x]:\n",
-                        status) ;
-            SET_FAILURE_REASON ;
-        }
-    }
+    /* Check whether the DSP configuration matches the GPP expectations
+       and was successful */
+    else if ((drvCtrl->drvDspInitDone != 0)
+          || (drvCtrl->procId != dspId)
+          || (drvCtrl->ipsDspInitDone != 0)
 
-    if (hshkCtrl == DRV_HandshakeCompl) {
-        /* Check whether the DSPLINK version on the DSP-side matches the
-         * expected version on the GPP-side.
-         */
-        DBC_Assert (drvCtrl != NULL) ;
-
-
-        GEN_Strcmpn (drvCtrl->version,
-                     DSPLINK_VERSION,
-                     NUM_CHARS_VERSION - 1,
-                     &strCmpResult) ;
-        if (strCmpResult != 0) {
-            status = DSP_EVERSION ;
-            SET_FAILURE_REASON ;
-            PRINT_Printf ("Version mismatch between GPP and DSP-side\n") ;
-            PRINT_Printf ("    GPP-side version    [%s]:\n",
-                          DSPLINK_VERSION) ;
-            PRINT_Printf ("    DSP-side version    [%s]:\n",
-                          drvCtrl->version) ;
-        }
-        /* Check whether the DSP configuration matches the GPP expectations
-         * and was successful.
-         */
-        else if (    (drvCtrl->drvDspInitDone    != 0)
-                 ||  (drvCtrl->procId            != dspId)
-                 ||  (drvCtrl->ipsDspInitDone    != 0)
 #if defined (POOL_COMPONENT)
-                 ||  (drvCtrl->poolDspInitDone   != 0)
-#endif /* if defined (POOL_COMPONENT) */
-#if defined (MPCS_COMPONENT)
-                 ||  (drvCtrl->mpcsDspInitDone   != 0)
-#endif /* if defined (MPCS_COMPONENT) */
-#if defined (MPLIST_COMPONENT)
-                 ||  (drvCtrl->mplistDspInitDone != 0)
-#endif /* if defined (MPLIST_COMPONENT) */
-#if defined (MSGQ_COMPONENT)
-                 ||  (drvCtrl->mqtDspInitDone    != 0)
-#endif /* if defined (MSGQ_COMPONENT) */
-#if defined (CHNL_COMPONENT)
-                 ||  (drvCtrl->dataDspInitDone   != 0)
-#endif /* if defined (CHNL_COMPONENT) */
-#if defined (RINGIO_COMPONENT)
-                 ||  (drvCtrl->ringIoDspInitDone != 0)
-#endif /* if defined (RINGIO_COMPONENT) */
-            ) {
-            status = DSP_ECONFIG ;
-            SET_FAILURE_REASON ;
+          || (drvCtrl->poolDspInitDone != 0)
+#endif
 
-            PRINT_Printf ("DSP-side configuration mismatch/failure\n") ;
-            PRINT_Printf ("0              -> success\n") ;
-            PRINT_Printf ("Positive value -> DSP-side failure code.\n") ;
-            PRINT_Printf ("(Uint32) -1    -> DSP-side component was not"
-                          " initialized.\n\n") ;
-            PRINT_Printf ("    ProcId received : %d, Expected : %d\n",
-                          drvCtrl->procId,
-                          dspId) ;
-            PRINT_Printf ("    DRV configuration status    [0x%x]\n",
-                          drvCtrl->drvDspInitDone) ;
-            PRINT_Printf ("    IPS configuration status    [0x%x]\n",
-                          drvCtrl->ipsDspInitDone) ;
+#if defined (MPCS_COMPONENT)
+          || (drvCtrl->mpcsDspInitDone != 0)
+#endif
+
+#if defined (MPLIST_COMPONENT)
+          || (drvCtrl->mplistDspInitDone != 0)
+#endif
+
+#if defined (MSGQ_COMPONENT)
+          || (drvCtrl->mqtDspInitDone != 0)
+#endif
+
+#if defined (CHNL_COMPONENT)
+          || (drvCtrl->dataDspInitDone != 0)
+#endif
+
+#if defined (RINGIO_COMPONENT)
+          || (drvCtrl->ringIoDspInitDone != 0)
+#endif
+    )
+    {
+      status = DSP_ECONFIG;
+      SET_FAILURE_REASON;
+
+      PRINT_Printf("*** error in '%s': DSP-side configuration mismatch "
+                   "(0=success, >0=DSP failure code, (Uint32) -1="
+                   "DSP component not initialized\n", __FUNCTION__);
+
+      PRINT_Printf("  procId: received 0x%x, expected 0x%x\n",
+                   drvCtrl->procId, dspId);
+
+      PRINT_Printf("  DRV configuration status 0x%x\n",
+                   drvCtrl->drvDspInitDone);
+
+      PRINT_Printf("  IPS configuration status 0x%x\n",
+                   drvCtrl->ipsDspInitDone);
+
 #if defined (POOL_COMPONENT)
-            PRINT_Printf ("    POOL configuration status   [0x%x]\n",
-                          drvCtrl->poolDspInitDone) ;
-#endif /* if defined (POOL_COMPONENT) */
+      PRINT_Printf("  POOL configuration status 0x%x\n",
+                   drvCtrl->poolDspInitDone);
+#endif
+
 #if defined (MPCS_COMPONENT)
-            PRINT_Printf ("    MPCS configuration status   [0x%x]\n",
-                          drvCtrl->mpcsDspInitDone) ;
-#endif /* if defined (MPCS_COMPONENT) */
+      PRINT_Printf("  MPCS configuration status 0x%x\n",
+                   drvCtrl->mpcsDspInitDone);
+#endif
+
 #if defined (MPLIST_COMPONENT)
-            PRINT_Printf ("    MPLIST configuration status [0x%x]\n",
-                          drvCtrl->mplistDspInitDone) ;
-#endif /* if defined (MPLIST_COMPONENT) */
+      PRINT_Printf("  MPLIST configuration status 0x%x\n",
+                   drvCtrl->mplistDspInitDone);
+#endif
+
 #if defined (MSGQ_COMPONENT)
-            PRINT_Printf ("    MQT configuration status    [0x%x]\n",
-                          drvCtrl->mqtDspInitDone) ;
-#endif /* if defined (MSGQ_COMPONENT) */
+      PRINT_Printf("  MQT configuration status 0x%x\n",
+                   drvCtrl->mqtDspInitDone);
+#endif
+
 #if defined (CHNL_COMPONENT)
-            PRINT_Printf ("    DATA configuration status   [0x%x]\n",
-                          drvCtrl->dataDspInitDone) ;
-#endif /* if defined (CHNL_COMPONENT) */
+      PRINT_Printf("  DATA configuration status 0x%x\n",
+                   drvCtrl->dataDspInitDone);
+#endif
+
 #if defined (RINGIO_COMPONENT)
-            PRINT_Printf ("    RINGIO configuration status [0x%x]\n",
-                          drvCtrl->ringIoDspInitDone) ;
-#endif /* if defined (RINGIO_COMPONENT) */
-        }
-        else {
-        }
+      PRINT_Printf("  RINGIO configuration status 0x%x\n",
+                   drvCtrl->ringIoDspInitDone);
+#endif
     }
+  }
 
-    TRC_1LEAVE ("LDRV_DRV_handshake", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_DRV_handshake", status);
+  return status;
 }
 
 

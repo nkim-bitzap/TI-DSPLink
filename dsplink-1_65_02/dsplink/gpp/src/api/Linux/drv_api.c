@@ -498,14 +498,10 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
   return status;
 }
 
-/** ============================================================================
- *  @name   DRV_Invoke
- *
- *  @desc   Invokes the lower layer function, which is OS dependent.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_Invoke
+  @desc  Invokes the lower layer function, which is OS dependent
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
                                  IN Uint32 cmdId,
@@ -516,55 +512,61 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
   CMD_Args *args = arg1;
   int osStatus;
 
-  TRC_4ENTER ("DRV_Invoke", drvObj, cmdId, arg1, arg2) ;
+  TRC_4ENTER("DRV_Invoke", drvObj, cmdId, arg1, arg2) ;
 
-  DBC_Require (((drvObj != NULL) && (IS_OBJECT_VALID (drvObj, SIGN_DRV)))
-               || ((drvObj == NULL) && (cmdId == CMD_PROC_ATTACH)));
+  DBC_Require(((drvObj != NULL) && (IS_OBJECT_VALID (drvObj, SIGN_DRV)))
+           || ((drvObj == NULL) && (cmdId == CMD_PROC_ATTACH)));
 
-  if (IS_OBJECT_VALID (drvObj, SIGN_DRV) || (cmdId == CMD_PROC_ATTACH))
+  if (IS_OBJECT_VALID(drvObj, SIGN_DRV) || (cmdId == CMD_PROC_ATTACH))
   {
-    DBC_Assert (args != NULL) ;
+    DBC_Assert(args != NULL);
 
     switch (cmdId) {
 
 #if defined (MSGQ_COMPONENT)
       case CMD_MSGQ_PUT:
       {
-         /* Get the pool Id from the poolno and dsp processor Id
-            args->apiArgs.msgqPutArgs.msg->poolId is poolno and not
-            poolid in 1.60 stream */
-         status = _POOL_xltBuf(args->apiArgs.msgqPutArgs.msg->poolId,
-                               (Pvoid *) &args->apiArgs.msgqPutArgs.msg,
-                               USR_TO_KNL);
+        /* Get the pool Id from the poolno and dsp processor Id
+           args->apiArgs.msgqPutArgs.msg->poolId is poolno and not
+           poolid in 1.60 stream */
+        status = _POOL_xltBuf(args->apiArgs.msgqPutArgs.msg->poolId,
+                              (Pvoid *) &args->apiArgs.msgqPutArgs.msg,
+                              USR_TO_KNL);
 
-         if (DSP_SUCCEEDED (status)) {
-                    osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                    if (osStatus < 0) {
-                        status = DSP_EFAIL ;
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
-            break ;
+        if (DSP_SUCCEEDED(status)) {
+          osStatus = ioctl(drvObj->driverHandle, cmdId, args);
 
-        case CMD_MSGQ_GET:
-            {
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-                else if (DSP_SUCCEEDED (args->apiStatus)) {
-                    status = _POOL_xltBuf (
-                                   args->apiArgs.msgqGetArgs.poolId,
-                                   (Pvoid *) &args->apiArgs.msgqGetArgs.msgAddr,
-                                    KNL_TO_USR) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
-            break ;
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+        }
+
+        break;
+      }
+
+      case CMD_MSGQ_GET:
+      {
+        osStatus = ioctl(drvObj->driverHandle, cmdId, args);
+
+        if (osStatus < 0) {
+          status = DSP_EFAIL;
+          SET_FAILURE_REASON;
+        }
+        else if (DSP_SUCCEEDED(args->apiStatus)) {
+          status = _POOL_xltBuf(
+                        args->apiArgs.msgqGetArgs.poolId,
+                        (Pvoid *) &args->apiArgs.msgqGetArgs.msgAddr,
+                        KNL_TO_USR);
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
+        }
+
+        break;
+      }
+
 #endif /* if defined (MSGQ_COMPONENT) */
 
 #if defined (CHNL_COMPONENT)

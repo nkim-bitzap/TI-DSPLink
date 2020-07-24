@@ -933,13 +933,12 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
   Uint32 sectHeaderSize;
 
   TRC_5ENTER ("COFF_load", procId, loaderObj, argc, argv, entryPt);
-  printk(KERN_ALERT "Executing 'COFF_load'\n");
 
   DBC_Require(IS_VALID_PROCID(procId));
   DBC_Require(loaderObj != NULL);
   DBC_Require(entryPt != NULL);
   DBC_Require(((argc == 0) && (argv == NULL))
-              || ((argc != 0) && (argv != NULL)));
+           || ((argc != 0) && (argv != NULL)));
 
   DBC_Assert(loaderObj->objCtx != NULL);
 
@@ -1002,9 +1001,8 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
         /* Memory allocation for all section data is done for COFF, i.e.
            file based loader */
         if (obj->isFileBased == COFF_LOADER) {
-          status = MEM_Alloc((Void **) &(sectHeader.data),
-                             sectHeader.size,
-                             MEM_DEFAULT);
+          status = MEM_Alloc(
+            (Void **) &(sectHeader.data), sectHeader.size, MEM_DEFAULT);
         }
 
         if (DSP_SUCCEEDED(status)) {
@@ -1109,9 +1107,9 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
             if (obj->isFileBased == COFF_SHM_LOADER) {
               virtualAddress = (Uint32)sectHeader.virtualAddress;
 
-              virtAddr = (*(loaderObj->fnAddrConvert))(procId,
-                                                       virtualAddress,
-                                                       DspToGpp);
+              virtAddr = (*loaderObj->fnAddrConvert)(procId,
+                                                     virtualAddress,
+                                                     DspToGpp);
 
               /* Directly write section data in DSP address space */
               if (virtAddr != ADDRMAP_INVALID) {
@@ -1156,13 +1154,9 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
                                      sectHeaderSize,
                                      (Uint8 *)sectHeader.data);
 
-  printk(KERN_ALERT "fnWriteDspMem, status: 0x%x\n", status);
-
             if (DSP_SUCCEEDED(status)) {
               status = KFILE_Seek(
                 obj->fileObj, sectHeaderSize, KFILE_SeekSet);
-
-  printk(KERN_ALERT "KFILE_Seek, status: 0x%x\n", status);
 
               if (DSP_FAILED(status)) {
                 SET_FAILURE_REASON;
@@ -1197,8 +1191,6 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
   if (obj->fileObj != NULL) {
     tempStatus = KFILE_Close(obj->fileObj);
 
-  printk(KERN_ALERT "KFILE_Close, status: 0x%x\n", tempStatus);
-
     if (DSP_FAILED(tempStatus) && DSP_SUCCEEDED(status)) {
       status = tempStatus;
       SET_FAILURE_REASON;
@@ -1207,146 +1199,137 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
     obj->fileObj = NULL;
   }
 
-  if (DSP_FAILED (status)) {
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s': failed loading COFF binary\n",
+                      __FUNCTION__);
+
     SET_FAILURE_REASON;
   }
   else {
     *entryPt = (Uint32) optHeader.entry;
   }
 
-  printk(KERN_ALERT "'COFF_load' executed, status: 0x%x\n", status);
   TRC_1LEAVE("COFF_load", status);
-
   return status;
 }
 
-/** ============================================================================
- *  @func   COFF_getSymbolAddress
- *
- *  @desc   Gets the DSP address corresponding to a symbol within a DSP
- *          executable currently loaded on the DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-COFF_getSymbolAddress (IN   ProcessorId     procId,
-                       IN   Void *          objCtx,
-                       IN   Char8 *         symbolName,
-                       OUT  Uint32 *        dspAddr)
+/*******************************************************************************
+  @func  COFF_getSymbolAddress
+  @desc  Gets the DSP address corresponding to a symbol within a DSP
+         executable currently loaded on the DSP
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS COFF_getSymbolAddress(IN ProcessorId procId,
+                                            IN Void *objCtx,
+                                            IN Char8 *symbolName,
+                                            OUT Uint32 *dspAddr)
 {
-    DSP_STATUS         status     = DSP_SOK                 ;
-    Int32              cmpResult  = -1                      ;
-    COFF_SymbolEntry * symTab     = NULL                    ;
-    Char8 *            symName    = NULL                    ;
-    Uint32             symbolFromStrTab [3]                 ;
-    COFF_Context *     obj                                  ;
-    Uint32             numSymbols                           ;
-    Uint32             i                                    ;
+  DSP_STATUS status = DSP_SOK;
+  Int32 cmpResult = -1;
+  COFF_SymbolEntry * symTab = NULL;
+  Char8 *symName = NULL;
+  Uint32 symbolFromStrTab[3];
+  COFF_Context *obj;
+  Uint32 numSymbols;
+  Uint32 i;
 
-    TRC_4ENTER ("COFF_getSymbolAddress", procId, objCtx, symbolName, dspAddr) ;
+  TRC_4ENTER("COFF_getSymbolAddress", procId, objCtx, symbolName, dspAddr);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (objCtx != NULL) ;
-    DBC_Require (symbolName != NULL) ;
-    DBC_Require (dspAddr    != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(objCtx != NULL);
+  DBC_Require(symbolName != NULL);
+  DBC_Require(dspAddr != NULL);
 
-    if (    (!(IS_VALID_PROCID (procId)))
-        ||  (objCtx     == NULL)
-        ||  (symbolName == NULL)
-        ||  (dspAddr    == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((!(IS_VALID_PROCID (procId)))
+    || (objCtx     == NULL)
+    || (symbolName == NULL)
+    || (dspAddr    == NULL))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    *dspAddr = 0;
+    obj = (COFF_Context *) objCtx;
+    symTab = obj->symTab;
+    numSymbols = obj->numSymbols;
+
+    /* Check whether the configuration supports loading symbols */
+    if (symTab == NULL) {
+      status = DSP_ENOTSUPPORTED;
+      SET_FAILURE_REASON;
     }
     else {
-        *dspAddr = 0 ;
+      for (i = 0; (i < numSymbols) && (cmpResult != 0); i++)
+      {
+        /* If the symbol name is a 8 character symbol name padded with
+           zeroes, 'COFF_getString' returns a reference to the symbol name
+           being passed to it. To account for null terminated strings, a
+           copy is made to a local string and then passed as argument to
+           the 'COFF_getString' function */
+        MEM_Copy((Uint8 *) &(symbolFromStrTab[0]),
+                 (Uint8 *) &(symTab[i].name),
+                 COFF_NAME_LEN,
+                 Endianism_Default);
 
-        obj = (COFF_Context *) objCtx ;
-        symTab     = obj->symTab ;
+        symbolFromStrTab[2] = '\0';
 
-        numSymbols = obj->numSymbols ;
+        /* get a symbol name from either symbol table (if the symbol name
+           is less than 8 characters) or from the string table. Compare
+           with the given string to check the match */
+        status = COFF_getString(
+          (Char8 *) symbolFromStrTab, obj, &symName);
 
-        /* Check whether the configuration supports loading symbols. */
-        if (symTab == NULL) {
-            status = DSP_ENOTSUPPORTED ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            for (i = 0 ; (i < numSymbols) && (cmpResult != 0) ; i++) {
-                /*  ------------------------------------------------------------
-                 *  If the symbol name is a 8 character symbol name padded with
-                 *  nulls, COFF_getString returns a reference to the symbol name
-                 *  being passed to it. To account for null terminated string a
-                 *  a copy is made to a local string and then passed to the
-                 *  COFF_getString function.
-                 *  ------------------------------------------------------------
-                 */
-                MEM_Copy ((Uint8 *)&(symbolFromStrTab [0]),
-                          (Uint8 *)&(symTab[i].name),
-                          COFF_NAME_LEN,
-                          Endianism_Default) ;
-                symbolFromStrTab [2] = '\0' ;
+        if (DSP_SUCCEEDED(status)) {
+          status = GEN_Strcmp(symName, symbolName, &cmpResult);
 
-                /*  ------------------------------------------------------------
-                 *  Get_String functions  symbol name from either symbol table
-                 *  if symbol name is less than 8 characters or from the string
-                 *  table. Compare with the given string to check match.
-                 *  ------------------------------------------------------------
-                 */
-                status = COFF_getString ((Char8 *) symbolFromStrTab,
-                                         obj,
-                                         &symName) ;
-                if (DSP_SUCCEEDED (status)) {
-                    status = GEN_Strcmp (symName, symbolName, &cmpResult) ;
-                    if (DSP_SUCCEEDED (status)) {
-                        if (cmpResult == 0) {
-                            *dspAddr = symTab [i].value ;
-                        }
-                    }
-                    else {
-                        SET_FAILURE_REASON ;
-                    }
-                }
+          if (DSP_SUCCEEDED(status)) {
+            if (cmpResult == 0) {
+              *dspAddr = symTab[i].value;
             }
-
-            if (DSP_SUCCEEDED (status) && ((*dspAddr) == ((Uint32) NULL))) {
-                status = DSP_ENOTFOUND ;
-            }
+          }
+          else {
+            SET_FAILURE_REASON;
+          }
         }
+      }
+
+      if (DSP_SUCCEEDED(status) && ((*dspAddr) == ((Uint32) NULL))) {
+        status = DSP_ENOTFOUND;
+      }
     }
+  }
 
-    TRC_1LEAVE ("COFF_getSymbolAddress", status) ;
+  if (DSP_FAILED(status)) {
+    printk(KERN_ALERT "*** error in '%s': failed obtaining address for "
+                      "the symbol '%s'\n", __FUNCTION__, symbolName);
+  }
 
-    return status ;
+  TRC_1LEAVE ("COFF_getSymbolAddress", status);
+  return status;
 }
-
 
 #if defined (DDSP_DEBUG)
-/** ============================================================================
- *  @func   COFF_debug
- *
- *  @desc   Prints the debug information of COFF sub=module.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-COFF_debug (IN COFF_Context *   obj)
+
+/*******************************************************************************
+  @func  COFF_debug
+  @desc  Prints the debug information of COFF sub=module
+*******************************************************************************/
+
+NORMAL_API Void COFF_debug(IN COFF_Context *obj)
 {
-    TRC_0ENTER ("COFF_debug") ;
+  TRC_0ENTER("COFF_debug");
+  DBC_Require(obj != NULL);
 
-    DBC_Require (obj != NULL) ;
+  if (obj != NULL) {
+    TRC_1PRINT(TRC_LEVEL1, "  fileObj: 0x%x\n", obj->fileObj);
+    TRC_1PRINT(TRC_LEVEL1, "  startAddr: 0x%x\n", obj->startAddr);
+    TRC_1PRINT(TRC_LEVEL1, "  isSwapped: 0x%x\n", obj->isSwapped);
+  }
 
-    if (obj != NULL) {
-        TRC_1PRINT (TRC_LEVEL1, "   fileObj  :    [0x%x]\n", obj->fileObj) ;
-        TRC_1PRINT (TRC_LEVEL1, "   startAddr:    [0x%x]\n", obj->startAddr) ;
-        TRC_1PRINT (TRC_LEVEL1, "   isSwapped:    [0x%x]\n", obj->isSwapped) ;
-    }
-
-    TRC_0LEAVE ("COFF_debug") ;
+  TRC_0LEAVE ("COFF_debug");
 }
+
 #endif /* defined (DDSP_DEBUG) */
 
 
@@ -1734,76 +1717,61 @@ COFF_getSectionData (IN     Uint32          sectId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  COFF_getString
+  @desc  Gets the null terminated string from string table if required
+*******************************************************************************/
 
-/** ----------------------------------------------------------------------------
- *  @func   COFF_getString
- *
- *  @desc   Gets the null terminated string from string table if required.
- *
- *  @modif  None
- *  ----------------------------------------------------------------------------
- */
-STATIC
-NORMAL_API
-DSP_STATUS
-COFF_getString (IN  Char8 *         str,
-                IN  COFF_Context  * obj,
-                OUT Char8 **        outStr)
+STATIC NORMAL_API DSP_STATUS COFF_getString(IN Char8 *str,
+                                            IN COFF_Context *obj,
+                                            OUT Char8 **outStr)
 {
-    DSP_STATUS    status   = DSP_SOK ;
-    Bool          swap     = FALSE   ;
-    Uint32        strOffset          ;
-    Uint32        offsetinStrTab     ;
+  DSP_STATUS status = DSP_SOK;
+  Bool swap = FALSE;
+  Uint32 strOffset;
+  Uint32 offsetinStrTab;
 
-    TRC_3ENTER ("COFF_getString", str, obj, outStr) ;
+  TRC_3ENTER("COFF_getString", str, obj, outStr);
 
-    DBC_Require (obj != NULL) ;
-    DBC_Require (str != NULL) ;
-    DBC_Require (outStr != NULL) ;
+  DBC_Require(obj != NULL);
+  DBC_Require(str != NULL);
+  DBC_Require(outStr != NULL);
 
-    if ((obj == NULL) || (str == NULL) || (outStr == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((obj == NULL) || (str == NULL) || (outStr == NULL)) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    *outStr = NULL;
+
+    /* If the first four bytes of the 'string' are NULL, it indicates that
+       the string is present in the symbol table */
+    if (*((Uint32 *) ((Pvoid) str)) == 0) {
+      swap = obj->isSwapped;
+
+      if (swap == TRUE) {
+        strOffset = BYTESWAP_LONG(*((Uint32 *) (Pvoid) (str + 4)));
+      }
+      else {
+        strOffset = *(Uint32 *) ((Pvoid) (str + 4));
+      }
+
+      /* Decrement the offset by 4, this accounts for the 4 bytes needed to
+         store the size */
+      strOffset -= 4;
+      offsetinStrTab = ((Uint32)((Pvoid) obj->strTab) + strOffset);
+
+      /* Return the offset in the string table */
+      (*outStr) = (Char8 *) (offsetinStrTab);
     }
     else {
-        *outStr = NULL ;
-
-        /*  --------------------------------------------------------------------
-         *  If the first four bytes of the 'string' are NULL - it indicates that
-         *  string is present in the symbol table.
-         *  --------------------------------------------------------------------
-         */
-        if (*((Uint32 *) ((Pvoid) str)) == 0) {
-            swap = obj->isSwapped ;
-
-            if (swap == TRUE) {
-                strOffset = BYTESWAP_LONG (*((Uint32 *) (Pvoid) (str + 4))) ;
-            }
-            else {
-                strOffset = *(Uint32 *) ((Pvoid) (str + 4)) ;
-            }
-
-            /*  ----------------------------------------------------------------
-             *  Decrement the offset by 4 to account for the 4 bytes needed
-             *  to store the size
-             *  ----------------------------------------------------------------
-             */
-            strOffset -= 4;
-
-            offsetinStrTab = ((Uint32)((Pvoid) obj->strTab) + strOffset) ;
-
-            /* Return the offset in the string table */
-            (*outStr)  = (Char8 *) (offsetinStrTab) ;
-        }
-        else {
-            /* Return the 'str' argument itself */
-            (*outStr)  = str ;
-        }
+      /* Return the 'str' argument itself */
+      (*outStr) = str;
     }
+  }
 
-    TRC_1LEAVE ("COFF_getString", status) ;
-
-    return status ;
+  TRC_1LEAVE("COFF_getString", status);
+  return status;
 }
 
 

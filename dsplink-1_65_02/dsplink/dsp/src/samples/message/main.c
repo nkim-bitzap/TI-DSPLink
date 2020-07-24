@@ -354,17 +354,17 @@ extern int atoi (const char * str) ;
  *  @modif  None
  *  ============================================================================
  */
-Void main (Int argc, Char * argv [])
+Void main(Int argc, Char *argv[])
 {
+
 #if defined (SWI_MODE)
     /* SWI based application */
-    SWIMESSAGE_TransferInfo * info ;
-    Int status ;
-#else /* if defined (SWI_MODE) */
+    SWIMESSAGE_TransferInfo *info;
+    Int status;
+#else
     /* TSK based application */
-    TSK_Handle                tskMessageTask ;
-#endif /* if defined (SWI_MODE) */
-
+    TSK_Handle tskMessageTask;
+#endif
 
 #if defined (DSP_BOOTMODE_NOBOOT)
     /* register the init ISR */
@@ -376,9 +376,10 @@ Void main (Int argc, Char * argv [])
 
 #if !defined (DSP_BOOTMODE_NOBOOT)
     /* Get the number of transfers to be done by the application */
-    numTransfers = atoi (argv [0]) ;
-    /* Initialize DSP/BIOS LINK. */
-    DSPLINK_init () ;
+    numTransfers = atoi(argv [0]);
+
+    /* Initialize DSP/BIOS LINK */
+    DSPLINK_init();
 #else
     /* Get the number of transfers to be done by the application */
     numTransfers = 10000 ;

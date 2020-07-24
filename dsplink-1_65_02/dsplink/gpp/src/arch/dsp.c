@@ -79,164 +79,126 @@ extern "C" {
  */
 STATIC DSP_Object DSP_State [MAX_DSPS] ;
 
+/*******************************************************************************
+  @func  DSP_moduleInit
+  @desc  Initializes the DSP module
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_moduleInit
- *
- *  @desc   Initializes the DSP module.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-Void
-DSP_moduleInit (Void)
+NORMAL_API Void DSP_moduleInit(Void)
 {
-    TRC_0ENTER ("DSP_moduleInit") ;
-
-    TRC_0LEAVE ("DSP_moduleInit") ;
+  TRC_0ENTER("DSP_moduleInit");
+  TRC_0LEAVE("DSP_moduleInit");
 }
 
+/*******************************************************************************
+  @func  DSP_moduleExit
+  @desc  Finalizes the DSP module
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_moduleExit
- *
- *  @desc   Finalizes the DSP module.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-Void
-DSP_moduleExit (Void)
+NORMAL_API Void DSP_moduleExit(Void)
 {
-    TRC_0ENTER ("DSP_moduleExit") ;
-
-    TRC_0LEAVE ("DSP_moduleExit") ;
+  TRC_0ENTER("DSP_moduleExit");
+  TRC_0LEAVE("DSP_moduleExit");
 }
 
+/*******************************************************************************
+  @func  DSP_init
+  @desc  Initializes the DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_init
- *
- *  @desc   Initializes the DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-DSP_init (IN ProcessorId  dspId, IN DSP_Interface * interface)
+NORMAL_API DSP_STATUS DSP_init(IN ProcessorId dspId,
+                               IN DSP_Interface *interface)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_2ENTER ("DSP_init", dspId, interface) ;
+  TRC_2ENTER("DSP_init", dspId, interface);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (interface != NULL) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
+  DBC_Require(interface != NULL);
 
 #if defined (DDSP_PROFILE)
-    DSP_State [dspId].dspStat.dataGppToDsp = 0 ;
-    DSP_State [dspId].dspStat.dataDspToGpp = 0 ;
-    DSP_State [dspId].dspStat.intsGppToDsp = 0 ;
-    DSP_State [dspId].dspStat.intsDspToGpp = 0 ;
+  DSP_State[dspId].dspStat.dataGppToDsp = 0;
+  DSP_State[dspId].dspStat.dataDspToGpp = 0;
+  DSP_State[dspId].dspStat.intsGppToDsp = 0;
+  DSP_State[dspId].dspStat.intsDspToGpp = 0;
 #endif /* if defined (DDSP_PROFILE) */
 
-    DSP_State [dspId].dspInterface = interface ;
-    status = (DSP_State [dspId].dspInterface->init) (dspId, &DSP_State [dspId]) ;
+  DSP_State[dspId].dspInterface = interface;
 
-    TRC_1LEAVE ("DSP_init", status) ;
+  status =
+    (DSP_State [dspId].dspInterface->init)(dspId, &DSP_State[dspId]);
 
-    return status ;
+  TRC_1LEAVE("DSP_init", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  DSP_exit
+  @desc  Finalizes the DSP sub-component. Either of following can be
+         implemeted here based on application requirement:
 
-/** ============================================================================
- *  @func   DSP_exit
- *
- *  @desc   Finalizes the DSP sub-component. Either of following can be
- *          implemeted here based on application requirement:
- *          1. Reset the DSP as it it no longer required by application.
- *          2. Call DSP_idle () to let the DSP run in 'self loop'.
- *          3. Let the DSP run free without modifying its execution state.
- *
- *          Option 1 is implemented here.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-DSP_exit (IN ProcessorId dspId)
+           1. Reset the DSP as it it no longer required by application.
+           2. Call DSP_idle () to let the DSP run in 'self loop'.
+           3. Let the DSP run free without modifying its execution state.
+
+         Option 1 is implemented here
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS DSP_exit(IN ProcessorId dspId)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_1ENTER ("DSP_exit", dspId) ;
+  TRC_1ENTER("DSP_exit", dspId);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
 
-    status = (DSP_State [dspId].dspInterface->exit) (dspId, &DSP_State [dspId]) ;
+  status =
+    (DSP_State[dspId].dspInterface->exit)(dspId, &DSP_State[dspId]);
 
-    TRC_1LEAVE ("DSP_exit", status) ;
-
-    return status ;
+  TRC_1LEAVE("DSP_exit", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  DSP_start
+  @desc  Causes DSP to start execution from the given DSP address
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_start
- *
- *  @desc   Causes DSP to start execution from the given DSP address.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-DSP_start (IN ProcessorId dspId, IN Uint32 dspAddr)
+NORMAL_API DSP_STATUS DSP_start(IN ProcessorId dspId,
+                                IN Uint32 dspAddr)
 {
-    DSP_STATUS          status         = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_2ENTER ("DSP_start", dspId, dspAddr) ;
+  TRC_2ENTER("DSP_start", dspId, dspAddr);
+  DBC_Require(IS_VALID_PROCID (dspId));
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  status = (DSP_State[dspId].dspInterface->start)(
+              dspId, &DSP_State[dspId], dspAddr);
 
-    status = (DSP_State [dspId].dspInterface->start) (dspId,
-                                                   &DSP_State [dspId],
-                                                   dspAddr) ;
-
-    TRC_1LEAVE ("DSP_start", status) ;
-
-    return status ;
+  TRC_1LEAVE("DSP_start", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  DSP_stop
+  @desc  Stops execution on DSP.
+         DSP transitions to STOPPED state after successful completion
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_stop
- *
- *  @desc   Stops execution on DSP.
- *          DSP transitions to STOPPED state after successful completion.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-DSP_stop (IN ProcessorId dspId)
+NORMAL_API DSP_STATUS DSP_stop(IN ProcessorId dspId)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_1ENTER ("DSP_stop", dspId) ;
+  TRC_1ENTER("DSP_stop", dspId);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
 
-    status = (DSP_State [dspId].dspInterface->stop) (dspId, &DSP_State [dspId]) ;
+  status =
+    (DSP_State[dspId].dspInterface->stop)(dspId, &DSP_State[dspId]);
 
-    TRC_1LEAVE ("DSP_stop", status) ;
-
-    return status ;
+  TRC_1LEAVE("DSP_stop", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   DSP_idle

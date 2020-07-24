@@ -5,7 +5,7 @@
 ;; INPUT message.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Tue Jul 21 18:16:51 2020", VERS$DATE
+	.asg "Fri Jul 24 10:38:29 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include messagecfg.h62

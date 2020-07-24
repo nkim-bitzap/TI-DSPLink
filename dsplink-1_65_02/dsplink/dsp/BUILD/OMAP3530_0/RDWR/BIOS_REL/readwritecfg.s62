@@ -5,7 +5,7 @@
 ;; INPUT readwrite.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Tue Jul 21 18:16:54 2020", VERS$DATE
+	.asg "Fri Jul 24 10:38:31 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include readwritecfg.h62

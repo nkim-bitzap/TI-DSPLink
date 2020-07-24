@@ -878,16 +878,11 @@ PMGR_PROC_getState (IN   ProcessorId     procId,
     return status ;
 }
 
-
-/** ============================================================================
- *  @func   PMGR_PROC_load
- *
- *  @desc   Loads the specified DSP executable on the target DSP.
- *          It ensures that the caller owns the DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  PMGR_PROC_load
+  @desc  Loads the specified DSP executable on the target DSP.
+         It ensures that the caller owns the DSP
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
                                      IN Char8 *imagePath,
@@ -993,8 +988,6 @@ NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
           loaderObj.fnWriteDspMem = &LDRV_PROC_write;
           loaderObj.fnAddrConvert = &LDRV_PROC_addrConvert;
 
-        printk(KERN_ALERT "LOADING 5, loading\n");
-
           /* for the OMAP3530 architecture this invokes 'COFF_load', which
              among other things writes to the DSP memory space */
           status = (*loaderIntf->load)(procId,
@@ -1023,20 +1016,16 @@ NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
       if (DSP_SUCCEEDED(status)) {
         status = LDRV_PROC_setState(procId, ProcState_Loaded);
 
-        printk(KERN_ALERT "LOADING 6, setState\n");
-
         if (DSP_FAILED(status)) {
           SET_FAILURE_REASON;
         }
       }
       else {
-        printk(KERN_ALERT "LOADING 7, protectionStart\n");
-
         SYNC_ProtectionStart ();
 
         /* Reset state to not loaded */
-        PMGR_ProcObj [procId].objCtx = NULL;
-        PMGR_ProcObj [procId].isLoaded = FALSE;
+        PMGR_ProcObj[procId].objCtx = NULL;
+        PMGR_ProcObj[procId].isLoaded = FALSE;
         SYNC_ProtectionEnd();
       }
     }
@@ -1047,7 +1036,6 @@ NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
 
   return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_PROC_loadSection
@@ -1154,67 +1142,68 @@ PMGR_PROC_write (IN ProcessorId    procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PMGR_PROC_start
+  @desc  Starts execution of the loaded code on DSP from the starting
+         point specified in the DSP executable loaded earlier by call to
+         'PROC_load'
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_PROC_start
- *
- *  @desc   Starts execution of the loaded code on DSP from the starting
- *          point specified in the DSP executable loaded earlier by call to
- *          PROC_load ().
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_PROC_start (IN  ProcessorId  procId)
+NORMAL_API DSP_STATUS PMGR_PROC_start(IN ProcessorId procId)
 {
-    DSP_STATUS   status    = DSP_SOK ;
-    Bool         toStart   = FALSE ;
+  DSP_STATUS status = DSP_SOK;
+  Bool toStart = FALSE;
 
-    TRC_1ENTER ("PMGR_PROC_start", procId) ;
+  TRC_1ENTER("PMGR_PROC_start", procId);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
+  DBC_Require(IS_VALID_PROCID(procId));
 
-    if (PMGR_SetupRefCount == 0) {
-        status = DSP_ESETUP ;
-        SET_FAILURE_REASON ;
+  if (PMGR_SetupRefCount == 0) {
+    status = DSP_ESETUP;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_ProtectionStart();
+
+    if (PMGR_ProcObj[procId].attachRefCount == 0) {
+      status = DSP_EATTACHED;
+      SET_FAILURE_REASON;
     }
     else {
-        SYNC_ProtectionStart () ;
-        if (PMGR_ProcObj [procId].attachRefCount == 0) {
-            status = DSP_EATTACHED ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            /* Check if the DSP has not been started yet.*/
-            if (PMGR_ProcObj [procId].startRefCount == 0) {
-                toStart = TRUE ;
-            }
-            else {
-                status = DSP_SALREADYSTARTED ;
-            }
-            PMGR_ProcObj [procId].startRefCount++ ;
-        }
-        SYNC_ProtectionEnd () ;
+      /* Check if the DSP has not been started yet */
+      if (PMGR_ProcObj[procId].startRefCount == 0) {
+        toStart = TRUE;
+      }
+      else {
+        status = DSP_SALREADYSTARTED;
+      }
+
+      PMGR_ProcObj[procId].startRefCount++;
     }
 
-    if (DSP_SUCCEEDED (status)) {
-        if (toStart == TRUE) {
-            status = LDRV_PROC_start (procId,
-                                      PMGR_ProcObj [procId].entryPoint) ;
-            if (DSP_FAILED (status)) {
-                SYNC_ProtectionStart () ;
-                PMGR_ProcObj [procId].startRefCount-- ;
-                SYNC_ProtectionEnd () ;
-                SET_FAILURE_REASON ;
-            }
-        }
+    SYNC_ProtectionEnd();
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    if (toStart == TRUE) {
+      status = LDRV_PROC_start(
+                 procId, PMGR_ProcObj [procId].entryPoint);
+
+      if (DSP_FAILED(status)) {
+        SYNC_ProtectionStart();
+
+        PMGR_ProcObj[procId].startRefCount--;
+        SYNC_ProtectionEnd();
+
+        SET_FAILURE_REASON;
+      }
     }
+  }
 
-    TRC_1LEAVE ("PMGR_PROC_start", status) ;
+  printk(KERN_ALERT "'PMGR_PROC_start' executed, status 0x%x\n", status);
+  TRC_1LEAVE("PMGR_PROC_start", status);
 
-    return status ;
+  return status;
 }
 
 
@@ -1283,77 +1272,73 @@ PMGR_PROC_stop (IN  ProcessorId  procId)
     return status ;
 }
 
+/*******************************************************************************
+  @func  PMGR_PROC_getSymbolAddress
+  @desc  Gets the DSP address corresponding to a symbol within a DSP
+         executable currently loaded on the DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_PROC_getSymbolAddress
- *
- *  @desc   Gets the DSP address corresponding to a symbol within a DSP
- *          executable currently loaded on the DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-PMGR_PROC_getSymbolAddress (IN   ProcessorId   procId,
-                            IN   Char8 *       symbolName,
-                            OUT  Uint32 *      dspAddr)
+EXPORT_API DSP_STATUS PMGR_PROC_getSymbolAddress(IN ProcessorId procId,
+                                                 IN Char8 *symbolName,
+                                                 OUT Uint32 *dspAddr)
 {
-    DSP_STATUS        status    = DSP_SOK ;
-    PROC_State         procState ;
-    LOADER_Interface * loaderIntf ;
+  DSP_STATUS status = DSP_SOK;
+  PROC_State procState;
+  LOADER_Interface *loaderIntf;
 
-    TRC_3ENTER ("PMGR_PROC_getSymbolAddress", procId, symbolName, dspAddr) ;
+  TRC_3ENTER("PMGR_PROC_getSymbolAddress", procId, symbolName, dspAddr);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (symbolName != NULL) ;
-    DBC_Require (dspAddr != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(symbolName != NULL);
+  DBC_Require(dspAddr != NULL);
 
-    status = LDRV_PROC_getState (procId, &procState) ;
-    if (DSP_SUCCEEDED (status)) {
-        /* Ensure that DSP is currently loaded with a valid DSP executable. */
-        if (    (procState != ProcState_Loaded)
-            &&  (procState != ProcState_Started)
-            &&  (procState != ProcState_Stopped)) {
-            status = DSP_EWRONGSTATE ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            /* Get the symbol address corresponding to the symbol name. */
-            if ((PMGR_ProcObj [procId].loaderIntf) != NULL) {
-                loaderIntf = PMGR_ProcObj [procId].loaderIntf ;
-                DBC_Assert (loaderIntf != NULL) ;
-                if (loaderIntf != NULL) {
-                    if (PMGR_ProcObj [procId].objCtx != NULL) {
-                        status = (*(loaderIntf->getSymbolAddress)) (
-                                                   procId,
-                                                   PMGR_ProcObj [procId].objCtx,
-                                                   symbolName,
-                                                   dspAddr) ;
-                        if (DSP_FAILED (status)) {
-                            SET_FAILURE_REASON ;
-                        }
-                    }
-                }
-                else {
-                    status = DSP_EWRONGSTATE ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-        }
+  status = LDRV_PROC_getState(procId, &procState);
+
+  if (DSP_SUCCEEDED (status)) {
+    /* Ensure that DSP is currently loaded with a valid DSP executable */
+    if ((procState != ProcState_Loaded)
+    && (procState != ProcState_Started)
+    && (procState != ProcState_Stopped))
+    {
+      status = DSP_EWRONGSTATE;
+      SET_FAILURE_REASON;
     }
     else {
-        SET_FAILURE_REASON ;
+      /* Get the symbol address corresponding to the symbol name */
+      if ((PMGR_ProcObj[procId].loaderIntf) != NULL) {
+        loaderIntf = PMGR_ProcObj[procId].loaderIntf;
+        DBC_Assert(loaderIntf != NULL);
+
+        if (loaderIntf != NULL) {
+          if (PMGR_ProcObj [procId].objCtx != NULL) {
+            status = (*loaderIntf->getSymbolAddress)(
+                                         procId,
+                                         PMGR_ProcObj[procId].objCtx,
+                                         symbolName,
+                                         dspAddr);
+
+            if (DSP_FAILED(status)) {
+              SET_FAILURE_REASON;
+            }
+          }
+        }
+        else {
+          status = DSP_EWRONGSTATE;
+          SET_FAILURE_REASON;
+        }
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
     }
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("PMGR_PROC_getSymbolAddress", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_PROC_getSymbolAddress", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_PROC_control

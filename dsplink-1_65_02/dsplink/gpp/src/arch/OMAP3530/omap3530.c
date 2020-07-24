@@ -638,7 +638,6 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
   return status;
 }
 
-
 /** ============================================================================
  *  @func   OMAP3530_exit
  *
@@ -1113,8 +1112,6 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
              numBytes,
              buffer);
 
-  printk(KERN_ALERT "Executing 'OMAP3530_write'\n");
-
   DBC_Require(IS_VALID_PROCID(dspId));
   DBC_Require(buffer != NULL);
   DBC_Require(dspState->halObject != NULL);
@@ -1132,11 +1129,6 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
     dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
     dspObj = dspCfg->dspObject;
 
-    printk(KERN_ALERT "+++ dspAddr: 0x%x\n", dspAddr);
-    printk(KERN_ALERT "+++ numBytes: %d\n", numBytes);
-    printk(KERN_ALERT "+++ dspObj->resetVector: 0x%x\n", dspObj->resetVector);
-    printk(KERN_ALERT "+++ dspObj->resetCodeSize: %d\n", dspObj->resetCodeSize);
-
     /* Check if 'dspAddr' lies in 'Self Loop Area' */
     if (((dspAddr + numBytes) > dspObj->resetVector)
     && (dspAddr < (dspObj->resetVector + dspObj->resetCodeSize)))
@@ -1150,8 +1142,6 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
                              dspState,
                              BYTE_TO_MADU(dspAddr, dspObj->maduSize),
                              DspToGpp);
-
-  printk(KERN_ALERT "+++ gppdAddr: 0x%x\n", gppAddr);
 
       if (gppAddr != ADDRMAP_INVALID) {
         if (numBytes != sizeof(Uint32)) {
@@ -1180,8 +1170,6 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
         }
       }
       else {
-  printk(KERN_ALERT "FAIL 2\n");
-
        status = DSP_ERANGE;
        SET_FAILURE_REASON;
       }
@@ -1231,17 +1219,13 @@ NORMAL_API Uint32 OMAP3530_addrConvert(IN ProcessorId dspId,
   dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
   dspObj = dspCfg->dspObject;
 
+  /* Scan all available memory map segments (i.e. POOLMEM, DDR, etc.) and
+     see if the address is contained in one of them */
   for (i = 0; (found == FALSE) && (i < dspObj->memEntries); i++) {
     memEntry = &(dspCfg->memTables[dspObj->memTableId][i]);
 
     /* Determine which way to convert */
     if (type == GppToDsp) {
-
-    printk(KERN_ALERT "*** converting GPP->DSP:\n");
-    printk(KERN_ALERT "  addr: 0x%x\n", addr);
-    printk(KERN_ALERT "  memEntry->gppVirtAddr: 0x%x\n", memEntry->gppVirtAddr);
-    printk(KERN_ALERT "  memEntry->size: 0x%x\n", memEntry->size);
-
       if (IS_RANGE_VALID(addr,
                          memEntry->gppVirtAddr,
                          (memEntry->gppVirtAddr + memEntry->size)))
@@ -1252,19 +1236,9 @@ NORMAL_API Uint32 OMAP3530_addrConvert(IN ProcessorId dspId,
 
         found = TRUE;
       }
-      else {
-        printk(KERN_ALERT "  ADDRESS 0x%x NOT IN RANGE\n", addr);
-      }
     }
     else if (type == DspToGpp) {
       byteAddr = MADU_TO_BYTE(addr, dspObj->maduSize);
-
-    printk(KERN_ALERT "*** converting DSP->GPP:\n");
-    printk(KERN_ALERT "  addr: 0x%x\n", addr);
-    printk(KERN_ALERT "  byteAddr: 0x%x\n", byteAddr);
-    printk(KERN_ALERT "  dspObj->maduSize: 0x%x\n", dspObj->maduSize);
-    printk(KERN_ALERT "  memEntry->dspVirtAddr: 0x%x\n", memEntry->dspVirtAddr);
-    printk(KERN_ALERT "  memEntry->size: 0x%x\n", memEntry->size);
 
       if (IS_RANGE_VALID(byteAddr,
                          memEntry->dspVirtAddr,
@@ -1276,12 +1250,24 @@ NORMAL_API Uint32 OMAP3530_addrConvert(IN ProcessorId dspId,
 
         found = TRUE;
       }
-      else {
-        printk(KERN_ALERT "  ADDRESS 0x%x NOT IN RANGE\n", byteAddr);
-      }
     }
     else {
-      /* Added for MISRAC compliance */
+      /* Added for MISRAC compliance, nothing useful in here yet though */
+      printk(KERN_ALERT "*** error in '%s': unsupported conversion type\n",
+                        __FUNCTION__);
+    }
+  }
+
+  if (found == FALSE) {
+    if (type == GppToDsp) {
+      printk(KERN_ALERT "*** error in '%s': failed performing GPP->DSP "
+                        "conversion for address 0x%x. Inspect/correct the "
+                        "memory map configuration\n", __FUNCTION__, addr);
+    }
+    else {
+      printk(KERN_ALERT "*** error in '%s': failed performing DSP->GPP "
+                        "conversion for address 0x%x. Inspect/correct the "
+                        "memory map configuration\n", __FUNCTION__, addr);
     }
   }
 

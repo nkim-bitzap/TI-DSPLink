@@ -1301,7 +1301,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     case CMD_PROC_START:
       printk(KERN_ALERT "      executing command: 'CMD_PROC_START'\n");
 
-      retStatus = PMGR_PROC_start (args->apiArgs.procStartArgs.procId) ;
+      retStatus = PMGR_PROC_start(args->apiArgs.procStartArgs.procId);
 
       /* snoop the dsp id, used for sending terminate event */
       DRV_dspId = args->apiArgs.procStartArgs.procId;

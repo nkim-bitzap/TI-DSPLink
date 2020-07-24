@@ -206,17 +206,12 @@ LDRV_PROC_moduleExit (Void)
     return status ;
 }
 
-
-/** ============================================================================
- *  @func   LDRV_PROC_init
- *
- *  @desc   Allocates resources at GPP side that are required for using DSP.
- *          It also sets up the connection to DSP from the GPP and other
- *          associated peripheral hardware.
- *
- *  @modif  None
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  LDRV_PROC_init
+  @desc  Allocates resources at GPP side that are required for using DSP.
+         It also sets up the connection to DSP from the GPP and other
+         associated peripheral hardware
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 {
@@ -368,7 +363,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
         procState->dspState = ProcState_Reset;
       }
       else {
-        printk(KERN_ALERT " 'DSP_init' failed, status: 0x%x\n", status);
+        printk(KERN_ALERT " 'DSP_init' failed, status: 0x%x\n",
+                          status);
+
         SET_FAILURE_REASON;
       }
     }
@@ -377,12 +374,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
     if (DSP_SUCCEEDED (status)) {
       status = LDRV_DRV_init (dspId);
 
-      printk(KERN_ALERT "'LDRV_DRV_init' done in '%s', status: %ld\n",
-             __FUNCTION__, status);
-
       if (DSP_FAILED (status)) {
         SET_FAILURE_REASON ;
-        printk(KERN_ALERT " LDRV_DRV_init status [0x%x] \n",status);
       }
     }
 #endif /* if !(defined (ONLY_PROC_COMPONENT)) */
@@ -471,86 +464,91 @@ LDRV_PROC_exit (IN ProcessorId dspId)
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_PROC_start
+  @desc  Starts execution of DSP from specified location
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_PROC_start
- *
- *  @desc   Starts execution of DSP from specified location.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_PROC_start (IN ProcessorId dspId, IN Uint32 dspAddr)
+NORMAL_API DSP_STATUS LDRV_PROC_start(IN ProcessorId dspId,
+                                      IN Uint32 dspAddr)
 {
-    DSP_STATUS         status = DSP_SOK ;
-    LDRV_PROC_Object * procState ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_PROC_Object *procState;
 
-    TRC_2ENTER ("LDRV_PROC_start", dspId, dspAddr) ;
+  TRC_2ENTER("LDRV_PROC_start", dspId, dspAddr);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
 
-    procState = &(LDRV_PROC_State [dspId]) ;
+  procState = &(LDRV_PROC_State[dspId]);
 
-    DBC_Require (   (procState->dspState == ProcState_Loaded)
-                 || (procState->dspState == ProcState_Stopped)) ;
-    DBC_Assert  (LDRV_PROC_IsInitialized [dspId] == TRUE) ;
+  DBC_Require((procState->dspState == ProcState_Loaded)
+           || (procState->dspState == ProcState_Stopped));
 
-    if (   (procState->dspState == ProcState_Loaded)
-        || (procState->dspState == ProcState_Stopped)) {
-        /* Setup handshaking between the GPP and DSP. */
-#if !(defined (ONLY_PROC_COMPONENT))
-        status = LDRV_DRV_handshake (dspId, DRV_HandshakeSetup) ;
-#endif /* if !(defined (ONLY_PROC_COMPONENT)) */
+  DBC_Assert(LDRV_PROC_IsInitialized[dspId] == TRUE);
 
-        if (DSP_SUCCEEDED (status)) {
-            status = DSP_start (dspId, dspAddr) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
-        else {
-            SET_FAILURE_REASON ;
-        }
+  if ((procState->dspState == ProcState_Loaded)
+  || (procState->dspState == ProcState_Stopped))
+  {
 
 #if !(defined (ONLY_PROC_COMPONENT))
-        if (DSP_SUCCEEDED (status)) {
-            /* Start handshaking between the GPP and DSP. */
-            status = LDRV_DRV_handshake (dspId, DRV_HandshakeStart) ;
-            if (DSP_SUCCEEDED (status)) {
-                /* Wait for completion of handshaking between the GPP and DSP */
-                status = LDRV_DRV_handshake (dspId, DRV_HandshakeCompl) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
-        }
+    /* Setup handshaking between the GPP and DSP */
+    status = LDRV_DRV_handshake(dspId, DRV_HandshakeSetup);
 #endif /* if !(defined (ONLY_PROC_COMPONENT)) */
 
-        if (DSP_SUCCEEDED (status)) {
-            procState->dspState = ProcState_Started ;
-        }
-        else {
-            SET_FAILURE_REASON ;
-        }
+    if (DSP_SUCCEEDED(status)) {
+      status = DSP_start(dspId, dspAddr);
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
     }
     else {
-        status = DSP_EWRONGSTATE ;
-        SET_FAILURE_REASON ;
+      SET_FAILURE_REASON;
     }
 
-    DBC_Ensure (   (   (DSP_SUCCEEDED (status))
-                    && (procState->dspState == ProcState_Started))
-                || (DSP_FAILED (status))) ;
+#if !(defined (ONLY_PROC_COMPONENT))
+    if (DSP_SUCCEEDED(status)) {
+      /* Start handshaking between the GPP and DSP */
+      status = LDRV_DRV_handshake(dspId, DRV_HandshakeStart);
 
+      if (DSP_SUCCEEDED(status)) {
+      printk(KERN_ALERT "Waiting for LDRV_DRV_handshake completion...");
 
-    TRC_1LEAVE ("LDRV_PROC_start", status) ;
+        /* Wait for completion of handshaking between the GPP and DSP */
+        status = LDRV_DRV_handshake(dspId, DRV_HandshakeCompl);
 
-    return status ;
+      printk(KERN_ALERT "done, status 0x%x\n", status);
+
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
+        }
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
+    }
+#endif /* if !(defined (ONLY_PROC_COMPONENT)) */
+
+    if (DSP_SUCCEEDED(status)) {
+      procState->dspState = ProcState_Started;
+    }
+    else {
+      SET_FAILURE_REASON;
+    }
+  }
+  else {
+    status = DSP_EWRONGSTATE;
+    SET_FAILURE_REASON;
+  }
+
+  DBC_Ensure(((DSP_SUCCEEDED (status))
+           && (procState->dspState == ProcState_Started))
+           || (DSP_FAILED(status)));
+
+  printk(KERN_ALERT "'LDRV_PROC_start' executed, status 0x%x\n", status);
+  TRC_1LEAVE("LDRV_PROC_start", status);
+
+  return status;
 }
 
 
@@ -748,12 +746,11 @@ NORMAL_API DSP_STATUS LDRV_PROC_write(IN ProcessorId dspId,
   LDRV_PROC_Object *procState;
 
   TRC_5ENTER("LDRV_PROC_write",
-              dspId,
-              dspAddr,
-              endianInfo,
-              numBytes,
-              buffer);
-
+             dspId,
+             dspAddr,
+             endianInfo,
+             numBytes,
+             buffer);
 
   DBC_Require(IS_VALID_PROCID(dspId));
 
@@ -778,7 +775,7 @@ NORMAL_API DSP_STATUS LDRV_PROC_write(IN ProcessorId dspId,
                        numBytes,
                        buffer);
 
-    if (DSP_FAILED (status)) {
+    if (DSP_FAILED(status)) {
       procState->dspState = ProcState_Unknown;
       SET_FAILURE_REASON;
     }

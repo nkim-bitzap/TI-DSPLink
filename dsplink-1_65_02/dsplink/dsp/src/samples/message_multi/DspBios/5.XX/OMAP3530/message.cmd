@@ -40,10 +40,9 @@
  */
 
 /* This directive ensures that the message sample can be used with a DSP
- * executable from which the symbol table has been stripped out.
- * In such scenario, the actual shared memory start address for the DRV
- * component must be used as the fill contents for this data section.
- */
+   executable from which the symbol table has been stripped out. In such
+   scenario, the actual shared memory start address for the DRV component
+   must be used as the fill contents for this data section. */
 SECTIONS {
-    .data:DSPLINK_shmBaseAddress: fill=0x87F05000 {} > DDR2
+  .data:DSPLINK_shmBaseAddress: fill=0x87F05000 {} > DDR2
 }

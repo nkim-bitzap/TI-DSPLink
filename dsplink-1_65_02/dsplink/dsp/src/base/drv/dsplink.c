@@ -87,7 +87,6 @@
 #include <_ringio.h>
 #endif /* if defined (RINGIO_COMPONENT) */
 
-
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
@@ -110,18 +109,18 @@ extern "C" {
 #define COMP_UNINITIALIZED        (Uint32) -1
 
 
-/** ============================================================================
- *  @const  DSPLINK_shmBaseAddress
- *
- *  @desc   Location where the starting address of the shared memory used by
- *          the DSPLINK components is stored.
- *  ============================================================================
- */
+/*******************************************************************************
+  @const  DSPLINK_shmBaseAddress
+  @desc   Location where the starting address of the shared memory used by
+          the DSPLINK components is stored.
+*******************************************************************************/
+
 #pragma DATA_ALIGN(DSPLINK_shmBaseAddress, CACHE_L2_LINESIZE)
-#pragma DATA_SECTION (DSPLINK_shmBaseAddress, ".data:DSPLINK_shmBaseAddress") ;
-Uint32 DSPLINK_shmBaseAddress ;
-#pragma DATA_SECTION (DSPLINK_shmBaseAddress_pad, ".data:DSPLINK_shmBaseAddress") ;
-Uint8  DSPLINK_shmBaseAddress_pad[CACHE_L2_LINESIZE- sizeof(Uint32)] ;
+#pragma DATA_SECTION(DSPLINK_shmBaseAddress, ".data:DSPLINK_shmBaseAddress");
+Uint32 DSPLINK_shmBaseAddress;
+
+#pragma DATA_SECTION(DSPLINK_shmBaseAddress_pad, ".data:DSPLINK_shmBaseAddress");
+Uint8  DSPLINK_shmBaseAddress_pad[CACHE_L2_LINESIZE - sizeof(Uint32)];
 
 /** ----------------------------------------------------------------------------
  *  @name   DSPLINK_isInitialized
@@ -129,7 +128,7 @@ Uint8  DSPLINK_shmBaseAddress_pad[CACHE_L2_LINESIZE- sizeof(Uint32)] ;
  *  @desc   Indicates if DSP/BIOS LINK has been initialized
  *  ----------------------------------------------------------------------------
  */
-static Bool DSPLINK_isInitialized = FALSE ;
+static Bool DSPLINK_isInitialized = FALSE;
 
 /** ----------------------------------------------------------------------------
  *  @name   DSPLINK_terminateFxn
@@ -144,7 +143,7 @@ DSPLINK_TerminateFxn DSPLINK_terminateFxn = NULL;
  *  placement.
  *  ============================================================================
  */
-#pragma CODE_SECTION (DSPLINK_init,                 ".text:DSPLINK_init")
+#pragma CODE_SECTION(DSPLINK_init, ".text:DSPLINK_init")
 
 /** ============================================================================
  *  @const  NUM_CHARS_VERSION
@@ -153,7 +152,7 @@ DSPLINK_TerminateFxn DSPLINK_terminateFxn = NULL;
  *          This will check only 1.6\0
  *  ============================================================================
  */
-#define NUM_CHARS_VERSION       4
+#define NUM_CHARS_VERSION 4
 
 /** ============================================================================
  *  @func   DSPLINK_terminateISR
@@ -170,231 +169,280 @@ Void DSPLINK_terminateISR(Uint32 eventNum, Ptr arg, Ptr info)
     }
 }
 
-/** ============================================================================
- *  @func   DSPLINK_init
- *
- *  @desc   This function initializes DSP/BIOS LINK. It is called by the
- *          applications.
- *
- *  @modif  None.
- *  ============================================================================
- */
-Void
-DSPLINK_init  (Void)
+/*******************************************************************************
+  @func  DSPLINK_init
+  @desc  This function initializes DSP/BIOS LINK. It is called by the
+         applications
+*******************************************************************************/
+
+Void DSPLINK_init(Void)
 {
-    Uint16     dspHandshake = DRV_HANDSHAKE_BASE ;
-    DRV_Ctrl * ctrlPtr      = NULL ;
+  Uint16 dspHandshake = DRV_HANDSHAKE_BASE;
+  DRV_Ctrl *ctrlPtr = NULL;
 
-    /* Call the internal function to initialize DSPLINK. By this time, data
-     * drivers (if any) and pools (if any) are already initialized.
-     */
-    _DSPLINK_init () ;
+  DBC_assert(FALSE);
 
-    ctrlPtr = (DRV_Ctrl *) DSPLINK_shmBaseAddress ;
+  /* Call the internal function to initialize DSPLINK. By this time, data
+     drivers (if any) and pools (if any) are already initialized */
+  _DSPLINK_init();
 
-    /* If data drivers or pools were not included by the application, complete
-     * the handshake for them to ensure that the GPP-side can proceed further.
-     */
+  ctrlPtr = (DRV_Ctrl *) DSPLINK_shmBaseAddress;
+
+  /* If data drivers or pools are not included by the application, complete
+     the handshake for it to ensure that the GPP-side can proceed further */
+
 #if defined (POOL_COMPONENT)
-    if (ctrlPtr->poolDspInitDone == COMP_UNINITIALIZED) {
-        ctrlPtr->poolDspInitDone = (Uint32) SYS_OK ;
-        dspHandshake |= DRV_HANDSHAKE_POOL ;
-    }
-#endif /* if defined (POOL_COMPONENT) */
+  if (ctrlPtr->poolDspInitDone == COMP_UNINITIALIZED) {
+    ctrlPtr->poolDspInitDone = (Uint32) SYS_OK;
+    dspHandshake |= DRV_HANDSHAKE_POOL ;
+  }
+#endif
 
 #if defined (CHNL_COMPONENT)
-    if (ctrlPtr->dataDspInitDone == COMP_UNINITIALIZED) {
-        ctrlPtr->dataDspInitDone = (Uint32) SYS_OK ;
-        dspHandshake |= DRV_HANDSHAKE_DATA ;
-    }
-#endif /* if defined (CHNL_COMPONENT) */
+  if (ctrlPtr->dataDspInitDone == COMP_UNINITIALIZED) {
+    ctrlPtr->dataDspInitDone = (Uint32) SYS_OK;
+    dspHandshake |= DRV_HANDSHAKE_DATA;
+  }
+#endif
 
-    HAL_cacheWbInv ((Void *) ctrlPtr, sizeof (DRV_Ctrl)) ;
+  HAL_cacheWbInv((Void *) ctrlPtr, sizeof (DRV_Ctrl));
 
-    /* Complete the handshake for configured components as expected by the
-     * GPP, even if they are not included by the application.
-     */
-    SHMDRV_handshake (ID_GPP, dspHandshake) ;
+  /* Complete the handshake for configured components as expected by the
+     GPP, even if they are not included by the application */
+  SHMDRV_handshake(ID_GPP, dspHandshake);
 
 #if DSPLINK_TERMINATE_EVT != (-1)
-    /* register terminate event isr */
-    IPS_register(ID_GPP, 0, DSPLINK_TERMINATE_EVT, DSPLINK_terminateISR, NULL);
+  /* register terminate event isr */
+  IPS_register(
+    ID_GPP, 0, DSPLINK_TERMINATE_EVT, DSPLINK_terminateISR, NULL);
 #endif
 }
 
+/*******************************************************************************
+  @func   _DSPLINK_init
+  @desc   This function initializes DSP/BIOS LINK. This is the internal
+          implementation for the function to initialize DSPLINK.
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   _DSPLINK_init
- *
- *  @desc   This function initializes DSP/BIOS LINK. Tihs is the internal
- *          implementation for the function to initialize DSPLINK.
- *
- *  @modif  None.
- *  ============================================================================
- */
-Void
-_DSPLINK_init  (Void)
+Void _DSPLINK_init(Void)
 {
-    Int        status       = SYS_OK ;
-    Uint16     dspHandshake = DRV_HANDSHAKE_BASE ;
-    DRV_Ctrl * ctrlPtr      = NULL ;
+  Int status = SYS_OK;
+  Uint16 dspHandshake = DRV_HANDSHAKE_BASE;
+  DRV_Ctrl *ctrlPtr = NULL;
 
-    /* Ensure that the component is initialized only once. */
-    if (DSPLINK_isInitialized == FALSE) {
-        DSPLINK_isInitialized = TRUE ;
-        do {
-            /* Wait till DSPLink is initialized i.e. PROC_start is called */
-            HAL_cacheInv ((Void *) &DSPLINK_shmBaseAddress, sizeof (Uint32)) ;
-        } while (DSPLINK_shmBaseAddress == 0x0) ;
+  printf("Executing '_DSPLINK_init'\n");
 
-        ctrlPtr      = (DRV_Ctrl *) DSPLINK_shmBaseAddress ;
-        DBC_assert (ctrlPtr != NULL) ;
+  /* Ensure that the component is initialized only once */
+  if (DSPLINK_isInitialized == FALSE) {
+    DSPLINK_isInitialized = TRUE;
 
-        HAL_init () ;
+    do {
+      /* Wait till DSPLink is initialized i.e. PROC_start is called */
+      HAL_cacheInv ((Void *) &DSPLINK_shmBaseAddress, sizeof (Uint32));
 
-        HAL_cacheInv ((Void *) ctrlPtr, sizeof (DRV_Ctrl)) ;
+    } while(DSPLINK_shmBaseAddress == 0x0);
 
-        /* Check if GPP version matches the expected DSP version. */
-        if (strncmp (ctrlPtr->version, DSPLINK_VERSION, (NUM_CHARS_VERSION -1)) != 0) {
-            status = SYS_ENODEV ; /* Version mismatch. */
-            ctrlPtr->drvDspInitDone = (Uint32) status ;
-            SET_FAILURE_REASON (status) ;
+    ctrlPtr = (DRV_Ctrl *) DSPLINK_shmBaseAddress;
+    DBC_assert(ctrlPtr != NULL);
+
+    HAL_init();
+    HAL_cacheInv((Void *) ctrlPtr, sizeof (DRV_Ctrl));
+
+    /* Check if GPP version matches the expected DSP version */
+    if (strncmp(ctrlPtr->version, DSPLINK_VERSION, (NUM_CHARS_VERSION -1))
+        != 0)
+    {
+      printf("*** error in '%s': version DSPLINK version mismatch "
+             "between GPP (version %s) and DSP (version %s)\n",
+             __FUNCTION__, ctrlPtr->version, DSPLINK_VERSION);
+
+      status = SYS_ENODEV;
+      ctrlPtr->drvDspInitDone = (Uint32) status;
+      SET_FAILURE_REASON(status);
+    }
+    else {
+      /* If cpuFreq is configured as -1, default DSP/BIOS setting is
+         to be used */
+      if (ctrlPtr->config.cpuFreq != (Uint32) -1) {
+        /* Configure the DSP CPU frequency. */
+        GBL_setFrequency(ctrlPtr->config.cpuFreq);
+
+        /* Reconfigure the timer */
+        if (CLK_reconfig() == FALSE) {
+          status = SYS_EINVAL;
         }
-        else {
-            /* If cpuFreq is configured as -1, default DSP/BIOS setting is
-             * to be used.
-             */
-            if (ctrlPtr->config.cpuFreq != (Uint32) -1) {
-                /* Configure the DSP CPU frequency. */
-                GBL_setFrequency (ctrlPtr->config.cpuFreq) ;
-
-                /* Reconfigure the timer */
-                if (CLK_reconfig () == FALSE) {
-                    status = SYS_EINVAL ;
-                }
-            }
-        }
-
-        if (status == SYS_OK) {
-            ctrlPtr->procId = GBL_getProcId () ;
-        }
-
-        if (status == SYS_OK) {
-            status = SHMDRV_init (ID_GPP, ctrlPtr->linkAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_DRV ;
-            ctrlPtr->drvDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-
-        if (status == SYS_OK) {
-            status = DSPLINKIPS_init (ID_GPP,
-                                      ctrlPtr->config.numIpsEntries,
-                                      ctrlPtr->ipsAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_IPS ;
-            ctrlPtr->ipsDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-
-#if defined (POOL_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->poolConfigured == TRUE)) {
-            status = DSPLINKPOOL_init (ID_GPP,
-                                       ctrlPtr->config.numPools,
-                                       ctrlPtr->poolAddr) ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (POOL_COMPONENT) */
-
-#if defined (MPCS_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->mpcsConfigured == TRUE)) {
-            status = MPCS_init (ID_GPP, ctrlPtr->mpcsAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_MPCS ;
-            ctrlPtr->mpcsDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (MPCS_COMPONENT) */
-
-#if defined (MPLIST_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->mplistConfigured == TRUE)) {
-            status = MPLIST_init (ID_GPP, ctrlPtr->mplistAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_MPLIST ;
-            ctrlPtr->mplistDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (MPLIST_COMPONENT) */
-
-#if defined (MSGQ_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->mqtConfigured == TRUE)) {
-            status = DSPLINKMQT_init (ID_GPP, ctrlPtr->mqtAddr) ;
-            /* For MQT, handshake cannot be done after MQT is opened, since
-             * mqtOpen is called after main (). If MSGQ were not enabled by
-             * application, having handshake done by the MQT would result in
-             * GPP-side wait for handshake not getting completed successfully.
-             */
-            dspHandshake |= DRV_HANDSHAKE_MQT ;
-            ctrlPtr->mqtDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (MSGQ_COMPONENT) */
-
-#if defined (CHNL_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->dataConfigured == TRUE)) {
-            status = DSPLINKDATA_init (ID_GPP,
-                                       ctrlPtr->config.numDataDrivers,
-                                       ctrlPtr->dataAddr) ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (CHNL_COMPONENT) */
-
-#if defined (NOTIFY_COMPONENT)
-        if (status == SYS_OK) {
-            status = NOTIFY_init (ID_GPP,
-                                  ctrlPtr->config.numIpsEntries,
-                                  ctrlPtr->ipsAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_NOTIFY ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-                if (ctrlPtr->ipsDspInitDone == SYS_OK) {
-                    ctrlPtr->ipsDspInitDone = (Uint32) status ;
-                }
-            }
-        }
-#endif /* if defined (NOTIFY_COMPONENT) */
-
-#if defined (RINGIO_COMPONENT)
-        if ((status == SYS_OK) && (ctrlPtr->ringIoConfigured == TRUE)) {
-            status = RingIO_init (ID_GPP, ctrlPtr->ringIoAddr) ;
-            dspHandshake |= DRV_HANDSHAKE_RINGIO ;
-            ctrlPtr->ringIoDspInitDone = (Uint32) status ;
-            if (status != SYS_OK) {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
-#endif /* if defined (RINGIO_COMPONENT) */
-
-        /* Write the DSP-side version information into the control structure. */
-        strcpy (ctrlPtr->version, DSPLINK_VERSION) ;
-
-        HAL_cacheWbInv ((Void *) ctrlPtr, sizeof (DRV_Ctrl)) ;
-
-        /* Handshake with the GPP */
-        DSPLINK_handshake (ID_GPP, dspHandshake) ;
+      }
     }
 
-    DBC_ensure (DSPLINK_isInitialized == TRUE) ;
+    if (status == SYS_OK) {
+      ctrlPtr->procId = GBL_getProcId();
+
+      printf("+++ set procId: 0x%x\n", ctrlPtr->procId);
+    }
+
+    if (status == SYS_OK) {
+      status = SHMDRV_init(ID_GPP, ctrlPtr->linkAddr);
+      dspHandshake |= DRV_HANDSHAKE_DRV;
+
+      ctrlPtr->drvDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing SHM component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+
+    if (status == SYS_OK) {
+      status = DSPLINKIPS_init(ID_GPP,
+                               ctrlPtr->config.numIpsEntries,
+                               ctrlPtr->ipsAddr);
+
+      dspHandshake |= DRV_HANDSHAKE_IPS;
+
+      ctrlPtr->ipsDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing IPS component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+
+#if defined (POOL_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->poolConfigured == TRUE)) {
+      status = DSPLINKPOOL_init(ID_GPP,
+                                ctrlPtr->config.numPools,
+                                ctrlPtr->poolAddr);
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing POOL component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+#endif
+
+#if defined (MPCS_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->mpcsConfigured == TRUE)) {
+      status = MPCS_init(ID_GPP, ctrlPtr->mpcsAddr);
+      dspHandshake |= DRV_HANDSHAKE_MPCS;
+
+      ctrlPtr->mpcsDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing MPCS component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+#endif
+
+#if defined (MPLIST_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->mplistConfigured == TRUE)) {
+      status = MPLIST_init (ID_GPP, ctrlPtr->mplistAddr);
+      dspHandshake |= DRV_HANDSHAKE_MPLIST;
+
+      ctrlPtr->mplistDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing MPLIST component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+#endif
+
+#if defined (MSGQ_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->mqtConfigured == TRUE)) {
+      status = DSPLINKMQT_init (ID_GPP, ctrlPtr->mqtAddr);
+
+      /* For MQT, handshake cannot be done after MQT is opened, since
+         'mqtOpen' is called after main (). If MSGQ were not enabled by the
+         application, having handshake done by the MQT would result in GPP-
+         side wait for handshake not getting completed successfully */
+      dspHandshake |= DRV_HANDSHAKE_MQT;
+
+      ctrlPtr->mqtDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing MQT component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON (status);
+      }
+    }
+#endif
+
+#if defined (CHNL_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->dataConfigured == TRUE)) {
+      status = DSPLINKDATA_init(ID_GPP,
+                                ctrlPtr->config.numDataDrivers,
+                                ctrlPtr->dataAddr);
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing DATA component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+#endif
+
+#if defined (NOTIFY_COMPONENT)
+    if (status == SYS_OK) {
+      status = NOTIFY_init(ID_GPP,
+                           ctrlPtr->config.numIpsEntries,
+                           ctrlPtr->ipsAddr);
+
+      dspHandshake |= DRV_HANDSHAKE_NOTIFY;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing NOTIFY component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status) ;
+
+        if (ctrlPtr->ipsDspInitDone == SYS_OK) {
+          ctrlPtr->ipsDspInitDone = (Uint32) status;
+        }
+      }
+    }
+#endif
+
+#if defined (RINGIO_COMPONENT)
+    if ((status == SYS_OK) && (ctrlPtr->ringIoConfigured == TRUE)) {
+      status = RingIO_init(ID_GPP, ctrlPtr->ringIoAddr);
+
+      dspHandshake |= DRV_HANDSHAKE_RINGIO;
+      ctrlPtr->ringIoDspInitDone = (Uint32) status;
+
+      if (status != SYS_OK) {
+        printf("*** error in '%s': failed initializing RINGIO component\n",
+               __FUNCTION__);
+
+        SET_FAILURE_REASON(status);
+      }
+    }
+#endif
+
+    /* Write the DSP-side version information into the control structure */
+    strcpy(ctrlPtr->version, DSPLINK_VERSION);
+
+    HAL_cacheWbInv((Void *) ctrlPtr, sizeof (DRV_Ctrl));
+
+    /* Handshake with the GPP */
+    DSPLINK_handshake(ID_GPP, dspHandshake);
+  }
+
+  DBC_ensure(DSPLINK_isInitialized == TRUE);
+
+  printf("'_DSPLINK_init' executed, status 0x%x\n", status);
 }
 
 

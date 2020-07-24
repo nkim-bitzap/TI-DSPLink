@@ -5,7 +5,7 @@
 ;; INPUT mpcsxfer.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Tue Jul 21 18:17:04 2020", VERS$DATE
+	.asg "Fri Jul 24 10:38:41 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include mpcsxfercfg.h62

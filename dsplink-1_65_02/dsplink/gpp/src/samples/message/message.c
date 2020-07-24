@@ -326,13 +326,13 @@ MESSAGE_Create (IN Char8 * dspExecutable,
     /* Create and initialize the proc object */
     status = PROC_setup(NULL);
 
-    MESSAGE_1Print("'PROC_setup' done, status: 0x%lx\n", status);
+    MESSAGE_1Print("'PROC_setup' done, status: 0x%x\n", status);
 
     /* Attach the Dsp with which the transfers have to be done */
     if (DSP_SUCCEEDED (status)) {
       status = PROC_attach(processorId, NULL);
 
-      MESSAGE_1Print("'PROC_attach' done, status: 0x%lx\n", status);
+      MESSAGE_1Print("'PROC_attach' done, status: 0x%x\n", status);
     }
 
     /* Open the pool */
@@ -341,33 +341,29 @@ MESSAGE_Create (IN Char8 * dspExecutable,
         POOL_makePoolId(processorId, SAMPLE_POOL_ID),
         &SamplePoolAttrs);
 
-      MESSAGE_1Print("'POOL_open' done, status: 0x%lx\n", status);
+      MESSAGE_1Print("'POOL_open' done, status: 0x%x\n", status);
     }
 
     /* Open the GPP's message queue */
     if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print("Executing 'MSGQ_open'\n");
-
       status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
 
-      MESSAGE_1Print("'MSGQ_open' done, status: 0x%lx\n", status);
+      MESSAGE_1Print("'MSGQ_open' done, status: 0x%x\n", status);
     }
 
     /* Set the message queue that will receive any async. errors */
     if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print ("Executing 'MSGQ_setErrorHandler'\n");
-
       status = MSGQ_setErrorHandler(SampleGppMsgq,
                                     POOL_makePoolId(processorId,
                                     SAMPLE_POOL_ID));
 
       MESSAGE_1Print(
-        "MSGQ_setErrorHandler executed, status: 0x%lx\n", status);
+        "'MSGQ_setErrorHandler' done, status: 0x%x\n", status);
     }
 
     /* Load the executable on the DSP */
     if (DSP_SUCCEEDED (status)) {
-      args [0] = strNumIterations;
+      args[0] = strNumIterations;
 
 #if defined (DA8XXGEM)
       if (LINKCFG_config.dspConfigs[processorId]->dspObject->doDspCtrl ==
@@ -384,33 +380,20 @@ MESSAGE_Create (IN Char8 * dspExecutable,
       else
 #endif
       {
-        MESSAGE_0Print ("Executing 'PROC_load'\n");
-
         status = PROC_load(processorId, dspExecutable, numArgs, args);
 
-        MESSAGE_1Print ("PROC_load executed, status: 0x%lx\n", status);
+        MESSAGE_1Print ("'PROC_load' done, status: 0x%x\n", status);
       }
     }
 
-     /*
-      *  Start execution on DSP.
-      */
-    if (DSP_SUCCEEDED (status)) {
-      MESSAGE_0Print ("Executing 'PROC_start'\n");
+    /* now start execution on the DSP */
+    if (DSP_SUCCEEDED(status)) {
+      status = PROC_start(processorId);
 
-      status = PROC_start (processorId);
-
-      MESSAGE_1Print ("Started execution on DSP, status: 0x%x\n", status);
-
-      if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("PROC_start () failed. Status = [0x%x]\n",
-                        status) ;
-      }
+      MESSAGE_1Print ("'PROC_start' done, status: 0x%x\n", status);
     }
 
-    /*
-     *  Open the remote transport.
-     */
+    /* open the remote transport */
     if (DSP_SUCCEEDED (status)) {
         mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID)  ;
         status = MSGQ_transportOpen (processorId, &mqtAttrs) ;
