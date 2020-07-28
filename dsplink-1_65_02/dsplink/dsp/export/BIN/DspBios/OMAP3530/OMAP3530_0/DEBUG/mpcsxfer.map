@@ -1,10 +1,10 @@
 ******************************************************************************
                TMS320C6x Linker Unix v7.3.23                   
 ******************************************************************************
->> Linked Sun Jul 26 13:51:34 2020
+>> Linked Tue Jul 28 21:26:35 2020
 
 OUTPUT FILE NAME:   </home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/dsp/BUILD/OMAP3530_0/MPCSXFER/BIN/DEBUG/mpcsxfer.out>
-ENTRY POINT SYMBOL: "_c_int00"  address: 88129bc0
+ENTRY POINT SYMBOL: "_c_int00"  address: 87e29b00
 
 
 MEMORY CONFIGURATION
@@ -16,10 +16,10 @@ MEMORY CONFIGURATION
   CACHE_L1P             10e04000   00004000  00000000  00004000  RWIX
   L1DSRAM               10f04000   00004000  00000000  00004000  RWIX
   CACHE_L1D             10f10000   00008000  00000000  00008000  RWIX
-  DSPLINKMEM            88000000   00030000  00000000  00030000  RWIX
-  POOLMEM               88030000   000d0000  00000000  000d0000  RWIX
-  RESET_VECTOR          88100000   00000080  00000000  00000080  RWIX
-  DDR2                  88100080   07efff80  0002acfb  07ed5285  RWIX
+  RESET_VECTOR          87e00000   00000080  00000000  00000080  RWIX
+  DDR2                  87e00080   000fff80  0002ac3f  000d5341  RWIX
+  DSPLINKMEM            87f00000   00030000  00000000  00030000  RWIX
+  POOLMEM               87f30000   000d0000  00000000  000d0000  RWIX
 
 
 SECTION ALLOCATION MAP
@@ -27,498 +27,471 @@ SECTION ALLOCATION MAP
  output                                  attributes/
 section   page    origin      length       input sections
 --------  ----  ----------  ----------   ----------------
-.pinit     0    88100080    00000000     UNINITIALIZED
+.pinit     0    87e00080    00000000     UNINITIALIZED
 
 .vers      0    00000000    00000040     COPY SECTION
                   00000000    00000040     mpcsxfercfg.obj (.vers)
 
-.prd       0    88100080    00000000     UNINITIALIZED
+.prd       0    87e00080    00000000     UNINITIALIZED
 
-.hst       0    88100080    00000000     UNINITIALIZED
+.hst       0    87e00080    00000000     UNINITIALIZED
 
-.pip       0    88100080    00000000     UNINITIALIZED
+.pip       0    87e00080    00000000     UNINITIALIZED
 
-.text      0    88100080    00011fc0     
-                  88100080    00004b60     dsplinkringio.lib : _ringio.obj (.text)
-                  88104be0    000019c0     dsplink.lib : ips.obj (.text)
-                  881065a0    000015c0     dsplinkmpcs.lib : mpcs.obj (.text)
-                  88107b60    00000aa0     dsplink.lib : dsplink.obj (.text)
-                  88108600    00000a60     tskMpcsXfer.obj (.text)
-                  88109060    000009a0     dsplinkpool.lib : sma_pool.obj (.text)
-                  88109a00    00000940     dsplinkmpcs.lib : _mpcs.obj (.text)
-                  8810a340    00000580     rts64plus.lib : _printfi.obj (.text:__getarg_diouxp)
-                  8810a8c0    00000540                   : divd.obj (.text:__divd)
-                  8810ae00    00000540                   : _printfi.obj (.text:__setfield)
-                  8810b340    00000520     dsplinknotify.lib : notify.obj (.text)
-                  8810b860    00000440     rts64plus.lib : _printfi.obj (.text:__printfi)
-                  8810bca0    00000340                   : divf.obj (.text:__divf)
-                  8810bfe0    00000300                   : _printfi.obj (.text:_ecvt)
-                  8810c2e0    00000300                   : _printfi.obj (.text:_fcvt)
-                  8810c5e0    00000300                   : fputs.obj (.text:_fputs)
-                  8810c8e0    00000300     dsplinkmplist.lib : _mplist.obj (.text)
-                  8810cbe0    000002e0     rts64plus.lib : _printfi.obj (.text:__pproc_fge)
-                  8810cec0    000002c0                   : _printfi.obj (.text:__pproc_fwp)
-                  8810d180    000002a0                   : _printfi.obj (.text:__pconv_e)
-                  8810d420    00000260                   : imath64.obj (.text:__divull)
-                  8810d680    00000260                   : mpyd.obj (.text:__mpyd)
-                  8810d8e0    00000240                   : _printfi.obj (.text:__pproc_diouxp)
-                  8810db20    00000220                   : _printfi.obj (.text:__pproc_str)
-                  8810dd40    00000200                   : addd.obj (.text:__addd)
-                  8810df40    00000200                   : frcaddd.obj (.text:__frcaddd)
-                  8810e140    00000200                   : mpyf.obj (.text:__mpyf)
-                  8810e340    00000200                   : _printfi.obj (.text:__pconv_g)
-                  8810e540    000001e0     main.obj (.text)
-                  8810e720    000001c0     dsplink.lib : hal_interrupt.obj (.text:DSPLINK_init)
-                  8810e8e0    000001c0     rts64plus.lib : _printfi.obj (.text:__mcpy)
-                  8810eaa0    000001a0                   : imath40.obj (.text:__divul)
-                  8810ec40    00000180                   : trgdrv.obj (.text:_HOSTrename)
-                  8810edc0    00000180                   : setvbuf.obj (.text:_setvbuf)
-                  8810ef40    00000180     dsplink.lib : hal_interrupt.obj (.text)
-                  8810f0c0    00000140                 : dsplinkips.obj (.text:DSPLINK_init)
-                  8810f200    00000140                 : shm_drv.obj (.text:DSPLINK_init)
-                  8810f340    00000140     rts64plus.lib : fputc.obj (.text:_fputc)
-                  8810f480    00000140                   : lowlev.obj (.text:_getdevice)
-                  8810f5c0    00000140     dsplinknotify.lib : _notify.obj (.text)
-                  8810f700    00000120     dsplink.lib : dsplink.obj (.text:DSPLINK_init)
-                  8810f820    00000120     rts64plus.lib : _printfi.obj (.text:__pproc_fflags)
-                  8810f940    00000120                   : fclose.obj (.text:_fclose)
-                  8810fa60    00000100                   : trgdrv.obj (.text:_HOSTlseek)
-                  8810fb60    00000100                   : frcmpyd.obj (.text:__frcmpyd)
-                  8810fc60    00000100                   : _printfi.obj (.text:__ltostr)
-                  8810fd60    00000100                   : _io_perm.obj (.text:__wrt_ok)
-                  8810fe60    000000e0                   : trgdrv.obj (.text:_HOSTopen)
-                  8810ff40    000000e0                   : trgdrv.obj (.text:_HOSTread)
-                  88110020    000000e0                   : cmpd.obj (.text:__cmpd)
-                  88110100    000000e0                   : atoi.obj (.text:_atoi)
-                  881101e0    000000e0                   : lowlev.obj (.text:_close)
-                  881102c0    000000e0                   : memset.obj (.text:_memset)
-                  881103a0    000000c0     dsplinkpool.lib : dsplinkpool.obj (.text:DSPLINK_init)
-                  88110460    000000c0     rts64plus.lib : trgdrv.obj (.text:_HOSTunlink)
-                  88110520    000000c0                   : trgdrv.obj (.text:_HOSTwrite)
-                  881105e0    000000c0                   : fopen.obj (.text:__cleanup)
-                  881106a0    000000c0                   : _printfi.obj (.text:__div)
-                  88110760    000000c0                   : divu.obj (.text:__divu)
-                  88110820    000000c0                   : fflush.obj (.text:__doflush)
-                  881108e0    000000c0                   : fseek.obj (.text:_fseek)
-                  881109a0    000000c0                   : lowlev.obj (.text:_lseek)
-                  88110a60    000000c0                   : ltoa.obj (.text:_ltoa)
-                  88110b20    000000c0                   : lowlev.obj (.text:_write)
-                  88110be0    000000c0     bios.a64P : tsk_stup.o64P (.text)
-                  88110ca0    000000c0     dsplink.lib : failure.obj (.text)
-                  88110d60    000000a0     dsplinkdata.lib : dsplinkdata.obj (.text:DSPLINK_init)
-                  88110e00    000000a0     dsplinkmsg.lib : dsplinkmqt.obj (.text:DSPLINK_init)
-                  88110ea0    000000a0     rts64plus.lib : trgdrv.obj (.text:_HOSTclose)
-                  88110f40    000000a0                   : imath40.obj (.text:__divli)
-                  88110fe0    000000a0                   : _printfi.obj (.text:__ecpy)
-                  88111080    000000a0                   : _printfi.obj (.text:__fcpy)
-                  88111120    000000a0                   : fixdli.obj (.text:__fixdli)
-                  881111c0    000000a0                   : _printfi.obj (.text:__pconv_f)
-                  88111260    000000a0                   : remu.obj (.text:__remu)
-                  88111300    000000a0                   : lowlev.obj (.text:_finddevice)
-                  881113a0    000000a0                   : memcpy64.obj (.text:_memcpy)
-                  88111440    00000080                   : fixdi.obj (.text:__fixdi)
-                  881114c0    00000080                   : fixfu.obj (.text:__fixfu)
-                  88111540    00000080                   : fltlid.obj (.text:__fltlid)
-                  881115c0    00000080                   : llshift.obj (.text:__llshl)
-                  88111640    00000080                   : renormd.obj (.text:__renormd)
-                  881116c0    00000080                   : printf.obj (.text:_printf)
-                  88111740    00000080                   : trgmsg.obj (.text:_readmsg)
-                  881117c0    00000080                   : strncpy.obj (.text:_strncpy)
-                  88111840    00000080                   : lowlev.obj (.text:_unlink)
-                  881118c0    00000060                   : frcmpyf.obj (.text:__frcmpyf)
-                  88111920    00000060                   : imath64.obj (.text:__subcull)
-                  88111980    00000060                   : memccpy.obj (.text:_memccpy)
-                  881119e0    00000060                   : strcpy.obj (.text:_strcpy)
-                  88111a40    00000060                   : strncmp.obj (.text:_strncmp)
-                  88111aa0    00000060                   : trgmsg.obj (.text:_writemsg)
-                  88111b00    00000060     dsplink.lib : shm_drv.obj (.text)
-                  88111b60    00000040     rts64plus.lib : isinf.obj (.text:___isinf)
-                  88111ba0    00000040                   : _printfi.obj (.text:___isnan)
-                  88111be0    00000040                   : fltuf.obj (.text:__fltuf)
-                  88111c20    00000040                   : frcmpyd_div.obj (.text:__frcmpyd_div)
-                  88111c60    00000040                   : frcmpyf_div.obj (.text:__frcmpyf_div)
-                  88111ca0    00000040                   : llshift.obj (.text:__llshru)
-                  88111ce0    00000040                   : negd.obj (.text:__negd)
-                  88111d20    00000040                   : imath40.obj (.text:__remli)
-                  88111d60    00000040                   : subd.obj (.text:__subd)
-                  88111da0    00000040     dsplink.lib : dsplinkips.obj (.text)
-                  88111de0    00000040                 : hal.obj (.text)
-                  88111e20    00000040     dsplinkdata.lib : dsplinkdata.obj (.text)
-                  88111e60    00000040     dsplinkmsg.lib : dsplinkmqt.obj (.text)
-                  88111ea0    00000040     dsplinkpool.lib : dsplinkpool.obj (.text)
-                  88111ee0    00000020     rts64plus.lib : negll.obj (.text:__negll)
-                  88111f00    00000020                   : _lock.obj (.text:__nop)
-                  88111f20    00000020                   : printf.obj (.text:__outc)
-                  88111f40    00000020                   : printf.obj (.text:__outs)
-                  88111f60    00000020                   : _lock.obj (.text:__register_lock)
-                  88111f80    00000020                   : _lock.obj (.text:__register_unlock)
-                  88111fa0    00000020                   : remove.obj (.text:_remove)
-                  88111fc0    00000010     bios.a64P : malloc.o64P ($Tramp$S$$_free)
-                  88111fd0    00000010               : malloc.o64P ($Tramp$S$$_malloc)
-                  88111fe0    00000020               : lck.o64P ($Tramp$S$$_LCK_post)
-                  88112000    00000020               : lck.o64P ($Tramp$S$$_LCK_pend)
-                  88112020    00000020               : sys_abor.o64P ($Tramp$S$$_SYS_abort)
+.text      0    87e00080    00011f20     
+                  87e00080    00004b60     dsplinkringio.lib : _ringio.obj (.text)
+                  87e04be0    000019c0     dsplink.lib : ips.obj (.text)
+                  87e065a0    000015c0     dsplinkmpcs.lib : mpcs.obj (.text)
+                  87e07b60    00000a80     dsplink.lib : dsplink.obj (.text)
+                  87e085e0    00000a60     tskMpcsXfer.obj (.text)
+                  87e09040    000009a0     dsplinkpool.lib : sma_pool.obj (.text)
+                  87e099e0    00000940     dsplinkmpcs.lib : _mpcs.obj (.text)
+                  87e0a320    00000580     rts64plus.lib : _printfi.obj (.text:__getarg_diouxp)
+                  87e0a8a0    00000540                   : divd.obj (.text:__divd)
+                  87e0ade0    00000540                   : _printfi.obj (.text:__setfield)
+                  87e0b320    00000520     dsplinknotify.lib : notify.obj (.text)
+                  87e0b840    00000440     rts64plus.lib : _printfi.obj (.text:__printfi)
+                  87e0bc80    00000340                   : divf.obj (.text:__divf)
+                  87e0bfc0    00000300                   : _printfi.obj (.text:_ecvt)
+                  87e0c2c0    00000300                   : _printfi.obj (.text:_fcvt)
+                  87e0c5c0    00000300                   : fputs.obj (.text:_fputs)
+                  87e0c8c0    00000300     dsplinkmplist.lib : _mplist.obj (.text)
+                  87e0cbc0    000002e0     rts64plus.lib : _printfi.obj (.text:__pproc_fge)
+                  87e0cea0    000002c0                   : _printfi.obj (.text:__pproc_fwp)
+                  87e0d160    000002a0                   : _printfi.obj (.text:__pconv_e)
+                  87e0d400    00000260                   : imath64.obj (.text:__divull)
+                  87e0d660    00000260                   : mpyd.obj (.text:__mpyd)
+                  87e0d8c0    00000240                   : _printfi.obj (.text:__pproc_diouxp)
+                  87e0db00    00000220                   : _printfi.obj (.text:__pproc_str)
+                  87e0dd20    00000200                   : addd.obj (.text:__addd)
+                  87e0df20    00000200                   : frcaddd.obj (.text:__frcaddd)
+                  87e0e120    00000200                   : mpyf.obj (.text:__mpyf)
+                  87e0e320    00000200                   : _printfi.obj (.text:__pconv_g)
+                  87e0e520    000001e0     main.obj (.text)
+                  87e0e700    000001c0     dsplink.lib : hal_interrupt.obj (.text:DSPLINK_init)
+                  87e0e8c0    000001c0     rts64plus.lib : _printfi.obj (.text:__mcpy)
+                  87e0ea80    000001a0                   : imath40.obj (.text:__divul)
+                  87e0ec20    00000180                   : trgdrv.obj (.text:_HOSTrename)
+                  87e0eda0    00000180                   : setvbuf.obj (.text:_setvbuf)
+                  87e0ef20    00000180     dsplink.lib : hal_interrupt.obj (.text)
+                  87e0f0a0    00000140                 : dsplinkips.obj (.text:DSPLINK_init)
+                  87e0f1e0    00000140                 : shm_drv.obj (.text:DSPLINK_init)
+                  87e0f320    00000140     rts64plus.lib : fputc.obj (.text:_fputc)
+                  87e0f460    00000140                   : lowlev.obj (.text:_getdevice)
+                  87e0f5a0    00000140     dsplinknotify.lib : _notify.obj (.text)
+                  87e0f6e0    00000120     dsplink.lib : dsplink.obj (.text:DSPLINK_init)
+                  87e0f800    00000120     rts64plus.lib : _printfi.obj (.text:__pproc_fflags)
+                  87e0f920    00000120                   : fclose.obj (.text:_fclose)
+                  87e0fa40    00000100                   : trgdrv.obj (.text:_HOSTlseek)
+                  87e0fb40    00000100                   : frcmpyd.obj (.text:__frcmpyd)
+                  87e0fc40    00000100                   : _printfi.obj (.text:__ltostr)
+                  87e0fd40    00000100                   : _io_perm.obj (.text:__wrt_ok)
+                  87e0fe40    000000e0                   : trgdrv.obj (.text:_HOSTopen)
+                  87e0ff20    000000e0                   : trgdrv.obj (.text:_HOSTread)
+                  87e10000    000000e0                   : cmpd.obj (.text:__cmpd)
+                  87e100e0    000000e0                   : atoi.obj (.text:_atoi)
+                  87e101c0    000000e0                   : lowlev.obj (.text:_close)
+                  87e102a0    000000e0                   : memset.obj (.text:_memset)
+                  87e10380    000000c0     dsplinkpool.lib : dsplinkpool.obj (.text:DSPLINK_init)
+                  87e10440    000000c0     rts64plus.lib : trgdrv.obj (.text:_HOSTunlink)
+                  87e10500    000000c0                   : trgdrv.obj (.text:_HOSTwrite)
+                  87e105c0    000000c0                   : fopen.obj (.text:__cleanup)
+                  87e10680    000000c0                   : _printfi.obj (.text:__div)
+                  87e10740    000000c0                   : divu.obj (.text:__divu)
+                  87e10800    000000c0                   : fflush.obj (.text:__doflush)
+                  87e108c0    000000c0                   : fseek.obj (.text:_fseek)
+                  87e10980    000000c0                   : lowlev.obj (.text:_lseek)
+                  87e10a40    000000c0                   : ltoa.obj (.text:_ltoa)
+                  87e10b00    000000c0                   : lowlev.obj (.text:_write)
+                  87e10bc0    000000c0     bios.a64P : tsk_stup.o64P (.text)
+                  87e10c80    000000c0     dsplink.lib : failure.obj (.text)
+                  87e10d40    000000a0     dsplinkdata.lib : dsplinkdata.obj (.text:DSPLINK_init)
+                  87e10de0    000000a0     dsplinkmsg.lib : dsplinkmqt.obj (.text:DSPLINK_init)
+                  87e10e80    000000a0     rts64plus.lib : trgdrv.obj (.text:_HOSTclose)
+                  87e10f20    000000a0                   : imath40.obj (.text:__divli)
+                  87e10fc0    000000a0                   : _printfi.obj (.text:__ecpy)
+                  87e11060    000000a0                   : _printfi.obj (.text:__fcpy)
+                  87e11100    000000a0                   : fixdli.obj (.text:__fixdli)
+                  87e111a0    000000a0                   : _printfi.obj (.text:__pconv_f)
+                  87e11240    000000a0                   : remu.obj (.text:__remu)
+                  87e112e0    000000a0                   : lowlev.obj (.text:_finddevice)
+                  87e11380    000000a0                   : memcpy64.obj (.text:_memcpy)
+                  87e11420    00000080                   : fixdi.obj (.text:__fixdi)
+                  87e114a0    00000080                   : fixfu.obj (.text:__fixfu)
+                  87e11520    00000080                   : fltlid.obj (.text:__fltlid)
+                  87e115a0    00000080                   : llshift.obj (.text:__llshl)
+                  87e11620    00000080                   : renormd.obj (.text:__renormd)
+                  87e116a0    00000080                   : printf.obj (.text:_printf)
+                  87e11720    00000080                   : trgmsg.obj (.text:_readmsg)
+                  87e117a0    00000080                   : strncpy.obj (.text:_strncpy)
+                  87e11820    00000080                   : lowlev.obj (.text:_unlink)
+                  87e118a0    00000060                   : frcmpyf.obj (.text:__frcmpyf)
+                  87e11900    00000060                   : imath64.obj (.text:__subcull)
+                  87e11960    00000060                   : memccpy.obj (.text:_memccpy)
+                  87e119c0    00000060                   : strcpy.obj (.text:_strcpy)
+                  87e11a20    00000060                   : strncmp.obj (.text:_strncmp)
+                  87e11a80    00000060                   : trgmsg.obj (.text:_writemsg)
+                  87e11ae0    00000060     dsplink.lib : shm_drv.obj (.text)
+                  87e11b40    00000040     rts64plus.lib : isinf.obj (.text:___isinf)
+                  87e11b80    00000040                   : _printfi.obj (.text:___isnan)
+                  87e11bc0    00000040                   : fltuf.obj (.text:__fltuf)
+                  87e11c00    00000040                   : frcmpyd_div.obj (.text:__frcmpyd_div)
+                  87e11c40    00000040                   : frcmpyf_div.obj (.text:__frcmpyf_div)
+                  87e11c80    00000040                   : llshift.obj (.text:__llshru)
+                  87e11cc0    00000040                   : negd.obj (.text:__negd)
+                  87e11d00    00000040                   : imath40.obj (.text:__remli)
+                  87e11d40    00000040                   : subd.obj (.text:__subd)
+                  87e11d80    00000040     dsplink.lib : dsplinkips.obj (.text)
+                  87e11dc0    00000040                 : hal.obj (.text)
+                  87e11e00    00000040     dsplinkdata.lib : dsplinkdata.obj (.text)
+                  87e11e40    00000040     dsplinkmsg.lib : dsplinkmqt.obj (.text)
+                  87e11e80    00000040     dsplinkpool.lib : dsplinkpool.obj (.text)
+                  87e11ec0    00000020     rts64plus.lib : negll.obj (.text:__negll)
+                  87e11ee0    00000020                   : _lock.obj (.text:__nop)
+                  87e11f00    00000020                   : printf.obj (.text:__outc)
+                  87e11f20    00000020                   : printf.obj (.text:__outs)
+                  87e11f40    00000020                   : _lock.obj (.text:__register_lock)
+                  87e11f60    00000020                   : _lock.obj (.text:__register_unlock)
+                  87e11f80    00000020                   : remove.obj (.text:_remove)
 
 .DDR2$heap 
-*          0    88112040    00010000     UNINITIALIZED
-                  88112040    00010000     --HOLE--
+*          0    87e11fa0    00010000     UNINITIALIZED
+                  87e11fa0    00010000     --HOLE--
 
-.bios      0    88122040    000046c0     
-                  88122040    00000520     bios.a64P : exc.o64P (.bios)
-                  88122560    000004e0               : hwi_disp_asm.o64P (.bios)
-                  88122a40    000004c0               : swi.o64P (.bios)
-                  88122f00    00000380               : prd.o64P (.bios)
-                  88123280    00000340               : tsk_crea.o64P (.bios)
-                  881235c0    000002a0               : malloc.o64P (.bios)
-                  88123860    00000240               : knl_run.o64P (.bios)
-                  88123aa0    00000200               : mem_free.o64P (.bios:.near)
-                  88123ca0    00000200               : sem_pend.o64P (.bios)
-                  88123ea0    00000200     bios3430.a64P : clk2430.o64P (.bios)
-                  881240a0    000001e0     bios.a64P : mem_allo.o64P (.bios:.near)
-                  88124280    000001e0               : c62_plug.o64P (.bios)
-                  88124460    000001e0               : exc_asm.o64P (.bios)
-                  88124640    000001e0               : knl_tick.o64P (.bios)
-                  88124820    000001c0               : sem_dopo.o64P (.bios)
-                  881249e0    000001c0     bios3430.a64P : clk.o64P (.bios)
-                  88124ba0    000001a0     bios.a64P : tsk_setu.o64P (.bios)
-                  88124d40    00000180               : knl_swit.o64P (.bios)
-                  88124ec0    00000140               : autoinit.o64P (.bios)
-                  88125000    00000140               : knl_read.o64P (.bios)
-                  88125140    00000140               : tsk_exit.o64P (.bios)
-                  88125280    00000140     bios3430.a64P : bcache_init.o64P (.bios)
-                  881253c0    00000140                   : clk2430_reconfig.o64P (.bios)
-                  88125500    00000120     bios.a64P : gbl_cacheinit64P.o64P (.bios)
-                  88125620    00000120               : knl_chec.o64P (.bios)
-                  88125740    00000120               : tsk_stup.o64P (.bios)
-                  88125860    00000100     bios3430.a64P : bcache_block.o64P (.bios)
-                  88125960    000000e0     bios.a64P : sem_post_asm.o64P (.bios)
-                  88125a40    000000c0               : knl_exit.o64P (.bios)
-                  88125b00    000000a0               : knl_star.o64P (.bios)
-                  88125ba0    000000a0               : sem_post.o64P (.bios)
-                  88125c40    000000a0               : sys_exit.o64P (.bios)
-                  88125ce0    00000080               : hwi_disp.o64P (.bios)
-                  88125d60    00000080               : hwi_eventmap64P.o64P (.bios)
-                  88125de0    00000080               : knl_ipos.o64P (.bios)
-                  88125e60    00000080               : knl_post.o64P (.bios)
-                  88125ee0    00000080               : lck.o64P (.bios)
-                  88125f60    00000080               : log.o64P (.bios)
-                  88125fe0    00000080               : obj_crea.o64P (.bios)
-                  88126060    00000080     bios3430.a64P : bcache_all.o64P (.bios)
-                  881260e0    00000080                   : bcache_wait.o64P (.bios)
-                  88126160    00000060     bios.a64P : mem_vall.o64P (.bios:.near)
-                  881261c0    00000060               : sys_erro.o64P (.bios:.near)
-                  88126220    00000060               : fxn.o64P (.bios)
-                  88126280    00000060               : hwi_c.o64P (.bios)
-                  881262e0    00000060               : lck_crea.o64P (.bios)
-                  88126340    00000060               : obj_dele.o64P (.bios)
-                  881263a0    00000060               : sem_pend_counting.o64P (.bios)
-                  88126400    00000060               : sts.o64P (.bios)
-                  88126460    00000060               : sys_abor.o64P (.bios)
-                  881264c0    00000060               : utl_putc.o64P (.bios)
-                  88126520    00000040               : c62_c.o64P (.bios)
-                  88126560    00000040               : que_get.o64P (.bios)
-                  881265a0    00000040               : utl_doab.o64P (.bios)
-                  881265e0    00000020               : fxn_c.o64P (.bios)
-                  88126600    00000020               : gbl_vers.o64P (.bios)
-                  88126620    00000020               : hook_setenv.o64P (.bios)
-                  88126640    00000020               : idl.o64P (.bios)
-                  88126660    00000020               : log_printf.o64P (.bios)
-                  88126680    00000020               : sts_set.o64P (.bios)
-                  881266a0    00000020               : utl_doer.o64P (.bios)
-                  881266c0    00000020               : utl_halt.o64P (.bios)
-                  881266e0    00000020     bios3430.a64P : clk2430_gethtime.o64P (.bios)
+.bios      0    87e21fa0    000046c0     
+                  87e21fa0    00000520     bios.a64P : exc.o64P (.bios)
+                  87e224c0    000004e0               : hwi_disp_asm.o64P (.bios)
+                  87e229a0    000004c0               : swi.o64P (.bios)
+                  87e22e60    00000380               : prd.o64P (.bios)
+                  87e231e0    00000340               : tsk_crea.o64P (.bios)
+                  87e23520    000002a0               : malloc.o64P (.bios)
+                  87e237c0    00000240               : knl_run.o64P (.bios)
+                  87e23a00    00000200               : mem_free.o64P (.bios:.near)
+                  87e23c00    00000200               : sem_pend.o64P (.bios)
+                  87e23e00    00000200     bios3430.a64P : clk2430.o64P (.bios)
+                  87e24000    000001e0     bios.a64P : mem_allo.o64P (.bios:.near)
+                  87e241e0    000001e0               : c62_plug.o64P (.bios)
+                  87e243c0    000001e0               : exc_asm.o64P (.bios)
+                  87e245a0    000001e0               : knl_tick.o64P (.bios)
+                  87e24780    000001c0               : sem_dopo.o64P (.bios)
+                  87e24940    000001c0     bios3430.a64P : clk.o64P (.bios)
+                  87e24b00    000001a0     bios.a64P : tsk_setu.o64P (.bios)
+                  87e24ca0    00000180               : knl_swit.o64P (.bios)
+                  87e24e20    00000140               : autoinit.o64P (.bios)
+                  87e24f60    00000140               : knl_read.o64P (.bios)
+                  87e250a0    00000140               : tsk_exit.o64P (.bios)
+                  87e251e0    00000140     bios3430.a64P : bcache_init.o64P (.bios)
+                  87e25320    00000140                   : clk2430_reconfig.o64P (.bios)
+                  87e25460    00000120     bios.a64P : gbl_cacheinit64P.o64P (.bios)
+                  87e25580    00000120               : knl_chec.o64P (.bios)
+                  87e256a0    00000120               : tsk_stup.o64P (.bios)
+                  87e257c0    00000100     bios3430.a64P : bcache_block.o64P (.bios)
+                  87e258c0    000000e0     bios.a64P : sem_post_asm.o64P (.bios)
+                  87e259a0    000000c0               : knl_exit.o64P (.bios)
+                  87e25a60    000000a0               : knl_star.o64P (.bios)
+                  87e25b00    000000a0               : sem_post.o64P (.bios)
+                  87e25ba0    000000a0               : sys_exit.o64P (.bios)
+                  87e25c40    00000080               : hwi_disp.o64P (.bios)
+                  87e25cc0    00000080               : hwi_eventmap64P.o64P (.bios)
+                  87e25d40    00000080               : knl_ipos.o64P (.bios)
+                  87e25dc0    00000080               : knl_post.o64P (.bios)
+                  87e25e40    00000080               : lck.o64P (.bios)
+                  87e25ec0    00000080               : log.o64P (.bios)
+                  87e25f40    00000080               : obj_crea.o64P (.bios)
+                  87e25fc0    00000080     bios3430.a64P : bcache_all.o64P (.bios)
+                  87e26040    00000080                   : bcache_wait.o64P (.bios)
+                  87e260c0    00000060     bios.a64P : mem_vall.o64P (.bios:.near)
+                  87e26120    00000060               : sys_erro.o64P (.bios:.near)
+                  87e26180    00000060               : fxn.o64P (.bios)
+                  87e261e0    00000060               : hwi_c.o64P (.bios)
+                  87e26240    00000060               : lck_crea.o64P (.bios)
+                  87e262a0    00000060               : obj_dele.o64P (.bios)
+                  87e26300    00000060               : sem_pend_counting.o64P (.bios)
+                  87e26360    00000060               : sts.o64P (.bios)
+                  87e263c0    00000060               : sys_abor.o64P (.bios)
+                  87e26420    00000060               : utl_putc.o64P (.bios)
+                  87e26480    00000040               : c62_c.o64P (.bios)
+                  87e264c0    00000040               : que_get.o64P (.bios)
+                  87e26500    00000040               : utl_doab.o64P (.bios)
+                  87e26540    00000020               : fxn_c.o64P (.bios)
+                  87e26560    00000020               : gbl_vers.o64P (.bios)
+                  87e26580    00000020               : hook_setenv.o64P (.bios)
+                  87e265a0    00000020               : idl.o64P (.bios)
+                  87e265c0    00000020               : log_printf.o64P (.bios)
+                  87e265e0    00000020               : sts_set.o64P (.bios)
+                  87e26600    00000020               : utl_doer.o64P (.bios)
+                  87e26620    00000020               : utl_halt.o64P (.bios)
+                  87e26640    00000020     bios3430.a64P : clk2430_gethtime.o64P (.bios)
 
-.stack     0    88126700    00001000     UNINITIALIZED
-                  88126700    00001000     --HOLE--
+.stack     0    87e26660    00001000     UNINITIALIZED
+                  87e26660    00001000     --HOLE--
 
-.cinit     0    88127700    00000cc4     
-                  88127700    0000030c     mpcsxfercfg.obj (.cinit)
-                  88127a0c    00000004     --HOLE-- [fill = 0]
-                  88127a10    0000026c     bios.a64P : biosdata.o64P (.cinit)
-                  88127c7c    00000004     --HOLE-- [fill = 0]
-                  88127c80    000001a4               : knl.o64P (.cinit)
-                  88127e24    00000004     --HOLE-- [fill = 0]
-                  88127e28    000000b0               : swi.o64P (.cinit)
-                  88127ed8    00000080               : tsk.o64P (.cinit)
-                  88127f58    00000060               : tsk_stup.o64P (.cinit)
-                  88127fb8    0000005c     rts64plus.lib : defs.obj (.cinit)
-                  88128014    00000004     --HOLE-- [fill = 0]
-                  88128018    0000005c                   : lowlev.obj (.cinit)
-                  88128074    00000004     --HOLE-- [fill = 0]
-                  88128078    0000003c     bios.a64P : exc.o64P (.cinit)
-                  881280b4    00000004     --HOLE-- [fill = 0]
-                  881280b8    00000038     mpcsxfer_config.obj (.cinit)
-                  881280f0    00000034     bios.a64P : hwi.o64P (.cinit)
-                  88128124    00000004     --HOLE-- [fill = 0]
-                  88128128    0000002c               : utl_putc.o64P (.cinit)
-                  88128154    00000004     --HOLE-- [fill = 0]
-                  88128158    0000002c     rts64plus.lib : exit.obj (.cinit)
-                  88128184    00000004     --HOLE-- [fill = 0]
-                  88128188    00000028     dsplink.lib : ips.obj (.cinit)
-                  881281b0    00000024     bios.a64P : obj_init.o64P (.cinit)
-                  881281d4    00000004     --HOLE-- [fill = 0]
-                  881281d8    0000001c               : exc_asm.o64P (.cinit)
-                  881281f4    00000004     --HOLE-- [fill = 0]
-                  881281f8    0000001c               : sys.o64P (.cinit)
-                  88128214    00000004     --HOLE-- [fill = 0]
-                  88128218    0000001c     dsplink.lib : dsplink.obj (.cinit)
-                  88128234    00000004     --HOLE-- [fill = 0]
-                  88128238    0000001c     dsplinkmpcs.lib : _mpcs.obj (.cinit)
-                  88128254    00000004     --HOLE-- [fill = 0]
-                  88128258    0000001c     dsplinkmplist.lib : _mplist.obj (.cinit)
-                  88128274    00000004     --HOLE-- [fill = 0]
-                  88128278    0000001c     dsplinknotify.lib : _notify.obj (.cinit)
-                  88128294    00000004     --HOLE-- [fill = 0]
-                  88128298    0000001c     dsplinkringio.lib : ringio.obj (.cinit)
-                  881282b4    00000004     --HOLE-- [fill = 0]
-                  881282b8    0000001c     rts64plus.lib : _lock.obj (.cinit)
-                  881282d4    00000004     --HOLE-- [fill = 0]
-                  881282d8    00000018     bios.a64P : knl_tick.o64P (.cinit)
-                  881282f0    00000014               : hwi_disp.o64P (.cinit)
-                  88128304    00000004     --HOLE-- [fill = 0]
-                  88128308    00000014     bios3430.a64P : bcache_table.o64P (.cinit)
-                  8812831c    00000004     --HOLE-- [fill = 0]
-                  88128320    0000000c     bios.a64P : knl_star.o64P (.cinit)
-                  8812832c    00000004     --HOLE-- [fill = 0]
-                  88128330    0000000c               : knl_swit.o64P (.cinit)
-                  8812833c    00000004     --HOLE-- [fill = 0]
-                  88128340    0000000c               : pool.o64P (.cinit)
-                  8812834c    00000004     --HOLE-- [fill = 0]
-                  88128350    0000000c     bios3430.a64P : bcache_wait.o64P (.cinit)
-                  8812835c    00000004     --HOLE-- [fill = 0]
-                  88128360    0000000c     dsplink.lib : failure.obj (.cinit)
-                  8812836c    00000004     --HOLE-- [fill = 0]
-                  88128370    0000000c                 : shm_drv.obj (.cinit)
-                  8812837c    00000004     --HOLE-- [fill = 0]
-                  88128380    0000000c     dsplinkmpcs.lib : mpcs.obj (.cinit)
-                  8812838c    00000004     --HOLE-- [fill = 0]
-                  88128390    0000000c     dsplinkmsg.lib : dsplinkmqt.obj (.cinit)
-                  8812839c    00000004     --HOLE-- [fill = 0]
-                  881283a0    0000000c     rts64plus.lib : fopen.obj (.cinit)
-                  881283ac    00000004     --HOLE-- [fill = 0]
-                  881283b0    0000000a     bios.a64P : pool_init.o64P (.cinit)
-                  881283ba    00000006     --HOLE-- [fill = 0]
-                  881283c0    00000004     (.pad.cinit) [fill = 0]
+.cinit     0    87e27660    00000cc4     
+                  87e27660    0000030c     mpcsxfercfg.obj (.cinit)
+                  87e2796c    00000004     --HOLE-- [fill = 0]
+                  87e27970    0000026c     bios.a64P : biosdata.o64P (.cinit)
+                  87e27bdc    00000004     --HOLE-- [fill = 0]
+                  87e27be0    000001a4               : knl.o64P (.cinit)
+                  87e27d84    00000004     --HOLE-- [fill = 0]
+                  87e27d88    000000b0               : swi.o64P (.cinit)
+                  87e27e38    00000080               : tsk.o64P (.cinit)
+                  87e27eb8    00000060               : tsk_stup.o64P (.cinit)
+                  87e27f18    0000005c     rts64plus.lib : defs.obj (.cinit)
+                  87e27f74    00000004     --HOLE-- [fill = 0]
+                  87e27f78    0000005c                   : lowlev.obj (.cinit)
+                  87e27fd4    00000004     --HOLE-- [fill = 0]
+                  87e27fd8    0000003c     bios.a64P : exc.o64P (.cinit)
+                  87e28014    00000004     --HOLE-- [fill = 0]
+                  87e28018    00000038     mpcsxfer_config.obj (.cinit)
+                  87e28050    00000034     bios.a64P : hwi.o64P (.cinit)
+                  87e28084    00000004     --HOLE-- [fill = 0]
+                  87e28088    0000002c               : utl_putc.o64P (.cinit)
+                  87e280b4    00000004     --HOLE-- [fill = 0]
+                  87e280b8    0000002c     rts64plus.lib : exit.obj (.cinit)
+                  87e280e4    00000004     --HOLE-- [fill = 0]
+                  87e280e8    00000028     dsplink.lib : ips.obj (.cinit)
+                  87e28110    00000024     bios.a64P : obj_init.o64P (.cinit)
+                  87e28134    00000004     --HOLE-- [fill = 0]
+                  87e28138    0000001c               : exc_asm.o64P (.cinit)
+                  87e28154    00000004     --HOLE-- [fill = 0]
+                  87e28158    0000001c               : sys.o64P (.cinit)
+                  87e28174    00000004     --HOLE-- [fill = 0]
+                  87e28178    0000001c     dsplink.lib : dsplink.obj (.cinit)
+                  87e28194    00000004     --HOLE-- [fill = 0]
+                  87e28198    0000001c     dsplinkmpcs.lib : _mpcs.obj (.cinit)
+                  87e281b4    00000004     --HOLE-- [fill = 0]
+                  87e281b8    0000001c     dsplinkmplist.lib : _mplist.obj (.cinit)
+                  87e281d4    00000004     --HOLE-- [fill = 0]
+                  87e281d8    0000001c     dsplinknotify.lib : _notify.obj (.cinit)
+                  87e281f4    00000004     --HOLE-- [fill = 0]
+                  87e281f8    0000001c     dsplinkringio.lib : ringio.obj (.cinit)
+                  87e28214    00000004     --HOLE-- [fill = 0]
+                  87e28218    0000001c     rts64plus.lib : _lock.obj (.cinit)
+                  87e28234    00000004     --HOLE-- [fill = 0]
+                  87e28238    00000018     bios.a64P : knl_tick.o64P (.cinit)
+                  87e28250    00000014               : hwi_disp.o64P (.cinit)
+                  87e28264    00000004     --HOLE-- [fill = 0]
+                  87e28268    00000014     bios3430.a64P : bcache_table.o64P (.cinit)
+                  87e2827c    00000004     --HOLE-- [fill = 0]
+                  87e28280    0000000c     bios.a64P : knl_star.o64P (.cinit)
+                  87e2828c    00000004     --HOLE-- [fill = 0]
+                  87e28290    0000000c               : knl_swit.o64P (.cinit)
+                  87e2829c    00000004     --HOLE-- [fill = 0]
+                  87e282a0    0000000c               : pool.o64P (.cinit)
+                  87e282ac    00000004     --HOLE-- [fill = 0]
+                  87e282b0    0000000c     bios3430.a64P : bcache_wait.o64P (.cinit)
+                  87e282bc    00000004     --HOLE-- [fill = 0]
+                  87e282c0    0000000c     dsplink.lib : failure.obj (.cinit)
+                  87e282cc    00000004     --HOLE-- [fill = 0]
+                  87e282d0    0000000c                 : shm_drv.obj (.cinit)
+                  87e282dc    00000004     --HOLE-- [fill = 0]
+                  87e282e0    0000000c     dsplinkmpcs.lib : mpcs.obj (.cinit)
+                  87e282ec    00000004     --HOLE-- [fill = 0]
+                  87e282f0    0000000c     dsplinkmsg.lib : dsplinkmqt.obj (.cinit)
+                  87e282fc    00000004     --HOLE-- [fill = 0]
+                  87e28300    0000000c     rts64plus.lib : fopen.obj (.cinit)
+                  87e2830c    00000004     --HOLE-- [fill = 0]
+                  87e28310    0000000a     bios.a64P : pool_init.o64P (.cinit)
+                  87e2831a    00000006     --HOLE-- [fill = 0]
+                  87e28320    00000004     (.pad.cinit) [fill = 0]
 
-.idl       0    881283c4    00000004     UNINITIALIZED
-                  881283c4    00000004     mpcsxfercfg.obj (.idl)
+.idl       0    87e28324    00000004     UNINITIALIZED
+                  87e28324    00000004     mpcsxfercfg.obj (.idl)
 
-.const     0    881283c8    00000a31     
-                  881283c8    000002ec     dsplink.lib : dsplink.obj (.const:.string)
-                  881286b4    00000193     bios.a64P : exc.o64P (.const)
-                  88128847    00000001     --HOLE-- [fill = 0]
-                  88128848    00000101     rts64plus.lib : ctype.obj (.const:.string:__ctypes_)
-                  88128949    00000002                   : fputs.obj (.const:.string)
-                  8812894b    00000001     --HOLE-- [fill = 0]
-                  8812894c    00000050     dsplinkpool.lib : sma_pool.obj (.const:.string)
-                  8812899c    0000004e     bios.a64P : pool_init.o64P (.const)
-                  881289ea    0000004e               : tsk_stup.o64P (.const)
-                  88128a38    0000004c     dsplinkringio.lib : _ringio.obj (.const:.string)
-                  88128a84    00000044     dsplinkmpcs.lib : _mpcs.obj (.const:.string)
-                  88128ac8    00000040                     : mpcs.obj (.const:.string)
-                  88128b08    00000040     main.obj (.const:.string)
-                  88128b48    0000003c     dsplink.lib : shm_drv.obj (.const:.string)
-                  88128b84    00000038                 : dsplinkips.obj (.const:.string)
-                  88128bbc    00000038                 : ips.obj (.const:.string)
-                  88128bf4    00000038     dsplinkdata.lib : dsplinkdata.obj (.const:.string)
-                  88128c2c    00000038     dsplinkmsg.lib : dsplinkmqt.obj (.const:.string)
-                  88128c64    00000034     dsplinknotify.lib : _notify.obj (.const:.string)
-                  88128c98    00000034                       : notify.obj (.const:.string)
-                  88128ccc    00000034     dsplinkringio.lib : ringio.obj (.const:.string)
-                  88128d00    00000028     dsplink.lib : failure.obj (.const:.string)
-                  88128d28    00000023     rts64plus.lib : _printfi.obj (.const:.string)
-                  88128d4b    00000023     bios.a64P : utl_doab.o64P (.const)
-                  88128d6e    00000022               : utl_doer.o64P (.const)
-                  88128d90    0000001c     dsplinkmplist.lib : _mplist.obj (.const:.string)
-                  88128dac    00000014     tskMpcsXfer.obj (.const:.string)
-                  88128dc0    00000010     dsplinkpool.lib : sma_pool.obj (.const)
-                  88128dd0    0000000e     dsplink.lib : dsplink.obj (.const:.string:___FUNCTION__$1)
-                  88128dde    00000002     --HOLE-- [fill = 0]
-                  88128de0    00000008     rts64plus.lib : divd.obj (.const:.string:_initial_approx$1)
-                  88128de8    00000008                   : divf.obj (.const:.string:_initial_approx$1)
-                  88128df0    00000004     bios.a64P : mem_allo.o64P (.const)
-                  88128df4    00000004               : mem_free.o64P (.const)
-                  88128df8    00000001               : tsk.o64P (.const)
+.const     0    87e28328    00000a15     
+                  87e28328    000002d0     dsplink.lib : dsplink.obj (.const:.string)
+                  87e285f8    00000193     bios.a64P : exc.o64P (.const)
+                  87e2878b    00000004               : mem_allo.o64P (.const)
+                  87e2878f    00000001     --HOLE-- [fill = 0]
+                  87e28790    00000101     rts64plus.lib : ctype.obj (.const:.string:__ctypes_)
+                  87e28891    00000002                   : fputs.obj (.const:.string)
+                  87e28893    00000001     --HOLE-- [fill = 0]
+                  87e28894    00000050     dsplinkpool.lib : sma_pool.obj (.const:.string)
+                  87e288e4    0000004e     bios.a64P : pool_init.o64P (.const)
+                  87e28932    0000004e               : tsk_stup.o64P (.const)
+                  87e28980    0000004c     dsplinkringio.lib : _ringio.obj (.const:.string)
+                  87e289cc    00000044     dsplinkmpcs.lib : _mpcs.obj (.const:.string)
+                  87e28a10    00000040                     : mpcs.obj (.const:.string)
+                  87e28a50    00000040     main.obj (.const:.string)
+                  87e28a90    0000003c     dsplink.lib : shm_drv.obj (.const:.string)
+                  87e28acc    00000038                 : dsplinkips.obj (.const:.string)
+                  87e28b04    00000038                 : ips.obj (.const:.string)
+                  87e28b3c    00000038     dsplinkdata.lib : dsplinkdata.obj (.const:.string)
+                  87e28b74    00000038     dsplinkmsg.lib : dsplinkmqt.obj (.const:.string)
+                  87e28bac    00000034     dsplinknotify.lib : _notify.obj (.const:.string)
+                  87e28be0    00000034                       : notify.obj (.const:.string)
+                  87e28c14    00000034     dsplinkringio.lib : ringio.obj (.const:.string)
+                  87e28c48    00000028     dsplink.lib : failure.obj (.const:.string)
+                  87e28c70    00000023     rts64plus.lib : _printfi.obj (.const:.string)
+                  87e28c93    00000023     bios.a64P : utl_doab.o64P (.const)
+                  87e28cb6    00000022               : utl_doer.o64P (.const)
+                  87e28cd8    0000001c     dsplinkmplist.lib : _mplist.obj (.const:.string)
+                  87e28cf4    00000014     tskMpcsXfer.obj (.const:.string)
+                  87e28d08    00000010     dsplinkpool.lib : sma_pool.obj (.const)
+                  87e28d18    0000000e     dsplink.lib : dsplink.obj (.const:.string:___FUNCTION__$1)
+                  87e28d26    00000002     --HOLE-- [fill = 0]
+                  87e28d28    00000008     rts64plus.lib : divd.obj (.const:.string:_initial_approx$1)
+                  87e28d30    00000008                   : divf.obj (.const:.string:_initial_approx$1)
+                  87e28d38    00000004     bios.a64P : mem_free.o64P (.const)
+                  87e28d3c    00000001               : tsk.o64P (.const)
 
-.printf    0    88128df9    0000001a     COPY SECTION
-                  88128df9    0000001a     mpcsxfercfg.obj (.printf)
+.printf    0    87e28d3d    0000001a     COPY SECTION
+                  87e28d3d    0000001a     mpcsxfercfg.obj (.printf)
 
-.idlcal    0    88128dfc    00000004     UNINITIALIZED
-                  88128dfc    00000004     mpcsxfercfg.obj (.idlcal)
+.far       0    87e28d40    00000998     UNINITIALIZED
+                  87e28d40    00000324     rts64plus.lib : defs.obj (.far)
+                  87e29064    00000004     bios3430.a64P : bcache_wait.o64P (.far)
+                  87e29068    00000120     dsplink.lib : ips.obj (.far)
+                  87e29188    0000011c     rts64plus.lib : lowlev.obj (.far)
+                  87e292a4    00000004     bios3430.a64P : clk2430_data.o64P (.far)
+                  87e292a8    000000d8     bios.a64P : knl.o64P (.far)
+                  87e29380    000000d0     rts64plus.lib : trgdrv.obj (.far)
+                  87e29450    00000080     dsplinkpool.lib : dsplinkpool.obj (.far)
+                  87e294d0    0000005c     bios.a64P : tsk.o64P (.far)
+                  87e2952c    00000004     dsplink.lib : shm_drv.obj (.far)
+                  87e29530    00000054     bios.a64P : obj_init.o64P (.far)
+                  87e29584    00000050               : tsk_stup.o64P (.far)
+                  87e295d4    00000004     dsplinkdata.lib : dsplinkdata.obj (.far)
+                  87e295d8    00000020     bios.a64P : sys.o64P (.far)
+                  87e295f8    00000020     mpcsxfer_config.obj (.far)
+                  87e29618    00000014     dsplink.lib : hal_interrupt.obj (.far)
+                  87e2962c    00000010     bios.a64P : exc.o64P (.far)
+                  87e2963c    00000010               : knl_tick.o64P (.far)
+                  87e2964c    00000010     dsplink.lib : failure.obj (.far)
+                  87e2965c    0000000c     bios.a64P : hwi_disp.o64P (.far)
+                  87e29668    0000000c               : utl_putc.o64P (.far)
+                  87e29674    0000000c     bios3430.a64P : bcache_table.o64P (.far)
+                  87e29680    0000000c     rts64plus.lib : exit.obj (.far)
+                  87e2968c    00000008     dsplink.lib : dsplink.obj (.far)
+                  87e29694    00000008     dsplinkmpcs.lib : _mpcs.obj (.far)
+                  87e2969c    00000008                     : mpcs.obj (.far)
+                  87e296a4    00000008     dsplinkmplist.lib : _mplist.obj (.far)
+                  87e296ac    00000008     dsplinknotify.lib : _notify.obj (.far)
+                  87e296b4    00000008     dsplinkringio.lib : ringio.obj (.far)
+                  87e296bc    00000008     main.obj (.far)
+                  87e296c4    00000008     rts64plus.lib : _lock.obj (.far)
+                  87e296cc    00000004     dsplinkmsg.lib : dsplinkmqt.obj (.far)
+                  87e296d0    00000004     mpcsxfercfg.obj (.far)
+                  87e296d4    00000004     rts64plus.lib : fopen.obj (.far)
 
-.far       0    88128e00    00000998     UNINITIALIZED
-                  88128e00    00000324     rts64plus.lib : defs.obj (.far)
-                  88129124    00000004     bios3430.a64P : bcache_wait.o64P (.far)
-                  88129128    00000120     dsplink.lib : ips.obj (.far)
-                  88129248    0000011c     rts64plus.lib : lowlev.obj (.far)
-                  88129364    00000004     bios3430.a64P : clk2430_data.o64P (.far)
-                  88129368    000000d8     bios.a64P : knl.o64P (.far)
-                  88129440    000000d0     rts64plus.lib : trgdrv.obj (.far)
-                  88129510    00000080     dsplinkpool.lib : dsplinkpool.obj (.far)
-                  88129590    0000005c     bios.a64P : tsk.o64P (.far)
-                  881295ec    00000004     dsplink.lib : shm_drv.obj (.far)
-                  881295f0    00000054     bios.a64P : obj_init.o64P (.far)
-                  88129644    00000050               : tsk_stup.o64P (.far)
-                  88129694    00000004     dsplinkdata.lib : dsplinkdata.obj (.far)
-                  88129698    00000020     bios.a64P : sys.o64P (.far)
-                  881296b8    00000020     mpcsxfer_config.obj (.far)
-                  881296d8    00000014     dsplink.lib : hal_interrupt.obj (.far)
-                  881296ec    00000010     bios.a64P : exc.o64P (.far)
-                  881296fc    00000010               : knl_tick.o64P (.far)
-                  8812970c    00000010     dsplink.lib : failure.obj (.far)
-                  8812971c    0000000c     bios.a64P : hwi_disp.o64P (.far)
-                  88129728    0000000c               : utl_putc.o64P (.far)
-                  88129734    0000000c     bios3430.a64P : bcache_table.o64P (.far)
-                  88129740    0000000c     rts64plus.lib : exit.obj (.far)
-                  8812974c    00000008     dsplink.lib : dsplink.obj (.far)
-                  88129754    00000008     dsplinkmpcs.lib : _mpcs.obj (.far)
-                  8812975c    00000008                     : mpcs.obj (.far)
-                  88129764    00000008     dsplinkmplist.lib : _mplist.obj (.far)
-                  8812976c    00000008     dsplinknotify.lib : _notify.obj (.far)
-                  88129774    00000008     dsplinkringio.lib : ringio.obj (.far)
-                  8812977c    00000008     main.obj (.far)
-                  88129784    00000008     rts64plus.lib : _lock.obj (.far)
-                  8812978c    00000004     dsplinkmsg.lib : dsplinkmqt.obj (.far)
-                  88129790    00000004     mpcsxfercfg.obj (.far)
-                  88129794    00000004     rts64plus.lib : fopen.obj (.far)
+.clk       0    87e296d8    00000008     UNINITIALIZED
+                  87e296d8    00000008     mpcsxfercfg.obj (.clk)
 
-.clk       0    88129798    00000008     UNINITIALIZED
-                  88129798    00000008     mpcsxfercfg.obj (.clk)
-
-.sysinit   0    881297a0    00000600     
-                  881297a0    00000300     mpcsxfercfg.obj (.sysinit)
-                  88129aa0    00000120     bios.a64P : pool_init.o64P (.sysinit)
-                  88129bc0    000000c0               : boot.o64P (.sysinit)
-                  88129c80    000000a0               : mem_init.o64P (.sysinit)
-                  88129d20    00000060               : tsk_init.o64P (.sysinit)
-                  88129d80    00000020               : obj_init.o64P (.sysinit)
+.sysinit   0    87e296e0    00000600     
+                  87e296e0    00000300     mpcsxfercfg.obj (.sysinit)
+                  87e299e0    00000120     bios.a64P : pool_init.o64P (.sysinit)
+                  87e29b00    000000c0               : boot.o64P (.sysinit)
+                  87e29bc0    000000a0               : mem_init.o64P (.sysinit)
+                  87e29c60    00000060               : tsk_init.o64P (.sysinit)
+                  87e29cc0    00000020               : obj_init.o64P (.sysinit)
 
 .TSK_idle$stk 
-*          0    88129da0    00000400     UNINITIALIZED
-                  88129da0    00000400     mpcsxfercfg.obj (.TSK_idle$stk)
+*          0    87e29ce0    00000400     UNINITIALIZED
+                  87e29ce0    00000400     mpcsxfercfg.obj (.TSK_idle$stk)
 
-.bss       0    8812a1a0    00000336     UNINITIALIZED
-                  8812a1a0    00000100     bios.a64P : hwi_disp_asm.o64P (.bss)
-                  8812a2a0    000000cc               : biosdata.o64P (.bss)
-                  8812a36c    0000009c               : swi.o64P (.bss)
-                  8812a408    00000048               : knl.o64P (.bss)
-                  8812a450    00000020               : exc_asm.o64P (.bss)
-                  8812a470    00000018               : hwi.o64P (.bss)
-                  8812a488    00000010               : exc.o64P (.bss)
-                  8812a498    00000010     mpcsxfercfg.obj (.bss)
-                  8812a4a8    0000000c     bios.a64P : tsk.o64P (.bss)
-                  8812a4b4    00000008               : clk_data.o64P (.bss)
-                  8812a4bc    00000008               : sys.o64P (.bss)
-                  8812a4c4    00000004               : clk_data2.o64P (.bss)
-                  8812a4c8    00000004               : knl_star.o64P (.bss)
-                  8812a4cc    00000004               : mem_asm.o64P (.bss)
-                  8812a4d0    00000004               : pool.o64P (.bss)
-                  8812a4d4    00000002               : pool_init.o64P (.bss)
+.bss       0    87e2a0e0    00000336     UNINITIALIZED
+                  87e2a0e0    00000100     bios.a64P : hwi_disp_asm.o64P (.bss)
+                  87e2a1e0    000000cc               : biosdata.o64P (.bss)
+                  87e2a2ac    0000009c               : swi.o64P (.bss)
+                  87e2a348    00000048               : knl.o64P (.bss)
+                  87e2a390    00000020               : exc_asm.o64P (.bss)
+                  87e2a3b0    00000018               : hwi.o64P (.bss)
+                  87e2a3c8    00000010               : exc.o64P (.bss)
+                  87e2a3d8    00000010     mpcsxfercfg.obj (.bss)
+                  87e2a3e8    0000000c     bios.a64P : tsk.o64P (.bss)
+                  87e2a3f4    00000008               : clk_data.o64P (.bss)
+                  87e2a3fc    00000008               : sys.o64P (.bss)
+                  87e2a404    00000004               : clk_data2.o64P (.bss)
+                  87e2a408    00000004               : knl_star.o64P (.bss)
+                  87e2a40c    00000004               : mem_asm.o64P (.bss)
+                  87e2a410    00000004               : pool.o64P (.bss)
+                  87e2a414    00000002               : pool_init.o64P (.bss)
 
-.trace     0    8812a4d8    00000200     
-                  8812a4d8    00000200     --HOLE-- [fill = 00000000]
+.trace     0    87e2a418    00000200     
+                  87e2a418    00000200     --HOLE-- [fill = 00000000]
 
-.cio       0    8812a6d8    00000120     UNINITIALIZED
-                  8812a6d8    00000120     rts64plus.lib : trgmsg.obj (.cio)
+.cio       0    87e2a618    00000120     UNINITIALIZED
+                  87e2a618    00000120     rts64plus.lib : trgmsg.obj (.cio)
 
-.mem       0    8812a7f8    00000004     UNINITIALIZED
-                  8812a7f8    00000004     mpcsxfercfg.obj (.mem)
+.gblinit   0    87e2a738    00000034     
+                  87e2a738    00000034     mpcsxfercfg.obj (.gblinit)
 
-.hwi_vec   0    8812a800    00000200     
-                  8812a800    00000200     mpcsxfercfg.obj (.hwi_vec)
-
-.LOG_system$buf 
-*          0    8812aa00    00000100     UNINITIALIZED
-                  8812aa00    00000100     mpcsxfercfg.obj (.LOG_system$buf)
-
-.data      0    8812ab00    00000084     UNINITIALIZED
-                  8812ab00    00000084     dsplink.lib : dsplink.obj (.data:DSPLINK_shmBaseAddress)
-
-.tsk       0    8812ab84    00000060     UNINITIALIZED
-                  8812ab84    00000060     mpcsxfercfg.obj (.tsk)
-
-.switch    0    8812abe4    00000014     
-                  8812abe4    00000014     dsplinkringio.lib : _ringio.obj (.switch:__RingIO_checkNotifier)
+.switch    0    87e2a76c    00000014     
+                  87e2a76c    00000014     dsplinkringio.lib : _ringio.obj (.switch:__RingIO_checkNotifier)
 
 .trace$buf 
-*          0    8812ac00    00000080     UNINITIALIZED
-                  8812ac00    00000080     mpcsxfercfg.obj (.trace$buf)
+*          0    87e2a780    00000080     UNINITIALIZED
+                  87e2a780    00000080     mpcsxfercfg.obj (.trace$buf)
 
-.args      0    8812ac80    00000050     
-                  8812ac80    00000050     --HOLE-- [fill = 0]
+.hwi_vec   0    87e2a800    00000200     
+                  87e2a800    00000200     mpcsxfercfg.obj (.hwi_vec)
 
-.gblinit   0    8812acd0    00000034     
-                  8812acd0    00000034     mpcsxfercfg.obj (.gblinit)
+.LOG_system$buf 
+*          0    87e2aa00    00000100     UNINITIALIZED
+                  87e2aa00    00000100     mpcsxfercfg.obj (.LOG_system$buf)
 
-.log       0    8812ad04    00000030     
-                  8812ad04    00000030     mpcsxfercfg.obj (.log)
+.data      0    87e2ab00    00000084     UNINITIALIZED
+                  87e2ab00    00000084     dsplink.lib : dsplink.obj (.data:DSPLINK_shmBaseAddress)
 
-.swi       0    8812ad34    0000002c     UNINITIALIZED
-                  8812ad34    0000002c     mpcsxfercfg.obj (.swi)
+.tsk       0    87e2ab84    00000060     UNINITIALIZED
+                  87e2ab84    00000060     mpcsxfercfg.obj (.tsk)
 
-.sts       0    8812ad60    00000010     
-                  8812ad60    00000010     mpcsxfercfg.obj (.sts)
+.args      0    87e2abe4    00000050     
+                  87e2abe4    00000050     --HOLE-- [fill = 0]
 
-.sys       0    8812ad70    00000010     UNINITIALIZED
-                  8812ad70    00000010     mpcsxfercfg.obj (.sys)
+.log       0    87e2ac34    00000030     
+                  87e2ac34    00000030     mpcsxfercfg.obj (.log)
 
-.trcdata   0    8812ad80    0000000c     
-                  8812ad80    0000000c     bios.a64P : trc.o64P (.trcdata)
+.swi       0    87e2ac64    0000002c     UNINITIALIZED
+                  87e2ac64    0000002c     mpcsxfercfg.obj (.swi)
 
+.sts       0    87e2ac90    00000010     
+                  87e2ac90    00000010     mpcsxfercfg.obj (.sts)
 
-FAR CALL TRAMPOLINES
+.sys       0    87e2aca0    00000010     UNINITIALIZED
+                  87e2aca0    00000010     mpcsxfercfg.obj (.sys)
 
-callee name               trampoline name
-   callee addr  tramp addr   call addr  call info
---------------  -----------  ---------  ----------------
-$.bios:bios.a64P<malloc.o64P>$0x0  $Tramp$S$$_free
-   881235c0     88111fc0     8810ee28   rts64plus.lib : setvbuf.obj (.text:_setvbuf)
-                             8810f9a8                 : fclose.obj (.text:_fclose)
-$.bios:bios.a64P<malloc.o64P>$0x28  $Tramp$S$$_malloc
-   881235e8     88111fd0     8810eea8   rts64plus.lib : setvbuf.obj (.text:_setvbuf)
-$.bios:bios.a64P<lck.o64P>$0x0  $Tramp$S$$_LCK_post
-   88125ee0     88111fe0     88110be0   bios.a64P : tsk_stup.o64P (.text)
-$.bios:bios.a64P<lck.o64P>$0x20  $Tramp$S$$_LCK_pend
-   88125f00     88112000     88110c44   bios.a64P : tsk_stup.o64P (.text)
-$.bios:bios.a64P<sys_abor.o64P>$0x0  $Tramp$S$$_SYS_abort
-   88126460     88112020     88110c48   bios.a64P : tsk_stup.o64P (.text)
-                             88110c64             : tsk_stup.o64P (.text)
+.trcdata   0    87e2acb0    0000000c     
+                  87e2acb0    0000000c     bios.a64P : trc.o64P (.trcdata)
 
-[5 trampolines]
-[7 trampoline calls]
+.idlcal    0    87e2acbc    00000004     UNINITIALIZED
+                  87e2acbc    00000004     mpcsxfercfg.obj (.idlcal)
+
+.mem       0    87e2acc0    00000004     UNINITIALIZED
+                  87e2acc0    00000004     mpcsxfercfg.obj (.mem)
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
 
 address    name
 --------   ----
-8812a1a0   $bss
-8812a1a0   .bss
-8812ab00   .data
-88100080   .text
-881297a0   BIOS_init
-88129a08   BIOS_start
+87e2a0e0   $bss
+87e2a0e0   .bss
+87e2ab00   .data
+87e00080   .text
+87e296e0   BIOS_init
+87e29948   BIOS_start
 00000000   BUF$
 00000001   BUF_ENABLED
-88111af8   C$$IO$$
+87e11ad8   C$$IO$$
 ffffffff   CACHE_L1D
 ffffffff   CACHE_L1P
 ffffffff   CACHE_L2
 00000001   CLK$
-88129798   CLK_A_TABBEG
+87e296d8   CLK_A_TABBEG
 00000001   CLK_CALDIV
 00000001   CLK_CALMULT
 00050910   CLK_COUNTSPMS
 00000005   CLK_COUNTSPMSHIGH
-8812a2c8   CLK_D_idletime
-8812a2c4   CLK_D_isrhook
-8812a2c0   CLK_D_tabbeg
-8812a2bc   CLK_D_timefxn
+87e2a208   CLK_D_idletime
+87e2a204   CLK_D_isrhook
+87e2a200   CLK_D_tabbeg
+87e2a1fc   CLK_D_timefxn
 00000001   CLK_ENABLEHTIME
-881249e0   CLK_F_getltime
-881249f0   CLK_F_isr
-88124b40   CLK_F_itime
-88122560   CLK_HOOKFXN
+87e24940   CLK_F_getltime
+87e24950   CLK_F_isr
+87e24aa0   CLK_F_itime
+87e224c0   CLK_HOOKFXN
 00000001   CLK_HTIMEDIV
 00000001   CLK_HTIMEMULT
 00050910   CLK_HTIMEPERLTIME
@@ -532,17 +505,17 @@ ffffffff   CACHE_L2
 00000000   CLK_PRDHIGH
 49038000   CLK_REGS
 00000000   CLK_RESETTIMER
-8812a2b8   CLK_R_time
+87e2a1f8   CLK_R_time
 00000020   CLK_TCR
 00000000   CLK_TDDR
 00000000   CLK_TDDRHIGH
-881266e0   CLK_TIMEFXN
+87e26640   CLK_TIMEFXN
 00000000   CLK_TIMERNUM
 00000005   CLK_TIMMODE
 00000001   CLK_USETIMER
-8812979c   CLK_null
-8812a4a4   DDR2
-88112040   DDR2$B
+87e296dc   CLK_null
+87e2a3e4   DDR2
+87e11fa0   DDR2$B
 00010000   DDR2$L
 00000000   DEV$
 00000000   DGN$
@@ -684,9 +657,9 @@ ffffffff   ECM_EVTMASK3
 00000061   EVENT97
 00000062   EVENT98
 00000063   EVENT99
-88126220   FXN_F_nop
-88126224   FXN_F_run
-88126260   FXN_F_zero
+87e26180   FXN_F_nop
+87e26184   FXN_F_run
+87e261c0   FXN_F_zero
 00000001   GBL$
 00005205   GBL_A_VERSION
 00000000   GBL_BCACHEREADADDR0
@@ -708,7 +681,7 @@ ffffffff   ECM_EVTMASK3
 00000003   GBL_L1PMODE
 00000001   GBL_L2CONFIGURE
 00000000   GBL_L2MAR0_31
-0000ff00   GBL_L2MAR128_159
+00000080   GBL_L2MAR128_159
 00000000   GBL_L2MAR160_191
 00000000   GBL_L2MAR192_223
 00000000   GBL_L2MAR224_255
@@ -722,39 +695,39 @@ ffffffff   ECM_EVTMASK3
 00000000   GBL_SUPPORTCSL
 00004000   GBL_TRCMASKVALUE
 00000000   GBL_USERINIT
-881265e0   GBL_USERINITFXN
+87e26540   GBL_USERINITFXN
 00000001   GBL_boot
-8812ad88   GBL_initdone
-88126700   GBL_stackbeg
-881276ff   GBL_stackend
+87e2acb8   GBL_initdone
+87e26660   GBL_stackbeg
+87e2765f   GBL_stackend
 00000000   GIO$
-881265e0   GIO_CREATEFXN
-881265e0   GIO_DELETEFXN
-881265e0   GIO_PENDFXN
-881265e0   GIO_POSTFXN
+87e26540   GIO_CREATEFXN
+87e26540   GIO_DELETEFXN
+87e26540   GIO_PENDFXN
+87e26540   GIO_POSTFXN
 00000000   HOOK$
 00000000   HOOK_KNLID
 00000000   HST$
-88100080   HST_A_TABBEG
-88100080   HST_A_TABEND
+87e00080   HST_A_TABBEG
+87e00080   HST_A_TABEND
 00000000   HST_DSM
-8812a4a4   HST_DSMBUFSEG
+87e2a3e4   HST_DSMBUFSEG
 00000400   HST_DSMMEMSIZE
-8812a334   HST_D_chanmask
-8812a338   HST_D_tabbeg
-8812a33c   HST_D_tabend
+87e2a274   HST_D_chanmask
+87e2a278   HST_D_tabbeg
+87e2a27c   HST_D_tabend
 00000100   HST_MAXFRAMEALLOWED
 00000000   HST_MAXFRAMESET
 00000001   HST_NONE
 00000000   HST_RTDX
 00000001   HWI$
-8812a800   HWI_A_VECS
+87e2a800   HWI_A_VECS
 00004000   HWI_CFGDISPATCHED
-8812a480   HWI_D_bss
-8812a484   HWI_D_ccmask
-8812a470   HWI_D_spsave
+87e2a3c0   HWI_D_bss
+87e2a3c4   HWI_D_ccmask
+87e2a3b0   HWI_D_spsave
 00000001   HWI_ENABLE_EXC
-88122560   HWI_F_dispatch
+87e224c0   HWI_F_dispatch
 00000000   HWI_GENERATE_RESET_VEC
 0000000a   HWI_INT10
 00000000   HWI_INT10$hwi
@@ -794,64 +767,64 @@ ffffffff   ECM_EVTMASK3
 00000000   HWI_RESET$hwi
 00000000   HWI_ZEROTAB
 00000000   IDL$
-88128dfc   IDL_A_CALBEG
-881283c4   IDL_A_TABBEG
+87e2acbc   IDL_A_CALBEG
+87e28324   IDL_A_TABBEG
 00000000   IDL_CALIBRERROR
 00000000   IDL_CALIBRFXN
-8812a2a8   IDL_D_calbeg
-8812a2a4   IDL_D_calibrate
-8812a2a0   IDL_D_tabbeg
-881283c4   IDL_END
-88128dfc   IDL_END$
-88126640   IDL_F_loop
+87e2a1e8   IDL_D_calbeg
+87e2a1e4   IDL_D_calibrate
+87e2a1e0   IDL_D_tabbeg
+87e28324   IDL_END
+87e2acbc   IDL_END$
+87e265a0   IDL_F_loop
 00000000   IDL_USECLKIDLTIME
 ffffffff   IRAM
 00000001   ISRC$
-88124e98   KNL_glue
-8812ad34   KNL_swi
+87e24df8   KNL_glue
+87e2ac64   KNL_swi
 00000001   KNL_swi$dorta
 00000000   KNL_swi$ord
 00000000   KNL_swi$pri
-8812ad64   KNL_swi$sts
-88128e09   KNL_swi$sts$avgfmt
+87e2ac94   KNL_swi$sts
+87e28d4d   KNL_swi$sts$avgfmt
 00000002   KNL_swi$sts$filter
 00000001   KNL_swi$sts$filtmaxmult
 00000001   KNL_swi$sts$filtsummult
-88128df9   KNL_swi$sts$maxfmt
-8812ad60   KNL_swi$sts$stsobj
-88128e01   KNL_swi$sts$sumfmt
+87e28d3d   KNL_swi$sts$maxfmt
+87e2ac90   KNL_swi$sts$stsobj
+87e28d45   KNL_swi$sts$sumfmt
 00000000   KNL_swi$sts$unittype
 00000000   KNL_swi$swi
 ffffffff   L1DSRAM
 00000001   LCK$
 00000001   LOG$
-8812ad04   LOG_A_TABBEG
-8812ad34   LOG_A_TABEND
+87e2ac34   LOG_A_TABBEG
+87e2ac64   LOG_A_TABEND
 00000002   LOG_A_TABLEN
-8812a2ac   LOG_D_system
+87e2a1ec   LOG_D_system
 00000001   LOG_ENABLED
-88125f60   LOG_F_event
-8812ad04   LOG_system
-8812aa00   LOG_system$buf
+87e25ec0   LOG_F_event
+87e2ac34   LOG_system
+87e2aa00   LOG_system$buf
 00000000   LOG_system$datatype
 00000000   LOG_system$log
 00000040   LOG_system$size
 00000000   MBX$
 00000001   MEM$
-8812a4a4   MEM_MALLOCSEG
+87e2a3e4   MEM_MALLOCSEG
 00000000   MEM_NULL
-8812a4a4   MEM_SEGZERO
+87e2a3e4   MEM_SEGZERO
 00000000   MEM_USEMPC
 00000001   MEM_gNumHeap
 00000000   MSGQ$
 00000000   MSGQ_USEMSGQ
 00000000   OBJ$
 00000000   PIP$
-88100080   PIP_A_TABBEG
-88100080   PIP_A_TABEND
+87e00080   PIP_A_TABBEG
+87e00080   PIP_A_TABEND
 00000000   PIP_A_TABLEN
-8812a2b0   PIP_D_tabbeg
-8812a2b4   PIP_D_tablen
+87e2a1f0   PIP_D_tabbeg
+87e2a1f4   PIP_D_tablen
 00000064   PIP_OBJSIZE
 00000000   PIP_gNextId
 00000000   PIP_gNumEmbed
@@ -859,24 +832,24 @@ ffffffff   L1DSRAM
 ffffffff   POOLMEM
 00000001   POOL_USEPOOL
 00000001   PRD$
-88100080   PRD_A_TABBEG
-88100080   PRD_A_TABEND
+87e00080   PRD_A_TABBEG
+87e00080   PRD_A_TABEND
 00000000   PRD_A_TABLEN
-8812a2f0   PRD_D_cur
-8812a2f4   PRD_D_elapsed
-8812a2f8   PRD_D_prevtim
-8812a2fc   PRD_D_scalar
-8812a300   PRD_D_swihandle
-8812a304   PRD_D_tabbeg
-8812a308   PRD_D_tablen
-8812a30c   PRD_D_thook
-8812a2ec   PRD_D_tick
-88122f00   PRD_F_swi
-88123184   PRD_F_tick
+87e2a230   PRD_D_cur
+87e2a234   PRD_D_elapsed
+87e2a238   PRD_D_prevtim
+87e2a23c   PRD_D_scalar
+87e2a240   PRD_D_swihandle
+87e2a244   PRD_D_tabbeg
+87e2a248   PRD_D_tablen
+87e2a24c   PRD_D_thook
+87e2a22c   PRD_D_tick
+87e22e60   PRD_F_swi
+87e230e4   PRD_F_tick
 00000001   PRD_SCALAR
 00000000   PRD_SWIHANDLE
-8812480c   PRD_THOOKFXN
-88129798   PRD_clock
+87e2476c   PRD_THOOKFXN
+87e296d8   PRD_clock
 00000001   PWRM$
 00000000   PWRM_PWRM_CAPSMASK
 0000000a   PWRM_PWRM_CLKTICKSPERSLOT
@@ -885,8 +858,8 @@ ffffffff   POOLMEM
 00000001   PWRM_PWRM_NUMSLOTS
 00000000   PWRM_PWRM_RESOURCETRACKING
 00000000   PWRM_PWRM_SCALING
-881265e0   PWRM_PWRM_SHAREDRESOURCEFXN
-881265e0   PWRM_PWRM_SLOTHOOKFXN
+87e26540   PWRM_PWRM_SHAREDRESOURCEFXN
+87e26540   PWRM_PWRM_SLOTHOOKFXN
 00000000   PWRM_PWRM_TIMERIDNUM
 00000000   PWRM_PWRM_TIMERINTRMASK
 00000000   PWRM_PWRM_TIMERWUGENMASK
@@ -894,142 +867,142 @@ ffffffff   POOLMEM
 00000000   PWRM_PWRM_USETIMER
 00000001   QUE$
 ffffffff   RESET_VECTOR
-8812a310   RTA_D_fromHost
-8812a318   RTA_D_logval
-8812a328   RTA_D_stsval
-8812a314   RTA_D_toHost
+87e2a250   RTA_D_fromHost
+87e2a258   RTA_D_logval
+87e2a268   RTA_D_stsval
+87e2a254   RTA_D_toHost
 00000000   RTDX$
 00000408   RTDX_BUFMEMSIZE
-8812a4a4   RTDX_DATAMEMSEG
+87e2a3e4   RTDX_DATAMEMSEG
 00000000   RTDX_MODE
 00000000   RTDX_USERTDX
 00000000   RTDX_USERTEXECUTION
 00000000   SEM$
 00000000   SIO$
 00000000   STS$
-8812ad60   STS_A_TABBEG
-8812ad70   STS_A_TABEND
-8812642c   STS_F_add
-88126400   STS_F_delta
-88126448   STS_F_reset
+87e2ac90   STS_A_TABBEG
+87e2aca0   STS_A_TABEND
+87e2638c   STS_F_add
+87e26360   STS_F_delta
+87e263a8   STS_F_reset
 00000001   SWI$
-8812ad34   SWI_A_TABBEG
-8812ad60   SWI_A_TABEND
+87e2ac64   SWI_A_TABBEG
+87e2ac90   SWI_A_TABEND
 00000001   SWI_A_TABLEN
-8812a384   SWI_D_curfxn
-8812a374   SWI_D_curmask
-8812a380   SWI_D_curmbox
-8812a378   SWI_D_curset
-8812a370   SWI_D_execaddr
-8812a38c   SWI_D_inswi
-8812a37c   SWI_D_lock
-8812a388   SWI_D_rdybeg
-8812a390   SWI_D_rdytab
-8812a36c   SWI_D_runaddr
+87e2a2c4   SWI_D_curfxn
+87e2a2b4   SWI_D_curmask
+87e2a2c0   SWI_D_curmbox
+87e2a2b8   SWI_D_curset
+87e2a2b0   SWI_D_execaddr
+87e2a2cc   SWI_D_inswi
+87e2a2bc   SWI_D_lock
+87e2a2c8   SWI_D_rdybeg
+87e2a2d0   SWI_D_rdytab
+87e2a2ac   SWI_D_runaddr
 00000000   SWI_EHOOKFXN
-88122c24   SWI_EXECFXN
-88122a40   SWI_F_enable
-88122c24   SWI_F_exec
-88122c4c   SWI_F_iexec
-88122ab0   SWI_F_post
-88122ccc   SWI_F_run
+87e22b84   SWI_EXECFXN
+87e229a0   SWI_F_enable
+87e22b84   SWI_F_exec
+87e22bac   SWI_F_iexec
+87e22a10   SWI_F_post
+87e22c2c   SWI_F_run
 00000000   SWI_IHOOKFXN
-88122ccc   SWI_RUNFXN
+87e22c2c   SWI_RUNFXN
 00000001   SYS$
-8812ad70   SYS$config
-881265a0   SYS_ABORTFXN
-881266a0   SYS_ERRORFXN
-881266c0   SYS_EXITFXN
-881264c0   SYS_PUTCFXN
-8812ad84   TRC_R_mask
-8812ad80   TRC_cinit
+87e2aca0   SYS$config
+87e26500   SYS_ABORTFXN
+87e26600   SYS_ERRORFXN
+87e26620   SYS_EXITFXN
+87e26420   SYS_PUTCFXN
+87e2acb4   TRC_R_mask
+87e2acb0   TRC_cinit
 00000001   TSK$
 00000000   TSK_NUM_HOOKS
 00000001   TSK_PRIORITY
 00000000   TSK_READYFXN
-8812a4a4   TSK_STACKSEG
+87e2a3e4   TSK_STACKSEG
 00000400   TSK_STACKSIZE
 00000000   TSK_SWITCHFXN
-881265e0   TSK_VCREATEFXN
-881265e0   TSK_VDELETEFXN
-881265e0   TSK_VEXITFXN
-8812ab90   TSK_idle
+87e26540   TSK_VCREATEFXN
+87e26540   TSK_VDELETEFXN
+87e26540   TSK_VEXITFXN
+87e2ab90   TSK_idle
 00000000   TSK_idle$ord
 00000000   TSK_idle$pri
-88129da0   TSK_idle$stack
-8812a138   TSK_idle$stkptr
+87e29ce0   TSK_idle$stack
+87e2a078   TSK_idle$stkptr
 00000000   TSK_idle$tsk
 00000000   UDEV$
-88125314   _BCACHE_bootInit
-88125394   _BCACHE_getMar
-88125344   _BCACHE_getSize
-88125950   _BCACHE_inv
-881260d0   _BCACHE_invL1pAll
-88125314   _BCACHE_setCacheToSram
-881252c4   _BCACHE_setMar
-88125280   _BCACHE_setSize
-881260e0   _BCACHE_wait
-88125940   _BCACHE_wb
-881260c0   _BCACHE_wbAll
-8812592c   _BCACHE_wbInv
-881260ac   _BCACHE_wbInvAll
-881297a0   _BIOS_init
-88129a08   _BIOS_start
-8812654c   _C62_clearIFR
-88126520   _C62_disableIER
-88124288   _C62_dispatchPlug
-88126538   _C62_enableIER
-88124280   _C62_plug
-8812654c   _C64_clearIFR
-88126520   _C64_disableIER
-88124288   _C64_dispatchPlug
-88126538   _C64_enableIER
-88124280   _C64_plug
+87e25274   _BCACHE_bootInit
+87e252f4   _BCACHE_getMar
+87e252a4   _BCACHE_getSize
+87e258b0   _BCACHE_inv
+87e26030   _BCACHE_invL1pAll
+87e25274   _BCACHE_setCacheToSram
+87e25224   _BCACHE_setMar
+87e251e0   _BCACHE_setSize
+87e26040   _BCACHE_wait
+87e258a0   _BCACHE_wb
+87e26020   _BCACHE_wbAll
+87e2588c   _BCACHE_wbInv
+87e2600c   _BCACHE_wbInvAll
+87e296e0   _BIOS_init
+87e29948   _BIOS_start
+87e264ac   _C62_clearIFR
+87e26480   _C62_disableIER
+87e241e8   _C62_dispatchPlug
+87e26498   _C62_enableIER
+87e241e0   _C62_plug
+87e264ac   _C64_clearIFR
+87e26480   _C64_disableIER
+87e241e8   _C64_dispatchPlug
+87e26498   _C64_enableIER
+87e241e0   _C64_plug
 ffffffff   _CACHE_L1D
 ffffffff   _CACHE_L1P
 ffffffff   _CACHE_L2
 00050910   _CLK_COUNTSPMS
-8812a4b4   _CLK_DFLTMICROSECS
-8812a2e8   _CLK_D_countspms
-8812a2dc   _CLK_D_dirty
-8812a4b8   _CLK_D_microseconds
-8812a2e0   _CLK_D_prd
-8812a2e4   _CLK_D_tddr
-88124b40   _CLK_F_itime
+87e2a3f4   _CLK_DFLTMICROSECS
+87e2a228   _CLK_D_countspms
+87e2a21c   _CLK_D_dirty
+87e2a3f8   _CLK_D_microseconds
+87e2a220   _CLK_D_prd
+87e2a224   _CLK_D_tddr
+87e24aa0   _CLK_F_itime
 00004b00   _CLK_PRD
 49038000   _CLK_REGS
 00000000   _CLK_TDDR
 00000000   _CLK_TIMERNUM
 00000001   _CLK_USETIMER
-881266e0   _CLK_gethtime
+87e26640   _CLK_gethtime
 49038000   _CLK_gptimer
-88129790   _CLK_gptimer_enablemask
-8812a2cc   _CLK_htimeDiv
-8812a2d0   _CLK_htimeMult
-8812a4c4   _CLK_htimePerLtime
-88129364   _CLK_inputClock
-88124b40   _CLK_itime
-8812a2d4   _CLK_ltimeDiv
-8812a2d8   _CLK_ltimeMult
-881253ec   _CLK_reconfig
-88123f04   _CLK_start
-88123ea0   _CLK_stop
-8812a4a4   _DDR2
-88112040   _DDR2_base
+87e296d0   _CLK_gptimer_enablemask
+87e2a20c   _CLK_htimeDiv
+87e2a210   _CLK_htimeMult
+87e2a404   _CLK_htimePerLtime
+87e292a4   _CLK_inputClock
+87e24aa0   _CLK_itime
+87e2a214   _CLK_ltimeDiv
+87e2a218   _CLK_ltimeMult
+87e2534c   _CLK_reconfig
+87e23e64   _CLK_start
+87e23e00   _CLK_stop
+87e2a3e4   _DDR2
+87e11fa0   _DDR2_base
 00010000   _DDR2_length
-88129694   _DSPLINKDATA_ctrlPtr
-88110d60   _DSPLINKDATA_init
-8810f0c0   _DSPLINKIPS_init
+87e295d4   _DSPLINKDATA_ctrlPtr
+87e10d40   _DSPLINKDATA_init
+87e0f0a0   _DSPLINKIPS_init
 ffffffff   _DSPLINKMEM
-8812978c   _DSPLINKMQT_ctrlPtr
-88110e00   _DSPLINKMQT_init
-88129510   _DSPLINKPOOL_ctrlPtr
-881103a0   _DSPLINKPOOL_init
-8810f700   _DSPLINK_init
-8812ab00   _DSPLINK_shmBaseAddress
-8812ab08   _DSPLINK_shmBaseAddress_pad
-88129750   _DSPLINK_terminateFxn
-88107c1c   _DSPLINK_terminateISR
+87e296cc   _DSPLINKMQT_ctrlPtr
+87e10de0   _DSPLINKMQT_init
+87e29450   _DSPLINKPOOL_ctrlPtr
+87e10380   _DSPLINKPOOL_init
+87e0f6e0   _DSPLINK_init
+87e2ab00   _DSPLINK_shmBaseAddress
+87e2ab08   _DSPLINK_shmBaseAddress_pad
+87e29690   _DSPLINK_terminateFxn
+87e07c1c   _DSPLINK_terminateISR
 0000000a   _EVENT10
 00000064   _EVENT100
 00000065   _EVENT101
@@ -1154,59 +1127,59 @@ ffffffff   _DSPLINKMEM
 00000061   _EVENT97
 00000062   _EVENT98
 00000063   _EVENT99
-88122530   _EXC_clearLastStatus
-88124460   _EXC_dispatch
-881223b4   _EXC_exceptionHandler
-8812a488   _EXC_exceptionHook
-88122380   _EXC_external
-8812a490   _EXC_externalHook
-88122360   _EXC_getLastStatus
-88122320   _EXC_init
-88122074   _EXC_internal
-8812a48c   _EXC_internalHook
-88122040   _EXC_nmi
-8812a494   _EXC_nmiHook
-8812a458   _EXC_returnPtr
-88124624   _EXC_setReturnPtr
-881296ec   _EXC_status
-8812a450   _EXC_sysTrapTable
-88129718   _FAIL_Code
-88129710   _FAIL_File
-88129714   _FAIL_Line
-8812970c   _FAIL_Set
-881265e0   _FXN_F_nop
-88126224   _FXN_F_run
-88126260   _FXN_F_zero
+87e22490   _EXC_clearLastStatus
+87e243c0   _EXC_dispatch
+87e22314   _EXC_exceptionHandler
+87e2a3c8   _EXC_exceptionHook
+87e222e0   _EXC_external
+87e2a3d0   _EXC_externalHook
+87e222c0   _EXC_getLastStatus
+87e22280   _EXC_init
+87e21fd4   _EXC_internal
+87e2a3cc   _EXC_internalHook
+87e21fa0   _EXC_nmi
+87e2a3d4   _EXC_nmiHook
+87e2a398   _EXC_returnPtr
+87e24584   _EXC_setReturnPtr
+87e2962c   _EXC_status
+87e2a390   _EXC_sysTrapTable
+87e29658   _FAIL_Code
+87e29650   _FAIL_File
+87e29654   _FAIL_Line
+87e2964c   _FAIL_Set
+87e26540   _FXN_F_nop
+87e26184   _FXN_F_run
+87e261c0   _FXN_F_zero
 00000000   _GBL_CACHE
-88125564   _GBL_cacheInit64P
-8812a344   _GBL_clkIn
-8812a348   _GBL_freq
-88126600   _GBL_getVersion
-8812a340   _GBL_procId
-88111e14   _HAL_exit
-88111de0   _HAL_init
-8810f030   _HAL_intClear
-8810ef88   _HAL_intDisable
-8810ef40   _HAL_intEnable
-8810e720   _HAL_intInit
-8810e798   _HAL_intRegister
-8810f010   _HAL_intSend
-8810efd0   _HAL_intWaitClear
-88126620   _HOOK_setenv
-88110ea0   _HOSTclose
-8810fa60   _HOSTlseek
-8810fe60   _HOSTopen
-8810ff40   _HOSTread
-8810ec40   _HOSTrename
-88110460   _HOSTunlink
-88110520   _HOSTwrite
-88100080   _HST_A_TABBEG
-88100080   _HST_A_TABEND
-8812971c   _HWI_ATTRS
+87e254c4   _GBL_cacheInit64P
+87e2a284   _GBL_clkIn
+87e2a288   _GBL_freq
+87e26560   _GBL_getVersion
+87e2a280   _GBL_procId
+87e11df4   _HAL_exit
+87e11dc0   _HAL_init
+87e0f010   _HAL_intClear
+87e0ef68   _HAL_intDisable
+87e0ef20   _HAL_intEnable
+87e0e700   _HAL_intInit
+87e0e778   _HAL_intRegister
+87e0eff0   _HAL_intSend
+87e0efb0   _HAL_intWaitClear
+87e26580   _HOOK_setenv
+87e10e80   _HOSTclose
+87e0fa40   _HOSTlseek
+87e0fe40   _HOSTopen
+87e0ff20   _HOSTread
+87e0ec20   _HOSTrename
+87e10440   _HOSTunlink
+87e10500   _HOSTwrite
+87e00080   _HST_A_TABBEG
+87e00080   _HST_A_TABEND
+87e2965c   _HWI_ATTRS
 00004000   _HWI_CFGDISPATCHED
-8812a47c   _HWI_D_inhwi
-8812a470   _HWI_D_spsave
-88122560   _HWI_F_dispatch
+87e2a3bc   _HWI_D_inhwi
+87e2a3b0   _HWI_D_spsave
+87e224c0   _HWI_F_dispatch
 0000000a   _HWI_INT10
 0000000b   _HWI_INT11
 0000000c   _HWI_INT12
@@ -1223,205 +1196,205 @@ ffffffff   _DSPLINKMEM
 00000002   _HWI_RESERVED0
 00000003   _HWI_RESERVED1
 00000000   _HWI_RESET
-881276f8   _HWI_STKBOTTOM
-88126700   _HWI_STKTOP
-8812a470   _HWI_data
-88126280   _HWI_disable
-88125ce0   _HWI_dispatchPlug
-8812a1a0   _HWI_dispatchTab
-88126298   _HWI_enable
-88125d60   _HWI_eventMap
-881262ac   _HWI_restore
-88126640   _IDL_loop
-88106470   _IPS_clearReserved
-88104f6c   _IPS_exit
-88104c9c   _IPS_init
-88106510   _IPS_isNotReserved
-88105b9c   _IPS_notify
-881050e4   _IPS_register
-881063d0   _IPS_setReserved
-88105660   _IPS_unregister
+87e27658   _HWI_STKBOTTOM
+87e26660   _HWI_STKTOP
+87e2a3b0   _HWI_data
+87e261e0   _HWI_disable
+87e25c40   _HWI_dispatchPlug
+87e2a0e0   _HWI_dispatchTab
+87e261f8   _HWI_enable
+87e25cc0   _HWI_eventMap
+87e2620c   _HWI_restore
+87e265a0   _IDL_loop
+87e06470   _IPS_clearReserved
+87e04f6c   _IPS_exit
+87e04c9c   _IPS_init
+87e06510   _IPS_isNotReserved
+87e05b9c   _IPS_notify
+87e050e4   _IPS_register
+87e063d0   _IPS_setReserved
+87e05660   _IPS_unregister
 ffffffff   _IRAM
-8812a410   _KNL_alarm
-88125620   _KNL_check
-8812a434   _KNL_curqueue
-8812a424   _KNL_curtask
-8812a42c   _KNL_curtime
-88129408   _KNL_dummy
-88125a80   _KNL_enter
-88125a40   _KNL_exit
-881256e8   _KNL_idle
-8812a44c   _KNL_idlefxn
-8812a418   _KNL_inactive
-88125de0   _KNL_ipost
-88125710   _KNL_max
-8812a438   _KNL_maxqueue
-88125e60   _KNL_post
-8812a428   _KNL_prevtask
-8812a41c   _KNL_priority
-88129368   _KNL_queues
-88125000   _KNL_ready
-88123860   _KNL_run
-88124d40   _KNL_saveIsrFrame
-8812a420   _KNL_set
-8812a414   _KNL_setpri
-88125b00   _KNL_start
-8812ad34   _KNL_swi
-8812a430   _KNL_swiptr
-88124dec   _KNL_switch
-8812a440   _KNL_tcreatefxn
-8812a444   _KNL_tdeletefxn
-8812480c   _KNL_tick
-8812a448   _KNL_treadyfxn
-8812a43c   _KNL_tswitchfxn
-8812a408   _KNL_wFlag
-8812a40c   _KNL_wList
+87e2a350   _KNL_alarm
+87e25580   _KNL_check
+87e2a374   _KNL_curqueue
+87e2a364   _KNL_curtask
+87e2a36c   _KNL_curtime
+87e29348   _KNL_dummy
+87e259e0   _KNL_enter
+87e259a0   _KNL_exit
+87e25648   _KNL_idle
+87e2a38c   _KNL_idlefxn
+87e2a358   _KNL_inactive
+87e25d40   _KNL_ipost
+87e25670   _KNL_max
+87e2a378   _KNL_maxqueue
+87e25dc0   _KNL_post
+87e2a368   _KNL_prevtask
+87e2a35c   _KNL_priority
+87e292a8   _KNL_queues
+87e24f60   _KNL_ready
+87e237c0   _KNL_run
+87e24ca0   _KNL_saveIsrFrame
+87e2a360   _KNL_set
+87e2a354   _KNL_setpri
+87e25a60   _KNL_start
+87e2ac64   _KNL_swi
+87e2a370   _KNL_swiptr
+87e24d4c   _KNL_switch
+87e2a380   _KNL_tcreatefxn
+87e2a384   _KNL_tdeletefxn
+87e2476c   _KNL_tick
+87e2a388   _KNL_treadyfxn
+87e2a37c   _KNL_tswitchfxn
+87e2a348   _KNL_wFlag
+87e2a34c   _KNL_wList
 ffffffff   _L1DSRAM
-881262e0   _LCK_create
-88125f00   _LCK_pend
-88125ee0   _LCK_post
-8812ad04   _LOG_A_TABBEG
-8812ad34   _LOG_A_TABEND
+87e26240   _LCK_create
+87e25e60   _LCK_pend
+87e25e40   _LCK_post
+87e2ac34   _LOG_A_TABBEG
+87e2ac64   _LOG_A_TABEND
 00000002   _LOG_A_TABLEN
-8812a2ac   _LOG_D_system
-88125f60   _LOG_event
-88126660   _LOG_printf
-8812ad04   _LOG_system
-8812a4cc   _MEM
-8812a34c   _MEM_D_NUMSEGMENTS
-8812a354   _MEM_D_freelist
-8812a358   _MEM_D_lockaddr
-8812a350   _MEM_D_memtab
-8812a35c   _MEM_D_unlockaddr
-881240a0   _MEM_alloc
-88123aa0   _MEM_free
-88129c80   _MEM_init
-8812a498   _MEM_memtab
-88126160   _MEM_valloc
-8812977c   _MPCSXFER_BufferSize
-88129780   _MPCSXFER_NumIterations
-881296c0   _MPCSXFER_Pools
-88129760   _MPCS_GlobalLock
-88107550   _MPCS_close
-8810660c   _MPCS_create
-88129758   _MPCS_csObj
-88129754   _MPCS_ctrlPtr
-88106df0   _MPCS_delete
-8810770c   _MPCS_enter
-88109c50   _MPCS_exit
-88109a6c   _MPCS_init
-8810799c   _MPCS_leave
-881073ec   _MPCS_open
-88129764   _MPLIST_ctrlPtr
-8810cb38   _MPLIST_exit
-8810c94c   _MPLIST_init
-88129768   _MPLIST_mpcsObj
-8812976c   _NOTIFY_ctrlPtr
-8810f5ec   _NOTIFY_init
-8810b724   _NOTIFY_notify
-88129770   _NOTIFY_numIps
-8810b340   _NOTIFY_register
-8810b4fc   _NOTIFY_unregister
-88125fe0   _OBJ_create
-88126340   _OBJ_delete
-88129d80   _OBJ_init
-88129628   _OBJ_segtab
-881295f0   _OBJ_table
-88100080   _PIP_A_TABBEG
-88100080   _PIP_A_TABEND
-8812a4d0   _POOL
+87e2a1ec   _LOG_D_system
+87e25ec0   _LOG_event
+87e265c0   _LOG_printf
+87e2ac34   _LOG_system
+87e2a40c   _MEM
+87e2a28c   _MEM_D_NUMSEGMENTS
+87e2a294   _MEM_D_freelist
+87e2a298   _MEM_D_lockaddr
+87e2a290   _MEM_D_memtab
+87e2a29c   _MEM_D_unlockaddr
+87e24000   _MEM_alloc
+87e23a00   _MEM_free
+87e29bc0   _MEM_init
+87e2a3d8   _MEM_memtab
+87e260c0   _MEM_valloc
+87e296bc   _MPCSXFER_BufferSize
+87e296c0   _MPCSXFER_NumIterations
+87e29600   _MPCSXFER_Pools
+87e296a0   _MPCS_GlobalLock
+87e07550   _MPCS_close
+87e0660c   _MPCS_create
+87e29698   _MPCS_csObj
+87e29694   _MPCS_ctrlPtr
+87e06df0   _MPCS_delete
+87e0770c   _MPCS_enter
+87e09c30   _MPCS_exit
+87e09a4c   _MPCS_init
+87e0799c   _MPCS_leave
+87e073ec   _MPCS_open
+87e296a4   _MPLIST_ctrlPtr
+87e0cb18   _MPLIST_exit
+87e0c92c   _MPLIST_init
+87e296a8   _MPLIST_mpcsObj
+87e296ac   _NOTIFY_ctrlPtr
+87e0f5cc   _NOTIFY_init
+87e0b704   _NOTIFY_notify
+87e296b0   _NOTIFY_numIps
+87e0b320   _NOTIFY_register
+87e0b4dc   _NOTIFY_unregister
+87e25f40   _OBJ_create
+87e262a0   _OBJ_delete
+87e29cc0   _OBJ_init
+87e29568   _OBJ_segtab
+87e29530   _OBJ_table
+87e00080   _PIP_A_TABBEG
+87e00080   _PIP_A_TABEND
+87e2a410   _POOL
 ffffffff   _POOLMEM
-881296d0   _POOL_config
-88129aa0   _POOL_init
-88108510   _POOL_open
-8812a2ec   _PRD_D_tick
-88129798   _PRD_clock
-88126560   _QUE_get
-88126588   _QUE_put
+87e29610   _POOL_config
+87e299e0   _POOL_init
+87e084f4   _POOL_open
+87e2a22c   _PRD_D_tick
+87e296d8   _PRD_clock
+87e264c0   _QUE_get
+87e264e8   _QUE_put
 ffffffff   _RESET_VECTOR
-88129774   _RingIO_ctrlPtr
-881004a0   _RingIO_exit
-881002a8   _RingIO_init
-88129778   _RingIO_mpcsObj
-881263a0   _SEM_pend
-88123ca0   _SEM_pendEnterKnl
-88125960   _SEM_post
-88125960   _SEM_postBinary
-88125ba0   _SEM_postEnterKnl
-8810f268   _SHMDRV_handshake
-8810f200   _SHMDRV_init
-88128dc0   _SMAPOOL_FXNS
-88109294   _SMAPOOL_alloc
-88109680   _SMAPOOL_free
-881090e4   _SMAPOOL_init
-88109104   _SMAPOOL_open
-8812ad60   _STS_A_TABBEG
-8812ad70   _STS_A_TABEND
-8812642c   _STS_add
-88126400   _STS_delta
-88126448   _STS_reset
-88126680   _STS_set
-8812a384   _SWI_D_curfxn
-8812a374   _SWI_D_curmask
-8812a378   _SWI_D_curset
-8812a370   _SWI_D_execaddr
-8812a38c   _SWI_D_inswi
-8812a37c   _SWI_D_lock
-8812a388   _SWI_D_rdybeg
-8812a36c   _SWI_D_runaddr
-8812a36c   _SWI_data
-88122ab0   _SWI_post
-8812a360   _SYS
-8812a4d8   _SYS_PUTCBEG
-8812a6d7   _SYS_PUTCEND
-88126460   _SYS_abort
-881261c0   _SYS_error
-88125c40   _SYS_exit
-88129698   _SYS_exitStack
-8812a4bc   _SYS_exitStackPtr
-8812a4c0   _SYS_exitStackTop
-881296b8   _SamplePoolParams
-88110ca0   _SetReason
-8812ad84   _TRC_R_mask
-8812a4b0   _TSK
-881086d0   _TSKMPCSXFER_create
-88108d50   _TSKMPCSXFER_delete
-881089e8   _TSKMPCSXFER_execute
-88129590   _TSK_ATTRS
-881295ac   _TSK_config
-88123280   _TSK_create
-88125140   _TSK_exit
-8812ab90   _TSK_idle
-88129d20   _TSK_init
-8812a4a8   _TSK_nTasks
-8812a4ac   _TSK_pid
-88124ba0   _TSK_setup
-881257e4   _TSK_startup
-881295cc   _TSK_timerSem
-881265a0   _UTL_doAbort
-881266a0   _UTL_doError
-881264c0   _UTL_doPutc
-881266c0   _UTL_halt
-88129124   __BCACHE_emifAddr
-88129734   __BCACHE_readTable
-8812a6d8   __CIOBUF_
-88124b5c   __CLK_lat1beg
-88124b80   __CLK_lat1end
-88107c5c   __DSPLINK_init
-8812a368   __HOOK_NUMHOOKS
-8812a364   __HOOK_knlId
-88122560   __HWI_lat1beg
-881226e8   __HWI_lat1end
-881226e8   __HWI_lat2beg
-881228c4   __HWI_lat2end1
-88122850   __HWI_lat2end2
-881228e0   __HWI_lat3beg
-88122880   __HWI_lat3end2
-8812566c   __KNL_lat1beg
-881256e8   __KNL_lat1end
-88125f60   __LOG_lat1beg
-8812966c   __MEM_mutex
-88109ce0   __MPCS_open
+87e296b4   _RingIO_ctrlPtr
+87e004a0   _RingIO_exit
+87e002a8   _RingIO_init
+87e296b8   _RingIO_mpcsObj
+87e26300   _SEM_pend
+87e23c00   _SEM_pendEnterKnl
+87e258c0   _SEM_post
+87e258c0   _SEM_postBinary
+87e25b00   _SEM_postEnterKnl
+87e0f248   _SHMDRV_handshake
+87e0f1e0   _SHMDRV_init
+87e28d08   _SMAPOOL_FXNS
+87e09274   _SMAPOOL_alloc
+87e09660   _SMAPOOL_free
+87e090c4   _SMAPOOL_init
+87e090e4   _SMAPOOL_open
+87e2ac90   _STS_A_TABBEG
+87e2aca0   _STS_A_TABEND
+87e2638c   _STS_add
+87e26360   _STS_delta
+87e263a8   _STS_reset
+87e265e0   _STS_set
+87e2a2c4   _SWI_D_curfxn
+87e2a2b4   _SWI_D_curmask
+87e2a2b8   _SWI_D_curset
+87e2a2b0   _SWI_D_execaddr
+87e2a2cc   _SWI_D_inswi
+87e2a2bc   _SWI_D_lock
+87e2a2c8   _SWI_D_rdybeg
+87e2a2ac   _SWI_D_runaddr
+87e2a2ac   _SWI_data
+87e22a10   _SWI_post
+87e2a2a0   _SYS
+87e2a418   _SYS_PUTCBEG
+87e2a617   _SYS_PUTCEND
+87e263c0   _SYS_abort
+87e26120   _SYS_error
+87e25ba0   _SYS_exit
+87e295d8   _SYS_exitStack
+87e2a3fc   _SYS_exitStackPtr
+87e2a400   _SYS_exitStackTop
+87e295f8   _SamplePoolParams
+87e10c80   _SetReason
+87e2acb4   _TRC_R_mask
+87e2a3f0   _TSK
+87e086b0   _TSKMPCSXFER_create
+87e08d30   _TSKMPCSXFER_delete
+87e089c8   _TSKMPCSXFER_execute
+87e294d0   _TSK_ATTRS
+87e294ec   _TSK_config
+87e231e0   _TSK_create
+87e250a0   _TSK_exit
+87e2ab90   _TSK_idle
+87e29c60   _TSK_init
+87e2a3e8   _TSK_nTasks
+87e2a3ec   _TSK_pid
+87e24b00   _TSK_setup
+87e25744   _TSK_startup
+87e2950c   _TSK_timerSem
+87e26500   _UTL_doAbort
+87e26600   _UTL_doError
+87e26420   _UTL_doPutc
+87e26620   _UTL_halt
+87e29064   __BCACHE_emifAddr
+87e29674   __BCACHE_readTable
+87e2a618   __CIOBUF_
+87e24abc   __CLK_lat1beg
+87e24ae0   __CLK_lat1end
+87e07c5c   __DSPLINK_init
+87e2a2a8   __HOOK_NUMHOOKS
+87e2a2a4   __HOOK_knlId
+87e224c0   __HWI_lat1beg
+87e22648   __HWI_lat1end
+87e22648   __HWI_lat2beg
+87e22824   __HWI_lat2end1
+87e227b0   __HWI_lat2end2
+87e22840   __HWI_lat3beg
+87e227e0   __HWI_lat3end2
+87e255cc   __KNL_lat1beg
+87e25648   __KNL_lat1end
+87e25ec0   __LOG_lat1beg
+87e295ac   __MEM_mutex
+87e09cc0   __MPCS_open
 48004000   __PWRM_CM_BASEADDR
 5d000000   __PWRM_IVAMMU_BASEADDR
 48306000   __PWRM_PRM_BASEADDR
@@ -1431,156 +1404,156 @@ ffffffff   _RESET_VECTOR
 00000000   __PWRM_TIMERINTRMASK
 0000000a   __PWRM_TIMERPERIOD
 00000000   __PWRM_USETIMER
-88126560   __QUE_lat1beg
-88126580   __QUE_lat1end
-88126588   __QUE_lat2beg
-88126594   __QUE_lat2end
-88103828   __RingIO_callNotifier
-88103b10   __RingIO_checkNotifier
-88104458   __RingIO_getContiguousDataSize
-88103ee8   __RingIO_getFirstAcquiredAttr
-88104048   __RingIO_getFirstAttr
-88103d1c   __RingIO_initInstance
-88104a1c   __RingIO_invalidateDataBuffer
-88100ab0   __RingIO_readerAcquire
-8810365c   __RingIO_readerCancel
-881029a0   __RingIO_readerFlush
-88101ce8   __RingIO_readerGetvAttribute
-88101430   __RingIO_readerRelease
-88104204   __RingIO_releaseAttribute
-88104724   __RingIO_updateAttributes
-8810054c   __RingIO_writerAcquire
-881031b8   __RingIO_writerCancel
-881021b4   __RingIO_writerFlush
-8810119c   __RingIO_writerRelease
-88101800   __RingIO_writerSetvAttribute
-88124820   __SEM_dopost
-88127700   __STACK_END
+87e264c0   __QUE_lat1beg
+87e264e0   __QUE_lat1end
+87e264e8   __QUE_lat2beg
+87e264f4   __QUE_lat2end
+87e03828   __RingIO_callNotifier
+87e03b10   __RingIO_checkNotifier
+87e04458   __RingIO_getContiguousDataSize
+87e03ee8   __RingIO_getFirstAcquiredAttr
+87e04048   __RingIO_getFirstAttr
+87e03d1c   __RingIO_initInstance
+87e04a1c   __RingIO_invalidateDataBuffer
+87e00ab0   __RingIO_readerAcquire
+87e0365c   __RingIO_readerCancel
+87e029a0   __RingIO_readerFlush
+87e01ce8   __RingIO_readerGetvAttribute
+87e01430   __RingIO_readerRelease
+87e04204   __RingIO_releaseAttribute
+87e04724   __RingIO_updateAttributes
+87e0054c   __RingIO_writerAcquire
+87e031b8   __RingIO_writerCancel
+87e021b4   __RingIO_writerFlush
+87e0119c   __RingIO_writerRelease
+87e01800   __RingIO_writerSetvAttribute
+87e24780   __SEM_dopost
+87e27660   __STACK_END
 00001000   __STACK_SIZE
-88122bb8   __SWI_lat1beg
-88122c64   __SWI_lat1end
-88122c68   __SWI_lat2beg
-88122cc8   __SWI_lat2end
-88122a40   __SWI_lat3beg
-88122aac   __SWI_lat3end
-88129644   __TSK_mutex
-88129748   ___TI_enable_exit_profile_output
+87e22b18   __SWI_lat1beg
+87e22bc4   __SWI_lat1end
+87e22bc8   __SWI_lat2beg
+87e22c28   __SWI_lat2end
+87e229a0   __SWI_lat3beg
+87e22a0c   __SWI_lat3end
+87e29584   __TSK_mutex
+87e29688   ___TI_enable_exit_profile_output
 ffffffff   ___TI_pprof_out_hndl
 ffffffff   ___TI_prof_data_size
 ffffffff   ___TI_prof_data_start
 ffffffff   ___binit__
-8812a1a0   ___bss__
+87e2a0e0   ___bss__
 ffffffff   ___c_args__
-88127700   ___cinit__
-8812ab00   ___data__
-8812ab84   ___edata__
-8812a4d6   ___end__
-88112040   ___etext__
-88111b60   ___isinf
+87e27660   ___cinit__
+87e2ab00   ___data__
+87e2ab84   ___edata__
+87e2a416   ___end__
+87e11fa0   ___etext__
+87e11b40   ___isinf
 ffffffff   ___pinit__
-88100080   ___text__
-8810dd40   __addd
-88124ec0   __auto_init
-88110760   __c6xabi_divu
-88111260   __c6xabi_remu
-881105e0   __cleanup
-88129740   __cleanup_ptr
-88110020   __cmpd
-88128848   __ctypes_
-8810a8c0   __divd
-8810bca0   __divf
-88110f40   __divli
-88110760   __divu
-8810eaa0   __divul
-8810d420   __divull
-88110820   __doflush
-88129744   __dtors_ptr
-88111440   __fixdi
-88111120   __fixdli
-881114c0   __fixfu
-88111540   __fltlid
-88111be0   __fltuf
-8810df40   __frcaddd
-8810fb60   __frcmpyd
-88111c20   __frcmpyd_div
-881118c0   __frcmpyf
-88111c60   __frcmpyf_div
-88129120   __ft_end
-88128e00   __ftable
-881115c0   __llshl
-88111ca0   __llshru
-88129784   __lock
-8810d680   __mpyd
-8810e140   __mpyf
-88111ce0   __negd
-88111ee0   __negll
-88111f00   __nop
-8810b860   __printfi
-88111f60   __register_lock
-88111f80   __register_unlock
-88111d20   __remli
-88111260   __remu
-88111640   __renormd
-88126700   __stack
-88111920   __subcull
-88111d60   __subd
-88128fe0   __tmpnams
-88129788   __unlock
-8810fd60   __wrt_ok
-88110100   _atoi
-88129bc0   _c_int00
-881237f8   _calloc
-881101e0   _close
-8810f940   _fclose
-8810f340   _fputc
-8810c5e0   _fputs
-881235c0   _free
-881108e0   _fseek
-881109a0   _lseek
-88110a60   _ltoa
-8810e540   _main
-881235e8   _malloc
-88123718   _memalign
-88111980   _memccpy
-881113a0   _memcpy
-881102c0   _memset
-881116c0   _printf
-8810f340   _putc
-88111740   _readmsg
-8812364c   _realloc
-88111fa0   _remove
-8810edc0   _setvbuf
-881119e0   _strcpy
-88111a40   _strncmp
-881117c0   _strncpy
-8812ad1c   _trace
-88111840   _unlink
-88110b20   _write
-88111aa0   _writemsg
+87e00080   ___text__
+87e0dd20   __addd
+87e24e20   __auto_init
+87e10740   __c6xabi_divu
+87e11240   __c6xabi_remu
+87e105c0   __cleanup
+87e29680   __cleanup_ptr
+87e10000   __cmpd
+87e28790   __ctypes_
+87e0a8a0   __divd
+87e0bc80   __divf
+87e10f20   __divli
+87e10740   __divu
+87e0ea80   __divul
+87e0d400   __divull
+87e10800   __doflush
+87e29684   __dtors_ptr
+87e11420   __fixdi
+87e11100   __fixdli
+87e114a0   __fixfu
+87e11520   __fltlid
+87e11bc0   __fltuf
+87e0df20   __frcaddd
+87e0fb40   __frcmpyd
+87e11c00   __frcmpyd_div
+87e118a0   __frcmpyf
+87e11c40   __frcmpyf_div
+87e29060   __ft_end
+87e28d40   __ftable
+87e115a0   __llshl
+87e11c80   __llshru
+87e296c4   __lock
+87e0d660   __mpyd
+87e0e120   __mpyf
+87e11cc0   __negd
+87e11ec0   __negll
+87e11ee0   __nop
+87e0b840   __printfi
+87e11f40   __register_lock
+87e11f60   __register_unlock
+87e11d00   __remli
+87e11240   __remu
+87e11620   __renormd
+87e26660   __stack
+87e11900   __subcull
+87e11d40   __subd
+87e28f20   __tmpnams
+87e296c8   __unlock
+87e0fd40   __wrt_ok
+87e100e0   _atoi
+87e29b00   _c_int00
+87e23758   _calloc
+87e101c0   _close
+87e0f920   _fclose
+87e0f320   _fputc
+87e0c5c0   _fputs
+87e23520   _free
+87e108c0   _fseek
+87e10980   _lseek
+87e10a40   _ltoa
+87e0e520   _main
+87e23548   _malloc
+87e23678   _memalign
+87e11960   _memccpy
+87e11380   _memcpy
+87e102a0   _memset
+87e116a0   _printf
+87e0f320   _putc
+87e11720   _readmsg
+87e235ac   _realloc
+87e11f80   _remove
+87e0eda0   _setvbuf
+87e119c0   _strcpy
+87e11a20   _strncmp
+87e117a0   _strncpy
+87e2ac4c   _trace
+87e11820   _unlink
+87e10b00   _write
+87e11a80   _writemsg
 ffffffff   binit
-88127700   cinit
-8812ab84   edata
-8812a4d6   end
-88112040   etext
-8812a800   hwi0
-8812a820   hwi1
-8812a940   hwi10
-8812a960   hwi11
-8812a980   hwi12
-8812a9a0   hwi13
-8812a9c0   hwi14
-8812a9e0   hwi15
-8812a840   hwi2
-8812a860   hwi3
-8812a880   hwi4
-8812a8a0   hwi5
-8812a8c0   hwi6
-8812a8e0   hwi7
-8812a900   hwi8
-8812a920   hwi9
+87e27660   cinit
+87e2ab84   edata
+87e2a416   end
+87e11fa0   etext
+87e2a800   hwi0
+87e2a820   hwi1
+87e2a940   hwi10
+87e2a960   hwi11
+87e2a980   hwi12
+87e2a9a0   hwi13
+87e2a9c0   hwi14
+87e2a9e0   hwi15
+87e2a840   hwi2
+87e2a860   hwi3
+87e2a880   hwi4
+87e2a8a0   hwi5
+87e2a8c0   hwi6
+87e2a8e0   hwi7
+87e2a900   hwi8
+87e2a920   hwi9
 ffffffff   pinit
-8812ad1c   trace
-8812ac00   trace$buf
+87e2ac4c   trace
+87e2a780   trace$buf
 00000001   trace$datatype
 00000000   trace$log
 00000020   trace$size
@@ -2045,6 +2018,7 @@ address    name
 0000007e   _EVENT126
 0000007f   EVENT127
 0000007f   _EVENT127
+00000080   GBL_L2MAR128_159
 00000100   HST_MAXFRAMEALLOWED
 000003e8   CLK_MICROSECS
 00000400   HST_DSMMEMSIZE
@@ -2062,7 +2036,6 @@ address    name
 00004b00   _CLK_PRD
 00004e20   GBL_CLKIN
 00005205   GBL_A_VERSION
-0000ff00   GBL_L2MAR128_159
 00010000   DDR2$L
 00010000   _DDR2_length
 00050910   CLK_COUNTSPMS
@@ -2080,580 +2053,580 @@ address    name
 49038000   _CLK_REGS
 49038000   _CLK_gptimer
 5d000000   __PWRM_IVAMMU_BASEADDR
-88100080   .text
-88100080   HST_A_TABBEG
-88100080   HST_A_TABEND
-88100080   PIP_A_TABBEG
-88100080   PIP_A_TABEND
-88100080   PRD_A_TABBEG
-88100080   PRD_A_TABEND
-88100080   _HST_A_TABBEG
-88100080   _HST_A_TABEND
-88100080   _PIP_A_TABBEG
-88100080   _PIP_A_TABEND
-88100080   ___text__
-881002a8   _RingIO_init
-881004a0   _RingIO_exit
-8810054c   __RingIO_writerAcquire
-88100ab0   __RingIO_readerAcquire
-8810119c   __RingIO_writerRelease
-88101430   __RingIO_readerRelease
-88101800   __RingIO_writerSetvAttribute
-88101ce8   __RingIO_readerGetvAttribute
-881021b4   __RingIO_writerFlush
-881029a0   __RingIO_readerFlush
-881031b8   __RingIO_writerCancel
-8810365c   __RingIO_readerCancel
-88103828   __RingIO_callNotifier
-88103b10   __RingIO_checkNotifier
-88103d1c   __RingIO_initInstance
-88103ee8   __RingIO_getFirstAcquiredAttr
-88104048   __RingIO_getFirstAttr
-88104204   __RingIO_releaseAttribute
-88104458   __RingIO_getContiguousDataSize
-88104724   __RingIO_updateAttributes
-88104a1c   __RingIO_invalidateDataBuffer
-88104c9c   _IPS_init
-88104f6c   _IPS_exit
-881050e4   _IPS_register
-88105660   _IPS_unregister
-88105b9c   _IPS_notify
-881063d0   _IPS_setReserved
-88106470   _IPS_clearReserved
-88106510   _IPS_isNotReserved
-8810660c   _MPCS_create
-88106df0   _MPCS_delete
-881073ec   _MPCS_open
-88107550   _MPCS_close
-8810770c   _MPCS_enter
-8810799c   _MPCS_leave
-88107c1c   _DSPLINK_terminateISR
-88107c5c   __DSPLINK_init
-88108510   _POOL_open
-881086d0   _TSKMPCSXFER_create
-881089e8   _TSKMPCSXFER_execute
-88108d50   _TSKMPCSXFER_delete
-881090e4   _SMAPOOL_init
-88109104   _SMAPOOL_open
-88109294   _SMAPOOL_alloc
-88109680   _SMAPOOL_free
-88109a6c   _MPCS_init
-88109c50   _MPCS_exit
-88109ce0   __MPCS_open
-8810a8c0   __divd
-8810b340   _NOTIFY_register
-8810b4fc   _NOTIFY_unregister
-8810b724   _NOTIFY_notify
-8810b860   __printfi
-8810bca0   __divf
-8810c5e0   _fputs
-8810c94c   _MPLIST_init
-8810cb38   _MPLIST_exit
-8810d420   __divull
-8810d680   __mpyd
-8810dd40   __addd
-8810df40   __frcaddd
-8810e140   __mpyf
-8810e540   _main
-8810e720   _HAL_intInit
-8810e798   _HAL_intRegister
-8810eaa0   __divul
-8810ec40   _HOSTrename
-8810edc0   _setvbuf
-8810ef40   _HAL_intEnable
-8810ef88   _HAL_intDisable
-8810efd0   _HAL_intWaitClear
-8810f010   _HAL_intSend
-8810f030   _HAL_intClear
-8810f0c0   _DSPLINKIPS_init
-8810f200   _SHMDRV_init
-8810f268   _SHMDRV_handshake
-8810f340   _fputc
-8810f340   _putc
-8810f5ec   _NOTIFY_init
-8810f700   _DSPLINK_init
-8810f940   _fclose
-8810fa60   _HOSTlseek
-8810fb60   __frcmpyd
-8810fd60   __wrt_ok
-8810fe60   _HOSTopen
-8810ff40   _HOSTread
-88110020   __cmpd
-88110100   _atoi
-881101e0   _close
-881102c0   _memset
-881103a0   _DSPLINKPOOL_init
-88110460   _HOSTunlink
-88110520   _HOSTwrite
-881105e0   __cleanup
-88110760   __c6xabi_divu
-88110760   __divu
-88110820   __doflush
-881108e0   _fseek
-881109a0   _lseek
-88110a60   _ltoa
-88110b20   _write
-88110ca0   _SetReason
-88110d60   _DSPLINKDATA_init
-88110e00   _DSPLINKMQT_init
-88110ea0   _HOSTclose
-88110f40   __divli
-88111120   __fixdli
-88111260   __c6xabi_remu
-88111260   __remu
-881113a0   _memcpy
-88111440   __fixdi
-881114c0   __fixfu
-88111540   __fltlid
-881115c0   __llshl
-88111640   __renormd
-881116c0   _printf
-88111740   _readmsg
-881117c0   _strncpy
-88111840   _unlink
-881118c0   __frcmpyf
-88111920   __subcull
-88111980   _memccpy
-881119e0   _strcpy
-88111a40   _strncmp
-88111aa0   _writemsg
-88111af8   C$$IO$$
-88111b60   ___isinf
-88111be0   __fltuf
-88111c20   __frcmpyd_div
-88111c60   __frcmpyf_div
-88111ca0   __llshru
-88111ce0   __negd
-88111d20   __remli
-88111d60   __subd
-88111de0   _HAL_init
-88111e14   _HAL_exit
-88111ee0   __negll
-88111f00   __nop
-88111f60   __register_lock
-88111f80   __register_unlock
-88111fa0   _remove
-88112040   DDR2$B
-88112040   _DDR2_base
-88112040   ___etext__
-88112040   etext
-88122040   _EXC_nmi
-88122074   _EXC_internal
-88122320   _EXC_init
-88122360   _EXC_getLastStatus
-88122380   _EXC_external
-881223b4   _EXC_exceptionHandler
-88122530   _EXC_clearLastStatus
-88122560   CLK_HOOKFXN
-88122560   HWI_F_dispatch
-88122560   _HWI_F_dispatch
-88122560   __HWI_lat1beg
-881226e8   __HWI_lat1end
-881226e8   __HWI_lat2beg
-88122850   __HWI_lat2end2
-88122880   __HWI_lat3end2
-881228c4   __HWI_lat2end1
-881228e0   __HWI_lat3beg
-88122a40   SWI_F_enable
-88122a40   __SWI_lat3beg
-88122aac   __SWI_lat3end
-88122ab0   SWI_F_post
-88122ab0   _SWI_post
-88122bb8   __SWI_lat1beg
-88122c24   SWI_EXECFXN
-88122c24   SWI_F_exec
-88122c4c   SWI_F_iexec
-88122c64   __SWI_lat1end
-88122c68   __SWI_lat2beg
-88122cc8   __SWI_lat2end
-88122ccc   SWI_F_run
-88122ccc   SWI_RUNFXN
-88122f00   PRD_F_swi
-88123184   PRD_F_tick
-88123280   _TSK_create
-881235c0   _free
-881235e8   _malloc
-8812364c   _realloc
-88123718   _memalign
-881237f8   _calloc
-88123860   _KNL_run
-88123aa0   _MEM_free
-88123ca0   _SEM_pendEnterKnl
-88123ea0   _CLK_stop
-88123f04   _CLK_start
-881240a0   _MEM_alloc
-88124280   _C62_plug
-88124280   _C64_plug
-88124288   _C62_dispatchPlug
-88124288   _C64_dispatchPlug
-88124460   _EXC_dispatch
-88124624   _EXC_setReturnPtr
-8812480c   PRD_THOOKFXN
-8812480c   _KNL_tick
-88124820   __SEM_dopost
-881249e0   CLK_F_getltime
-881249f0   CLK_F_isr
-88124b40   CLK_F_itime
-88124b40   _CLK_F_itime
-88124b40   _CLK_itime
-88124b5c   __CLK_lat1beg
-88124b80   __CLK_lat1end
-88124ba0   _TSK_setup
-88124d40   _KNL_saveIsrFrame
-88124dec   _KNL_switch
-88124e98   KNL_glue
-88124ec0   __auto_init
-88125000   _KNL_ready
-88125140   _TSK_exit
-88125280   _BCACHE_setSize
-881252c4   _BCACHE_setMar
-88125314   _BCACHE_bootInit
-88125314   _BCACHE_setCacheToSram
-88125344   _BCACHE_getSize
-88125394   _BCACHE_getMar
-881253ec   _CLK_reconfig
-88125564   _GBL_cacheInit64P
-88125620   _KNL_check
-8812566c   __KNL_lat1beg
-881256e8   _KNL_idle
-881256e8   __KNL_lat1end
-88125710   _KNL_max
-881257e4   _TSK_startup
-8812592c   _BCACHE_wbInv
-88125940   _BCACHE_wb
-88125950   _BCACHE_inv
-88125960   _SEM_post
-88125960   _SEM_postBinary
-88125a40   _KNL_exit
-88125a80   _KNL_enter
-88125b00   _KNL_start
-88125ba0   _SEM_postEnterKnl
-88125c40   _SYS_exit
-88125ce0   _HWI_dispatchPlug
-88125d60   _HWI_eventMap
-88125de0   _KNL_ipost
-88125e60   _KNL_post
-88125ee0   _LCK_post
-88125f00   _LCK_pend
-88125f60   LOG_F_event
-88125f60   _LOG_event
-88125f60   __LOG_lat1beg
-88125fe0   _OBJ_create
-881260ac   _BCACHE_wbInvAll
-881260c0   _BCACHE_wbAll
-881260d0   _BCACHE_invL1pAll
-881260e0   _BCACHE_wait
-88126160   _MEM_valloc
-881261c0   _SYS_error
-88126220   FXN_F_nop
-88126224   FXN_F_run
-88126224   _FXN_F_run
-88126260   FXN_F_zero
-88126260   _FXN_F_zero
-88126280   _HWI_disable
-88126298   _HWI_enable
-881262ac   _HWI_restore
-881262e0   _LCK_create
-88126340   _OBJ_delete
-881263a0   _SEM_pend
-88126400   STS_F_delta
-88126400   _STS_delta
-8812642c   STS_F_add
-8812642c   _STS_add
-88126448   STS_F_reset
-88126448   _STS_reset
-88126460   _SYS_abort
-881264c0   SYS_PUTCFXN
-881264c0   _UTL_doPutc
-88126520   _C62_disableIER
-88126520   _C64_disableIER
-88126538   _C62_enableIER
-88126538   _C64_enableIER
-8812654c   _C62_clearIFR
-8812654c   _C64_clearIFR
-88126560   _QUE_get
-88126560   __QUE_lat1beg
-88126580   __QUE_lat1end
-88126588   _QUE_put
-88126588   __QUE_lat2beg
-88126594   __QUE_lat2end
-881265a0   SYS_ABORTFXN
-881265a0   _UTL_doAbort
-881265e0   GBL_USERINITFXN
-881265e0   GIO_CREATEFXN
-881265e0   GIO_DELETEFXN
-881265e0   GIO_PENDFXN
-881265e0   GIO_POSTFXN
-881265e0   PWRM_PWRM_SHAREDRESOURCEFXN
-881265e0   PWRM_PWRM_SLOTHOOKFXN
-881265e0   TSK_VCREATEFXN
-881265e0   TSK_VDELETEFXN
-881265e0   TSK_VEXITFXN
-881265e0   _FXN_F_nop
-88126600   _GBL_getVersion
-88126620   _HOOK_setenv
-88126640   IDL_F_loop
-88126640   _IDL_loop
-88126660   _LOG_printf
-88126680   _STS_set
-881266a0   SYS_ERRORFXN
-881266a0   _UTL_doError
-881266c0   SYS_EXITFXN
-881266c0   _UTL_halt
-881266e0   CLK_TIMEFXN
-881266e0   _CLK_gethtime
-88126700   GBL_stackbeg
-88126700   _HWI_STKTOP
-88126700   __stack
-881276f8   _HWI_STKBOTTOM
-881276ff   GBL_stackend
-88127700   __STACK_END
-88127700   ___cinit__
-88127700   cinit
-881283c4   IDL_A_TABBEG
-881283c4   IDL_END
-88128848   __ctypes_
-88128dc0   _SMAPOOL_FXNS
-88128df9   KNL_swi$sts$maxfmt
-88128dfc   IDL_A_CALBEG
-88128dfc   IDL_END$
-88128e00   __ftable
-88128e01   KNL_swi$sts$sumfmt
-88128e09   KNL_swi$sts$avgfmt
-88128fe0   __tmpnams
-88129120   __ft_end
-88129124   __BCACHE_emifAddr
-88129364   _CLK_inputClock
-88129368   _KNL_queues
-88129408   _KNL_dummy
-88129510   _DSPLINKPOOL_ctrlPtr
-88129590   _TSK_ATTRS
-881295ac   _TSK_config
-881295cc   _TSK_timerSem
-881295f0   _OBJ_table
-88129628   _OBJ_segtab
-88129644   __TSK_mutex
-8812966c   __MEM_mutex
-88129694   _DSPLINKDATA_ctrlPtr
-88129698   _SYS_exitStack
-881296b8   _SamplePoolParams
-881296c0   _MPCSXFER_Pools
-881296d0   _POOL_config
-881296ec   _EXC_status
-8812970c   _FAIL_Set
-88129710   _FAIL_File
-88129714   _FAIL_Line
-88129718   _FAIL_Code
-8812971c   _HWI_ATTRS
-88129734   __BCACHE_readTable
-88129740   __cleanup_ptr
-88129744   __dtors_ptr
-88129748   ___TI_enable_exit_profile_output
-88129750   _DSPLINK_terminateFxn
-88129754   _MPCS_ctrlPtr
-88129758   _MPCS_csObj
-88129760   _MPCS_GlobalLock
-88129764   _MPLIST_ctrlPtr
-88129768   _MPLIST_mpcsObj
-8812976c   _NOTIFY_ctrlPtr
-88129770   _NOTIFY_numIps
-88129774   _RingIO_ctrlPtr
-88129778   _RingIO_mpcsObj
-8812977c   _MPCSXFER_BufferSize
-88129780   _MPCSXFER_NumIterations
-88129784   __lock
-88129788   __unlock
-8812978c   _DSPLINKMQT_ctrlPtr
-88129790   _CLK_gptimer_enablemask
-88129798   CLK_A_TABBEG
-88129798   PRD_clock
-88129798   _PRD_clock
-8812979c   CLK_null
-881297a0   BIOS_init
-881297a0   _BIOS_init
-88129a08   BIOS_start
-88129a08   _BIOS_start
-88129aa0   _POOL_init
-88129bc0   _c_int00
-88129c80   _MEM_init
-88129d20   _TSK_init
-88129d80   _OBJ_init
-88129da0   TSK_idle$stack
-8812a138   TSK_idle$stkptr
-8812a1a0   $bss
-8812a1a0   .bss
-8812a1a0   _HWI_dispatchTab
-8812a1a0   ___bss__
-8812a2a0   IDL_D_tabbeg
-8812a2a4   IDL_D_calibrate
-8812a2a8   IDL_D_calbeg
-8812a2ac   LOG_D_system
-8812a2ac   _LOG_D_system
-8812a2b0   PIP_D_tabbeg
-8812a2b4   PIP_D_tablen
-8812a2b8   CLK_R_time
-8812a2bc   CLK_D_timefxn
-8812a2c0   CLK_D_tabbeg
-8812a2c4   CLK_D_isrhook
-8812a2c8   CLK_D_idletime
-8812a2cc   _CLK_htimeDiv
-8812a2d0   _CLK_htimeMult
-8812a2d4   _CLK_ltimeDiv
-8812a2d8   _CLK_ltimeMult
-8812a2dc   _CLK_D_dirty
-8812a2e0   _CLK_D_prd
-8812a2e4   _CLK_D_tddr
-8812a2e8   _CLK_D_countspms
-8812a2ec   PRD_D_tick
-8812a2ec   _PRD_D_tick
-8812a2f0   PRD_D_cur
-8812a2f4   PRD_D_elapsed
-8812a2f8   PRD_D_prevtim
-8812a2fc   PRD_D_scalar
-8812a300   PRD_D_swihandle
-8812a304   PRD_D_tabbeg
-8812a308   PRD_D_tablen
-8812a30c   PRD_D_thook
-8812a310   RTA_D_fromHost
-8812a314   RTA_D_toHost
-8812a318   RTA_D_logval
-8812a328   RTA_D_stsval
-8812a334   HST_D_chanmask
-8812a338   HST_D_tabbeg
-8812a33c   HST_D_tabend
-8812a340   _GBL_procId
-8812a344   _GBL_clkIn
-8812a348   _GBL_freq
-8812a34c   _MEM_D_NUMSEGMENTS
-8812a350   _MEM_D_memtab
-8812a354   _MEM_D_freelist
-8812a358   _MEM_D_lockaddr
-8812a35c   _MEM_D_unlockaddr
-8812a360   _SYS
-8812a364   __HOOK_knlId
-8812a368   __HOOK_NUMHOOKS
-8812a36c   SWI_D_runaddr
-8812a36c   _SWI_D_runaddr
-8812a36c   _SWI_data
-8812a370   SWI_D_execaddr
-8812a370   _SWI_D_execaddr
-8812a374   SWI_D_curmask
-8812a374   _SWI_D_curmask
-8812a378   SWI_D_curset
-8812a378   _SWI_D_curset
-8812a37c   SWI_D_lock
-8812a37c   _SWI_D_lock
-8812a380   SWI_D_curmbox
-8812a384   SWI_D_curfxn
-8812a384   _SWI_D_curfxn
-8812a388   SWI_D_rdybeg
-8812a388   _SWI_D_rdybeg
-8812a38c   SWI_D_inswi
-8812a38c   _SWI_D_inswi
-8812a390   SWI_D_rdytab
-8812a408   _KNL_wFlag
-8812a40c   _KNL_wList
-8812a410   _KNL_alarm
-8812a414   _KNL_setpri
-8812a418   _KNL_inactive
-8812a41c   _KNL_priority
-8812a420   _KNL_set
-8812a424   _KNL_curtask
-8812a428   _KNL_prevtask
-8812a42c   _KNL_curtime
-8812a430   _KNL_swiptr
-8812a434   _KNL_curqueue
-8812a438   _KNL_maxqueue
-8812a43c   _KNL_tswitchfxn
-8812a440   _KNL_tcreatefxn
-8812a444   _KNL_tdeletefxn
-8812a448   _KNL_treadyfxn
-8812a44c   _KNL_idlefxn
-8812a450   _EXC_sysTrapTable
-8812a458   _EXC_returnPtr
-8812a470   HWI_D_spsave
-8812a470   _HWI_D_spsave
-8812a470   _HWI_data
-8812a47c   _HWI_D_inhwi
-8812a480   HWI_D_bss
-8812a484   HWI_D_ccmask
-8812a488   _EXC_exceptionHook
-8812a48c   _EXC_internalHook
-8812a490   _EXC_externalHook
-8812a494   _EXC_nmiHook
-8812a498   _MEM_memtab
-8812a4a4   DDR2
-8812a4a4   HST_DSMBUFSEG
-8812a4a4   MEM_MALLOCSEG
-8812a4a4   MEM_SEGZERO
-8812a4a4   RTDX_DATAMEMSEG
-8812a4a4   TSK_STACKSEG
-8812a4a4   _DDR2
-8812a4a8   _TSK_nTasks
-8812a4ac   _TSK_pid
-8812a4b0   _TSK
-8812a4b4   _CLK_DFLTMICROSECS
-8812a4b8   _CLK_D_microseconds
-8812a4bc   _SYS_exitStackPtr
-8812a4c0   _SYS_exitStackTop
-8812a4c4   _CLK_htimePerLtime
-8812a4cc   _MEM
-8812a4d0   _POOL
-8812a4d6   ___end__
-8812a4d6   end
-8812a4d8   _SYS_PUTCBEG
-8812a6d7   _SYS_PUTCEND
-8812a6d8   __CIOBUF_
-8812a800   HWI_A_VECS
-8812a800   hwi0
-8812a820   hwi1
-8812a840   hwi2
-8812a860   hwi3
-8812a880   hwi4
-8812a8a0   hwi5
-8812a8c0   hwi6
-8812a8e0   hwi7
-8812a900   hwi8
-8812a920   hwi9
-8812a940   hwi10
-8812a960   hwi11
-8812a980   hwi12
-8812a9a0   hwi13
-8812a9c0   hwi14
-8812a9e0   hwi15
-8812aa00   LOG_system$buf
-8812ab00   .data
-8812ab00   _DSPLINK_shmBaseAddress
-8812ab00   ___data__
-8812ab08   _DSPLINK_shmBaseAddress_pad
-8812ab84   ___edata__
-8812ab84   edata
-8812ab90   TSK_idle
-8812ab90   _TSK_idle
-8812ac00   trace$buf
-8812ad04   LOG_A_TABBEG
-8812ad04   LOG_system
-8812ad04   _LOG_A_TABBEG
-8812ad04   _LOG_system
-8812ad1c   _trace
-8812ad1c   trace
-8812ad34   KNL_swi
-8812ad34   LOG_A_TABEND
-8812ad34   SWI_A_TABBEG
-8812ad34   _KNL_swi
-8812ad34   _LOG_A_TABEND
-8812ad60   KNL_swi$sts$stsobj
-8812ad60   STS_A_TABBEG
-8812ad60   SWI_A_TABEND
-8812ad60   _STS_A_TABBEG
-8812ad64   KNL_swi$sts
-8812ad70   STS_A_TABEND
-8812ad70   SYS$config
-8812ad70   _STS_A_TABEND
-8812ad80   TRC_cinit
-8812ad84   TRC_R_mask
-8812ad84   _TRC_R_mask
-8812ad88   GBL_initdone
+87e00080   .text
+87e00080   HST_A_TABBEG
+87e00080   HST_A_TABEND
+87e00080   PIP_A_TABBEG
+87e00080   PIP_A_TABEND
+87e00080   PRD_A_TABBEG
+87e00080   PRD_A_TABEND
+87e00080   _HST_A_TABBEG
+87e00080   _HST_A_TABEND
+87e00080   _PIP_A_TABBEG
+87e00080   _PIP_A_TABEND
+87e00080   ___text__
+87e002a8   _RingIO_init
+87e004a0   _RingIO_exit
+87e0054c   __RingIO_writerAcquire
+87e00ab0   __RingIO_readerAcquire
+87e0119c   __RingIO_writerRelease
+87e01430   __RingIO_readerRelease
+87e01800   __RingIO_writerSetvAttribute
+87e01ce8   __RingIO_readerGetvAttribute
+87e021b4   __RingIO_writerFlush
+87e029a0   __RingIO_readerFlush
+87e031b8   __RingIO_writerCancel
+87e0365c   __RingIO_readerCancel
+87e03828   __RingIO_callNotifier
+87e03b10   __RingIO_checkNotifier
+87e03d1c   __RingIO_initInstance
+87e03ee8   __RingIO_getFirstAcquiredAttr
+87e04048   __RingIO_getFirstAttr
+87e04204   __RingIO_releaseAttribute
+87e04458   __RingIO_getContiguousDataSize
+87e04724   __RingIO_updateAttributes
+87e04a1c   __RingIO_invalidateDataBuffer
+87e04c9c   _IPS_init
+87e04f6c   _IPS_exit
+87e050e4   _IPS_register
+87e05660   _IPS_unregister
+87e05b9c   _IPS_notify
+87e063d0   _IPS_setReserved
+87e06470   _IPS_clearReserved
+87e06510   _IPS_isNotReserved
+87e0660c   _MPCS_create
+87e06df0   _MPCS_delete
+87e073ec   _MPCS_open
+87e07550   _MPCS_close
+87e0770c   _MPCS_enter
+87e0799c   _MPCS_leave
+87e07c1c   _DSPLINK_terminateISR
+87e07c5c   __DSPLINK_init
+87e084f4   _POOL_open
+87e086b0   _TSKMPCSXFER_create
+87e089c8   _TSKMPCSXFER_execute
+87e08d30   _TSKMPCSXFER_delete
+87e090c4   _SMAPOOL_init
+87e090e4   _SMAPOOL_open
+87e09274   _SMAPOOL_alloc
+87e09660   _SMAPOOL_free
+87e09a4c   _MPCS_init
+87e09c30   _MPCS_exit
+87e09cc0   __MPCS_open
+87e0a8a0   __divd
+87e0b320   _NOTIFY_register
+87e0b4dc   _NOTIFY_unregister
+87e0b704   _NOTIFY_notify
+87e0b840   __printfi
+87e0bc80   __divf
+87e0c5c0   _fputs
+87e0c92c   _MPLIST_init
+87e0cb18   _MPLIST_exit
+87e0d400   __divull
+87e0d660   __mpyd
+87e0dd20   __addd
+87e0df20   __frcaddd
+87e0e120   __mpyf
+87e0e520   _main
+87e0e700   _HAL_intInit
+87e0e778   _HAL_intRegister
+87e0ea80   __divul
+87e0ec20   _HOSTrename
+87e0eda0   _setvbuf
+87e0ef20   _HAL_intEnable
+87e0ef68   _HAL_intDisable
+87e0efb0   _HAL_intWaitClear
+87e0eff0   _HAL_intSend
+87e0f010   _HAL_intClear
+87e0f0a0   _DSPLINKIPS_init
+87e0f1e0   _SHMDRV_init
+87e0f248   _SHMDRV_handshake
+87e0f320   _fputc
+87e0f320   _putc
+87e0f5cc   _NOTIFY_init
+87e0f6e0   _DSPLINK_init
+87e0f920   _fclose
+87e0fa40   _HOSTlseek
+87e0fb40   __frcmpyd
+87e0fd40   __wrt_ok
+87e0fe40   _HOSTopen
+87e0ff20   _HOSTread
+87e10000   __cmpd
+87e100e0   _atoi
+87e101c0   _close
+87e102a0   _memset
+87e10380   _DSPLINKPOOL_init
+87e10440   _HOSTunlink
+87e10500   _HOSTwrite
+87e105c0   __cleanup
+87e10740   __c6xabi_divu
+87e10740   __divu
+87e10800   __doflush
+87e108c0   _fseek
+87e10980   _lseek
+87e10a40   _ltoa
+87e10b00   _write
+87e10c80   _SetReason
+87e10d40   _DSPLINKDATA_init
+87e10de0   _DSPLINKMQT_init
+87e10e80   _HOSTclose
+87e10f20   __divli
+87e11100   __fixdli
+87e11240   __c6xabi_remu
+87e11240   __remu
+87e11380   _memcpy
+87e11420   __fixdi
+87e114a0   __fixfu
+87e11520   __fltlid
+87e115a0   __llshl
+87e11620   __renormd
+87e116a0   _printf
+87e11720   _readmsg
+87e117a0   _strncpy
+87e11820   _unlink
+87e118a0   __frcmpyf
+87e11900   __subcull
+87e11960   _memccpy
+87e119c0   _strcpy
+87e11a20   _strncmp
+87e11a80   _writemsg
+87e11ad8   C$$IO$$
+87e11b40   ___isinf
+87e11bc0   __fltuf
+87e11c00   __frcmpyd_div
+87e11c40   __frcmpyf_div
+87e11c80   __llshru
+87e11cc0   __negd
+87e11d00   __remli
+87e11d40   __subd
+87e11dc0   _HAL_init
+87e11df4   _HAL_exit
+87e11ec0   __negll
+87e11ee0   __nop
+87e11f40   __register_lock
+87e11f60   __register_unlock
+87e11f80   _remove
+87e11fa0   DDR2$B
+87e11fa0   _DDR2_base
+87e11fa0   ___etext__
+87e11fa0   etext
+87e21fa0   _EXC_nmi
+87e21fd4   _EXC_internal
+87e22280   _EXC_init
+87e222c0   _EXC_getLastStatus
+87e222e0   _EXC_external
+87e22314   _EXC_exceptionHandler
+87e22490   _EXC_clearLastStatus
+87e224c0   CLK_HOOKFXN
+87e224c0   HWI_F_dispatch
+87e224c0   _HWI_F_dispatch
+87e224c0   __HWI_lat1beg
+87e22648   __HWI_lat1end
+87e22648   __HWI_lat2beg
+87e227b0   __HWI_lat2end2
+87e227e0   __HWI_lat3end2
+87e22824   __HWI_lat2end1
+87e22840   __HWI_lat3beg
+87e229a0   SWI_F_enable
+87e229a0   __SWI_lat3beg
+87e22a0c   __SWI_lat3end
+87e22a10   SWI_F_post
+87e22a10   _SWI_post
+87e22b18   __SWI_lat1beg
+87e22b84   SWI_EXECFXN
+87e22b84   SWI_F_exec
+87e22bac   SWI_F_iexec
+87e22bc4   __SWI_lat1end
+87e22bc8   __SWI_lat2beg
+87e22c28   __SWI_lat2end
+87e22c2c   SWI_F_run
+87e22c2c   SWI_RUNFXN
+87e22e60   PRD_F_swi
+87e230e4   PRD_F_tick
+87e231e0   _TSK_create
+87e23520   _free
+87e23548   _malloc
+87e235ac   _realloc
+87e23678   _memalign
+87e23758   _calloc
+87e237c0   _KNL_run
+87e23a00   _MEM_free
+87e23c00   _SEM_pendEnterKnl
+87e23e00   _CLK_stop
+87e23e64   _CLK_start
+87e24000   _MEM_alloc
+87e241e0   _C62_plug
+87e241e0   _C64_plug
+87e241e8   _C62_dispatchPlug
+87e241e8   _C64_dispatchPlug
+87e243c0   _EXC_dispatch
+87e24584   _EXC_setReturnPtr
+87e2476c   PRD_THOOKFXN
+87e2476c   _KNL_tick
+87e24780   __SEM_dopost
+87e24940   CLK_F_getltime
+87e24950   CLK_F_isr
+87e24aa0   CLK_F_itime
+87e24aa0   _CLK_F_itime
+87e24aa0   _CLK_itime
+87e24abc   __CLK_lat1beg
+87e24ae0   __CLK_lat1end
+87e24b00   _TSK_setup
+87e24ca0   _KNL_saveIsrFrame
+87e24d4c   _KNL_switch
+87e24df8   KNL_glue
+87e24e20   __auto_init
+87e24f60   _KNL_ready
+87e250a0   _TSK_exit
+87e251e0   _BCACHE_setSize
+87e25224   _BCACHE_setMar
+87e25274   _BCACHE_bootInit
+87e25274   _BCACHE_setCacheToSram
+87e252a4   _BCACHE_getSize
+87e252f4   _BCACHE_getMar
+87e2534c   _CLK_reconfig
+87e254c4   _GBL_cacheInit64P
+87e25580   _KNL_check
+87e255cc   __KNL_lat1beg
+87e25648   _KNL_idle
+87e25648   __KNL_lat1end
+87e25670   _KNL_max
+87e25744   _TSK_startup
+87e2588c   _BCACHE_wbInv
+87e258a0   _BCACHE_wb
+87e258b0   _BCACHE_inv
+87e258c0   _SEM_post
+87e258c0   _SEM_postBinary
+87e259a0   _KNL_exit
+87e259e0   _KNL_enter
+87e25a60   _KNL_start
+87e25b00   _SEM_postEnterKnl
+87e25ba0   _SYS_exit
+87e25c40   _HWI_dispatchPlug
+87e25cc0   _HWI_eventMap
+87e25d40   _KNL_ipost
+87e25dc0   _KNL_post
+87e25e40   _LCK_post
+87e25e60   _LCK_pend
+87e25ec0   LOG_F_event
+87e25ec0   _LOG_event
+87e25ec0   __LOG_lat1beg
+87e25f40   _OBJ_create
+87e2600c   _BCACHE_wbInvAll
+87e26020   _BCACHE_wbAll
+87e26030   _BCACHE_invL1pAll
+87e26040   _BCACHE_wait
+87e260c0   _MEM_valloc
+87e26120   _SYS_error
+87e26180   FXN_F_nop
+87e26184   FXN_F_run
+87e26184   _FXN_F_run
+87e261c0   FXN_F_zero
+87e261c0   _FXN_F_zero
+87e261e0   _HWI_disable
+87e261f8   _HWI_enable
+87e2620c   _HWI_restore
+87e26240   _LCK_create
+87e262a0   _OBJ_delete
+87e26300   _SEM_pend
+87e26360   STS_F_delta
+87e26360   _STS_delta
+87e2638c   STS_F_add
+87e2638c   _STS_add
+87e263a8   STS_F_reset
+87e263a8   _STS_reset
+87e263c0   _SYS_abort
+87e26420   SYS_PUTCFXN
+87e26420   _UTL_doPutc
+87e26480   _C62_disableIER
+87e26480   _C64_disableIER
+87e26498   _C62_enableIER
+87e26498   _C64_enableIER
+87e264ac   _C62_clearIFR
+87e264ac   _C64_clearIFR
+87e264c0   _QUE_get
+87e264c0   __QUE_lat1beg
+87e264e0   __QUE_lat1end
+87e264e8   _QUE_put
+87e264e8   __QUE_lat2beg
+87e264f4   __QUE_lat2end
+87e26500   SYS_ABORTFXN
+87e26500   _UTL_doAbort
+87e26540   GBL_USERINITFXN
+87e26540   GIO_CREATEFXN
+87e26540   GIO_DELETEFXN
+87e26540   GIO_PENDFXN
+87e26540   GIO_POSTFXN
+87e26540   PWRM_PWRM_SHAREDRESOURCEFXN
+87e26540   PWRM_PWRM_SLOTHOOKFXN
+87e26540   TSK_VCREATEFXN
+87e26540   TSK_VDELETEFXN
+87e26540   TSK_VEXITFXN
+87e26540   _FXN_F_nop
+87e26560   _GBL_getVersion
+87e26580   _HOOK_setenv
+87e265a0   IDL_F_loop
+87e265a0   _IDL_loop
+87e265c0   _LOG_printf
+87e265e0   _STS_set
+87e26600   SYS_ERRORFXN
+87e26600   _UTL_doError
+87e26620   SYS_EXITFXN
+87e26620   _UTL_halt
+87e26640   CLK_TIMEFXN
+87e26640   _CLK_gethtime
+87e26660   GBL_stackbeg
+87e26660   _HWI_STKTOP
+87e26660   __stack
+87e27658   _HWI_STKBOTTOM
+87e2765f   GBL_stackend
+87e27660   __STACK_END
+87e27660   ___cinit__
+87e27660   cinit
+87e28324   IDL_A_TABBEG
+87e28324   IDL_END
+87e28790   __ctypes_
+87e28d08   _SMAPOOL_FXNS
+87e28d3d   KNL_swi$sts$maxfmt
+87e28d40   __ftable
+87e28d45   KNL_swi$sts$sumfmt
+87e28d4d   KNL_swi$sts$avgfmt
+87e28f20   __tmpnams
+87e29060   __ft_end
+87e29064   __BCACHE_emifAddr
+87e292a4   _CLK_inputClock
+87e292a8   _KNL_queues
+87e29348   _KNL_dummy
+87e29450   _DSPLINKPOOL_ctrlPtr
+87e294d0   _TSK_ATTRS
+87e294ec   _TSK_config
+87e2950c   _TSK_timerSem
+87e29530   _OBJ_table
+87e29568   _OBJ_segtab
+87e29584   __TSK_mutex
+87e295ac   __MEM_mutex
+87e295d4   _DSPLINKDATA_ctrlPtr
+87e295d8   _SYS_exitStack
+87e295f8   _SamplePoolParams
+87e29600   _MPCSXFER_Pools
+87e29610   _POOL_config
+87e2962c   _EXC_status
+87e2964c   _FAIL_Set
+87e29650   _FAIL_File
+87e29654   _FAIL_Line
+87e29658   _FAIL_Code
+87e2965c   _HWI_ATTRS
+87e29674   __BCACHE_readTable
+87e29680   __cleanup_ptr
+87e29684   __dtors_ptr
+87e29688   ___TI_enable_exit_profile_output
+87e29690   _DSPLINK_terminateFxn
+87e29694   _MPCS_ctrlPtr
+87e29698   _MPCS_csObj
+87e296a0   _MPCS_GlobalLock
+87e296a4   _MPLIST_ctrlPtr
+87e296a8   _MPLIST_mpcsObj
+87e296ac   _NOTIFY_ctrlPtr
+87e296b0   _NOTIFY_numIps
+87e296b4   _RingIO_ctrlPtr
+87e296b8   _RingIO_mpcsObj
+87e296bc   _MPCSXFER_BufferSize
+87e296c0   _MPCSXFER_NumIterations
+87e296c4   __lock
+87e296c8   __unlock
+87e296cc   _DSPLINKMQT_ctrlPtr
+87e296d0   _CLK_gptimer_enablemask
+87e296d8   CLK_A_TABBEG
+87e296d8   PRD_clock
+87e296d8   _PRD_clock
+87e296dc   CLK_null
+87e296e0   BIOS_init
+87e296e0   _BIOS_init
+87e29948   BIOS_start
+87e29948   _BIOS_start
+87e299e0   _POOL_init
+87e29b00   _c_int00
+87e29bc0   _MEM_init
+87e29c60   _TSK_init
+87e29cc0   _OBJ_init
+87e29ce0   TSK_idle$stack
+87e2a078   TSK_idle$stkptr
+87e2a0e0   $bss
+87e2a0e0   .bss
+87e2a0e0   _HWI_dispatchTab
+87e2a0e0   ___bss__
+87e2a1e0   IDL_D_tabbeg
+87e2a1e4   IDL_D_calibrate
+87e2a1e8   IDL_D_calbeg
+87e2a1ec   LOG_D_system
+87e2a1ec   _LOG_D_system
+87e2a1f0   PIP_D_tabbeg
+87e2a1f4   PIP_D_tablen
+87e2a1f8   CLK_R_time
+87e2a1fc   CLK_D_timefxn
+87e2a200   CLK_D_tabbeg
+87e2a204   CLK_D_isrhook
+87e2a208   CLK_D_idletime
+87e2a20c   _CLK_htimeDiv
+87e2a210   _CLK_htimeMult
+87e2a214   _CLK_ltimeDiv
+87e2a218   _CLK_ltimeMult
+87e2a21c   _CLK_D_dirty
+87e2a220   _CLK_D_prd
+87e2a224   _CLK_D_tddr
+87e2a228   _CLK_D_countspms
+87e2a22c   PRD_D_tick
+87e2a22c   _PRD_D_tick
+87e2a230   PRD_D_cur
+87e2a234   PRD_D_elapsed
+87e2a238   PRD_D_prevtim
+87e2a23c   PRD_D_scalar
+87e2a240   PRD_D_swihandle
+87e2a244   PRD_D_tabbeg
+87e2a248   PRD_D_tablen
+87e2a24c   PRD_D_thook
+87e2a250   RTA_D_fromHost
+87e2a254   RTA_D_toHost
+87e2a258   RTA_D_logval
+87e2a268   RTA_D_stsval
+87e2a274   HST_D_chanmask
+87e2a278   HST_D_tabbeg
+87e2a27c   HST_D_tabend
+87e2a280   _GBL_procId
+87e2a284   _GBL_clkIn
+87e2a288   _GBL_freq
+87e2a28c   _MEM_D_NUMSEGMENTS
+87e2a290   _MEM_D_memtab
+87e2a294   _MEM_D_freelist
+87e2a298   _MEM_D_lockaddr
+87e2a29c   _MEM_D_unlockaddr
+87e2a2a0   _SYS
+87e2a2a4   __HOOK_knlId
+87e2a2a8   __HOOK_NUMHOOKS
+87e2a2ac   SWI_D_runaddr
+87e2a2ac   _SWI_D_runaddr
+87e2a2ac   _SWI_data
+87e2a2b0   SWI_D_execaddr
+87e2a2b0   _SWI_D_execaddr
+87e2a2b4   SWI_D_curmask
+87e2a2b4   _SWI_D_curmask
+87e2a2b8   SWI_D_curset
+87e2a2b8   _SWI_D_curset
+87e2a2bc   SWI_D_lock
+87e2a2bc   _SWI_D_lock
+87e2a2c0   SWI_D_curmbox
+87e2a2c4   SWI_D_curfxn
+87e2a2c4   _SWI_D_curfxn
+87e2a2c8   SWI_D_rdybeg
+87e2a2c8   _SWI_D_rdybeg
+87e2a2cc   SWI_D_inswi
+87e2a2cc   _SWI_D_inswi
+87e2a2d0   SWI_D_rdytab
+87e2a348   _KNL_wFlag
+87e2a34c   _KNL_wList
+87e2a350   _KNL_alarm
+87e2a354   _KNL_setpri
+87e2a358   _KNL_inactive
+87e2a35c   _KNL_priority
+87e2a360   _KNL_set
+87e2a364   _KNL_curtask
+87e2a368   _KNL_prevtask
+87e2a36c   _KNL_curtime
+87e2a370   _KNL_swiptr
+87e2a374   _KNL_curqueue
+87e2a378   _KNL_maxqueue
+87e2a37c   _KNL_tswitchfxn
+87e2a380   _KNL_tcreatefxn
+87e2a384   _KNL_tdeletefxn
+87e2a388   _KNL_treadyfxn
+87e2a38c   _KNL_idlefxn
+87e2a390   _EXC_sysTrapTable
+87e2a398   _EXC_returnPtr
+87e2a3b0   HWI_D_spsave
+87e2a3b0   _HWI_D_spsave
+87e2a3b0   _HWI_data
+87e2a3bc   _HWI_D_inhwi
+87e2a3c0   HWI_D_bss
+87e2a3c4   HWI_D_ccmask
+87e2a3c8   _EXC_exceptionHook
+87e2a3cc   _EXC_internalHook
+87e2a3d0   _EXC_externalHook
+87e2a3d4   _EXC_nmiHook
+87e2a3d8   _MEM_memtab
+87e2a3e4   DDR2
+87e2a3e4   HST_DSMBUFSEG
+87e2a3e4   MEM_MALLOCSEG
+87e2a3e4   MEM_SEGZERO
+87e2a3e4   RTDX_DATAMEMSEG
+87e2a3e4   TSK_STACKSEG
+87e2a3e4   _DDR2
+87e2a3e8   _TSK_nTasks
+87e2a3ec   _TSK_pid
+87e2a3f0   _TSK
+87e2a3f4   _CLK_DFLTMICROSECS
+87e2a3f8   _CLK_D_microseconds
+87e2a3fc   _SYS_exitStackPtr
+87e2a400   _SYS_exitStackTop
+87e2a404   _CLK_htimePerLtime
+87e2a40c   _MEM
+87e2a410   _POOL
+87e2a416   ___end__
+87e2a416   end
+87e2a418   _SYS_PUTCBEG
+87e2a617   _SYS_PUTCEND
+87e2a618   __CIOBUF_
+87e2a780   trace$buf
+87e2a800   HWI_A_VECS
+87e2a800   hwi0
+87e2a820   hwi1
+87e2a840   hwi2
+87e2a860   hwi3
+87e2a880   hwi4
+87e2a8a0   hwi5
+87e2a8c0   hwi6
+87e2a8e0   hwi7
+87e2a900   hwi8
+87e2a920   hwi9
+87e2a940   hwi10
+87e2a960   hwi11
+87e2a980   hwi12
+87e2a9a0   hwi13
+87e2a9c0   hwi14
+87e2a9e0   hwi15
+87e2aa00   LOG_system$buf
+87e2ab00   .data
+87e2ab00   _DSPLINK_shmBaseAddress
+87e2ab00   ___data__
+87e2ab08   _DSPLINK_shmBaseAddress_pad
+87e2ab84   ___edata__
+87e2ab84   edata
+87e2ab90   TSK_idle
+87e2ab90   _TSK_idle
+87e2ac34   LOG_A_TABBEG
+87e2ac34   LOG_system
+87e2ac34   _LOG_A_TABBEG
+87e2ac34   _LOG_system
+87e2ac4c   _trace
+87e2ac4c   trace
+87e2ac64   KNL_swi
+87e2ac64   LOG_A_TABEND
+87e2ac64   SWI_A_TABBEG
+87e2ac64   _KNL_swi
+87e2ac64   _LOG_A_TABEND
+87e2ac90   KNL_swi$sts$stsobj
+87e2ac90   STS_A_TABBEG
+87e2ac90   SWI_A_TABEND
+87e2ac90   _STS_A_TABBEG
+87e2ac94   KNL_swi$sts
+87e2aca0   STS_A_TABEND
+87e2aca0   SYS$config
+87e2aca0   _STS_A_TABEND
+87e2acb0   TRC_cinit
+87e2acb4   TRC_R_mask
+87e2acb4   _TRC_R_mask
+87e2acb8   GBL_initdone
+87e2acbc   IDL_A_CALBEG
+87e2acbc   IDL_END$
 ffffffff   CACHE_L1D
 ffffffff   CACHE_L1P
 ffffffff   CACHE_L2

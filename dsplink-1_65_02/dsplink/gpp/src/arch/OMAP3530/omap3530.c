@@ -799,6 +799,7 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
 
         printk(KERN_ALERT "Booting DSP, args:\n");
         printk(KERN_ALERT "  generalCtrlBase: 0x%x\n", halObj->generalCtrlBase);
+        printk(KERN_ALERT "  reset vector: 0x%x\n", resetVector);
         printk(KERN_ALERT "  boot address: 0x%x\n", (Uint32)resetVector & 0xFFFFFC00);
 
         status =
@@ -807,21 +808,6 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
                                       (Pvoid) resetVector);
 
         if (DSP_SUCCEEDED(status)) {
-          /* loader check */
-          Uint32 v1 = *((Uint32*) dspAddr);
-          Uint32 v2 = *((Uint32*) dspAddr + 4);
-          Uint32 v3 = *((Uint32*) dspAddr + 8);
-          Uint32 v4 = *((Uint32*) dspAddr + 12);
-
-          Uint32 v5 = *((Uint32*) dspAddr + 16);
-          Uint32 v6 = *((Uint32*) dspAddr + 20);
-          Uint32 v7 = *((Uint32*) dspAddr + 24);
-          Uint32 v8 = *((Uint32*) dspAddr + 28);
-
-          printk("Boot address content (1): 0x%x  0x%x  0x%x  0x%x\n", v1, v2, v3, v4);
-          printk("Boot address content (2): 0x%x  0x%x  0x%x  0x%x\n", v5, v6, v7, v8);
-
-
           /* Write the branch instruction at the boot address to branch to
              the destination '_c_int00' */
           entryPtAddrHi = dspAddr >> 16;
@@ -829,19 +815,9 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
           startOpCodeHi |= (entryPtAddrHi << 7);
           startOpCodeLo |= (entryPtAddrLo << 7);
 
-          printk(KERN_ALERT "Entry point address HI: 0x%x\n", entryPtAddrHi);
-          printk(KERN_ALERT "Entry point address LO: 0x%x\n", entryPtAddrLo);
-          printk(KERN_ALERT "Start op address HI: 0x%x\n", startOpCodeHi);
-          printk(KERN_ALERT "Start op address LO: 0x%x\n", startOpCodeLo);
-
-          REG(gppAddr) = startOpCodeLo;
-          gppAddr += 4;
-
-          REG(gppAddr) = startOpCodeHi;
-          gppAddr += 4;
-
-          REG(gppAddr) = branch;
-          gppAddr += 4;
+          REG(gppAddr) = startOpCodeLo; gppAddr += 4;
+          REG(gppAddr) = startOpCodeHi; gppAddr += 4;
+          REG(gppAddr) = branch; gppAddr += 4;
 
           /* Write 5 no-ops for pipeline flush */
           REG(gppAddr) = noOp; gppAddr += 4;
@@ -887,20 +863,15 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
 
   if (DSP_SUCCEEDED(status)) {
     TRC_0PRINT(TRC_LEVEL1, "DSP started !\n");
-
-    printk(KERN_ALERT "+++ DSP started\n");
   }
   else {
     SET_FAILURE_REASON;
     TRC_0PRINT (TRC_LEVEL7, "DSP couldn't be started !\n");
-
-    printk(KERN_ALERT "+++ DSP start failed\n");
   }
 
   TRC_1LEAVE("OMAP3530_start", status);
   return status;
 }
-
 
 /** ============================================================================
  *  @func   OMAP3530_stop
@@ -1031,82 +1002,79 @@ OMAP3530_intCtrl (IN         ProcessorId       dspId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  OMAP3530_read
+  @desc  Read the data from DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   OMAP3530_read
- *
- *  @desc   Read data from DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-OMAP3530_read (IN  ProcessorId  dspId,
-                 IN DSP_Object *  dspState,
-                 IN  Uint32       dspAddr,
-                 IN  Endianism    endianInfo,
-                 IN  Uint32       numBytes,
-                 OUT Uint8 *      buffer)
+NORMAL_API DSP_STATUS OMAP3530_read(IN ProcessorId dspId,
+                                    IN DSP_Object *dspState,
+                                    IN Uint32 dspAddr,
+                                    IN Endianism endianInfo,
+                                    IN Uint32 numBytes,
+                                    OUT Uint8 *buffer)
 {
-    DSP_STATUS          status  = DSP_SOK ;
-    Uint32              gppAddr = ADDRMAP_INVALID ;
-    Uint8  *            dspPtr8 = NULL ;
-    LINKCFG_Dsp *       dspObj ;
-    LINKCFG_DspConfig * dspCfg ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 gppAddr = ADDRMAP_INVALID;
+  Uint8 *dspPtr8 = NULL;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_DspConfig *dspCfg;
 
-    TRC_6ENTER ("OMAP3530_read",
-                dspId,
-                dspState,
-                dspAddr,
-                endianInfo,
-                numBytes,
-                buffer) ;
+  TRC_6ENTER("OMAP3530_read",
+             dspId,
+             dspState,
+             dspAddr,
+             endianInfo,
+             numBytes,
+             buffer);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (numBytes != 0) ;
-    DBC_Require (buffer   != NULL) ;
-    DBC_Require (dspState->halObject != NULL) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(numBytes != 0);
+  DBC_Require(buffer != NULL);
+  DBC_Require(dspState->halObject != NULL);
 
-    if (   (IS_VALID_PROCID (dspId) == FALSE)
-        || (numBytes == 0)
-        || (buffer   == NULL)
-        || (   (endianInfo != Endianism_Big)
-            && (endianInfo != Endianism_Little)
-            && (endianInfo != Endianism_Default))) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(dspId) == FALSE)
+  || (numBytes == 0)
+  || (buffer == NULL)
+  || ((endianInfo != Endianism_Big)
+  && (endianInfo != Endianism_Little)
+  && (endianInfo != Endianism_Default)))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+    dspObj = dspCfg->dspObject ;
+
+    gppAddr = OMAP3530_addrConvert(
+                          dspId,
+                          dspState,
+                          BYTE_TO_MADU (dspAddr, dspObj->maduSize),
+                          DspToGpp);
+
+    if (gppAddr != ADDRMAP_INVALID) {
+      dspPtr8 = (Uint8 *) gppAddr;
+
+      status = MEM_Copy(buffer,
+                        dspPtr8,
+                        numBytes,
+                        Endianism_Default);
+
+      DBC_Assert(DSP_SUCCEEDED(status));
     }
     else {
-        dspCfg    = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-        dspObj    = dspCfg->dspObject ;
-
-        gppAddr = OMAP3530_addrConvert (
-                                   dspId,
-                                   dspState,
-                                   BYTE_TO_MADU (dspAddr, dspObj->maduSize),
-                                   DspToGpp) ;
-        if (gppAddr != ADDRMAP_INVALID) {
-            dspPtr8 = (Uint8 *)  gppAddr ;
-            status = MEM_Copy (buffer,
-                               dspPtr8,
-                               numBytes,
-                               Endianism_Default) ;
-            DBC_Assert (DSP_SUCCEEDED (status)) ;
-
-        }
-        else {
-            status = DSP_ERANGE ;
-            SET_FAILURE_REASON ;
-        }
-#if defined (DDSP_PROFILE)
-        DSP_State [dspId].dspStats.dataDspToGpp += numBytes ;
-#endif /* defined (DDSP_PROFILE) */
+      status = DSP_ERANGE;
+      SET_FAILURE_REASON;
     }
 
-    TRC_1LEAVE ("OMAP3530_read", status) ;
+#if defined (DDSP_PROFILE)
+    DSP_State[dspId].dspStats.dataDspToGpp += numBytes;
+#endif
+  }
 
-    return status ;
+  TRC_1LEAVE("OMAP3530_read", status);
+  return status;
 }
 
 /*******************************************************************************
@@ -1145,7 +1113,7 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
   DBC_Require(buffer != NULL);
   DBC_Require(dspState->halObject != NULL);
 
-  if ((IS_VALID_PROCID (dspId) == FALSE)
+  if ((IS_VALID_PROCID(dspId) == FALSE)
   || (buffer == NULL)
   || ((endianInfo != Endianism_Big)
   && (endianInfo != Endianism_Little)
@@ -1181,7 +1149,7 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
                             numBytes,
                             Endianism_Default);
 
-          DBC_Assert(DSP_SUCCEEDED (status));
+          DBC_Assert(DSP_SUCCEEDED(status));
         }
         else {
           /* For 4 bytes, directly write as a Uint32 */

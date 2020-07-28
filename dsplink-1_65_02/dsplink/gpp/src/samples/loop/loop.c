@@ -218,69 +218,81 @@ LOOP_VerifyData (IN Char8 * buf) ;
  *  @modif  LOOP_Buffers
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-LOOP_Create (IN Char8 * dspExecutable,
-             IN Char8 * strBufferSize,
-             IN Char8 * strNumIterations,
-             IN Uint8   processorId)
+
+NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
+                                  IN Char8 *strBufferSize,
+                                  IN Char8 *strNumIterations,
+                                  IN Uint8 processorId)
 {
-    DSP_STATUS          status                    = DSP_SOK   ;
-    Char8 *             temp                      = NULL      ;
-    Uint32              numArgs                   = 0         ;
-    Uint32              numBufs [NUMBUFFERPOOLS]  = {NUMBUFS} ;
+  DSP_STATUS status = DSP_SOK;
+  Char8 *temp = NULL;
+  Uint32 numArgs = 0;
+
+  /* 1 buffer pool containing 4 buffers */
+  Uint32 numBufs[NUMBUFFERPOOLS] = { NUMBUFS };
+
 #if defined (DA8XXGEM)
-    NOLOADER_ImageInfo  imageInfo ;
+  NOLOADER_ImageInfo imageInfo;
 #endif
 
-    ChannelAttrs  chnlAttrInput            ;
-    ChannelAttrs  chnlAttrOutput           ;
-    Uint16        i                        ;
-    Char8 *       args [NUM_ARGS]          ;
-    Uint32        size [NUMBUFFERPOOLS]    ;
+  ChannelAttrs chnlAttrInput;
+  ChannelAttrs chnlAttrOutput;
+  Uint16 i;
+  Char8 *args[NUM_ARGS];
+  Uint32 size[NUMBUFFERPOOLS];
+
 #if defined (ZCPY_LINK)
-    SMAPOOL_Attrs poolAttrs                ;
-#endif /* if defined (ZCPY_LINK) */
+  SMAPOOL_Attrs poolAttrs;
+#endif
 
-    LOOP_0Print ("Entered LOOP_Create ()\n") ;
+  LOOP_0Print("Entered LOOP_Create ()\n");
 
-    /* Create and initialize the proc object */
-    status = PROC_setup (NULL);
+  /* Create and initialize the proc object */
+  status = PROC_setup(NULL);
 
-    /* Attach the Dsp with which the transfers have to be done */
-    if (DSP_SUCCEEDED (status)) {
-      status = PROC_attach (processorId, NULL);
+  /* Attach the Dsp with which the transfers have to be done */
+  if (DSP_SUCCEEDED(status)) {
+    status = PROC_attach(processorId, NULL);
 
-      if (DSP_FAILED(status)) {
-        LOOP_1Print("PROC_attach failed . Status = [0x%x]\n", status);
-      }
+    if (DSP_FAILED(status)) {
+      LOOP_1Print("PROC_attach failed . Status = [0x%x]\n", status);
     }
-    else {
-      LOOP_1Print("PROC_setup failed. Status = [0x%x]\n", status);
-    }
+  }
+  else {
+    LOOP_1Print("PROC_setup failed. Status = [0x%x]\n", status);
+  }
 
-    /*
-     *  Open the pool.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        size [0] = LOOP_BufferSize ;
-        poolAttrs.bufSizes      = (Uint32 *) &size ;
-        poolAttrs.numBuffers    = (Uint32 *) &numBufs ;
-        poolAttrs.numBufPools   = NUMBUFFERPOOLS ;
+  /* Open the pool */
+  if (DSP_SUCCEEDED(status)) {
+    size[0] = LOOP_BufferSize;
+
+    /* array of sizes of buffer pools */
+    poolAttrs.bufSizes = (Uint32 *) &size;
+
+    /* array of buffer pools */
+    poolAttrs.numBuffers = (Uint32 *) &numBufs;
+
+    /* size of the array of buffer pools */
+    poolAttrs.numBufPools = NUMBUFFERPOOLS;
+
+    LOOP_1Print("+++ size[0]: %d\n", LOOP_BufferSize);
+    LOOP_1Print("+++ poolAttrs.bufSizes: 0x%x\n", poolAttrs.bufSizes);
+    LOOP_1Print("+++ poolAttrs.numBuffers: 0x%x\n", poolAttrs.numBuffers);
+    LOOP_1Print("+++ poolAttrs.numBufPools: 0x%x\n", poolAttrs.numBufPools);
+
 #if defined (ZCPY_LINK)
-        poolAttrs.exactMatchReq = TRUE ;
-#endif /* if defined (ZCPY_LINK) */
-        status = POOL_open (POOL_makePoolId(processorId, POOL_ID), &poolAttrs) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("POOL_open () failed. Status = [0x%x]\n",
-                            status) ;
-        }
-    }
+    poolAttrs.exactMatchReq = TRUE;
+#endif
 
-    /*
-     *  Load the executable on the DSP.
-     */
-    if (DSP_SUCCEEDED (status)) {
+    status = POOL_open(POOL_makePoolId(processorId, POOL_ID), &poolAttrs);
+
+    if (DSP_FAILED(status)) {
+      LOOP_1Print("POOL_open () failed. Status = [0x%x]\n", status);
+    }
+  }
+
+  /* Load the executable on the DSP */
+  if (DSP_SUCCEEDED (status)) {
         numArgs  = NUM_ARGS         ;
         args [0] = strBufferSize    ;
         args [1] = strNumIterations ;
@@ -567,56 +579,59 @@ LOOP_Delete (Uint8 processorId)
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-Void
-LOOP_Main (IN Char8 * dspExecutable,
-           IN Char8 * strBufferSize,
-           IN Char8 * strNumIterations,
-           IN Char8 * strProcessorId)
+
+NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
+                          IN Char8 *strBufferSize,
+                          IN Char8 *strNumIterations,
+                          IN Char8 *strProcessorId)
 {
-    DSP_STATUS status       = DSP_SOK ;
-    Uint8      processorId  = 0 ;
+  DSP_STATUS status = DSP_SOK;
+  Uint8 processorId = 0;
 
-    LOOP_0Print ("=============== Sample Application : LOOP ==========\n") ;
+  LOOP_0Print ("=============== Sample Application : LOOP ==========\n") ;
 
-    if (   (dspExecutable != NULL)
-        && (strBufferSize != NULL)
-        && (strNumIterations != NULL)) {
-        /*
-         *  Validate the buffer size and number of iterations specified.
-         */
-        LOOP_BufferSize = DSPLINK_ALIGN (LOOP_Atoi (strBufferSize),
-                                         DSPLINK_BUF_ALIGN) ;
-        if (LOOP_BufferSize == 0) {
-            status = DSP_ESIZE ;
-        }
+  if ((dspExecutable != NULL)
+  && (strBufferSize != NULL)
+  && (strNumIterations != NULL))
+  {
+    /* Validate the buffer size and number of iterations specified */
+    LOOP_BufferSize = DSPLINK_ALIGN(LOOP_Atoi(strBufferSize),
+                                    DSPLINK_BUF_ALIGN);
 
-        LOOP_NumIterations = LOOP_Atoi (strNumIterations) ;
-        /* Find out the processor id to work with */
-        processorId        = LOOP_Atoi (strProcessorId) ;
-        if (processorId >= MAX_DSPS) {
-            LOOP_1Print ("==Error: Invalid processor id  specified %d ==\n",
-                         processorId) ;
-            status = DSP_EFAIL ;
+    LOOP_1Print ("LOOP_BufferSize: %d\n", LOOP_BufferSize);
 
-        }
-        /*
-         *  Specify the dsp executable file name and the buffer size for
-         *  loop creation phase.
-         */
-        if (DSP_SUCCEEDED (status)) {
-             LOOP_1Print ("==== Executing sample for DSP processor Id %d ====\n",
-                     processorId) ;
-            status = LOOP_Create (dspExecutable,
-                                  strBufferSize,
-                                  strNumIterations,
-                                  processorId) ;
-           /*
-            *  Execute the data transfer loop.
-            */
-            if (DSP_SUCCEEDED (status)) {
-                status = LOOP_Execute (LOOP_NumIterations, processorId) ;
-            }
+    if (LOOP_BufferSize == 0) {
+      status = DSP_ESIZE;
+    }
+
+    LOOP_NumIterations = LOOP_Atoi(strNumIterations);
+    LOOP_1Print ("LOOP_NumIterations: %d\n", LOOP_NumIterations);
+
+    /* Find out the processor id to work with */
+    processorId = LOOP_Atoi(strProcessorId);
+
+    if (processorId >= MAX_DSPS) {
+      LOOP_1Print ("*** error: invalid processor id specified (%d)\n",
+                   processorId);
+
+      status = DSP_EFAIL;
+    }
+
+    /* Specify the dsp executable file name and the buffer size for
+       the loop creation phase */
+    if (DSP_SUCCEEDED (status)) {
+      LOOP_1Print ("==== Executing sample for DSP processor Id %d ====\n",
+                     processorId);
+
+      status = LOOP_Create(dspExecutable,
+                           strBufferSize,
+                           strNumIterations,
+                           processorId);
+
+      /* Execute the data transfer loop */
+      if (DSP_SUCCEEDED(status)) {
+        status = LOOP_Execute(LOOP_NumIterations, processorId);
+      }
 
             /*
              *  Perform cleanup operation.

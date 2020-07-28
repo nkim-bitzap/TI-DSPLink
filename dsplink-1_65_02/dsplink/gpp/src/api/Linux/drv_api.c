@@ -93,6 +93,9 @@
 #include <_proc.h>
 #include <_sync_usr.h>
 
+#ifndef DDSP_DEBUG
+#define DDSP_DEBUG
+#endif
 
 #if defined (__cplusplus)
 extern "C" {
@@ -512,7 +515,7 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
   CMD_Args *args = arg1;
   int osStatus;
 
-  TRC_4ENTER("DRV_Invoke", drvObj, cmdId, arg1, arg2) ;
+  TRC_4ENTER("DRV_Invoke", drvObj, cmdId, arg1, arg2);
 
   DBC_Require(((drvObj != NULL) && (IS_OBJECT_VALID (drvObj, SIGN_DRV)))
            || ((drvObj == NULL) && (cmdId == CMD_PROC_ATTACH)));
@@ -1132,9 +1135,13 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
         ProcessorId procId;
         POOL_AddrInfo *poolAddrPtr;
 
-        /* trigger 'ioctl' which goes to DRV_IOctl which subsequently calls
+        /* trigger 'ioctl' which goes to DRV_Ioctl which subsequently calls
            'LDRV_POOL_open' */
+        printf("+++++++ calling 'ioctl'\n");
+
         osStatus = ioctl(drvObj->driverHandle, cmdId, args);
+
+        printf("+++++++ ioctl status: 0x%x\n", osStatus);
 
         if ((osStatus < 0) || (DSP_FAILED(args->apiStatus))) {
           if (osStatus < 0) {
@@ -1147,9 +1154,17 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
           size = retParams->size;
           addr = retParams->physAddr;
 
+          printf("+++++++ preparing mmap:\n");
+          printf("  size: %d\n", size);
+          printf("  addr: 0x%x\n", addr);
+
           /* Align the physical address to page boundary */
           size = size + (addr % drvObj->pageSize);
           addr = addr - (addr % drvObj->pageSize);
+
+          printf("  pageSize: %d\n", drvObj->pageSize);
+          printf("  size (aligned): %d\n", size);
+          printf("  addr (aligned): 0x%x\n", addr);
 
           userAddr = (Uint32) mmap(NULL,
                                    size,
@@ -1159,7 +1174,11 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
                                    addr);
 
           if (userAddr == (Uint32) MAP_FAILED) {
-            TRC_0PRINT (TRC_LEVEL7, "Map to user space failed");
+            printf("+++++++ mmap failed!!!\n");
+
+            TRC_1PRINT(TRC_LEVEL7, "*** error in 's': 'mmap' failed\n",
+                                   __FUNCTION__);
+
             status = DSP_EFAIL;
             SET_FAILURE_REASON;
           }
@@ -1178,10 +1197,10 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
 
             /* update the pool information */
             poolAddrPtr = &POOL_addrConfig [procId][poolNo];
-            poolAddrPtr->addr [AddrType_Usr] = userAddr;
-            poolAddrPtr->addr [AddrType_Phy] = retParams->physAddr;
-            poolAddrPtr->addr [AddrType_Knl] = retParams->virtAddr;
-            poolAddrPtr->addr [AddrType_Dsp] = retParams->dspAddr;
+            poolAddrPtr->addr[AddrType_Usr] = userAddr;
+            poolAddrPtr->addr[AddrType_Phy] = retParams->physAddr;
+            poolAddrPtr->addr[AddrType_Knl] = retParams->virtAddr;
+            poolAddrPtr->addr[AddrType_Dsp] = retParams->dspAddr;
             poolAddrPtr->size = retParams->size;
             poolAddrPtr->isInit = TRUE;
           }

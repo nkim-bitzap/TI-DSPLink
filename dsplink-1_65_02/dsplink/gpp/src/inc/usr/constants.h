@@ -33,10 +33,9 @@ extern "C" {
   @desc  Maximum length of string
 
   @note  Also defined in 'gpp/inc/usr/constants.h'
-  @note  Increased to 64 to capture long linux paths
 *******************************************************************************/
 
-#define DSP_MAX_STRLEN 64
+#define DSP_MAX_STRLEN 32
 
 #if defined (__cplusplus)
 }

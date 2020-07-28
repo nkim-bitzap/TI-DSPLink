@@ -278,93 +278,109 @@ SHMDRV_exit (IN ProcessorId dspId, IN Uint32 linkDrvId)
  *  @modif  None.
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-SHMDRV_handshake (IN  ProcessorId   dspId,
-                  IN  Uint32        linkDrvId,
-                  IN  DRV_Handshake hshkCtrl)
+
+NORMAL_API DSP_STATUS SHMDRV_handshake(IN ProcessorId dspId,
+                                       IN Uint32 linkDrvId,
+                                       IN DRV_Handshake hshkCtrl)
 {
-    DSP_STATUS        status       = DSP_SOK ;
-    Uint32            dspHandshake = DSP_HANDSHAKE ;
-    Uint32            i            = 0 ;
-    LINKCFG_LinkDrv * linkDrv ;
-    SHMDRV_Object *   shmDrvState ;
-    SHMDRV_Ctrl *     ctrlPtr ;
-    LINKCFG_DspConfig * dspCfg ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 dspHandshake = DSP_HANDSHAKE;
+  Uint32 i = 0;
+  LINKCFG_LinkDrv *linkDrv;
+  SHMDRV_Object *shmDrvState;
+  SHMDRV_Ctrl *ctrlPtr;
+  LINKCFG_DspConfig *dspCfg;
 
-    TRC_3ENTER ("SHMDRV_handshake", dspId, linkDrvId, hshkCtrl) ;
+  TRC_3ENTER("SHMDRV_handshake", dspId, linkDrvId, hshkCtrl);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Assert (SHMDRV_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Assert(SHMDRV_IsInitialized[dspId] == TRUE);
 
-    shmDrvState = &(SHMDRV_State [dspId]) ;
-    dspCfg   = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-    linkDrv  = &(dspCfg->linkDrvObjects [linkDrvId]) ;
-    DBC_Assert (shmDrvState->ctrlPtr != NULL) ;
-    ctrlPtr     = shmDrvState->ctrlPtr ;
-    DBC_Assert (ctrlPtr != NULL) ;
+  shmDrvState = &(SHMDRV_State[dspId]);
+  dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+  linkDrv = &(dspCfg->linkDrvObjects[linkDrvId]);
 
-    switch (hshkCtrl) {
-        case DRV_HandshakeSetup:
-            /* Clear the handshake control fields */
-            ctrlPtr->handshakeDsp = 0x0 ;
-            ctrlPtr->handshakeGpp = 0x0 ;
-            break ;
+  DBC_Assert(shmDrvState->ctrlPtr != NULL);
+  ctrlPtr = shmDrvState->ctrlPtr;
 
-        case DRV_HandshakeStart:
-            /* Set the GPP handshake value. */
-            ctrlPtr->handshakeGpp = GPP_HANDSHAKE ;
-            break ;
+  switch (hshkCtrl) {
+    case DRV_HandshakeSetup:
+      /* Clear the handshake control fields */
+      ctrlPtr->handshakeDsp = 0x0;
+      ctrlPtr->handshakeGpp = 0x0;
+      break;
 
-        case DRV_HandshakeCompl:
-            /* Generate the DSP handshake value to be checked against. */
-            dspHandshake |= DRV_HANDSHAKE_DRV ;
-            dspHandshake |= DRV_HANDSHAKE_IPS ;
+    case DRV_HandshakeStart:
+      /* Set the GPP handshake value. The GPP and DSP use different values
+         such as 0xC0C00000 defined in 'gpp/src/ldrv/DRV/shm_drv.c' resp.
+         in 'dsp/src/base/drv/DspBios/shm_drv.c' */
+      ctrlPtr->handshakeGpp = GPP_HANDSHAKE;
+      break;
+
+    case DRV_HandshakeCompl:
+      /* Generate the DSP handshake value to be checked against */
+      dspHandshake |= DRV_HANDSHAKE_DRV;
+      dspHandshake |= DRV_HANDSHAKE_IPS;
+
 #if defined (POOL_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_POOL ;
-#endif /* if defined (POOL_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_POOL;
+#endif
+
 #if defined (MPCS_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_MPCS ;
-#endif /* if defined (MPCS_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_MPCS;
+#endif
+
 #if defined (MPLIST_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_MPLIST ;
-#endif /* if defined (MPLIST_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_MPLIST;
+#endif
+
 #if defined (MSGQ_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_MQT ;
-#endif /* if defined (MSGQ_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_MQT;
+#endif
+
 #if defined (CHNL_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_DATA ;
-#endif /* if defined (CHNL_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_DATA;
+#endif
+
 #if defined (NOTIFY_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_NOTIFY ;
-#endif /* if defined (NOTIFY_COMPONENT) */
+      dspHandshake |= DRV_HANDSHAKE_NOTIFY;
+#endif
+
 #if defined (RINGIO_COMPONENT)
-            dspHandshake |= DRV_HANDSHAKE_RINGIO ;
-#endif /* if defined (RINGIO_COMPONENT) */
-            TRC_1PRINT (TRC_LEVEL4,
-                        "Expected DSP handshake value: [0x%x]",
-                        dspHandshake) ;
+      dspHandshake |= DRV_HANDSHAKE_RINGIO;
+#endif
 
-            /* Wait for DSP to write its handshake value. */
-            while (   (ctrlPtr->handshakeDsp != dspHandshake)
-                   &&  DSP_SUCCEEDED (status)) {
-                i++ ;
-                if (    (linkDrv->hshkPollCount != (Uint32) -1)
-                    &&  (i == linkDrv->hshkPollCount)) {
-                    status = DSP_ETIMEOUT ;
-                    SET_FAILURE_REASON ;
-                }
-            }
+      TRC_1PRINT(TRC_LEVEL4,
+                 "Expected DSP handshake value: 0x%x\n",
+                 dspHandshake);
 
-            break ;
-        default:
-            /* Added for MISRAC compliance */
-            break ;
-    }
+      /* Wait for DSP to write its handshake value */
+      while ((ctrlPtr->handshakeDsp != dspHandshake)
+          && DSP_SUCCEEDED(status))
+      {
+        i++;
 
-    TRC_1LEAVE ("SHMDRV_handshake", status) ;
+        if ((linkDrv->hshkPollCount != (Uint32) -1)
+        && (i == linkDrv->hshkPollCount))
+        {
+          status = DSP_ETIMEOUT;
+          SET_FAILURE_REASON;
+        }
+      }
 
-    return status ;
+      PRINT_Printf("  dspHandshake: 0x%x\n", dspHandshake);
+      PRINT_Printf("  ctrlPtr->handshakeDsp: 0x%x\n", ctrlPtr->handshakeDsp);
+      PRINT_Printf("  ctrlPtr->handshakeGpp: 0x%x\n", ctrlPtr->handshakeGpp);
+
+      break;
+
+    default:
+      /* Added for MISRAC compliance */
+      break;
+  }
+
+  TRC_1LEAVE("SHMDRV_handshake", status);
+  return status;
 }
 
 

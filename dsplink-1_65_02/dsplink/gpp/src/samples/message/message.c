@@ -140,9 +140,10 @@ extern "C" {
  *  being used for the MQT.
  *  ============================================================================
  */
+
 #if defined ZCPY_LINK
 #define SAMPLEMQT_CTRLMSG_SIZE  ZCPYMQT_CTRLMSG_SIZE
-STATIC ZCPYMQT_Attrs  mqtAttrs ;
+STATIC ZCPYMQT_Attrs mqtAttrs;
 #endif /* if defined ZCPY_LINK */
 
 /** ============================================================================
@@ -307,129 +308,123 @@ MESSAGE_VerifyData (IN MSGQ_Msg msg, IN Uint16 sequenceNumber) ;
  *  @modif  MESSAGE_InpBufs , MESSAGE_OutBufs
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-MESSAGE_Create (IN Char8 * dspExecutable,
-                IN Char8 * strNumIterations,
-                IN Uint8   processorId)
+
+NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
+                                     IN Char8 *strNumIterations,
+                                     IN Uint8 processorId)
 {
-    DSP_STATUS       status  = DSP_SOK  ;
-    Uint32           numArgs = NUM_ARGS ;
-    MSGQ_LocateAttrs syncLocateAttrs ;
-    Char8 *          args [NUM_ARGS] ;
-#if defined (DA8XXGEM)
-    NOLOADER_ImageInfo  imageInfo ;
-#endif
-
-    MESSAGE_0Print ("Executing 'MESSAGE_Create'\n") ;
-
-    /* Create and initialize the proc object */
-    status = PROC_setup(NULL);
-
-    MESSAGE_1Print("'PROC_setup' done, status: 0x%x\n", status);
-
-    /* Attach the Dsp with which the transfers have to be done */
-    if (DSP_SUCCEEDED (status)) {
-      status = PROC_attach(processorId, NULL);
-
-      MESSAGE_1Print("'PROC_attach' done, status: 0x%x\n", status);
-    }
-
-    /* Open the pool */
-    if (DSP_SUCCEEDED (status)) {
-      status = POOL_open(
-        POOL_makePoolId(processorId, SAMPLE_POOL_ID),
-        &SamplePoolAttrs);
-
-      MESSAGE_1Print("'POOL_open' done, status: 0x%x\n", status);
-    }
-
-    /* Open the GPP's message queue */
-    if (DSP_SUCCEEDED (status)) {
-      status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
-
-      MESSAGE_1Print("'MSGQ_open' done, status: 0x%x\n", status);
-    }
-
-    /* Set the message queue that will receive any async. errors */
-    if (DSP_SUCCEEDED (status)) {
-      status = MSGQ_setErrorHandler(SampleGppMsgq,
-                                    POOL_makePoolId(processorId,
-                                    SAMPLE_POOL_ID));
-
-      MESSAGE_1Print(
-        "'MSGQ_setErrorHandler' done, status: 0x%x\n", status);
-    }
-
-    /* Load the executable on the DSP */
-    if (DSP_SUCCEEDED (status)) {
-      args[0] = strNumIterations;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 numArgs = NUM_ARGS;
+  MSGQ_LocateAttrs syncLocateAttrs;
+  Char8 *args[NUM_ARGS];
 
 #if defined (DA8XXGEM)
-      if (LINKCFG_config.dspConfigs[processorId]->dspObject->doDspCtrl ==
-          DSP_BootMode_NoBoot)
-      {
-        imageInfo.dspRunAddr = MESSAGE_dspAddr;
-        imageInfo.shmBaseAddr = MESSAGE_shmAddr;
-        imageInfo.argsAddr = MESSAGE_argsAddr;
-        imageInfo.argsSize = 50;
-
-        status =
-          PROC_load(processorId, (Char8 *) &imageInfo, numArgs, args);
-      }
-      else
+  NOLOADER_ImageInfo imageInfo;
 #endif
-      {
-        status = PROC_load(processorId, dspExecutable, numArgs, args);
 
-        MESSAGE_1Print ("'PROC_load' done, status: 0x%x\n", status);
+  MESSAGE_0Print ("Executing 'MESSAGE_Create'\n") ;
+
+  /* Create and initialize the proc object */
+  status = PROC_setup(NULL);
+
+  MESSAGE_1Print("'PROC_setup' done, status: 0x%x\n", status);
+
+  /* Attach the Dsp with which the transfers have to be done */
+  if (DSP_SUCCEEDED (status)) {
+    status = PROC_attach(processorId, NULL);
+
+    MESSAGE_1Print("'PROC_attach' done, status: 0x%x\n", status);
+  }
+
+  /* Open the pool */
+  if (DSP_SUCCEEDED (status)) {
+    status = POOL_open(
+      POOL_makePoolId(processorId, SAMPLE_POOL_ID),
+      &SamplePoolAttrs);
+
+    MESSAGE_1Print("'POOL_open' done, status: 0x%x\n", status);
+  }
+
+  /* Open the GPP's message queue */
+  if (DSP_SUCCEEDED (status)) {
+    status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
+
+    MESSAGE_1Print("'MSGQ_open' done, status: 0x%x\n", status);
+  }
+
+  /* Set the message queue that will receive any async. errors */
+  if (DSP_SUCCEEDED (status)) {
+    status = MSGQ_setErrorHandler(SampleGppMsgq,
+                                  POOL_makePoolId(processorId,
+                                  SAMPLE_POOL_ID));
+
+    MESSAGE_1Print(
+      "'MSGQ_setErrorHandler' done, status: 0x%x\n", status);
+  }
+
+  /* Load the executable on the DSP */
+  if (DSP_SUCCEEDED (status)) {
+    args[0] = strNumIterations;
+
+#if defined (DA8XXGEM)
+    if (LINKCFG_config.dspConfigs[processorId]->dspObject->doDspCtrl ==
+        DSP_BootMode_NoBoot)
+    {
+      imageInfo.dspRunAddr = MESSAGE_dspAddr;
+      imageInfo.shmBaseAddr = MESSAGE_shmAddr;
+      imageInfo.argsAddr = MESSAGE_argsAddr;
+      imageInfo.argsSize = 50;
+
+      status =
+        PROC_load(processorId, (Char8 *) &imageInfo, numArgs, args);
+    }
+    else
+#endif
+    {
+      status = PROC_load(processorId, dspExecutable, numArgs, args);
+
+      MESSAGE_1Print("'PROC_load' done, status: 0x%x\n", status);
+    }
+  }
+
+  /* now start execution on the DSP */
+  if (DSP_SUCCEEDED(status)) {
+    status = PROC_start(processorId);
+
+    MESSAGE_1Print("'PROC_start' done, status: 0x%x\n", status);
+  }
+
+  /* open the remote transport */
+  if (DSP_SUCCEEDED (status)) {
+    mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID);
+
+    status = MSGQ_transportOpen(processorId, &mqtAttrs);
+
+    MESSAGE_1Print(
+      "'MSGQ_transportOpen' done, status: 0x%x\n", status);
+  }
+
+  /* Locate the DSP's message queue */
+  if (DSP_SUCCEEDED (status)) {
+    syncLocateAttrs.timeout = WAIT_FOREVER;
+    status = DSP_ENOTFOUND;
+
+    sprintf(dspMsgqName, "%s%d", SampleDspMsgqName, processorId);
+
+    while ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
+      status =
+        MSGQ_locate(dspMsgqName, &SampleDspMsgq, &syncLocateAttrs);
+
+      if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
+        MESSAGE_Sleep(100000);
       }
     }
 
-    /* now start execution on the DSP */
-    if (DSP_SUCCEEDED(status)) {
-      status = PROC_start(processorId);
+    MESSAGE_1Print("'MSGQ_locate' done, status 0x%x\n", status);
+  }
 
-      MESSAGE_1Print ("'PROC_start' done, status: 0x%x\n", status);
-    }
-
-    /* open the remote transport */
-    if (DSP_SUCCEEDED (status)) {
-        mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID)  ;
-        status = MSGQ_transportOpen (processorId, &mqtAttrs) ;
-        if (DSP_FAILED (status)) {
-            MESSAGE_1Print ("MSGQ_transportOpen () failed. Status = [0x%x]\n",
-                            status) ;
-        }
-     }
-
-    /*
-     *  Locate the DSP's message queue
-     */
-    if (DSP_SUCCEEDED (status)) {
-        syncLocateAttrs.timeout = WAIT_FOREVER;
-        status = DSP_ENOTFOUND ;
-        sprintf(dspMsgqName ,
-                "%s%d",
-                SampleDspMsgqName,
-                processorId ) ;
-        while ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
-            status = MSGQ_locate (dspMsgqName,
-                                  &SampleDspMsgq,
-                                  &syncLocateAttrs) ;
-            if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
-                MESSAGE_Sleep (100000) ;
-            }
-            else if (DSP_FAILED (status)) {
-                MESSAGE_1Print ("MSGQ_locate () failed. Status = [0x%x]\n",
-                                status) ;
-            }
-        }
-    }
-
-    MESSAGE_0Print ("Leaving MESSAGE_Create ()\n") ;
-
-    return status ;
+  MESSAGE_0Print("Leaving MESSAGE_Create ()\n");
+  return status;
 }
 
 
@@ -441,51 +436,51 @@ MESSAGE_Create (IN Char8 * dspExecutable,
  *  @modif  None
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-MESSAGE_Execute (IN Uint32 numIterations, Uint8 processorId)
-{
-    DSP_STATUS  status         = DSP_SOK ;
-    Uint16      sequenceNumber = 0 ;
-    Uint16      msgId          = 0 ;
-    Uint32      i ;
-    MSGQ_Msg    msg ;
 
-    MESSAGE_0Print ("Entered MESSAGE_Execute ()\n") ;
+NORMAL_API DSP_STATUS MESSAGE_Execute(IN Uint32 numIterations,
+                                      Uint8 processorId)
+{
+  DSP_STATUS status = DSP_SOK;
+  Uint16 sequenceNumber = 0;
+  Uint16 msgId = 0;
+  Uint32 i;
+  MSGQ_Msg msg;
+
+  MESSAGE_0Print("Entered MESSAGE_Execute ()\n");
 
 #if defined (MESSAGE_PROFILE)
-    MESSAGE_GetStartTime () ;
+  MESSAGE_GetStartTime ();
 #endif
 
-    for (i = 1 ;
-         (   (numIterations == 0) || (i <= (numIterations + 1)))
-          && (DSP_SUCCEEDED (status)) ;
-         i++) {
-        /*
-         *  Receive the message.
-         */
-        status = MSGQ_get (SampleGppMsgq, WAIT_FOREVER, &msg) ;
-        if (DSP_FAILED (status)) {
-            MESSAGE_1Print ("MSGQ_get () failed. Status = [0x%x]\n",
-                            status) ;
-        }
+  for (i = 1; 
+       ((numIterations == 0) || (i <= (numIterations + 1)))
+       && (DSP_SUCCEEDED (status));
+       i++)
+  {
+    /* Receive the message */
+    status = MSGQ_get(SampleGppMsgq, WAIT_FOREVER, &msg);
+
+    MESSAGE_1Print("'MSGQ_get' done, status 0x%x\n", status);
+
 #if defined (VERIFY_DATA)
-        /*
-         *  Verify correctness of data received.
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = MESSAGE_VerifyData (msg, sequenceNumber) ;
-            if (DSP_FAILED (status)) {
-                MSGQ_free (msg) ;
-            }
-        }
+    /* Verify correctness of data received */
+    if (DSP_SUCCEEDED(status)) {
+      status = MESSAGE_VerifyData(msg, sequenceNumber);
+
+      MESSAGE_1Print(
+        "'MESSAGE_VerifyData' done, status 0x%x\n", status);
+
+      if (DSP_FAILED(status)) {
+        MSGQ_free(msg);
+      }
+    }
 #endif
 
-        /* If the message received is the final one, free it. */
-        if ((numIterations != 0) && (i == (numIterations + 1))) {
-            MSGQ_free (msg) ;
-        }
-        else {
+    /* If the message received is the final one, free it. */
+    if ((numIterations != 0) && (i == (numIterations + 1))) {
+      MSGQ_free(msg);
+    }
+    else {
             /*
              *  Send the same message received in earlier MSGQ_get () call.
              */

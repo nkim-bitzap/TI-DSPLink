@@ -78,9 +78,9 @@ _CACHE_L1D = CACHE_L1D;
 _DDR2 = DDR2;
 _L1DSRAM = L1DSRAM;
 _IRAM = IRAM;
+_RESET_VECTOR = RESET_VECTOR;
 _DSPLINKMEM = DSPLINKMEM;
 _POOLMEM = POOLMEM;
-_RESET_VECTOR = RESET_VECTOR;
 _PRD_clock = PRD_clock;
 _HWI_RESET = HWI_RESET;
 _HWI_NMI = HWI_NMI;
@@ -253,12 +253,12 @@ MEMORY {
    CACHE_L2    : origin = 0x10808000,  len = 0x8000
    CACHE_L1P   : origin = 0x10e04000,  len = 0x4000
    CACHE_L1D   : origin = 0x10f10000,  len = 0x8000
-   DDR2        : origin = 0x88100080,  len = 0x7efff80
+   DDR2        : origin = 0x87e00080,  len = 0xfff80
    L1DSRAM     : origin = 0x10f04000,  len = 0x4000
    IRAM        : origin = 0x107f8000,  len = 0x10000
-   DSPLINKMEM  : origin = 0x88000000,  len = 0x30000
-   POOLMEM     : origin = 0x88030000,  len = 0xd0000
-   RESET_VECTOR : origin = 0x88100000, len = 0x80
+   RESET_VECTOR : origin = 0x87e00000, len = 0x80
+   DSPLINKMEM  : origin = 0x87f00000,  len = 0x30000
+   POOLMEM     : origin = 0x87f30000,  len = 0xd0000
 }
 /* MODULE CLK */
 SECTIONS {

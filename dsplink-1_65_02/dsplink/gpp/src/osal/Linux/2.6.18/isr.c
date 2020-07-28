@@ -401,6 +401,7 @@ ISR_Delete (IN IsrObject * isrObj)
  *  @modif  ISR_InstalledIsrs
  *  ============================================================================
  */
+
 EXPORT_API
 DSP_STATUS
 ISR_Install (IN  Void *      hostConfig,
@@ -444,7 +445,8 @@ ISR_Install (IN  Void *      hostConfig,
         else {
             osStatus = request_irq (isrObj->irq,
                                     (Void*)&ISR_Callback,
-                                    0,
+//                                    0,
+                                    IRQF_NO_THREAD,
                                     "DSPLINK",
                                     (void *)isrObj) ;
         }

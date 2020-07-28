@@ -762,7 +762,8 @@ NORMAL_API DSP_STATUS LDRV_DRV_handshake(IN ProcessorId dspId,
   drvCtrl = drvState->ctrlPtr;
 
   if (hshkCtrl == DRV_HandshakeSetup) {
-    /* Set all DSP-side modules to uninitialized state */
+    /* set all status flags for DSP module initialization to 'uninitialized'
+       state */
     drvCtrl->drvDspInitDone = (Uint32) -1;
     drvCtrl->ipsDspInitDone = (Uint32) -1;
 
@@ -797,16 +798,28 @@ NORMAL_API DSP_STATUS LDRV_DRV_handshake(IN ProcessorId dspId,
                                         DRV_SHMBASESYMBOL,
                                         &dspShmBase);
 
+    PRINT_Printf("'PMGR_PROC_getSymbolAddress' in 'LDRV_DRV_handshake':\n");
+    PRINT_Printf("  dspId: %d\n", dspId); 
+    PRINT_Printf("  dspShmBase: 0x%x\n", dspShmBase); 
+    PRINT_Printf("  status: 0x%x\n", status);
+
     if (DSP_SUCCEEDED(status)) {
       TRC_1PRINT(TRC_LEVEL4,
                  "DRV shared memory base symbol DSP address 0x%x\n",
                  dspShmBase);
 
+      /* This ends up calling 'OMAP3530_write' for the BeagleBoard C4, and
+         does essentially write the value of the 'dspCtrlAddr' at the
+         beginning of the shared memory segment */
       status = LDRV_PROC_write(dspId,
                                dspShmBase,
                                Endianism_Default,
                                sizeof (Uint32),
-                               (Uint8 *) (&drvState->dspCtrlAddr));
+                               (Uint8*) (&drvState->dspCtrlAddr));
+
+      PRINT_Printf("'LDRV_PROC_write' in 'LDRV_DRV_handshake':\n");
+      PRINT_Printf("  data: 0x%x\n", drvState->dspCtrlAddr);
+      PRINT_Printf("  status: 0x%x\n", status);
 
       if (DSP_FAILED(status)) {
         SET_FAILURE_REASON;
@@ -825,11 +838,8 @@ NORMAL_API DSP_STATUS LDRV_DRV_handshake(IN ProcessorId dspId,
          set the value of the shm base symbol to shared memory start
          address in its linker command file.
 
-         For example:
-            SECTIONS {
-              .data:DSPLINK_shmBaseAddress: fill=0x8FE05000 {} > DDR
-            }
-      */
+         See details about SECTIONS in .cmd file for a particular example,
+         e.g. 'message.cmd' in 'dsp/src/samples/message/DspBios' */
 
       if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTSUPPORTED)) {
         status = DSP_SOK;
@@ -841,11 +851,14 @@ NORMAL_API DSP_STATUS LDRV_DRV_handshake(IN ProcessorId dspId,
   }
 
   if (DSP_SUCCEEDED(status)) {
-    /* Perform the handshake with the DSP now */
+    PRINT_Printf("Completing driver handshake (1)\n");
+
+    /* Perform the handshake with the DSP, this calls a generic handshake
+       implementation in 'SHMDRV_handshake' */
     status = (drvState->interface->handshake)(
                 dspId, drvState->linkDrvId, hshkCtrl);
 
-    PRINT_Printf("Completing driver handshake (1), status: 0x%x\n", status);
+    PRINT_Printf("Driver handshake (1) completed, status: 0x%x\n", status);
 
     if (DSP_FAILED(status)) {
       TRC_1PRINT(TRC_LEVEL4,

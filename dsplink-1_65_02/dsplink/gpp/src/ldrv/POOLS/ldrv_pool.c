@@ -584,15 +584,12 @@ LDRV_POOL_exit (IN ProcessorId procId)
     return status ;
 }
 
+#include <linux/module.h>
 
-/** ============================================================================
- *  @name   LDRV_POOL_open
- *
- *  @desc   This function creates the pool for given pool id.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  LDRV_POOL_open
+  @desc  This function creates the pool for given pool id
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
                                      IN POOL_OpenParams *poolOpenParams)
@@ -645,6 +642,7 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
     SET_FAILURE_REASON;
   }
 
+  printk(KERN_ALERT "'LDRV_POOL_open' executed, status 0x%x\n", status);
   TRC_1LEAVE ("LDRV_POOL_open", status);
   return status;
 }

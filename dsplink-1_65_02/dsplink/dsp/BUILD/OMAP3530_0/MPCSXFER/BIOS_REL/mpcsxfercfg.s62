@@ -5,7 +5,7 @@
 ;; INPUT mpcsxfer.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Sun Jul 26 13:51:55 2020", VERS$DATE
+	.asg "Tue Jul 28 21:26:57 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include mpcsxfercfg.h62
@@ -372,7 +372,7 @@ HOOK$SETOF          .set 00H
 	.asg 00H, _L2MAR32_63
 	.asg 00H, _L2MAR64_95
 	.asg 00H, _L2MAR96_127
-	.asg 0ff00H, _L2MAR128_159
+	.asg 080H, _L2MAR128_159
 	.asg 00H, _L2MAR160_191
 	.asg 00H, _L2MAR192_223
 	.asg 00H, _L2MAR224_255
@@ -627,7 +627,7 @@ HOOK$SETOF          .set 00H
 ;;
 ;; MEM_Obj DDR2 (len, iAllocHeap, iSegZero, iHeapId)
 	.global DDR2
-	.asg 07efff80H, _len
+	.asg 0fff80H, _len
 	.asg 01H, _iAllocHeap
 	.asg DDR2, _iSegZero
 	.asg segment_name, _iHeapId
@@ -655,6 +655,17 @@ HOOK$SETOF          .set 00H
 	.asg segment_name, _iHeapId
 	MEM_Obj 1, IRAM, 0, _len, _iAllocHeap, _iSegZero, _iHeapId
 
+;; ======== MEM_Obj RESET_VECTOR ========
+;; RESET_VECTOR
+;;
+;; MEM_Obj RESET_VECTOR (len, iAllocHeap, iSegZero, iHeapId)
+	.global RESET_VECTOR
+	.asg 080H, _len
+	.asg 00H, _iAllocHeap
+	.asg DDR2, _iSegZero
+	.asg segment_name, _iHeapId
+	MEM_Obj 1, RESET_VECTOR, 0, _len, _iAllocHeap, _iSegZero, _iHeapId
+
 ;; ======== MEM_Obj DSPLINKMEM ========
 ;; DSPLINKMEM
 ;;
@@ -676,17 +687,6 @@ HOOK$SETOF          .set 00H
 	.asg DDR2, _iSegZero
 	.asg segment_name, _iHeapId
 	MEM_Obj 1, POOLMEM, 0, _len, _iAllocHeap, _iSegZero, _iHeapId
-
-;; ======== MEM_Obj RESET_VECTOR ========
-;; RESET_VECTOR
-;;
-;; MEM_Obj RESET_VECTOR (len, iAllocHeap, iSegZero, iHeapId)
-	.global RESET_VECTOR
-	.asg 080H, _len
-	.asg 00H, _iAllocHeap
-	.asg DDR2, _iSegZero
-	.asg segment_name, _iHeapId
-	MEM_Obj 1, RESET_VECTOR, 0, _len, _iAllocHeap, _iSegZero, _iHeapId
 
 ;; ======== CLK_Obj PRD_clock ========
 ;; This clock function calls PRD_tick from within the on-chip timer ISR

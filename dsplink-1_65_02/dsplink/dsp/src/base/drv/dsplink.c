@@ -182,11 +182,11 @@ Void DSPLINK_init(Void)
 
   DBC_assert(FALSE);
 
-  /* Call the internal function to initialize DSPLINK. By this time, data
+  /* Call the internal function to initialize DSPLINK. By this time all data
      drivers (if any) and pools (if any) are already initialized */
   _DSPLINK_init();
 
-  ctrlPtr = (DRV_Ctrl *) DSPLINK_shmBaseAddress;
+  ctrlPtr = (DRV_Ctrl*) DSPLINK_shmBaseAddress;
 
   /* If data drivers or pools are not included by the application, complete
      the handshake for it to ensure that the GPP-side can proceed further */
@@ -194,7 +194,7 @@ Void DSPLINK_init(Void)
 #if defined (POOL_COMPONENT)
   if (ctrlPtr->poolDspInitDone == COMP_UNINITIALIZED) {
     ctrlPtr->poolDspInitDone = (Uint32) SYS_OK;
-    dspHandshake |= DRV_HANDSHAKE_POOL ;
+    dspHandshake |= DRV_HANDSHAKE_POOL;
   }
 #endif
 
@@ -219,9 +219,9 @@ Void DSPLINK_init(Void)
 }
 
 /*******************************************************************************
-  @func   _DSPLINK_init
-  @desc   This function initializes DSP/BIOS LINK. This is the internal
-          implementation for the function to initialize DSPLINK.
+  @func  _DSPLINK_init
+  @desc  This function initializes DSP/BIOS LINK. This is the internal
+         implementation for the function to initialize DSPLINK.
 *******************************************************************************/
 
 Void _DSPLINK_init(Void)
@@ -229,8 +229,6 @@ Void _DSPLINK_init(Void)
   Int status = SYS_OK;
   Uint16 dspHandshake = DRV_HANDSHAKE_BASE;
   DRV_Ctrl *ctrlPtr = NULL;
-
-  printf("Executing '_DSPLINK_init'\n");
 
   /* Ensure that the component is initialized only once */
   if (DSPLINK_isInitialized == FALSE) {

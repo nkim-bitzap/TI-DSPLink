@@ -105,15 +105,11 @@ extern POOL_AddrInfo POOL_addrConfig [MAX_DSPS][MAX_POOLENTRIES] ;
 extern PROC_Object PROC_stateObj ;
 
 
-/** ============================================================================
- *  @func   POOL_open
- *
- *  @desc   This function opens a specific pool referenced by the pool Id
- *          provided.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  POOL_open
+  @desc  This function opens a specific pool referenced by the pool Id
+         provided
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
 {
@@ -139,16 +135,18 @@ EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
       csObjExists = TRUE;
     }
 
-    if (DSP_SUCCEEDED (status)) {
+    if (DSP_SUCCEEDED(status)) {
 
       /* Check if the specific POOL has already been opened in this process */
       if (DRV_CHECK_CURSTATUS(
-            PROC_stateObj.curStatus.poolIsOpened [procId][poolNo]) ==  TRUE)
+            PROC_stateObj.curStatus.poolIsOpened[procId][poolNo]) ==  TRUE)
       {
         status = DSP_EALREADYOPENED;
         SET_FAILURE_REASON;
       }
       else {
+        /* 'params' correspond to the user parameters put together in a struct
+           of type 'SMAPOOL_Attrs' */
         args.apiArgs.poolOpenArgs.poolId = poolId;
         poolOpenParams.params = params;
         args.apiArgs.poolOpenArgs.params = &poolOpenParams;
@@ -158,7 +156,11 @@ EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
            'LDRV_POOL_open' */
         status = DRV_INVOKE(DRV_handle, CMD_POOL_OPEN, &args);
 
+        printf("DRV_INVOKE in POOL_open status: 0x%x\n", status);
+
         if (DSP_SUCCEEDED(status)) {
+          printf("CMD_POOL_OPEN OK after DRV_INVOKE in POOL_open\n");
+
           DRV_SET_CURSTATUS(
             PROC_stateObj.curStatus.poolIsOpened[procId][poolNo]);
         }
@@ -168,7 +170,14 @@ EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
       }
 
       if (csObjExists == TRUE) {
+        printf("DRV_INVOKE in POOL_open status: 0x%x\n", status);
+
+        printf(" CALLING '_SYNC_USR_leaveCS'..."); 
+
         tmpStatus = _SYNC_USR_leaveCS(PROC_stateObj.syncCsObj);
+
+        printf("done, status 0x%x\n", status);
+
 
         if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
           status = tmpStatus;

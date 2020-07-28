@@ -77,7 +77,7 @@ extern "C" {
  *          required by it.
  *  ============================================================================
  */
-STATIC DSP_Object DSP_State [MAX_DSPS] ;
+STATIC DSP_Object DSP_State[MAX_DSPS];
 
 /*******************************************************************************
   @func  DSP_moduleInit

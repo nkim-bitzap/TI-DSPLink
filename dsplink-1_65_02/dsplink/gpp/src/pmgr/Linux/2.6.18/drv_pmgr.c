@@ -508,7 +508,7 @@ STATIC struct file_operations driverOps = {
     open:    DRV_Open,
     flush:   DRV_Flush,
     release: DRV_Release,
-    unlocked_ioctl:   DRV_Ioctl,
+    unlocked_ioctl: DRV_Ioctl,
     mmap:    DRV_Mmap,
     read:    DRV_Read,
    .owner = THIS_MODULE
@@ -543,135 +543,136 @@ DRV_Mmap (struct file * filp, struct vm_area_struct * vma)
   @desc  Module initialization function for Linux driver
 *******************************************************************************/
 
-STATIC int __init DRV_InitializeModule (void)
+STATIC int __init DRV_InitializeModule(void)
 {
   int result = 0;
   DSP_STATUS status = DSP_SOK;
 
 #if defined (CHNL_COMPONENT)
   Uint32 tabSize;
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
+
+  TRC_0ENTER("DRV_InitializeModule");
 
   status = OSAL_Initialize();
 
 #if defined (NOTIFY_COMPONENT)
-  /* Initialize the User Event module. */
+  /* Initialize the User Event module */
   UEVENT_Initialize();
-#endif /* #if defined (NOTIFY_COMPONENT) */
+#endif
 
-  /* Display the version info and created date/time (NKim, removed) */
   PRINT_Printf("DSPLINK Module (%s) created\n", DSPLINK_VERSION);
 
-  TRC_0ENTER("DRV_InitializeModule");
+  if (DSP_FAILED(status)) {
+    TRC_2PRINT(TRC_LEVEL7,
+               "*** error in '%s': 'OSAL_Initialize' failed, "
+               "result 0x%x\n", __FUNCTION__, result);
 
-  if (DSP_SUCCEEDED (status)) {
-    /*  --------------------------------------------------------------------
-     *  To enable trace for a component and/or subcomponent, uncomment the
-     *  corresponding statements below. (This is not a comprehensive list
-     *  of available trace masks. See file signature.h)
-     *  --------------------------------------------------------------------
-     */
+    SET_FAILURE_REASON;
+    result = -1;
+  }
+  else {
 
-    /* TRC_ENABLE (ID_PMGR_ALL)        ; */
-    /* TRC_ENABLE (ID_GEN_ALL)         ; */
-    /* TRC_ENABLE (ID_OSAL_ALL)        ; */
-    /* TRC_ENABLE (ID_LDRV_ALL)        ; */
-    /* TRC_ENABLE (ID_LDRV_DATA_ALL)   ; */
-    /* TRC_ENABLE (ID_LDRV_DRV_ALL)    ; */
-    /* TRC_ENABLE (ID_LDRV_IPS_ALL)    ; */
-    /* TRC_ENABLE (ID_LDRV_MQT_ALL)    ; */
-    /* TRC_ENABLE (ID_LDRV_POOL_ALL)   ; */
-    /* TRC_ENABLE (ID_ARCH_ALL)   ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_ALL)   ; */
-    /* TRC_ENABLE (ID_ARCH_DSP_ALL)   ; */
+    /* To enable trace for a component and/or subcomponent, uncomment the
+        corresponding statements below. (This is not a comprehensive list
+        of available trace masks. See file signature.h) */
+    TRC_ENABLE (ID_PMGR_ALL);
+    TRC_ENABLE (ID_GEN_ALL);
+    TRC_ENABLE (ID_OSAL_ALL);
+    TRC_ENABLE (ID_LDRV_ALL);
+    TRC_ENABLE (ID_LDRV_DATA_ALL);
+    TRC_ENABLE (ID_LDRV_DRV_ALL);
+    TRC_ENABLE (ID_LDRV_IPS_ALL);
+    TRC_ENABLE (ID_LDRV_MQT_ALL);
+    TRC_ENABLE (ID_LDRV_POOL_ALL);
+    TRC_ENABLE (ID_ARCH_ALL);
+    TRC_ENABLE (ID_ARCH_HAL_ALL);
+    TRC_ENABLE (ID_ARCH_DSP_ALL);
 
-    /* TRC_ENABLE (ID_PMGR_PROC)       ; */
-    /* TRC_ENABLE (ID_PMGR_CHNL)       ; */
-    /* TRC_ENABLE (ID_PMGR_MSGQ)       ; */
+    TRC_ENABLE (ID_PMGR_PROC);
+    TRC_ENABLE (ID_PMGR_CHNL);
+    TRC_ENABLE (ID_PMGR_MSGQ);
 
-    /* TRC_ENABLE (ID_GEN_UTILS)       ; */
-    /* TRC_ENABLE (ID_GEN_LIST)        ; */
-    /* TRC_ENABLE (ID_GEN_COFF)        ; */
-    /* TRC_ENABLE (ID_GEN_COFF_55x)    ; */
-    /* TRC_ENABLE (ID_GEN_COFF_64x)    ; */
-    /* TRC_ENABLE (ID_GEN_BINLOADER)   ; */
-    /* TRC_ENABLE (ID_GEN_IDM )        ; */
-    /* TRC_ENABLE (ID_GEN_NOLOADER)    ; */
-    /* TRC_ENABLE (ID_GEN_COFF_MEM)    ; */
-    /* TRC_ENABLE (ID_GEN_COFF_FILE)   ; */
-    /* TRC_ENABLE (ID_GEN_COFF_SHM)    ; */
+    TRC_ENABLE (ID_GEN_UTILS);
+    TRC_ENABLE (ID_GEN_LIST);
+    TRC_ENABLE (ID_GEN_COFF);
+    TRC_ENABLE (ID_GEN_COFF_55x);
+    TRC_ENABLE (ID_GEN_COFF_64x);
+    TRC_ENABLE (ID_GEN_BINLOADER);
+    TRC_ENABLE (ID_GEN_IDM);
+    TRC_ENABLE (ID_GEN_NOLOADER);
+    TRC_ENABLE (ID_GEN_COFF_MEM);
+    TRC_ENABLE (ID_GEN_COFF_FILE);
+    TRC_ENABLE (ID_GEN_COFF_SHM);
 
-    /* TRC_ENABLE (ID_OSAL)            ; */
-    /* TRC_ENABLE (ID_OSAL_DPC)        ; */
-    /* TRC_ENABLE (ID_OSAL_ISR)        ; */
-    /* TRC_ENABLE (ID_OSAL_KFILE)      ; */
-    /* TRC_ENABLE (ID_OSAL_MEM)        ; */
-    /* TRC_ENABLE (ID_OSAL_PRCS)       ; */
-    /* TRC_ENABLE (ID_OSAL_SYNC)       ; */
-    /* TRC_ENABLE (ID_OSAL_DRV)        ; */
-    /* TRC_ENABLE (ID_OSAL_NOTIFY_KNL) ; */
-    /* TRC_ENABLE (ID_OSAL_USER)       ; */
-    /* TRC_ENABLE (ID_OSAL_KFILE_PSEUDO) ; */
+    TRC_ENABLE (ID_OSAL);
+    TRC_ENABLE (ID_OSAL_DPC);
+    TRC_ENABLE (ID_OSAL_ISR);
+    TRC_ENABLE (ID_OSAL_KFILE);
+    TRC_ENABLE (ID_OSAL_MEM);
+    TRC_ENABLE (ID_OSAL_PRCS);
+    TRC_ENABLE (ID_OSAL_SYNC);
+    TRC_ENABLE (ID_OSAL_DRV);
+    TRC_ENABLE (ID_OSAL_NOTIFY_KNL);
+    TRC_ENABLE (ID_OSAL_USER);
+    TRC_ENABLE (ID_OSAL_KFILE_PSEUDO);
 
-    /* TRC_ENABLE (ID_LDRV)            ; */
-    /* TRC_ENABLE (ID_LDRV_PROC)       ; */
-    /* TRC_ENABLE (ID_LDRV_CHNL)       ; */
-    /* TRC_ENABLE (ID_LDRV_MSGQ)       ; */
-    /* TRC_ENABLE (ID_LDRV_CHIRPS)     ; */
-    /* TRC_ENABLE (ID_LDRV_MPCS)       ; */
-    /* TRC_ENABLE (ID_LDRV_MPLIST)     ; */
-    /* TRC_ENABLE (ID_LDRV_RINGIO)     ; */
-    /* TRC_ENABLE (ID_LDRV_SMM)        ; */
-    /* TRC_ENABLE (ID_LDRV_OS)         ; */
-    /* TRC_ENABLE (ID_LDRV_DATA)       ; */
-    /* TRC_ENABLE (ID_LDRV_DATA_PCPY)  ; */
-    /* TRC_ENABLE (ID_LDRV_DATA_ZCPY)  ; */
-    /* TRC_ENABLE (ID_LDRV_DRV)        ; */
-    /* TRC_ENABLE (ID_LDRV_DRV_SHM)    ; */
-    /* TRC_ENABLE (ID_LDRV_IPS)        ; */
-    /* TRC_ENABLE (ID_LDRV_IPS_IPS)    ; */
-    /* TRC_ENABLE (ID_LDRV_MQT)        ; */
-    /* TRC_ENABLE (ID_LDRV_MQT_PCPY)   ; */
-    /* TRC_ENABLE (ID_LDRV_MQT_ZCPY)   ; */
-    /* TRC_ENABLE (ID_LDRV_POOL)       ; */
-    /* TRC_ENABLE (ID_LDRV_POOL_BUF)   ; */
-    /* TRC_ENABLE (ID_LDRV_POOL_DMA)   ; */
-    /* TRC_ENABLE (ID_LDRV_POOL_SMA)   ; */
+    TRC_ENABLE (ID_LDRV);
+    TRC_ENABLE (ID_LDRV_PROC);
+    TRC_ENABLE (ID_LDRV_CHNL);
+    TRC_ENABLE (ID_LDRV_MSGQ);
+    TRC_ENABLE (ID_LDRV_CHIRPS);
+    TRC_ENABLE (ID_LDRV_MPCS);
+    TRC_ENABLE (ID_LDRV_MPLIST);
+    TRC_ENABLE (ID_LDRV_RINGIO);
+    TRC_ENABLE (ID_LDRV_SMM);
+    TRC_ENABLE (ID_LDRV_OS);
+    TRC_ENABLE (ID_LDRV_DATA);
+    TRC_ENABLE (ID_LDRV_DATA_PCPY);
+    TRC_ENABLE (ID_LDRV_DATA_ZCPY);
+    TRC_ENABLE (ID_LDRV_DRV);
+    TRC_ENABLE (ID_LDRV_DRV_SHM);
+    TRC_ENABLE (ID_LDRV_IPS);
+    TRC_ENABLE (ID_LDRV_IPS_IPS);
+    TRC_ENABLE (ID_LDRV_MQT);
+    TRC_ENABLE (ID_LDRV_MQT_PCPY);
+    TRC_ENABLE (ID_LDRV_MQT_ZCPY);
+    TRC_ENABLE (ID_LDRV_POOL);
+    TRC_ENABLE (ID_LDRV_POOL_BUF);
+    TRC_ENABLE (ID_LDRV_POOL_DMA);
+    TRC_ENABLE (ID_LDRV_POOL_SMA);
 
-    /* TRC_ENABLE (ID_ARCH_DSP)        ; */
-    /* TRC_ENABLE (ID_ARCH_DSP_INTF)   ; */
-    /* TRC_ENABLE (ID_ARCH_CFG)        ; */
-    /* TRC_ENABLE (ID_ARCH_HAL)        ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_MAP)    ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_DSPCLK) ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_INTGEN) ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_DMA)    ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_RDWR)   ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_BOOT)   ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_PWR)    ; */
-    /* TRC_ENABLE (ID_ARCH_HAL_MMU)    ; */
-    /* TRC_ENABLE (ID_ARCH_SHMEM_PHY)  ; */
-    /* TRC_ENABLE (ID_ARCH_PCI_PHY)    ; */
-    /* TRC_ENABLE (ID_ARCH_VLYNQ_PHY)  ; */
+    TRC_ENABLE (ID_ARCH_DSP);
+    TRC_ENABLE (ID_ARCH_DSP_INTF);
+    TRC_ENABLE (ID_ARCH_CFG);
+    TRC_ENABLE (ID_ARCH_HAL);
+    TRC_ENABLE (ID_ARCH_HAL_MAP);
+    TRC_ENABLE (ID_ARCH_HAL_DSPCLK);
+    TRC_ENABLE (ID_ARCH_HAL_INTGEN);
+    TRC_ENABLE (ID_ARCH_HAL_DMA);
+    TRC_ENABLE (ID_ARCH_HAL_RDWR);
+    TRC_ENABLE (ID_ARCH_HAL_BOOT);
+    TRC_ENABLE (ID_ARCH_HAL_PWR);
+    TRC_ENABLE (ID_ARCH_HAL_MMU);
+    TRC_ENABLE (ID_ARCH_SHMEM_PHY);
+    TRC_ENABLE (ID_ARCH_PCI_PHY);
+    TRC_ENABLE (ID_ARCH_VLYNQ_PHY);
 
-
-    /*  --------------------------------------------------------------------
-     *  To set desired severity level for trace, uncomment the statement
-     *  below and change the argument to the function below.
-     *  --------------------------------------------------------------------
-     */
-
-    /* TRC_SET_SEVERITY (TRC_ENTER) ; */
+    /* To set desired severity level for trace, uncomment the statement
+       below and change the argument to the function below. 'TRC_ENTER'
+       emits everything, while 'TRC_LEVEL4' emits only stuff explicitly
+       marked as such */
+    TRC_SET_SEVERITY (TRC_ENTER);
 
     result = register_chrdev(major, "dsplink", &driverOps);
 
     if (result < 0) {
-      status = DSP_EFAIL;
-      SET_FAILURE_REASON;
-
       TRC_2PRINT(TRC_LEVEL7,
                  "*** error in '%s': Linux API 'register_chrdev' "
                  "failed, result 0x%x\n", __FUNCTION__, result);
+
+      status = DSP_EFAIL;
+      SET_FAILURE_REASON;
     }
 
 #if defined (CHNL_COMPONENT)
@@ -688,30 +689,23 @@ STATIC int __init DRV_InitializeModule (void)
     }
 #endif /* if defined (CHNL_COMPONENT) */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+    /* NKim, for kernel versions >= 2.6.26 */
     dsplink_class = class_create(THIS_MODULE, "dsplink");
     device_create(dsplink_class, NULL, MKDEV(major, 0), NULL, "dsplink");
-#endif
 
     if (DSP_SUCCEEDED(status)) {
       DRV_IsInitialized = TRUE;
     }
-  }
-  else {
-    SET_FAILURE_REASON;
-    result = -1;
   }
 
   TRC_1LEAVE("DRV_InitializeModule", result);
   return result;
 }
 
-/** ----------------------------------------------------------------------------
- *  @name   DRV_FinalizeModule
- *
- *  @desc   Linux driver function to finalize the driver module.
- *  ----------------------------------------------------------------------------
- */
+/*******************************************************************************
+  @name  DRV_FinalizeModule
+  @desc  Linux driver function to finalize the driver module
+*******************************************************************************/
 
 STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
 {
@@ -719,99 +713,84 @@ STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
 
 #if defined (CHNL_COMPONENT)
   MemFreeAttrs freeAttrs;
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
 
-  printk(KERN_ALERT "Executing 'DRV_FinalizeModule'\n");
-
-  TRC_0ENTER ("DRV_FinalizeModule");
+  TRC_0ENTER("DRV_FinalizeModule");
 
 #if defined (CHNL_COMPONENT)
   freeAttrs.physicalAddress = DRV_MemAllocAttrs.physicalAddress;
   freeAttrs.size = sizeof (Uint32) * MAX_DSPS * MAX_CHANNELS;
 
-  status = MEM_Free ((Pvoid *) &DRV_ChnlIdToPoolId, &freeAttrs);
+  status = MEM_Free((Pvoid *) &DRV_ChnlIdToPoolId, &freeAttrs);
 
   if (DSP_FAILED (status)) {
-    printk(KERN_ALERT "  Error in '%s': bad 'MEM_Free'\n",
-           __FUNCTION__);
-
     SET_FAILURE_REASON;
   }
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+  /* NKim, for kernel versions >= 2.6.26 */
   device_destroy(dsplink_class, MKDEV(major, 0));
   class_destroy(dsplink_class);
-#endif
 
   unregister_chrdev(major, "dsplink");
 
   DRV_IsInitialized = FALSE;
 
-  TRC_0LEAVE ("DRV_FinalizeModule");
-
 #if defined (NOTIFY_COMPONENT)
   UEVENT_Finalize ();
-#endif /* #if defined (NOTIFY_COMPONENT) */
+#endif
 
   /* Unconditional call OSAL_Finalize */
   status = OSAL_Finalize(TRUE);
 
-  if (DSP_FAILED (status)) {
-    printk(KERN_ALERT "  Error in '%s': bad 'OSAL_Finalize'\n",
-           __FUNCTION__);
+  if (DSP_FAILED(status)) {
+    TRC_2PRINT(TRC_LEVEL7,
+               "*** error in '%s': 'OSAL_Finalize' failed, "
+               "result 0x%x\n", __FUNCTION__, result);
 
     SET_FAILURE_REASON;
   }
 
-  printk(KERN_ALERT "'DRV_FinalizeModule' executed\n");
+  TRC_1LEAVE("DRV_FinalizeModule", result);
 }
 
-/** ----------------------------------------------------------------------------
- *  @name   DRV_Open
- *
- *  @desc   Linux specific function to open the driver.
- *  ----------------------------------------------------------------------------
- */
+/*******************************************************************************
+  @name  DRV_Open
+  @desc  Linux specific function to open the driver
+*******************************************************************************/
 
 int DRV_Open(struct inode * inode, struct file * filp)
 {
-  printk(KERN_ALERT "Executing 'DRV_Open'\n");
-  return 0 ;
+  return 0;
 }
 
-/*  ----------------------------------------------------------------------------
- *  @name   DRV_Flush
- *
- *  @desc   Linux specific function to flush the driver.
- *  ----------------------------------------------------------------------------
- */
-STATIC NORMAL_API int DRV_Flush (struct file * filp, fl_owner_t id)
+/*******************************************************************************
+  @name  DRV_Flush
+  @desc  Linux specific function to flush the driver
+*******************************************************************************/
+
+STATIC NORMAL_API int DRV_Flush(struct file *fp, fl_owner_t owner)
 {
-  printk(KERN_ALERT "Executing 'DRV_Flush'\n");
-  return 0 ;
+  return 0;
 }
 
-/** ============================================================================
- *  @name   DRV_Read
- *
- *  @desc   Linux specific function to read data from the driver.
- *  ============================================================================
- */
-STATIC NORMAL_API int DRV_Read (struct file * filp,
-                                char * dst,
-                                size_t size,
-                                loff_t *offset)
-{
-  Uint32 nRead = 0 ;
+/*******************************************************************************
+  @name  DRV_Read
+  @desc  Linux specific function to read data from the driver
+*******************************************************************************/
 
-  printk(KERN_ALERT "Executing 'DRV_Read'\n");
+STATIC NORMAL_API int DRV_Read(struct file *filp,
+                               char *dst,
+                               size_t size,
+                               loff_t *offset)
+{
+  Uint32 nRead = 0;
 
 #if defined (NOTIFY_COMPONENT)
-  nRead = UEVENT_GetBuf ((Pvoid) dst) ;
-#endif /* #if defined (NOTIFY_COMPONENT) */
+  nRead = UEVENT_GetBuf((Pvoid) dst);
+#endif
 
-  return nRead ;
+  return nRead;
 }
 
 /** ============================================================================
@@ -942,10 +921,8 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
 }
 
 /********************************************************************************
-  @name   DRV_Ioctl
-
-  @desc   Function to invoke the APIs through ioctl
-
+  @name  DRV_Ioctl
+  @desc  Function to invoke the APIs through ioctl
 ********************************************************************************/
 
 STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
@@ -962,7 +939,7 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
      the user before leaving */
   CMD_Args apiArgs;
 
-  TRC_3ENTER ("DRV_Ioctl", filp, cmd, args);
+  TRC_3ENTER("DRV_Ioctl", filp, cmd, args);
 
   /* first of all, copy the main structure from user space. As known, this
      only results in a 'shallow copy'. Pointers are copied (however, their
@@ -970,8 +947,9 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
   retVal = copy_from_user(&apiArgs, srcArgs, sizeof(CMD_Args));
 
   if (retVal != 0) {
-    printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user', "
-                      "result 0x%x\n", __FUNCTION__, retVal);
+    TRC_2PRINT(TRC_LEVEL7,
+               "*** error in '%s': bad 'copy_from_user', result "
+               "0x%x\n", __FUNCTION__, retVal);
 
     osStatus = -EFAULT;
   }
@@ -979,7 +957,13 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
   if (osStatus == 0) {
     status = DRV_CallAPI(cmd, &apiArgs);
 
+    printk("            status: 0x%x\n", status);
+
     if (DSP_FAILED(status)) {
+      TRC_2PRINT(TRC_LEVEL7,
+                 "*** error in '%s': 'DRV_CallAPI' failed, result "
+                 "0x%x\n", __FUNCTION__, retVal);
+
       if (status == -ERESTARTSYS) {
         osStatus = -ERESTARTSYS;
       }
@@ -1002,8 +986,9 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
     retVal = copy_to_user(srcArgs, &apiArgs, sizeof(CMD_Args));
 
     if (retVal != 0) {
-      printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user', "
-                        "result 0x%x\n", __FUNCTION__, retVal);
+      TRC_2PRINT(TRC_LEVEL7,
+                 "*** error in '%s': bad 'copy_to_user', result "
+                 "0x%x\n", __FUNCTION__, retVal);
 
       osStatus = -EFAULT;
     }
@@ -1013,35 +998,28 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
   return osStatus;
 }
 
-/** ============================================================================
- *  @name   module_init/module_exit
- *
- *  @desc   Macro calls that indicate initialization and finalization functions
- *          to the kernel.
- *  ============================================================================
-*/
+/*******************************************************************************
+  @name  module_init/module_exit
+  @desc  Macro calls that indicate initialization and finalization functions
+         to the kernel
+*******************************************************************************/
 
-MODULE_LICENSE ("GPL v2") ;
+MODULE_LICENSE ("GPL v2");
 module_init (DRV_InitializeModule);
 module_exit (DRV_FinalizeModule);
 
-
 /********************************************************************************
-  @name   DRV_CallAPI
- 
-  @desc   Function to invoke the APIs through ioctl.
-
-  @modif  None.
+  @name  DRV_CallAPI
+  @desc  Function to invoke the APIs through ioctl
 ********************************************************************************/
 
-STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
+STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 {
   DSP_STATUS status = DSP_SOK;     /* status of driver's ioctl    */
   DSP_STATUS retStatus = DSP_SOK;  /* status of the PMGR function */
   int i, retVal = 0;
 
   TRC_2ENTER ("DRV_CallAPI", cmd, args) ;
-  printk(KERN_ALERT "Executing 'DRV_CallAPI'\n");
 
   args->apiStatus = DSP_SOK;
 
@@ -1682,21 +1660,37 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
 #endif /* if defined (CHNL_COMPONENT) */
 
 #if defined (MSGQ_COMPONENT)
+    /* the second argument to 'PMGR_MSGQ_transportOpen' is 'in' and is also
+       a pointer to a struct (of which we only need a pool-ID) which we need
+       to copy */
     case CMD_MSGQ_TRANSPORTOPEN:
+    {
+      ZCPYMQT_Attrs attrs;
+
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_TRANSPORTOPEN'\n");
 
-      retStatus = PMGR_MSGQ_transportOpen (
+      DBC_Assert((args->apiArgs.msgqTransportOpenArgs.attrs != NULL)
+                 && "Expected valid message queue attributes");
+
+      retVal = copy_from_user(&attrs,
+                              args->apiArgs.msgqTransportOpenArgs.attrs,
+                              sizeof(ZCPYMQT_Attrs));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+      retStatus = PMGR_MSGQ_transportOpen(
                                 args->apiArgs.msgqTransportOpenArgs.procId,
-                                args->apiArgs.msgqTransportOpenArgs.attrs);
+                                &attrs);
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_MSGQ_TRANSPORTCLOSE:
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_TRANSPORTCLOES'\n");
 
-      retStatus = PMGR_MSGQ_transportClose (
-                                args->apiArgs.msgqTransportCloseArgs.procId) ;
+      retStatus = PMGR_MSGQ_transportClose(
+                                args->apiArgs.msgqTransportCloseArgs.procId);
 
       args->apiStatus = retStatus;
       break ;
@@ -1723,9 +1717,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
             &attrs, args->apiArgs.msgqOpenArgs.attrs, sizeof(MSGQ_Attrs));
 
           if (retVal != 0) {
-            printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                              "(CMD_MSGQ_OPEN), result 0x%x\n",
-                              __FUNCTION__, retVal);
+            TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
+                                   "'copy_from_user' (CMD_MSGQ_OPEN), "
+                                   "result 0x%x\n",
+                                   __FUNCTION__, retVal);
 
             status = -EFAULT;
           }
@@ -1737,9 +1732,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
           name, args->apiArgs.msgqOpenArgs.queueName, DSP_MAX_STRLEN);
 
         if (retVal != 0) {
-          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                            "(CMD_MSGQ_OPEN), result 0x%x\n",
-                            __FUNCTION__, retVal);
+          TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
+                                 "'copy_from_user' (CMD_MSGQ_OPEN), "
+                                 "result 0x%x\n",
+                                 __FUNCTION__, retVal);
 
           status = -EFAULT;
         }
@@ -1754,9 +1750,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
                                   sizeof(MSGQ_Queue));
 
             if (retVal != 0) {
-              printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user' "
-                                "(CMD_MSGQ_OPEN), result 0x%x\n",
-                                __FUNCTION__, retVal);
+              TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
+                                     "'copy_to_user' (CMD_MSGQ_OPEN), "
+                                     "result 0x%x\n",
+                                     __FUNCTION__, retVal);
 
               status = -EFAULT;
             }
@@ -1770,20 +1767,52 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     case CMD_MSGQ_CLOSE:
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_CLOSE'\n");
 
-      retStatus = PMGR_MSGQ_close (args->apiArgs.msgqCloseArgs.msgqQueue,
-                                   NULL);
+      retStatus = PMGR_MSGQ_close(args->apiArgs.msgqCloseArgs.msgqQueue,
+                                  NULL);
       args->apiStatus = retStatus;
       break;
 
+    /* Dealing with 3 pointer arguments. The first one ('queueName') is a
+       string, the second ('msgqQueue') is of type 'MSGQ_Queue' and the
+       third ('attrs') is of type 'MSGQ_LocateAttrs'. The second argument
+       ('msgqQueue') is 'out' */
     case CMD_MSGQ_LOCATE:
+    {
+      Char8 queueName[DSP_MAX_STRLEN] = { 0 };
+      MSGQ_LocateAttrs attrs;
+      MSGQ_Queue msgqQueue;
+
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_LOCATE'\n");
 
-      retStatus = PMGR_MSGQ_locate (args->apiArgs.msgqLocateArgs.queueName,
-                                    args->apiArgs.msgqLocateArgs.msgqQueue,
-                                    args->apiArgs.msgqLocateArgs.attrs) ;
+      DBC_Assert((args->apiArgs.msgqLocateArgs.queueName != NULL)
+                 && "Expected a valid message queue name");
+
+      retVal = copy_from_user(
+                       (void*) queueName,
+                       (void*) args->apiArgs.msgqLocateArgs.queueName,
+                       DSP_MAX_STRLEN);
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+      retVal = copy_from_user(
+                       (void*) &attrs,
+                       (void*) args->apiArgs.msgqLocateArgs.attrs,
+                       sizeof(MSGQ_LocateAttrs));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+      retStatus = PMGR_MSGQ_locate(queueName, &msgqQueue, &attrs);
+
+      retVal = copy_to_user(
+                       (void*) args->apiArgs.msgqLocateArgs.msgqQueue,
+                       (void*) &msgqQueue,
+                       sizeof(MSGQ_Queue));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data to user");
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_MSGQ_LOCATEASYNC:
       printk(KERN_ALERT "      executing command: 'CMD_MSGQ_LOCATESYNC'\n");
@@ -1851,9 +1880,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_POOL_ALLOC'\n");
 
-      retStatus = LDRV_POOL_alloc (args->apiArgs.poolAllocArgs.poolId,
-                                   args->apiArgs.poolAllocArgs.bufPtr,
-                                   args->apiArgs.poolAllocArgs.size);
+      retStatus = LDRV_POOL_alloc(args->apiArgs.poolAllocArgs.poolId,
+                                  args->apiArgs.poolAllocArgs.bufPtr,
+                                  args->apiArgs.poolAllocArgs.size);
 
       args->apiStatus = retStatus;
       break;
@@ -1863,15 +1892,17 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_POOL_FREE'\n");
 
-      retStatus = LDRV_POOL_free (args->apiArgs.poolFreeArgs.poolId,
-                                  args->apiArgs.poolFreeArgs.bufPtr,
-                                  args->apiArgs.poolFreeArgs.size) ;
+      retStatus = LDRV_POOL_free(args->apiArgs.poolFreeArgs.poolId,
+                                 args->apiArgs.poolFreeArgs.bufPtr,
+                                 args->apiArgs.poolFreeArgs.size);
 
       args->apiStatus = retStatus;
       break;
     }
 
-    /* 'LDRV_POOL_open' requires an 'in' pointer to a valid struct of type
+    /* The params the user passes to 'POOL_open' within a particular app-
+       lication are found in 'args.apiArgs.poolOpenArgs.params.params'.
+       'LDRV_POOL_open' requires an 'in' pointer to a valid struct of type
        'POOL_OpenParams'. Copy the value explicitly via additional call to
        'copy_from_user' */
     case CMD_POOL_OPEN:
@@ -1887,9 +1918,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
             sizeof(POOL_OpenParams));
 
         if (retVal != 0) {
-          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                            "(CMD_POOL_OPEN), result 0x%x\n",
-                            __FUNCTION__, retVal);
+          TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_from_user' "
+                                 "(CMD_POOL_OPEN), result 0x%x\n",
+                                 __FUNCTION__, retVal);
 
           status = -EFAULT;
         }
@@ -1899,6 +1930,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
         retStatus =
           LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
       }
+
+      printk(KERN_ALERT "  CMD_POOL_OPEN retStatus: 0x%x\n", retStatus);
+      printk(KERN_ALERT "  CMD_POOL_OPEN status: 0x%x\n", status);
 
       args->apiStatus = retStatus;
       break;
@@ -1918,9 +1952,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
     {
       printk(KERN_ALERT "      executing command: 'CMD_POOL_WRITEBACK'\n");
 
-      retStatus = LDRV_POOL_writeback (args->apiArgs.poolWBArgs.poolId,
-                                       args->apiArgs.poolWBArgs.bufPtr,
-                                       args->apiArgs.poolWBArgs.size);
+      retStatus = LDRV_POOL_writeback(args->apiArgs.poolWBArgs.poolId,
+                                      args->apiArgs.poolWBArgs.bufPtr,
+                                      args->apiArgs.poolWBArgs.size);
 
       args->apiStatus = retStatus;
       break;
@@ -2057,9 +2091,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
         sizeof(IDM_Attrs));
 
       if (retVal != 0) {
-        printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                          "(CMD_IDM_CREATE), result 0x%x\n",
-                          __FUNCTION__, retVal);
+        TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_to_user' "
+                               "(CMD_IDM_CREATE), result 0x%x\n",
+                               __FUNCTION__, retVal);
 
         status = -EFAULT;
       }
@@ -2100,9 +2134,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
                          DSP_MAX_STRLEN);
 
       if (retVal != 0) {
-        printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                          "(CMD_IDM_ACQUIREID), result 0x%x\n",
-                          __FUNCTION__, retVal);
+        TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_from_user' "
+                               "(CMD_IDM_ACQUIREID), result 0x%x\n",
+                               __FUNCTION__, retVal);
 
         status = -EFAULT;
       }
@@ -2119,9 +2153,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
           retVal = copy_to_user(userIdAddr, &id, sizeof(Uint32));
 
           if (retVal != 0) {
-            printk(KERN_ALERT "*** error in '%s': bad 'copy_to_user' "
-                              "(CMD_IDM_ACQUIREID), result 0x%x\n",
-                              __FUNCTION__, retVal);
+            TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_to_user' "
+                                   "(CMD_IDM_ACQUIREID), result 0x%x\n",
+                                   __FUNCTION__, retVal);
 
             status = -EFAULT;
           }
@@ -2152,13 +2186,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI (Uint32 cmd, CMD_Args * args)
   }
 
   /* If any call returned -ERESTARTSYS, it must be propagated further */
-  if (retStatus == -ERESTARTSYS) {
-    status = retStatus;
-  }
+  if (retStatus == -ERESTARTSYS) status = retStatus;
 
-  printk(KERN_ALERT "'DRV_CallAPI' executed, status: 0x%x\n", status);
   TRC_1LEAVE("DRV_CallAPI", status);
-
   return status;
 }
 

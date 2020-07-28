@@ -103,80 +103,77 @@ extern "C" {
 extern PROC_Object PROC_stateObj ;
 
 
-/** ============================================================================
- *  @func   MSGQ_transportOpen
- *
- *  @desc   This function initializes the transport associated with the
- *          specified processor.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-MSGQ_transportOpen (IN  ProcessorId procId, IN  Pvoid attrs)
+/*******************************************************************************
+  @func  MSGQ_transportOpen
+  @desc  This function initializes the transport associated with the
+         specified processor
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS MSGQ_transportOpen(IN ProcessorId procId,
+                                         IN Pvoid attrs)
 {
-    DSP_STATUS  status      = DSP_SOK ;
-    DSP_STATUS  tmpStatus   = DSP_SOK ;
-    Bool        csObjExists = FALSE ;
-    CMD_Args    args ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  Bool csObjExists = FALSE;
+  CMD_Args args;
 
-    TRC_2ENTER ("MSGQ_transportOpen", procId, attrs) ;
+  TRC_2ENTER ("MSGQ_transportOpen", procId, attrs);
 
-    DBC_Require (attrs != NULL) ;
-    DBC_Require (IS_VALID_PROCID (procId)) ;
+  DBC_Require(attrs != NULL);
+  DBC_Require(IS_VALID_PROCID(procId));
 
-    if ((attrs == NULL) || ((IS_VALID_PROCID (procId) == FALSE))) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (PROC_stateObj.syncCsObj != NULL) {
-            status = _SYNC_USR_enterCS (PROC_stateObj.syncCsObj) ;
-            csObjExists = TRUE ;
-        }
-
-        if (DSP_SUCCEEDED (status)) {
-            if (   DRV_CHECK_CURSTATUS (
-                                PROC_stateObj.curStatus.isAttached [procId])
-                == FALSE) {
-                status = DSP_EATTACHED ;
-                SET_FAILURE_REASON ;
-            }
-            else if (    DRV_CHECK_CURSTATUS (
-                                  PROC_stateObj.curStatus.mqtIsOpened [procId])
-                ==  TRUE) {
-                /* Check if MSGQ transport has been opened in this process. */
-                status = DSP_EALREADYOPENED ;
-                SET_FAILURE_REASON ;
-            }
-            else {
-                args.apiArgs.msgqTransportOpenArgs.procId = procId ;
-                args.apiArgs.msgqTransportOpenArgs.attrs  = attrs ;
-
-                status = DRV_INVOKE (DRV_handle, CMD_MSGQ_TRANSPORTOPEN, &args);
-                if (DSP_SUCCEEDED (status)) {
-                    DRV_SET_CURSTATUS (
-                                PROC_stateObj.curStatus.mqtIsOpened [procId]) ;
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-
-            if (csObjExists == TRUE) {
-                tmpStatus = _SYNC_USR_leaveCS (PROC_stateObj.syncCsObj) ;
-                if (DSP_FAILED (tmpStatus) && DSP_SUCCEEDED (status)) {
-                    status = tmpStatus ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-        }
+  if ((attrs == NULL) || ((IS_VALID_PROCID (procId) == FALSE))) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    if (PROC_stateObj.syncCsObj != NULL) {
+      status = _SYNC_USR_enterCS(PROC_stateObj.syncCsObj);
+      csObjExists = TRUE;
     }
 
-    TRC_1LEAVE ("MSGQ_transportOpen", status) ;
+    if (DSP_SUCCEEDED(status)) {
+      if (DRV_CHECK_CURSTATUS(
+            PROC_stateObj.curStatus.isAttached[procId]) == FALSE)
+      {
+        status = DSP_EATTACHED;
+        SET_FAILURE_REASON;
+      }
+      else if (DRV_CHECK_CURSTATUS (
+                 PROC_stateObj.curStatus.mqtIsOpened [procId])
+                    ==  TRUE)
+      {
+        /* Check if MSGQ transport has been opened in this process */
+        status = DSP_EALREADYOPENED;
+        SET_FAILURE_REASON;
+      }
+      else {
+        args.apiArgs.msgqTransportOpenArgs.procId = procId;
+        args.apiArgs.msgqTransportOpenArgs.attrs = attrs;
 
-    return status ;
+        status = DRV_INVOKE(DRV_handle, CMD_MSGQ_TRANSPORTOPEN, &args);
+
+        if (DSP_SUCCEEDED(status)) {
+          DRV_SET_CURSTATUS(PROC_stateObj.curStatus.mqtIsOpened[procId]);
+        }
+        else {
+          SET_FAILURE_REASON;
+        }
+      }
+
+      if (csObjExists == TRUE) {
+        tmpStatus = _SYNC_USR_leaveCS(PROC_stateObj.syncCsObj);
+
+        if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
+          status = tmpStatus;
+          SET_FAILURE_REASON;
+        }
+      }
+    }
+  }
+
+  TRC_1LEAVE("MSGQ_transportOpen", status);
+  return status;
 }
 
 

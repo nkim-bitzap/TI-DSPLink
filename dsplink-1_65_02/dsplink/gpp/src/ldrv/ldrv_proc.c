@@ -248,7 +248,7 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
                           CFGMAP_Config [dspId]->dspObjects [mapId].name,
                           &strCmpResult);
 
-      DBC_Assert (DSP_SUCCEEDED(status));
+      DBC_Assert(DSP_SUCCEEDED(status));
 
       if (strCmpResult == 0) {
         interface = CFGMAP_Config [dspId]->dspObjects [mapId].interface;
@@ -372,10 +372,10 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 
 #if !(defined (ONLY_PROC_COMPONENT))
     if (DSP_SUCCEEDED (status)) {
-      status = LDRV_DRV_init (dspId);
+      status = LDRV_DRV_init(dspId);
 
-      if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
       }
     }
 #endif /* if !(defined (ONLY_PROC_COMPONENT)) */
@@ -491,12 +491,17 @@ NORMAL_API DSP_STATUS LDRV_PROC_start(IN ProcessorId dspId,
   {
 
 #if !(defined (ONLY_PROC_COMPONENT))
-    /* Setup handshaking between the GPP and DSP */
+    /* First, setup handshaking between the GPP and DSP. This initializes
+       internal status flags to be checked later */
     status = LDRV_DRV_handshake(dspId, DRV_HandshakeSetup);
-#endif /* if !(defined (ONLY_PROC_COMPONENT)) */
+#endif
 
+    /* start the DSP now and wait for it to perform its part of the hand-
+       shaking procedure */
     if (DSP_SUCCEEDED(status)) {
       status = DSP_start(dspId, dspAddr);
+
+      DBC_Assert(LDRV_PROC_isStarted(dspId));
 
       if (DSP_FAILED(status)) {
         SET_FAILURE_REASON;
@@ -512,12 +517,12 @@ NORMAL_API DSP_STATUS LDRV_PROC_start(IN ProcessorId dspId,
       status = LDRV_DRV_handshake(dspId, DRV_HandshakeStart);
 
       if (DSP_SUCCEEDED(status)) {
-      printk(KERN_ALERT "Waiting for LDRV_DRV_handshake completion...");
+        PRINT_Printf("Driver handshake (compl)\n");
 
         /* Wait for completion of handshaking between the GPP and DSP */
         status = LDRV_DRV_handshake(dspId, DRV_HandshakeCompl);
 
-      printk(KERN_ALERT "done, status 0x%x\n", status);
+        PRINT_Printf("done, status: 0x%x\n", status);
 
         if (DSP_FAILED(status)) {
           SET_FAILURE_REASON;
@@ -657,77 +662,74 @@ LDRV_PROC_idle (IN ProcessorId dspId)
 }
 
 
-/** ============================================================================
- *  @func   LDRV_PROC_read
- *
- *  @desc   Reads from the DSP's memory space.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_PROC_read (IN     ProcessorId   dspId,
-                IN     Uint32        dspAddr,
-                IN     Endianism     endianInfo,
-                IN     Uint32        numBytes,
-                OUT    Uint8 *       buffer)
+/*******************************************************************************
+  @func  LDRV_PROC_read
+  @desc  Reads from the DSP's memory space
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS LDRV_PROC_read(IN ProcessorId dspId,
+                                     IN Uint32 dspAddr,
+                                     IN Endianism endianInfo,
+                                     IN Uint32 numBytes,
+                                     OUT Uint8 *buffer)
 {
-    DSP_STATUS         status = DSP_SOK ;
-    Uint32             irqFlags         ;
-    LDRV_PROC_Object * procState ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 irqFlags;
+  LDRV_PROC_Object *procState;
 
-    TRC_5ENTER ("LDRV_PROC_read",
-                dspId,
-                dspAddr,
-                endianInfo,
-                numBytes,
-                buffer) ;
+  TRC_5ENTER("LDRV_PROC_read",
+             dspId,
+             dspAddr,
+             endianInfo,
+             numBytes,
+             buffer);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
 
-    procState = &(LDRV_PROC_State [dspId]) ;
+  procState = &(LDRV_PROC_State[dspId]);
 
-    DBC_Require (procState->dspState != ProcState_Unknown) ;
-    DBC_Require (buffer != NULL) ;
-    DBC_Require (numBytes != 0) ;
-    DBC_Assert  (LDRV_PROC_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(procState->dspState != ProcState_Unknown);
+  DBC_Require(buffer != NULL);
+  DBC_Require(numBytes != 0);
+  DBC_Assert(LDRV_PROC_IsInitialized[dspId] == TRUE);
 
-    if (procState->dspState != ProcState_Unknown) {
-        DSP_intCtrl (dspId,
-                     (Uint32) NULL,
-                     DSP_IntCtrlCmd_Disable,
-                     NULL) ;
-        irqFlags = SYNC_SpinLockStart () ;
-        status = DSP_read (dspId,
-                           dspAddr,
-                           endianInfo,
-                           numBytes,
-                           buffer) ;
-        if (DSP_FAILED (status)) {
-            procState->dspState = ProcState_Unknown ;
-            SET_FAILURE_REASON ;
-        }
+  if (procState->dspState != ProcState_Unknown) {
+    DSP_intCtrl(
+      dspId, (Uint32) NULL, DSP_IntCtrlCmd_Disable, NULL);
+
+    irqFlags = SYNC_SpinLockStart();
+
+    status = DSP_read(dspId,
+                      dspAddr,
+                      endianInfo,
+                      numBytes,
+                      buffer);
+
+    if (DSP_FAILED(status)) {
+      procState->dspState = ProcState_Unknown;
+      SET_FAILURE_REASON;
+    }
 
 #if defined (DDSP_PROFILE)
-        if (DSP_SUCCEEDED (status)) {
-            procState->procStats.procData [dspId].dataFromDsp += numBytes ;
-        }
-#endif /* defined (DDSP_PROFILE) */
-        SYNC_SpinLockEnd (irqFlags) ;
-        DSP_intCtrl (dspId,
-                     (Uint32) NULL,
-                     DSP_IntCtrlCmd_Enable,
-                     NULL) ;
+    if (DSP_SUCCEEDED (status)) {
+      procState->procStats.procData[dspId].dataFromDsp += numBytes;
     }
-    else {
-        status = DSP_EWRONGSTATE ;
-        SET_FAILURE_REASON ;
-    }
+#endif
 
-    TRC_1LEAVE ("LDRV_PROC_read", status) ;
+    SYNC_SpinLockEnd(irqFlags);
 
-    return status ;
+    DSP_intCtrl(dspId,
+                (Uint32) NULL,
+                DSP_IntCtrlCmd_Enable,
+                NULL);
+  }
+  else {
+    status = DSP_EWRONGSTATE;
+    SET_FAILURE_REASON;
+  }
+
+  TRC_1LEAVE("LDRV_PROC_read", status);
+  return status;
 }
 
 /*******************************************************************************
@@ -1024,34 +1026,27 @@ LDRV_PROC_debug (IN ProcessorId dspId)
 #endif /* defined (DDSP_DEBUG) */
 
 
-/** ============================================================================
- *  @func   LDRV_PROC_isStarted
- *
- *  @desc   Check whether DSP is started or not.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-LDRV_PROC_isStarted (IN  ProcessorId procId)
+/*******************************************************************************
+  @func  LDRV_PROC_isStarted
+  @desc  Check whether the DSP is started or not
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS LDRV_PROC_isStarted(IN ProcessorId procId)
 {
-    DSP_STATUS status  = DSP_SOK ;
-    PROC_State  procState ;
+  DSP_STATUS status = DSP_SOK;
+  PROC_State procState;
 
-    if (LDRV_PROC_IsInitialized [procId] == TRUE) {
-    LDRV_PROC_getState (procId, &procState) ;
+  if (LDRV_PROC_IsInitialized[procId] == TRUE) {
+    LDRV_PROC_getState(procId, &procState);
+
     if (procState != ProcState_Started) {
-            status = DSP_EWRONGSTATE ;
-        }
+      status = DSP_EWRONGSTATE;
     }
-    else {
-        status = DSP_EWRONGSTATE ;
-    }
+  }
+  else status = DSP_EWRONGSTATE;
 
-    return status ;
+  return status;
 }
-
 
 #if defined (__cplusplus)
 }
