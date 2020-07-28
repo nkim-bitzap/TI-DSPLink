@@ -738,138 +738,167 @@ OMAP3530_exit (IN ProcessorId dspId, IN DSP_Object * dspState)
     return status ;
 }
 
+/*******************************************************************************
+  @func  OMAP3530_start
+  @desc  Causes DSP to start execution from the given DSP address
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   OMAP3530_start
- *
- *  @desc   Causes DSP to start execution from the given DSP address.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-OMAP3530_start (IN ProcessorId  dspId,
-                  IN DSP_Object * dspState,
-                  IN Uint32       dspAddr)
+NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
+                                     IN DSP_Object *dspState,
+                                     IN Uint32 dspAddr)
 {
-    DSP_STATUS          status         = DSP_SOK ;
-    Uint32              gppAddr        = ADDRMAP_INVALID ;
-    Uint32              entryPtAddrHi  = 0x00000000 ;
-    Uint32              entryPtAddrLo  = 0x00000000 ;
-    Uint32              startOpCodeLo  = 0x0000002A ;
-    Uint32              startOpCodeHi  = 0x0000006A ;
-    Uint32              noOp           = 0x00400000 ;
-    Uint32              branch         = 0x00000362 ;
-    OMAP3530_HalObj *  halObj          = NULL       ;
-    LINKCFG_Ips *       ipsTable       = NULL       ;
-    Uint32              resetVector                 ;
-    LINKCFG_Dsp *       dspObj                      ;
-    LINKCFG_DspConfig * dspCfg                      ;
-    LINKCFG_LinkDrv *   linkDrv                     ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 gppAddr = ADDRMAP_INVALID;
+  Uint32 entryPtAddrHi = 0x00000000;
+  Uint32 entryPtAddrLo = 0x00000000;
+  Uint32 startOpCodeLo = 0x0000002A;
+  Uint32 startOpCodeHi = 0x0000006A;
+  Uint32 noOp = 0x00400000;
+  Uint32 branch = 0x00000362;
+  OMAP3530_HalObj *halObj = NULL;
+  LINKCFG_Ips *ipsTable = NULL;
+  Uint32 resetVector;
+  LINKCFG_Dsp *dspObj;
+  LINKCFG_DspConfig *dspCfg;
+  LINKCFG_LinkDrv *linkDrv;
 
-    TRC_3ENTER ("OMAP3530_start", dspId, dspState, dspAddr) ;
+  TRC_3ENTER("OMAP3530_start", dspId, dspState, dspAddr);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (dspState->halObject != NULL) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(dspState->halObject != NULL);
 
-    if (IS_VALID_PROCID (dspId) == FALSE) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        dspCfg    = LDRV_LinkCfgPtr->dspConfigs [dspId] ;
-        dspObj    = dspCfg->dspObject ;
-        halObj = (OMAP3530_HalObj *) dspState->halObject ;
-        linkDrv  = &(dspCfg->linkDrvObjects [dspObj->linkDrvId]) ;
-        ipsTable = &(dspCfg->ipsTables [linkDrv->ipsTableId][0]) ;
+  if (IS_VALID_PROCID(dspId) == FALSE) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    dspCfg = LDRV_LinkCfgPtr->dspConfigs[dspId];
+    dspObj = dspCfg->dspObject;
+    halObj = (OMAP3530_HalObj*) dspState->halObject;
+    linkDrv  = &(dspCfg->linkDrvObjects[dspObj->linkDrvId]);
+    ipsTable = &(dspCfg->ipsTables[linkDrv->ipsTableId][0]);
 
-        if (   (dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
-            || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_NoPwr)
-            || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)
-            || (dspObj->doDspCtrl == DSP_BootMode_Boot_NoPwr)) {
-            resetVector = dspObj->resetVector ;
-            gppAddr = OMAP3530_addrConvert (
-                                   dspId,
-                                   dspState,
-                                   BYTE_TO_MADU (resetVector, dspObj->maduSize),
-                                   DspToGpp) ;
-            if (gppAddr != ADDRMAP_INVALID) {
-                /* Specify the DSP boot address in the boot config register */
-                status = halObj->interface->bootCtrl (
-                                                  (Pvoid) halObj,
-                                                  DSP_BootCtrlCmd_SetEntryPoint,
-                                                  (Pvoid) resetVector);
+    if ((dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
+    || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_NoPwr)
+    || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)
+    || (dspObj->doDspCtrl == DSP_BootMode_Boot_NoPwr))
+    {
+      /* dspAddr = 0x8812b980, '_c_int00' startup */
+      /* resetVector = 0x88100000 */
+      /* gppAddr = 0xc86b6000 */
+      resetVector = dspObj->resetVector;
 
-                if (DSP_SUCCEEDED (status)) {
-                    /* Write the branch instruction to at the boot address to
-                     * branch to _c_int00
-                     */
-                    entryPtAddrHi  = dspAddr >> 16 ;
-                    entryPtAddrLo  = dspAddr & 0xFFFF ;
-                    startOpCodeHi |= (entryPtAddrHi << 7) ;
-                    startOpCodeLo |= (entryPtAddrLo << 7) ;
-                    REG (gppAddr)  = startOpCodeLo ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = startOpCodeHi ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = branch        ;
-                    gppAddr += 4 ;
+      gppAddr = OMAP3530_addrConvert(
+                           dspId,
+                           dspState,
+                           BYTE_TO_MADU(resetVector, dspObj->maduSize),
+                           DspToGpp);
 
-                    /* Write 5 no-ops for pipeline flush */
-                    REG (gppAddr) = noOp          ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = noOp          ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = noOp          ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = noOp          ;
-                    gppAddr += 4 ;
-                    REG (gppAddr) = noOp          ;
+      if (gppAddr != ADDRMAP_INVALID) {
+        /* Now specify the DSP boot address in the boot config register */
 
-                    /* Release the DSP from reset */
-                    status = halObj->interface->pwrCtrl ((Pvoid) halObj,
-                                                         DSP_PwrCtrlCmd_Release,
-                                                         NULL);
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-                else {
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                status = DSP_ERANGE ;
-                PRINT_Printf ("Error: DSP reset vector is out of range.\n"
-                              " Check /dsplink/config/all/CFG_<PLATFORM>.c for "
-                              " RESETVECTOR.\n") ;
-            }
-        }
-        if (   (dspObj->doDspCtrl == DSP_BootMode_NoBoot)) {
-            if (DSP_SUCCEEDED (status)) {
-                status = halObj->interface->intCtrl ((Pvoid) halObj,
-                                                     DSP_IntCtrlCmd_Send,
-                                                     ipsTable->dspIntId,
-                                                     NULL) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-            }
-        }
-    }
+        printk(KERN_ALERT "Booting DSP, args:\n");
+        printk(KERN_ALERT "  generalCtrlBase: 0x%x\n", halObj->generalCtrlBase);
+        printk(KERN_ALERT "  boot address: 0x%x\n", (Uint32)resetVector & 0xFFFFFC00);
 
-    if (DSP_SUCCEEDED (status)) {
-            TRC_0PRINT (TRC_LEVEL1, "DSP started !\n") ;
+        status =
+          halObj->interface->bootCtrl((Pvoid) halObj,
+                                      DSP_BootCtrlCmd_SetEntryPoint,
+                                      (Pvoid) resetVector);
+
+        if (DSP_SUCCEEDED(status)) {
+          /* loader check */
+          Uint32 v1 = *((Uint32*) dspAddr);
+          Uint32 v2 = *((Uint32*) dspAddr + 4);
+          Uint32 v3 = *((Uint32*) dspAddr + 8);
+          Uint32 v4 = *((Uint32*) dspAddr + 12);
+
+          Uint32 v5 = *((Uint32*) dspAddr + 16);
+          Uint32 v6 = *((Uint32*) dspAddr + 20);
+          Uint32 v7 = *((Uint32*) dspAddr + 24);
+          Uint32 v8 = *((Uint32*) dspAddr + 28);
+
+          printk("Boot address content (1): 0x%x  0x%x  0x%x  0x%x\n", v1, v2, v3, v4);
+          printk("Boot address content (2): 0x%x  0x%x  0x%x  0x%x\n", v5, v6, v7, v8);
+
+
+          /* Write the branch instruction at the boot address to branch to
+             the destination '_c_int00' */
+          entryPtAddrHi = dspAddr >> 16;
+          entryPtAddrLo = dspAddr & 0xFFFF;
+          startOpCodeHi |= (entryPtAddrHi << 7);
+          startOpCodeLo |= (entryPtAddrLo << 7);
+
+          printk(KERN_ALERT "Entry point address HI: 0x%x\n", entryPtAddrHi);
+          printk(KERN_ALERT "Entry point address LO: 0x%x\n", entryPtAddrLo);
+          printk(KERN_ALERT "Start op address HI: 0x%x\n", startOpCodeHi);
+          printk(KERN_ALERT "Start op address LO: 0x%x\n", startOpCodeLo);
+
+          REG(gppAddr) = startOpCodeLo;
+          gppAddr += 4;
+
+          REG(gppAddr) = startOpCodeHi;
+          gppAddr += 4;
+
+          REG(gppAddr) = branch;
+          gppAddr += 4;
+
+          /* Write 5 no-ops for pipeline flush */
+          REG(gppAddr) = noOp; gppAddr += 4;
+          REG(gppAddr) = noOp; gppAddr += 4;
+          REG(gppAddr) = noOp; gppAddr += 4;
+          REG(gppAddr) = noOp; gppAddr += 4;
+          REG(gppAddr) = noOp;
+
+          /* Release the DSP from reset */
+          status = halObj->interface->pwrCtrl((Pvoid) halObj,
+                                              DSP_PwrCtrlCmd_Release,
+                                              NULL);
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
         }
         else {
-            SET_FAILURE_REASON ;
-            TRC_0PRINT (TRC_LEVEL7, "DSP couldn't be started !\n") ;
+          SET_FAILURE_REASON;
+        }
+      }
+      else {
+        status = DSP_ERANGE;
+
+        PRINT_Printf("*** error in '%s': DSP reset vector is out of "
+                     "range. Check '/dsplink/config/all/CFG_<PLATFORM>.c' "
+                     "and correct 'RESETVECTOR'\n");
+      }
     }
+    if ((dspObj->doDspCtrl == DSP_BootMode_NoBoot)) {
+      if (DSP_SUCCEEDED(status)) {
+        status = halObj->interface->intCtrl((Pvoid) halObj,
+                                            DSP_IntCtrlCmd_Send,
+                                            ipsTable->dspIntId,
+                                            NULL);
 
-    TRC_1LEAVE ("OMAP3530_start", status) ;
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
+        }
+      }
+    }
+  }
 
-    return status ;
+  if (DSP_SUCCEEDED(status)) {
+    TRC_0PRINT(TRC_LEVEL1, "DSP started !\n");
+
+    printk(KERN_ALERT "+++ DSP started\n");
+  }
+  else {
+    SET_FAILURE_REASON;
+    TRC_0PRINT (TRC_LEVEL7, "DSP couldn't be started !\n");
+
+    printk(KERN_ALERT "+++ DSP start failed\n");
+  }
+
+  TRC_1LEAVE("OMAP3530_start", status);
+  return status;
 }
 
 

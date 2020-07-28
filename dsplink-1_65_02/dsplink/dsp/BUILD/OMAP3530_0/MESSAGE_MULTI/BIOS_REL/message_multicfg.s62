@@ -5,7 +5,7 @@
 ;; INPUT message_multi.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Fri Jul 24 10:38:34 2020", VERS$DATE
+	.asg "Sun Jul 26 13:51:48 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include message_multicfg.h62

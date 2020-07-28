@@ -358,45 +358,42 @@ Void main(Int argc, Char *argv[])
 {
 
 #if defined (SWI_MODE)
-    /* SWI based application */
-    SWIMESSAGE_TransferInfo *info;
-    Int status;
+  /* SWI based application */
+  SWIMESSAGE_TransferInfo *info;
+  Int status;
 #else
-    /* TSK based application */
-    TSK_Handle tskMessageTask;
+  /* TSK based application */
+  TSK_Handle tskMessageTask;
 #endif
 
 #if defined (DSP_BOOTMODE_NOBOOT)
-    /* register the init ISR */
-    HAL_intRegister (DSPLINK_INT_ID,
-                     DSPLINK_INT_VEC_ID,
-                    (Fxn) &HAL_initIsr,
-                     0) ;
+  /* register the init ISR */
+  HAL_intRegister(
+    DSPLINK_INT_ID, DSPLINK_INT_VEC_ID, (Fxn) &HAL_initIsr, 0);
 #endif
 
 #if !defined (DSP_BOOTMODE_NOBOOT)
-    /* Get the number of transfers to be done by the application */
-    numTransfers = atoi(argv [0]);
+  /* Get the number of transfers to be done by the application */
+  numTransfers = atoi(argv[0]);
 
-    /* Initialize DSP/BIOS LINK */
-    DSPLINK_init();
+  /* Initialize DSP/BIOS LINK */
+  DSPLINK_init();
 #else
-    /* Get the number of transfers to be done by the application */
-    numTransfers = 10000 ;
+
+  /* Get the number of transfers to be done by the application */
+  numTransfers = 10000;
 #endif
 
-
-
 #if defined (SWI_MODE)
-    /* Create phase of SWIMESSAGE application */
-    status = SWIMESSAGE_create (&info) ;
-    if (status != SYS_OK) {
-        SET_FAILURE_REASON (status) ;
-    }
+  /* Create phase of SWIMESSAGE application */
+  status = SWIMESSAGE_create(&info);
 
-    /* Delete phase of SWIMESSAGE application: This is not called right now
-     * because SWI application runs forever
-     */
+  if (status != SYS_OK) {
+    SET_FAILURE_REASON(status);
+  }
+
+  /* Delete phase of SWIMESSAGE application: This is not called right now
+     because SWI application runs forever */
 
     /*
     deleteStatus = SWIMESSAGE_delete(info);

@@ -107,10 +107,10 @@ EXTERN "C" {
 /*******************************************************************************
   @name   DRVHANDSHAKEPOLLCOUNT
 
-  @desc   POLL Count for Driver handshake.
+  @desc   POLL Count for Driver handshake
 *******************************************************************************/
 
-#define  DRVHANDSHAKEPOLLCOUNT ((Uint32) 0xFFFFFFFu)
+#define  DRVHANDSHAKEPOLLCOUNT ((Uint32) 0xFFFFFFF)
 
 /*******************************************************************************
   @name   SHAREDENTRYID/SHAREDMEMORYADDR/SHAREDMEMORYSIZE

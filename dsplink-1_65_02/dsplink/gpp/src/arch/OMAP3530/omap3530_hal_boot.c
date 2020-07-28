@@ -73,68 +73,62 @@ extern "C" {
 #define CONTROL_IVA2_BOOTMOD_OFFSET   0x194
 
 
-/** ============================================================================
- *  @func   OMAP3530_halBootCtrl
- *
- *  @desc   Boot controller.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-OMAP3530_halBootCtrl (IN         Pvoid           halObj,
-                        IN         DSP_BootCtrlCmd cmd,
-                        IN OUT     Pvoid           arg)
+/*******************************************************************************
+  @func  OMAP3530_halBootCtrl
+  @desc  DSP Boot controller
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS OMAP3530_halBootCtrl(IN Pvoid halObj,
+                                           IN DSP_BootCtrlCmd cmd,
+                                           IN OUT Pvoid arg)
 {
-    DSP_STATUS         status  = DSP_SOK ;
-    OMAP3530_HalObj * halObject = NULL  ;
+  DSP_STATUS status = DSP_SOK;
+  OMAP3530_HalObj *halObject = NULL;
 
-    TRC_3ENTER ("OMAP3530_halBootCtrl", halObj, cmd, arg) ;
+  TRC_3ENTER("OMAP3530_halBootCtrl", halObj, cmd, arg);
 
-    DBC_Require (NULL != halObj) ;
+  DBC_Require(NULL != halObj);
 
-    halObject = (OMAP3530_HalObj *) halObj ;
+  halObject = (OMAP3530_HalObj*) halObj;
 
-    switch (cmd) {
-        case DSP_BootCtrlCmd_SetEntryPoint:
-        {
-            /* Set the boot address */
-            REG (halObject->generalCtrlBase + CONTROL_IVA2_BOOTADDR_OFFSET) =
-                ((Uint32)arg & 0xFFFFFC00) ;
+  switch (cmd) {
+    case DSP_BootCtrlCmd_SetEntryPoint:
+    {
+      /* Set the boot address */
+      REG(halObject->generalCtrlBase + CONTROL_IVA2_BOOTADDR_OFFSET) =
+        ((Uint32)arg & 0xFFFFFC00);
 
 
-            /* Set the boot mode */
-            REG (halObject->generalCtrlBase + CONTROL_IVA2_BOOTMOD_OFFSET) =
-                (Uint32)0 ;
+      /* Set the boot mode */
+      REG(halObject->generalCtrlBase + CONTROL_IVA2_BOOTMOD_OFFSET) =
+        (Uint32) 0;
 
-        }
-        break ;
-
-        case DSP_BootCtrlCmd_SetBootComplete:
-        {
-            /* Do nothing here for OMAP3530 gem */
-        }
-        break ;
-
-        case DSP_BootCtrlCmd_ResetBootComplete:
-        {
-            /* Do nothing here for OMAP3530 gem */
-        }
-        break ;
-
-        default:
-        {
-            /* Unsupported interrupt control command */
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
-        break ;
+      break;
     }
 
-    TRC_1LEAVE ("OMAP3530_halBootCtrl", status) ;
+    case DSP_BootCtrlCmd_SetBootComplete:
+    {
+      /* Do nothing here for OMAP3530 gem */
+      break;
+    }
 
-    return status ;
+    case DSP_BootCtrlCmd_ResetBootComplete:
+    {
+       /* Do nothing here for OMAP3530 gem */
+       break;
+    }
+
+    default:
+    {
+      /* Unsupported interrupt control command */
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
+      break;
+    }
+  }
+
+  TRC_1LEAVE("OMAP3530_halBootCtrl", status);
+  return status;
 }
 
 

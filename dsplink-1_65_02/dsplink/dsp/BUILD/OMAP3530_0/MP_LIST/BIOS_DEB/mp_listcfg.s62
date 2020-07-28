@@ -5,7 +5,7 @@
 ;; INPUT mp_list.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Fri Jul 24 10:38:16 2020", VERS$DATE
+	.asg "Sun Jul 26 13:51:29 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include mp_listcfg.h62

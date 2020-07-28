@@ -5,7 +5,7 @@
 ;; INPUT loop.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Fri Jul 24 10:38:24 2020", VERS$DATE
+	.asg "Sun Jul 26 13:51:37 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include loopcfg.h62
