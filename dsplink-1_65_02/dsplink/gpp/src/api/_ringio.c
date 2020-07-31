@@ -361,13 +361,12 @@ EXPORT_API DSP_STATUS _RingIO_moduleInit(IN ProcessorId procId)
 
     status = DRV_INVOKE(DRV_handle, CMD_RINGIO_MAPREGION, &args);
 
-    printf("");
-
     if (DSP_FAILED (status)) {
       SET_FAILURE_REASON;
     }
-        else {
-            dspConfig = PROC_linkCfgPtr->dspConfigs [procId] ;
+    else {
+      dspConfig = PROC_linkCfgPtr->dspConfigs[procId];
+
             dspObj  = dspConfig->dspObject ;
             linkDrv = &(dspConfig->linkDrvObjects [dspObj->linkDrvId]) ;
             ringIoObject =

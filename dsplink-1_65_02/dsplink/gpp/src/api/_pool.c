@@ -77,137 +77,120 @@ extern "C" {
                         "\nFailure: Status:[0x%x] File:[0x%x] Line:[%d]\n", \
                         status, FID_C_API_IPOOL, __LINE__)
 
+/*******************************************************************************
+  @func  POOL_addrConfig
+  @desc  Pool driver specific configuration datas
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   POOL_addrConfig
- *
- *  @desc   Pool driver specific configuration datas.
- *
- *  @modif  object.
- *  ============================================================================
- */
-POOL_AddrInfo POOL_addrConfig [MAX_DSPS][MAX_POOLENTRIES] ;
+POOL_AddrInfo POOL_addrConfig[MAX_DSPS][MAX_POOLENTRIES];
 
+/*******************************************************************************
+  @func  _POOL_init
+  @desc  This function initializes the DRV POOL component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   _POOL_init
- *
- *  @desc   This function initializes the DRV POOL component.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-Void
-_POOL_init (Void)
+EXPORT_API Void _POOL_init(Void)
 {
-    Uint32 i ;
-    Uint32 j ;
+  Uint32 i, j;
 
-    TRC_0ENTER ("_POOL_init") ;
+  TRC_0ENTER("_POOL_init");
 
-    for (i = 0 ; i < MAX_DSPS ; i++) {
-        for (j = 0 ; j < MAX_POOLENTRIES ; j++) {
-            POOL_addrConfig [i][j].isInit = FALSE ;
-            POOL_addrConfig [i][j].addr [AddrType_Usr] = (Uint32) NULL ;
-        }
+  for (i = 0 ; i < MAX_DSPS ; i++) {
+    for (j = 0 ; j < MAX_POOLENTRIES ; j++) {
+      POOL_addrConfig[i][j].isInit = FALSE;
+      POOL_addrConfig[i][j].addr[AddrType_Usr] = 0;
     }
+  }
 
-    TRC_0LEAVE ("_POOL_init") ;
+  TRC_0LEAVE("_POOL_init");
 }
 
+/*******************************************************************************
+  @func  _POOL_exit
+  @desc  This function finalizes the DRV POOL component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   _POOL_exit
- *
- *  @desc   This function finalizes the DRV POOL component.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-Void
-_POOL_exit (Void)
+EXPORT_API Void _POOL_exit(Void)
 {
-    Uint32 i ;
-    Uint32 j ;
+  Uint32 i, j;
 
-    TRC_0ENTER ("_POOL_exit") ;
+  TRC_0ENTER("_POOL_exit");
 
-    for (i = 0 ; i < MAX_DSPS ; i++) {
-        for (j = 0 ; j < MAX_POOLENTRIES ; j++) {
-            POOL_addrConfig [i][j].isInit = FALSE ;
-            POOL_addrConfig [i][j].addr [AddrType_Usr] = (Uint32) NULL ;
-        }
+  for (i = 0; i < MAX_DSPS; i++) {
+    for (j = 0 ; j < MAX_POOLENTRIES ; j++) {
+      POOL_addrConfig[i][j].isInit = FALSE;
+      POOL_addrConfig[i][j].addr[AddrType_Usr] = (Uint32) NULL;
     }
+  }
 
-    TRC_0LEAVE ("_POOL_exit") ;
+  TRC_0LEAVE("_POOL_exit");
 }
 
+/*******************************************************************************
+  @func  _POOL_xltBuf
+  @desc  This function translates a buffer address between two address
+         spaces
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   _POOL_xltBuf
- *
- *  @desc   This function translates the buffer address between two address
- *          spaces.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-_POOL_xltBuf (IN PoolId poolId, OUT Pvoid * bufPtr, IN POOL_AddrXltFlag xltFlag)
+EXPORT_API DSP_STATUS _POOL_xltBuf(IN PoolId poolId,
+                                   OUT Pvoid *bufPtr,
+                                   IN POOL_AddrXltFlag xltFlag)
 {
-    DSP_STATUS  status     = DSP_SOK ;
-    Uint32      fmAddrBase = (Uint32) NULL ;
-    Uint32      toAddrBase = (Uint32) NULL ;
-    Uint8       poolNo = POOL_getPoolNo (poolId) ;
-    ProcessorId procId = POOL_getProcId (poolId) ;
-    Uint32      size ;
-    Uint32      addr ;
-    AddrType    toType ;
-    AddrType    fmType ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 fmAddrBase = 0;
+  Uint32 toAddrBase = 0;
 
-    TRC_3ENTER ("_POOL_xltBuf", poolId, bufPtr, xltFlag) ;
+  Uint32 size;
+  Uint32 addr;
+  AddrType toType;
+  AddrType fmType;
 
-    DBC_Require (IS_VALID_POOLID (poolId)) ;
-    DBC_Require (bufPtr != NULL) ;
+  Uint8 poolNo = POOL_getPoolNo(poolId);
+  ProcessorId procId = POOL_getProcId(poolId);
 
-    if (POOL_addrConfig [procId][poolNo].isInit != FALSE) {
-        addr = (Uint32) (*bufPtr) ;
-        size = POOL_addrConfig [procId][poolNo].size ;
-        fmType = (AddrType) ((Uint32) xltFlag & 0xFF) ;
-        toType = (AddrType) ((Uint32) xltFlag >> 8) ;
+  TRC_3ENTER("_POOL_xltBuf", poolId, bufPtr, xltFlag);
 
-        fmAddrBase = POOL_addrConfig [procId][poolNo].addr [fmType] ;
-        toAddrBase = POOL_addrConfig [procId][poolNo].addr [toType] ;
+  DBC_Require(IS_VALID_POOLID(poolId));
+  DBC_Require(bufPtr != NULL);
 
-        /* Return NULL if the given address was not in expected range */
-        if ((addr < fmAddrBase) || (addr >= (fmAddrBase + size))) {
-            *bufPtr = NULL ;
-            status = DSP_ERANGE ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            *bufPtr = (Pvoid) ((addr - fmAddrBase) + toAddrBase) ;
-        }
+  /* This entirely relies on a proper POOL setup. First, make sure to have
+     a valid memory configuration and then ensure a proper address mapping
+     during 'CMD_POOL_OPEN'. Especially when porting, this can be a source
+     of obscure and frustrating errors */
+  if (POOL_addrConfig[procId][poolNo].isInit != FALSE) {
+    addr = (Uint32) (*bufPtr);
+
+    size = POOL_addrConfig[procId][poolNo].size;
+    fmType = (AddrType) ((Uint32) xltFlag & 0xFF);
+    toType = (AddrType) ((Uint32) xltFlag >> 8);
+
+    fmAddrBase = POOL_addrConfig[procId][poolNo].addr[fmType];
+    toAddrBase = POOL_addrConfig[procId][poolNo].addr[toType];
+
+    /* Return NULL if the given address was not in expected range */
+    if ((addr < fmAddrBase) || (addr >= (fmAddrBase + size))) {
+      *bufPtr = NULL;
+      status = DSP_ERANGE;
+      SET_FAILURE_REASON;
     }
     else {
-        *bufPtr = NULL ;
-        size    = 0 ;
-        status = DSP_EFAIL ;
-        SET_FAILURE_REASON ;
+      *bufPtr = (Pvoid) ((addr - fmAddrBase) + toAddrBase);
     }
+  }
+  else {
+    *bufPtr = NULL;
+    size = 0;
+    status = DSP_EFAIL;
+    SET_FAILURE_REASON;
+  }
 
-    DBC_Ensure (    ((*bufPtr) == NULL)
-                ||  (   ((Uint32) *bufPtr >= toAddrBase)
-                     && ((Uint32) *bufPtr <= (toAddrBase + size)))) ;
+  DBC_Ensure(((*bufPtr) == NULL)
+         || (((Uint32) *bufPtr >= toAddrBase)
+         && ((Uint32) *bufPtr <= (toAddrBase + size))));
 
-    TRC_1LEAVE ("_POOL_xltBuf", status) ;
-
-    return status ;
+  TRC_1LEAVE ("_POOL_xltBuf", status);
+  return status;
 }
-
 
 #if defined (__cplusplus)
 }

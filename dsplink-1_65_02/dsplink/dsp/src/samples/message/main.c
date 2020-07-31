@@ -356,7 +356,7 @@ extern int atoi (const char * str) ;
  */
 Void main(Int argc, Char *argv[])
 {
-  LOG_printf (&trace, "EXECUTING MAIN in 'message.out'\n");
+  LOG_printf(&trace, "EXECUTING MAIN in 'message.out'\n");
 
 #if defined (SWI_MODE)
   /* SWI based application */

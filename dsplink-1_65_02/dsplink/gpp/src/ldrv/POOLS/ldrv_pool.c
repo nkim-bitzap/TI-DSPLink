@@ -584,8 +584,6 @@ LDRV_POOL_exit (IN ProcessorId procId)
     return status ;
 }
 
-#include <linux/module.h>
-
 /*******************************************************************************
   @name  LDRV_POOL_open
   @desc  This function creates the pool for given pool id
@@ -597,7 +595,7 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
   DSP_STATUS status = DSP_SOK ;
   LDRV_POOL_Object *poolState = NULL;
   LDRV_POOL_Info *poolInfo = NULL;
-  Uint8 poolNo = POOL_getPoolNo (poolId);
+  Uint8 poolNo = POOL_getPoolNo(poolId);
   ProcessorId procId = POOL_getProcId(poolId);
   POOL_AddrInfo *poolAddrPtr;
 
@@ -642,7 +640,6 @@ EXPORT_API DSP_STATUS LDRV_POOL_open(IN PoolId poolId,
     SET_FAILURE_REASON;
   }
 
-  printk(KERN_ALERT "'LDRV_POOL_open' executed, status 0x%x\n", status);
   TRC_1LEAVE ("LDRV_POOL_open", status);
   return status;
 }
@@ -695,62 +692,55 @@ LDRV_POOL_close (IN PoolId poolId)
     return status ;
 }
 
+/*******************************************************************************
+  @name  LDRV_POOL_alloc
+  @desc  This function allocates a buffer from pool with given pool id, and
+         returns the pointer to the user
+*******************************************************************************/
 
-/** ============================================================================
- *  @name   LDRV_POOL_alloc
- *
- *  @desc   This function allocates a buffer from pool with given pool id, and
- *          returns the pointer to the user.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-LDRV_POOL_alloc (IN  PoolId      poolId,
-                 OUT Pvoid *     bufPtr,
-                 IN  Uint32      size)
+EXPORT_API DSP_STATUS LDRV_POOL_alloc(IN PoolId poolId,
+                                      OUT Pvoid *bufPtr,
+                                      IN Uint32 size)
 {
-    DSP_STATUS         status    = DSP_SOK ;
-    LDRV_POOL_Object * poolState = NULL    ;
-    LDRV_POOL_Info *   poolInfo  = NULL    ;
-    Uint8              poolNo    = POOL_getPoolNo (poolId) ;
-    ProcessorId        procId    = POOL_getProcId (poolId) ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_POOL_Object *poolState = NULL;
+  LDRV_POOL_Info *poolInfo  = NULL;
+  Uint8 poolNo = POOL_getPoolNo (poolId);
+  ProcessorId procId = POOL_getProcId (poolId);
 
-    TRC_3ENTER ("LDRV_POOL_alloc", poolId, bufPtr, size) ;
+  TRC_3ENTER("LDRV_POOL_alloc", poolId, bufPtr, size);
 
-    DBC_Require (IS_VALID_POOLID (poolId)) ;
-    DBC_Require (bufPtr != NULL) ;
-    DBC_Require (size > 0) ;
+  DBC_Require(IS_VALID_POOLID (poolId));
+  DBC_Require(bufPtr != NULL);
+  DBC_Require(size > 0);
 
-    DBC_Assert  (IS_VALID_PROCID (procId)) ;
-    DBC_Assert  (LDRV_POOL_IsInitialized [procId] == TRUE) ;
+  DBC_Assert(IS_VALID_PROCID (procId));
+  DBC_Assert(LDRV_POOL_IsInitialized[procId] == TRUE);
 
-    poolState = &(LDRV_POOL_State [procId]) ;
-    DBC_Assert (poolNo < poolState->numPools) ;
+  poolState = &(LDRV_POOL_State[procId]);
+  DBC_Assert(poolNo < poolState->numPools);
 
-    /* Check is needed to ensure that GPP-DSP pool onfiguration mismatch does
-     * not cause a crash.
-     */
-    if (poolNo < poolState->numPools) {
-        poolInfo = &(poolState->poolInfo [poolNo]) ;
-        status = poolInfo->interface->alloc (procId,
-                                             poolNo,
-                                             poolInfo->object,
-                                             bufPtr,
-                                             size) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
+  /* Check is needed to ensure that GPP-DSP pool onfiguration mismatch does
+     not cause a crash */
+  if (poolNo < poolState->numPools) {
+    poolInfo = &(poolState->poolInfo[poolNo]);
+
+    status = poolInfo->interface->alloc(procId,
+                                        poolNo,
+                                        poolInfo->object,
+                                        bufPtr,
+                                        size);
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON; 
     }
-    else {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
+  }
+  else {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("LDRV_POOL_alloc", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_POOL_alloc", status);
+  return status;
 }
 
 

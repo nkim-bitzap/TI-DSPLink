@@ -489,8 +489,9 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
   DBC_Require (IS_VALID_PROCID (dspId));
 
   if (IS_VALID_PROCID(dspId) == FALSE) {
-    printk(KERN_ALERT "*** error in '%s': invalid proc ID specified "
-                      "(%d)\n", __FUNCTION__, dspId);
+    TRC_2PRINT(TRC_LEVEL7,
+               "*** error in '%s': invalid proc ID specified "
+               "(%d)\n", __FUNCTION__, dspId);
 
     status = DSP_EINVALIDARG;
     SET_FAILURE_REASON;
@@ -507,8 +508,10 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
     && (dspObj->doDspCtrl != DSP_BootMode_Boot_NoPwr))
     {
       /* Check if the doDspCtrl is valid */
-      printk(KERN_ALERT "*** error in '%s': incorrect DSP 'doDspCtrl' "
-                        "specified (0x%x)\n", dspObj->doDspCtrl);
+      TRC_2PRINT(TRC_LEVEL7,
+                 "*** error in '%s': invalid DSP 'doDspCtrl' "
+                 "specified (0x%x)\n",
+                 __FUNCTION__, dspObj->doDspCtrl);
 
       status = DSP_ECONFIG;
       SET_FAILURE_REASON;
@@ -534,8 +537,9 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
             memTable[i].gppVirtAddr = mapInfo.dst;
           }
           else {
-            printk(KERN_ALERT "*** error in '%s': failed mem-mapping, "
-                              "result 0x%x\n", __FUNCTION__, status);
+            TRC_2PRINT(TRC_LEVEL7,
+                       "*** error in '%s': failed mapping memory, "
+                       "result 0x%x\n", __FUNCTION__, status);
 
             SET_FAILURE_REASON;
           }
@@ -546,6 +550,10 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
         status = OMAP3530_halInit(&dspState->halObject, NULL);
 
         if (DSP_FAILED(status)) {
+          TRC_2PRINT(TRC_LEVEL7,
+                     "*** error in '%s': failed initializing HAL, "
+                     "result 0x%x\n", __FUNCTION__, status);
+
           SET_FAILURE_REASON;
         }
         else {
@@ -556,21 +564,20 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
 
       if (DSP_SUCCEEDED(status)) {
 #if defined (OS_WINCE)
-        status = OMAP3530_getDspClkRate((Pvoid)dspState->halObject, &cpuFreq);
+        status =
+          OMAP3530_getDspClkRate((Pvoid)dspState->halObject, &cpuFreq);
 #else
         status = OMAP3530_getDspClkRate("iva2_ck", &cpuFreq);
-
 #endif
-        if (DSP_SUCCEEDED(status)) {
-          /* Use default by getting clock rate from Linux
-             Override the configured value */
-          dspObj->cpuFreq = cpuFreq;
 
-          printk(KERN_INFO, "OMAP3530 DSP clock rate: %d\n", cpuFreq);
+        if (DSP_SUCCEEDED(status)) {
+          /* Use default by getting clock rate from Linux. Override the
+             configured value */
+          dspObj->cpuFreq = cpuFreq;
         }
       }
-
-      TRC_1PRINT(TRC_LEVEL3, "Setting DSP Clk Rate %d\n", dspObj->cpuFreq);
+      TRC_1PRINT(
+        TRC_LEVEL3, "OMAP3530 DSP clock Rate %d\n", dspObj->cpuFreq);
 
       if (DSP_SUCCEEDED(status)) {
         if ((dspObj->doDspCtrl == DSP_BootMode_Boot_Pwr)
@@ -581,6 +588,10 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
                                               NULL);
 
           if (DSP_FAILED(status)) {
+            TRC_2PRINT(TRC_LEVEL7,
+                       "*** error in '%s': failed calling 'pwrCtrl', "
+                       "result 0x%x\n", __FUNCTION__, status);
+
             SET_FAILURE_REASON;
           }
         }
@@ -596,6 +607,10 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
                                               NULL);
 
           if (DSP_FAILED(status)) {
+            TRC_2PRINT(TRC_LEVEL7,
+                       "*** error in '%s': failed calling 'pwrCtrl', "
+                       "result 0x%x\n", __FUNCTION__, status);
+
             SET_FAILURE_REASON;
           }
 
@@ -607,6 +622,10 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
                                                 NULL);
 
             if (DSP_FAILED(status)) {
+              TRC_2PRINT(TRC_LEVEL7,
+                         "*** error in '%s': failed calling 'intCtrl', "
+                         "result 0x%x\n", __FUNCTION__, status);
+
               SET_FAILURE_REASON;
             }
           }
@@ -621,17 +640,16 @@ NORMAL_API DSP_STATUS OMAP3530_init(IN ProcessorId dspId,
                                0);
 
             if (DSP_FAILED(status)) {
+              TRC_2PRINT(TRC_LEVEL7,
+                         "*** error in '%s': failed enabling DSP MMU, "
+                         "result 0x%x\n", __FUNCTION__, status);
+
               SET_FAILURE_REASON;
             }
           }
         }
       }
     }
-  }
-
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s': result 0x%x\n",
-                      __FUNCTION__, status);
   }
 
   TRC_1LEAVE("OMAP3530_init", status);
@@ -783,9 +801,6 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
     || (dspObj->doDspCtrl == DSP_BootMode_NoLoad_Pwr)
     || (dspObj->doDspCtrl == DSP_BootMode_Boot_NoPwr))
     {
-      /* dspAddr = 0x8812b980, '_c_int00' startup */
-      /* resetVector = 0x88100000 */
-      /* gppAddr = 0xc86b6000 */
       resetVector = dspObj->resetVector;
 
       gppAddr = OMAP3530_addrConvert(
@@ -796,12 +811,6 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
 
       if (gppAddr != ADDRMAP_INVALID) {
         /* Now specify the DSP boot address in the boot config register */
-
-        printk(KERN_ALERT "Booting DSP, args:\n");
-        printk(KERN_ALERT "  generalCtrlBase: 0x%x\n", halObj->generalCtrlBase);
-        printk(KERN_ALERT "  reset vector: 0x%x\n", resetVector);
-        printk(KERN_ALERT "  boot address: 0x%x\n", (Uint32)resetVector & 0xFFFFFC00);
-
         status =
           halObj->interface->bootCtrl((Pvoid) halObj,
                                       DSP_BootCtrlCmd_SetEntryPoint,
@@ -809,7 +818,7 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
 
         if (DSP_SUCCEEDED(status)) {
           /* Write the branch instruction at the boot address to branch to
-             the destination '_c_int00' */
+             the destination (i.e. '_c_int00' startup ) */
           entryPtAddrHi = dspAddr >> 16;
           entryPtAddrLo = dspAddr & 0xFFFF;
           startOpCodeHi |= (entryPtAddrHi << 7);
@@ -819,7 +828,7 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
           REG(gppAddr) = startOpCodeHi; gppAddr += 4;
           REG(gppAddr) = branch; gppAddr += 4;
 
-          /* Write 5 no-ops for pipeline flush */
+          /* Write 5 no-ops to flush the pipeline */
           REG(gppAddr) = noOp; gppAddr += 4;
           REG(gppAddr) = noOp; gppAddr += 4;
           REG(gppAddr) = noOp; gppAddr += 4;
@@ -862,11 +871,11 @@ NORMAL_API DSP_STATUS OMAP3530_start(IN ProcessorId dspId,
   }
 
   if (DSP_SUCCEEDED(status)) {
-    TRC_0PRINT(TRC_LEVEL1, "DSP started !\n");
+    TRC_0PRINT(TRC_LEVEL1, "DSP started\n");
   }
   else {
     SET_FAILURE_REASON;
-    TRC_0PRINT (TRC_LEVEL7, "DSP couldn't be started !\n");
+    TRC_0PRINT (TRC_LEVEL7, "DSP couldn't be started\n");
   }
 
   TRC_1LEAVE("OMAP3530_start", status);
@@ -1179,11 +1188,6 @@ NORMAL_API DSP_STATUS OMAP3530_write(IN ProcessorId dspId,
 #endif /* defined (DDSP_PROFILE) */
   }
 
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s': result 0x%x\n",
-                      __FUNCTION__, status);
-  }
-
   TRC_1LEAVE("OMAP3530_write", status);
   return status;
 }
@@ -1250,21 +1254,9 @@ NORMAL_API Uint32 OMAP3530_addrConvert(IN ProcessorId dspId,
     }
     else {
       /* Added for MISRAC compliance, nothing useful in here yet though */
-      printk(KERN_ALERT "*** error in '%s': unsupported conversion type\n",
-                        __FUNCTION__);
-    }
-  }
-
-  if (found == FALSE) {
-    if (type == GppToDsp) {
-      printk(KERN_ALERT "*** error in '%s': failed performing GPP->DSP "
-                        "conversion for address 0x%x. Inspect/correct the "
-                        "memory map configuration\n", __FUNCTION__, addr);
-    }
-    else {
-      printk(KERN_ALERT "*** error in '%s': failed performing DSP->GPP "
-                        "conversion for address 0x%x. Inspect/correct the "
-                        "memory map configuration\n", __FUNCTION__, addr);
+      TRC_1PRINT(TRC_LEVEL4,
+                 "*** error in '%s': invalid address conversion type\n",
+                 __FUNCTION__);
     }
   }
 

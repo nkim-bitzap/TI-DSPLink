@@ -46,8 +46,6 @@
 #include <coff_55x.h>
 #include <coff_64x.h>
 
-#include <linux/module.h>
-
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
@@ -744,7 +742,6 @@ NORMAL_API DSP_STATUS COFF_init(IN ProcessorId procId,
   Uint32 offsetSymTab = 0;
 
   TRC_4ENTER("COFF_init", procId, baseImage, args, objCtx);
-  printk(KERN_ALERT "Executing 'COFF_init'\n");
 
   DBC_Require(IS_VALID_PROCID(procId));
   DBC_Require(baseImage != NULL);
@@ -834,9 +831,7 @@ NORMAL_API DSP_STATUS COFF_init(IN ProcessorId procId,
     }
   }
 
-  printk(KERN_ALERT "'COFF_init' executed, status: 0x%x\n", status);
   TRC_1LEAVE("COFF_init", status);
-
   return status;
 }
 
@@ -1200,9 +1195,6 @@ NORMAL_API DSP_STATUS COFF_load(IN ProcessorId procId,
   }
 
   if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s': failed loading COFF binary\n",
-                      __FUNCTION__);
-
     SET_FAILURE_REASON;
   }
   else {
@@ -1298,11 +1290,6 @@ NORMAL_API DSP_STATUS COFF_getSymbolAddress(IN ProcessorId procId,
         status = DSP_ENOTFOUND;
       }
     }
-  }
-
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s': failed obtaining address for "
-                      "the symbol '%s'\n", __FUNCTION__, symbolName);
   }
 
   TRC_1LEAVE ("COFF_getSymbolAddress", status);
@@ -1773,7 +1760,6 @@ STATIC NORMAL_API DSP_STATUS COFF_getString(IN Char8 *str,
   TRC_1LEAVE("COFF_getString", status);
   return status;
 }
-
 
 /** ----------------------------------------------------------------------------
  *  @func   COFF_getSymbolTable

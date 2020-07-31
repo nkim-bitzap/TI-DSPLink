@@ -73,14 +73,13 @@ extern "C" {
  */
 #define NUM_ARGS 2
 
-/*  ============================================================================
- *  @name   XFER_CHAR
- *
- *  @desc   The value used to initialize the output buffer and used for
- *          validation against the input buffer recieved.
- *  ============================================================================
- */
-#define XFER_CHAR   (Char8) 0xE7
+/*******************************************************************************
+  @name  XFER_INIT_CHAR
+  @desc  The value used to initialize the output buffer
+  @note  Make printable for a visual validation
+*******************************************************************************/
+
+#define XFER_INIT_CHAR (Char8) '0'
 
 /** ============================================================================
  *  @name   NUMBUFFERPOOLS
@@ -131,7 +130,7 @@ STATIC Uint32  LOOP_NumIterations ;
  *          Length of array in this application is 1.
  *  ============================================================================
  */
-STATIC Char8 * LOOP_Buffers [1] ;
+STATIC Char8 *LOOP_Buffers[1];
 
 /** ============================================================================
  *  @name   LOOP_IOReq
@@ -139,7 +138,8 @@ STATIC Char8 * LOOP_Buffers [1] ;
  *  @desc   It gives information for adding or reclaiming a request.
  *  ============================================================================
  */
-STATIC ChannelIOInfo LOOP_IOReq  ;
+
+STATIC ChannelIOInfo LOOP_IOReq;
 
 #if defined (DA8XXGEM)
 /** ============================================================================
@@ -173,10 +173,10 @@ Uint32 LOOP_argsAddr ;
  *          structure.
  *  ============================================================================
  */
-extern  LINKCFG_Object LINKCFG_config ;
+
+extern LINKCFG_Object LINKCFG_config;
 
 #endif
-
 
 #if defined (VERIFY_DATA)
 /** ----------------------------------------------------------------------------
@@ -201,23 +201,16 @@ extern  LINKCFG_Object LINKCFG_config ;
  *  @see    XFER_CHAR
  *  ----------------------------------------------------------------------------
  */
-STATIC
-NORMAL_API
-DSP_STATUS
-LOOP_VerifyData (IN Char8 * buf) ;
+
+STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf);
+
 #endif /*  defined (VERIFY_DATA) */
 
-
-
-/** ============================================================================
- *  @func   LOOP_Create
- *
- *  @desc   This function allocates and initializes resources used by
- *          this application.
- *
- *  @modif  LOOP_Buffers
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  LOOP_Create
+  @desc  This function allocates and initializes resources used by
+         this application
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
                                   IN Char8 *strBufferSize,
@@ -245,7 +238,7 @@ NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
   SMAPOOL_Attrs poolAttrs;
 #endif
 
-  LOOP_0Print("Entered LOOP_Create ()\n");
+  LOOP_0Print("Executing 'LOOP_Create'\n");
 
   /* Create and initialize the proc object */
   status = PROC_setup(NULL);
@@ -254,12 +247,7 @@ NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
   if (DSP_SUCCEEDED(status)) {
     status = PROC_attach(processorId, NULL);
 
-    if (DSP_FAILED(status)) {
-      LOOP_1Print("PROC_attach failed . Status = [0x%x]\n", status);
-    }
-  }
-  else {
-    LOOP_1Print("PROC_setup failed. Status = [0x%x]\n", status);
+    LOOP_1Print("  'PROC_attach' done, status 0x%x\n", status);
   }
 
   /* Open the pool */
@@ -275,310 +263,239 @@ NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
     /* size of the array of buffer pools */
     poolAttrs.numBufPools = NUMBUFFERPOOLS;
 
-    LOOP_1Print("+++ size[0]: %d\n", LOOP_BufferSize);
-    LOOP_1Print("+++ poolAttrs.bufSizes: 0x%x\n", poolAttrs.bufSizes);
-    LOOP_1Print("+++ poolAttrs.numBuffers: 0x%x\n", poolAttrs.numBuffers);
-    LOOP_1Print("+++ poolAttrs.numBufPools: 0x%x\n", poolAttrs.numBufPools);
-
 #if defined (ZCPY_LINK)
     poolAttrs.exactMatchReq = TRUE;
 #endif
 
-    status = POOL_open(POOL_makePoolId(processorId, POOL_ID), &poolAttrs);
+    status =
+      POOL_open(POOL_makePoolId(processorId, POOL_ID), &poolAttrs);
 
-    if (DSP_FAILED(status)) {
-      LOOP_1Print("POOL_open () failed. Status = [0x%x]\n", status);
-    }
+    LOOP_1Print("  'POOL_open' done, status 0x%x\n", status);
   }
 
   /* Load the executable on the DSP */
   if (DSP_SUCCEEDED (status)) {
-        numArgs  = NUM_ARGS         ;
-        args [0] = strBufferSize    ;
-        args [1] = strNumIterations ;
+    numArgs = NUM_ARGS;
+    args[0] = strBufferSize;
+    args[1] = strNumIterations;
 
 #if defined (DA8XXGEM)
-         if (LINKCFG_config.dspConfigs [processorId]->dspObject->doDspCtrl ==
-                     DSP_BootMode_NoBoot) {
-            imageInfo.dspRunAddr  = LOOP_dspAddr ;
-            imageInfo.shmBaseAddr = LOOP_shmAddr ;
-            imageInfo.argsAddr    = LOOP_argsAddr ;
-            imageInfo.argsSize    = 50         ;
-            status = PROC_load (processorId, (Char8 *) &imageInfo, numArgs, args) ;
-        }
-        else
+    if (LINKCFG_config.dspConfigs[processorId]->dspObject->doDspCtrl ==
+        DSP_BootMode_NoBoot)
+    {
+      imageInfo.dspRunAddr = LOOP_dspAddr;
+      imageInfo.shmBaseAddr = LOOP_shmAddr;
+      imageInfo.argsAddr = LOOP_argsAddr;
+      imageInfo.argsSize = 50;
+
+      status =
+        PROC_load(processorId, (Char8 *) &imageInfo, numArgs, args);
+    }
+    else
 #endif
-        {
-            status = PROC_load (processorId, dspExecutable, numArgs, args) ;
-        }
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("PROC_load failed. Status = [0x%x]\n", status) ;
-        }
+    {
+      status = PROC_load(processorId, dspExecutable, numArgs, args);
+     
+      LOOP_1Print("  'PROC_load' done, status 0x%x\n", status);
     }
+  }
 
-    /*
-     *  Create a channel to DSP
-     */
-    if (DSP_SUCCEEDED (status)) {
-        chnlAttrOutput.mode      = ChannelMode_Output     ;
-        chnlAttrOutput.endianism = Endianism_Default      ;
-        chnlAttrOutput.size      = ChannelDataSize_16bits ;
+  /* Create a channel to DSP */
+  if (DSP_SUCCEEDED(status)) {
+    chnlAttrOutput.mode = ChannelMode_Output;
+    chnlAttrOutput.endianism = Endianism_Default;
+    chnlAttrOutput.size = ChannelDataSize_16bits;
 
-        status = CHNL_create (processorId, CHNL_ID_OUTPUT, &chnlAttrOutput) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("CHNL_create failed (output). Status = [0x%x]\n",
-                         status) ;
-        }
-    }
+    status = CHNL_create(processorId, CHNL_ID_OUTPUT, &chnlAttrOutput);
 
-    /*
-     *  Create a channel from DSP
-     */
-    if (DSP_SUCCEEDED (status)) {
-        chnlAttrInput.mode      = ChannelMode_Input      ;
-        chnlAttrInput.endianism = Endianism_Default      ;
-        chnlAttrInput.size      = ChannelDataSize_16bits ;
+    LOOP_1Print("  'CHNL_create (1)' done, status 0x%x\n", status);
+  }
 
-        status = CHNL_create (processorId, CHNL_ID_INPUT, &chnlAttrInput) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("CHNL_create failed (input). Status = [0x%x]\n",
-                         status) ;
-        }
-    }
+  /* Create a channel from DSP */
+  if (DSP_SUCCEEDED(status)) {
+    chnlAttrInput.mode = ChannelMode_Input;
+    chnlAttrInput.endianism = Endianism_Default;
+    chnlAttrInput.size = ChannelDataSize_16bits;
 
-    /*
-     *  Allocate buffer(s) for data transfer to DSP.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = CHNL_allocateBuffer (processorId,
-                                      CHNL_ID_OUTPUT,
-                                      LOOP_Buffers,
-                                      LOOP_BufferSize ,
-                                      1) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("CHNL_allocateBuffer failed (output)."
-                         " Status = [0x%x]\n",
-                         status) ;
-        }
-    }
+    status = CHNL_create(processorId, CHNL_ID_INPUT, &chnlAttrInput);
 
-    /*
-     *  Initialize the buffer with valid data.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        temp = LOOP_Buffers [0] ;
+    LOOP_1Print("  'CHNL_create (2)' done, status 0x%x\n", status);
+  }
 
-        for (i = 0 ; i < LOOP_BufferSize ; i++) {
-            *temp++ = XFER_CHAR ;
-        }
-    }
-
-    LOOP_0Print ("Leaving LOOP_Create ()\n") ;
-
-    return status ;
-}
-
-
-/** ============================================================================
- *  @func   LOOP_Execute
- *
- *  @desc   This function implements the execute phase for this application.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LOOP_Execute (IN Uint32 numIterations, Uint8 processorId)
-{
-    DSP_STATUS status = DSP_SOK ;
-    Uint32     i ;
-
-    LOOP_0Print ("Entered LOOP_Execute ()\n") ;
-
-    /*
-     *  Start execution on DSP.
-     */
-    status = PROC_start (processorId) ;
-
-    /*
-     *  Fill the IO Request structure
-     *  It gives Information for adding or reclaiming an input request.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        LOOP_IOReq.buffer = LOOP_Buffers [0] ;
-        LOOP_IOReq.size   = LOOP_BufferSize   ;
-    }
-    else {
-        LOOP_1Print ("PROC_start failed. Status = [0x%x]\n", status) ;
-    }
-
-    for (i = 1 ;
-         (   (LOOP_NumIterations == 0) || (i <= LOOP_NumIterations))
-          && (DSP_SUCCEEDED (status)) ;
-         i++) {
-        /*
-         *  Send data to DSP.
-         *  Issue 'filled' buffer to the channel.
-         */
-        status = CHNL_issue (processorId, CHNL_ID_OUTPUT, &LOOP_IOReq) ;
-        if (DSP_FAILED (status)) {
-            LOOP_1Print ("CHNL_issue failed (output). Status = [0x%x]\n",
-                          status) ;
-        }
-
-        /*
-         *  Reclaim 'empty' buffer from the channel
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = CHNL_reclaim (processorId,
-                                   CHNL_ID_OUTPUT,
-                                   WAIT_FOREVER,
-                                   &LOOP_IOReq) ;
-            if (DSP_FAILED (status)) {
-                LOOP_1Print ("CHNL_reclaim failed (output). Status = [0x%x]\n",
-                             status) ;
-            }
-        }
-
-        /*
-         *  Receive data from DSP
-         *  Issue 'empty' buffer to the channel.
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = CHNL_issue (processorId, CHNL_ID_INPUT, &LOOP_IOReq) ;
-            if (DSP_FAILED (status)) {
-                LOOP_1Print ("CHNL_issue failed (input). Status = [0x%x]\n",
-                             status) ;
-            }
-        }
-
-        /*
-         *  Reclaim 'filled' buffer from the channel
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = CHNL_reclaim (processorId,
-                                   CHNL_ID_INPUT,
-                                   WAIT_FOREVER,
-                                   &LOOP_IOReq) ;
-            if (DSP_FAILED (status)) {
-                LOOP_1Print ("CHNL_reclaim failed (input). Status = [0x%x]\n",
-                             status) ;
-            }
-        }
-
-#if defined (VERIFY_DATA)
-        /*
-         *  Verify correctness of data received.
-         */
-        if (DSP_SUCCEEDED (status)) {
-            status = LOOP_VerifyData (LOOP_IOReq.buffer) ;
-            if (DSP_FAILED (status)) {
-                LOOP_0Print ("Data integrity failed\n") ;
-            }
-        }
-#endif
-
-        if (DSP_SUCCEEDED (status) && (i % 1000) == 0) {
-            LOOP_1Print ("Transferred %ld buffers\n", i) ;
-        }
-    }
-
-    LOOP_0Print ("Leaving LOOP_Execute ()\n") ;
-
-    return status ;
-}
-
-
-/** ============================================================================
- *  @func   LOOP_Delete
- *
- *  @desc   This function releases resources allocated earlier by call to
- *          LOOP_Create ().
- *          During cleanup, the allocated resources are being freed
- *          unconditionally. Actual applications may require stricter check
- *          against return values for robustness.
- *
- *  @modif  LOOP_Buffers
- *  ============================================================================
- */
-NORMAL_API
-Void
-LOOP_Delete (Uint8 processorId)
-{
-    DSP_STATUS status    = DSP_SOK ;
-    DSP_STATUS tmpStatus = DSP_SOK ;
-
-    LOOP_0Print ("Entered LOOP_Delete ()\n") ;
-
-    /*
-     *  Free the buffer(s) allocated for channel to DSP
-     */
-    tmpStatus = CHNL_freeBuffer (processorId,
+  /* Allocate buffer(s) for data transfer to DSP */
+  if (DSP_SUCCEEDED(status)) {
+    status = CHNL_allocateBuffer(processorId,
                                  CHNL_ID_OUTPUT,
                                  LOOP_Buffers,
-                                 1) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("CHNL_freeBuffer () failed (output). Status = [0x%x]\n",
-                     tmpStatus) ;
+                                 LOOP_BufferSize,
+                                 1);
+
+    LOOP_1Print("  'CHNL_allocateBuffer' done, status 0x%x\n", status);
+  }
+
+  /* Now initialize the buffer with data. Make the buffer printable, i.e.
+     interpret at a null terminated C-string for a visual validation */
+  if (DSP_SUCCEEDED(status)) {
+    temp = LOOP_Buffers[0];
+
+    for (i = 0; i < LOOP_BufferSize - 1; i++) {
+      *temp++ = XFER_INIT_CHAR;
     }
 
-    /*
-     *  Delete both input and output channels
-     */
-    tmpStatus = CHNL_delete  (processorId, CHNL_ID_INPUT) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("CHNL_delete () failed (input). Status = [0x%x]\n",
-                     tmpStatus) ;
-    }
-    tmpStatus = CHNL_delete  (processorId, CHNL_ID_OUTPUT) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("CHNL_delete () failed (output). Status = [0x%x]\n",
-                     tmpStatus) ;
-    }
+    *temp = '\0';
+  }
 
-    /*
-     *  Stop execution on DSP.
-     */
-    status = PROC_stop (processorId) ;
-
-    /*
-     *  Close the pool
-     */
-    tmpStatus = POOL_close (POOL_makePoolId(processorId, POOL_ID)) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("POOL_close () failed. Status = [0x%x]\n",
-                        tmpStatus) ;
-    }
-
-    /*
-     *  Detach from the processor
-     */
-    tmpStatus = PROC_detach  (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("PROC_detach () failed. Status = [0x%x]\n", tmpStatus) ;
-    }
-
-    /*
-     *  Destroy the PROC object.
-     */
-    tmpStatus = PROC_destroy () ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        LOOP_1Print ("PROC_destroy () failed. Status = [0x%x]\n", tmpStatus) ;
-    }
-
-    LOOP_0Print ("Leaving LOOP_Delete ()\n") ;
+  LOOP_1Print("'LOOP_Create' done, status 0x%x\n\n", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  LOOP_Execute
+  @desc  This function implements the execute phase for this application
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LOOP_Main
- *
- *  @desc   Entry point for the application
- *
- *  @modif  None
- *  ============================================================================
- */
+NORMAL_API DSP_STATUS LOOP_Execute(IN Uint32 numIterations,
+                                   Uint8 processorId)
+{
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i;
+
+  LOOP_0Print("Executing 'LOOP_Execute'\n");
+
+  /* Start execution on DSP */
+  status = PROC_start(processorId);
+
+  LOOP_1Print("  'PROC_start' done, status 0x%x\n", status);
+
+  /* Fill the IO Request structure. It gives Information for adding or
+     reclaiming an input request */
+  if (DSP_SUCCEEDED(status)) {
+    LOOP_IOReq.buffer = LOOP_Buffers[0];
+    LOOP_IOReq.size = LOOP_BufferSize;
+  }
+
+  for (i = 1;
+       ((LOOP_NumIterations == 0) || (i <= LOOP_NumIterations))
+       && (DSP_SUCCEEDED(status));
+       i++)
+  {
+    LOOP_1Print("Iteration %d\n", i);
+
+    /* Send data to DSP and issue 'filled' buffer to the channel */
+    status = CHNL_issue(processorId, CHNL_ID_OUTPUT, &LOOP_IOReq);
+
+    LOOP_1Print("  'CHNL_issue (1)' done, status 0x%x\n", status);
+
+    /* Reclaim 'empty' buffer from the channel */
+    if (DSP_SUCCEEDED(status)) {
+      status = CHNL_reclaim(processorId,
+                            CHNL_ID_OUTPUT,
+                            WAIT_FOREVER,
+                            &LOOP_IOReq);
+
+      LOOP_1Print("  'CHNL_reclaim' done, status 0x%x\n", status);
+    }
+
+    /* Receive data from DSP, issue 'empty' buffer to the channel */
+    if (DSP_SUCCEEDED(status)) {
+      status = CHNL_issue(processorId, CHNL_ID_INPUT, &LOOP_IOReq);
+
+      LOOP_1Print("  'CHNL_issue (2)' done, status 0x%x\n", status);
+    }
+
+    /* Reclaim 'filled' buffer from the channel */
+    if (DSP_SUCCEEDED(status)) {
+      status = CHNL_reclaim(processorId,
+                            CHNL_ID_INPUT,
+                            WAIT_FOREVER,
+                            &LOOP_IOReq);
+
+      LOOP_1Print("  'CHNL_reclaim (2)' done, status 0x%x\n", status);
+    }
+
+#if defined (VERIFY_DATA)
+    /* Verify correctness of data received */
+    if (DSP_SUCCEEDED(status)) {
+      status = LOOP_VerifyData(LOOP_IOReq.buffer);
+
+      LOOP_1Print("  'LOOP_VerifyData' done, status 0x%x\n", status);
+
+      if (DSP_FAILED(status)) {
+        LOOP_0Print("  FAIL: data integrity failed\n");
+      }
+    }
+#endif
+
+  }
+
+  LOOP_1Print("'LOOP_Execute' done, status 0x%x\n\n", status);
+  return status;
+}
+
+/*******************************************************************************
+  @func  LOOP_Delete
+  @desc  This function releases resources allocated earlier by call to
+         LOOP_Create ().
+
+         During cleanup, the allocated resources are being freed
+         unconditionally. Actual applications may require stricter check
+         against return values for robustness
+
+         NOTE, some of the functions return status codes different from
+         the generic 0x8000 to still indicate success. Check the codes
+         defined in 'gpp/src/inc/usr/errbase.h'
+*******************************************************************************/
+
+NORMAL_API Void LOOP_Delete(Uint8 processorId)
+{
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+
+  LOOP_0Print("Executing 'LOOP_Delete'\n");
+
+  /* Free the buffer(s) allocated for channel to DSP */
+  tmpStatus = CHNL_freeBuffer(processorId,
+                              CHNL_ID_OUTPUT,
+                              LOOP_Buffers,
+                              1);
+
+  LOOP_1Print("  'CHNL_freeBuffer' done, status 0x%x\n", tmpStatus);
+
+  /* Delete both input and output channels */
+  tmpStatus = CHNL_delete(processorId, CHNL_ID_INPUT);
+
+  LOOP_1Print("  'CHNL_delete (1)' done, status 0x%x\n", tmpStatus);
+
+  tmpStatus = CHNL_delete(processorId, CHNL_ID_OUTPUT);
+
+  LOOP_1Print("  'CHNL_delete (2)' done, status 0x%x\n", tmpStatus);
+
+  /* Stop execution on DSP */
+  status = PROC_stop(processorId);
+
+  LOOP_1Print("  'PROC_stop' done, status 0x%x\n", status);
+
+  /* Close the pool */
+  tmpStatus = POOL_close(POOL_makePoolId(processorId, POOL_ID));
+
+  LOOP_1Print("  'POOL_close' done, status 0x%x\n", tmpStatus);
+
+  /* Detach from the processor */
+  tmpStatus = PROC_detach(processorId);
+
+  LOOP_1Print("  'PROC_detach' done, status 0x%x\n", tmpStatus);
+
+  /* Destroy the PROC object */
+  tmpStatus = PROC_destroy();
+
+  LOOP_1Print("  'PROC_destroy' done, status 0x%x\n", tmpStatus);
+  LOOP_1Print("'LOOP_Delete' done, status 0x%x\n\n", status);
+}
+
+/*******************************************************************************
+  @func  LOOP_Main
+  @desc  Entry point for the application
+*******************************************************************************/
 
 NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
                           IN Char8 *strBufferSize,
@@ -588,7 +505,7 @@ NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
   DSP_STATUS status = DSP_SOK;
   Uint8 processorId = 0;
 
-  LOOP_0Print ("=============== Sample Application : LOOP ==========\n") ;
+  LOOP_0Print("=========== Sample DSP Application : LOOP ==========\n");
 
   if ((dspExecutable != NULL)
   && (strBufferSize != NULL)
@@ -605,7 +522,7 @@ NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
     }
 
     LOOP_NumIterations = LOOP_Atoi(strNumIterations);
-    LOOP_1Print ("LOOP_NumIterations: %d\n", LOOP_NumIterations);
+    LOOP_1Print ("LOOP_NumIterations: %d\n\n", LOOP_NumIterations);
 
     /* Find out the processor id to work with */
     processorId = LOOP_Atoi(strProcessorId);
@@ -620,9 +537,6 @@ NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
     /* Specify the dsp executable file name and the buffer size for
        the loop creation phase */
     if (DSP_SUCCEEDED (status)) {
-      LOOP_1Print ("==== Executing sample for DSP processor Id %d ====\n",
-                     processorId);
-
       status = LOOP_Create(dspExecutable,
                            strBufferSize,
                            strNumIterations,
@@ -633,51 +547,38 @@ NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
         status = LOOP_Execute(LOOP_NumIterations, processorId);
       }
 
-            /*
-             *  Perform cleanup operation.
-             */
-            LOOP_Delete (processorId) ;
-        }
+      /* Perform cleanup operation */
+      LOOP_Delete(processorId);
     }
-    else {
-        status = DSP_EINVALIDARG ;
-        LOOP_0Print ("ERROR! Invalid arguments specified for while executing "
-                     "loop application\n") ;
-    }
+  }
+  else {
+    status = DSP_EINVALIDARG;
+ 
+    LOOP_0Print("*** error: invalid arguments specified for the LOOP "
+                "application\n");
+  }
 
-    LOOP_0Print ("====================================================\n") ;
+  LOOP_0Print("====================================================\n");
 }
 
 #if defined (VERIFY_DATA)
-/** ----------------------------------------------------------------------------
- *  @func   LOOP_VerifyData
- *
- *  @desc   This function verifies the data-integrity of given buffer.
- *
- *  @modif  None
- *  ----------------------------------------------------------------------------
- */
-STATIC
-NORMAL_API
-DSP_STATUS
-LOOP_VerifyData (IN Char8 * buf)
+
+/*******************************************************************************
+  @func  LOOP_VerifyData
+  @desc  This function interprets the content of the given buffer as a
+         C-string and prints it for a visual validation
+*******************************************************************************/
+
+STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf)
 {
-    DSP_STATUS status = DSP_SOK ;
-    Int16      i                ;
-
-    /*
-     *  Verify the data.
-     */
-    for (i = 0 ; (i < LOOP_BufferSize) && (DSP_SUCCEEDED (status)) ; i++) {
-        if (*buf++ != XFER_CHAR) {
-            status = DSP_EFAIL ;
-        }
-    }
-
-    return status ;
+  if (buf[LOOP_BufferSize - 1] != '\0') return DSP_EFAIL;
+  else {
+    LOOP_1Print("buffer: %s", (Uint32) buf);
+    return DSP_SOK;
+  }
 }
-#endif
 
+#endif
 
 #if defined (__cplusplus)
 }

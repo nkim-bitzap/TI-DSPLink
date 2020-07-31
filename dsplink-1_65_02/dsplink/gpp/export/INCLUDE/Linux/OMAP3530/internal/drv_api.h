@@ -357,6 +357,12 @@ NORMAL_API
 DSP_STATUS
 DRV_ProtectLeave (IN DRV_Object * drvObj) ;
 
+/*******************************************************************************
+  @name  getCmdString
+  @desc  For debugging purposes get a printable name for a command
+*******************************************************************************/
+
+Char8 *getCmdString(Uint32 cmd);
 
 #if defined (__cplusplus)
 }

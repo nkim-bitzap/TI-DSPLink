@@ -112,60 +112,65 @@ extern "C" {
 #define BUS_WIDTH  4
 
 
-/** ============================================================================
- *  @name   SMAPOOL_Object
- *
- *  @desc   This structure defines the state of the SMA.
- *
- *  @field  dspId
- *              ID of the processor with which the memory manager is shared.
- *  @field  size
- *              Length of the shared memory region.
- *  @field  gppAddr
- *              Virtual address of the shared memory to be used by SMA,
- *              in GPP address space.
- *  @field  dspAddr
- *              Address of the shared memory to be used by SMA, in DSP address
- *              space.
- *  @field  physAddr
- *              physical Address of the shared memory to be used by SMA.
- *  @field  dspMaduSize
- *              DSP elementary addressable unit size.
- *  @field  smaShmObj
- *              Pointer to the SMA shared memory object.
- *  @field  ctrlPtr
- *              Pointer to the SMA shared memory control structure.
- *  @field  wordSwap
- *              Indicates whether word-swap is enabled for the DSP MMU.
- *  @field  memEntry
- *              ID of the memory entry for the SMAPOOL shared memory region.
- *  @field  refCount
- *              Reference count for the pool.
- *  @field  lock
- *              Lock for using POOL resources.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  SMAPOOL_Object
+  @desc  This structure defines the state of the SMA.
+
+  @field  dspId:          ID of the processor with which the memory manager is
+                          shared.
+
+  @field  size:           Length of the shared memory region.
+
+  @field  gppAddr:        Virtual address of the shared memory to be used by
+                          SMA in GPP address space.
+
+  @field  dspAddr:        Address of the shared memory to be used by SMA in DSP
+                          address space.
+
+  @field  physAddr:       Physical address of the shared memory to be used by
+                          SMA.
+
+  @field  dspMaduSize:    DSP elementary addressable unit size.
+  @field  smaShmObj:      Pointer to the SMA shared memory object.
+  @field  ctrlPtr:        Pointer to the SMA shared memory control structure.
+  @field  wordSwap:       Indicates whether word-swap is enabled for DSP MMU.
+  @field  memEntry:       ID of the memory entry for the SMAPOOL memory region.
+  @field  refCount:       Reference count for the pool.
+  @field  lock:           Lock for using POOL resources.
+
+  @field  bufMemSecId:    ID of the shared memory section in use.
+
+  @field  bufPhysMemAddr: Physical address of the SMAPOOL memory segment as
+                          configured (see POOLMEM).
+
+  @field  bufGppMemAddr:  Virtual address of the SMAPOOL (POOLMEM) segment.
+
+  @field  bufDpsMemAddr:  DSP-side address of the SMAPOOL (POOLMEM) segment.
+                          This usually matches 'bufPhysMemAddr'.
+
+  @field  bufPoolSize:    The size of the SMAPOOL (POOLMEM) memory segment as
+                          configured.
+*******************************************************************************/
+
 typedef struct SMAPOOL_Object_tag {
-    ProcessorId      dspId         ;
-    Uint32           size          ;
-    Uint32           gppAddr       ;
-    Uint32           dspAddr       ;
-    Uint32           physAddr      ;
-    Uint16           dspMaduSize   ;
-    SMAPOOL_ShmObj * smaShmObj     ;
-    SMAPOOL_Ctrl *   ctrlPtr       ;
-    Bool             wordSwap      ;
-    Uint32           memEntry      ;
-    Uint32           refCount      ;
-    Uint32           bufMemSecId   ;
-    Uint32           bufPhysMemAddr ;
-    Uint32           bufGppMemAddr ;
-    Uint32           bufDspMemAddr ;
-    Uint32           bufPoolSize   ;
-    Pvoid            lock          ;
-} SMAPOOL_Object ;
-
-
+    ProcessorId     dspId;
+    Uint32          size;
+    Uint32          gppAddr;
+    Uint32          dspAddr;
+    Uint32          physAddr;
+    Uint16          dspMaduSize;
+    SMAPOOL_ShmObj *smaShmObj;
+    SMAPOOL_Ctrl   *ctrlPtr;
+    Bool            wordSwap;
+    Uint32          memEntry;
+    Uint32          refCount;
+    Uint32          bufMemSecId;
+    Uint32          bufPhysMemAddr;
+    Uint32          bufGppMemAddr;
+    Uint32          bufDspMemAddr;
+    Uint32          bufPoolSize;
+    Pvoid           lock;
+} SMAPOOL_Object;
 
 /** ============================================================================
  *  @name   SMAPOOL_Interface
@@ -400,15 +405,10 @@ SMAPOOL_exit (IN  ProcessorId dspId,
     return status ;
 }
 
-
-/** ============================================================================
- *  @func   SMAPOOL_open
- *
- *  @desc   This function will create buffer handles and buffer pools.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  SMAPOOL_open
+  @desc  This function will create buffer handles and buffer pools
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                                    IN Uint32 poolId,
@@ -437,16 +437,22 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
   /* pointers to temporary dynamically allocated arrays extracted from
      'smaAttrs' which in turn is copied from the user space. Dropped at
       the end of this function */
+  Uint32 *tmpBufSizes = NULL;
+  Uint32 *tmpNumBuffers = NULL;
+
+  /* actual pointers to structures we will assign to 'poolOpenParams',
+     see the address/range conversion loop below */
   Uint32 *bufSizes = NULL;
   Uint32 *numBuffers = NULL;
+
   Uint32 BUF_MEM_SIZE = 0;
+  Uint32 NUM_BUF_POOLS = 0;
 
   Uint32 temp;
   Uint32 irqFlags;
   int retVal;
 
   TRC_4ENTER ("SMAPOOL_open", dspId, poolId, object, poolOpenParams);
-  printk(KERN_ALERT "Executing 'SMAPOOL_open'\n");
 
   DBC_Require(IS_VALID_PROCID (dspId));
   DBC_Require(poolId != POOL_INVALIDID);
@@ -478,20 +484,21 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
       /* NKim, still wondering how this could have worked earlier. The pointer
          is non-null, thus, we copy required buffer data from user-space here.
          This was not done earlier */
-      retVal = copy_from_user(
-        (void*) &smaAttrs,
-        (void*) poolOpenParams->params,
-        sizeof(SMAPOOL_Attrs));
+      retVal = copy_from_user((void*) &smaAttrs,
+                              (void*) poolOpenParams->params,
+                              sizeof(SMAPOOL_Attrs));
+
+      NUM_BUF_POOLS = smaAttrs.numBufPools;
 
       if (retVal != 0) {
         status = DSP_EINVALIDARG;
         SET_FAILURE_REASON;
       }
       else {
-        DBC_Require(smaAttrs.numBufPools > 0);
-        DBC_Require(smaAttrs.numBufPools <= MAX_SMABUFENTRIES);
+        DBC_Require(NUM_BUF_POOLS > 0);
+        DBC_Require(NUM_BUF_POOLS <= MAX_SMABUFENTRIES);
 
-        if (smaAttrs.numBufPools == 0) {
+        if (NUM_BUF_POOLS == 0) {
           status = DSP_EINVALIDARG;
           SET_FAILURE_REASON;
         }
@@ -500,32 +507,28 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
              space for the array containing buffer sizes, then copy the data
              from the user space using addresses submitted via args. Repeat
              for the buffer array then */
-          BUF_MEM_SIZE = sizeof(Uint32) * smaAttrs.numBufPools;
+          BUF_MEM_SIZE = sizeof(Uint32) * NUM_BUF_POOLS;
 
-          status =
-            MEM_Alloc((Void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
+          status = MEM_Alloc(
+            (void **) &tmpBufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
 
-          retVal = copy_from_user(
-            bufSizes, smaAttrs.bufSizes, BUF_MEM_SIZE);
+          retVal = copy_from_user((void*) tmpBufSizes,
+                                  (void*) smaAttrs.bufSizes,
+                                  BUF_MEM_SIZE);
 
           if (DSP_SUCCEEDED(status) && retVal == 0) {
+            status = MEM_Calloc(
+              (void **) &tmpNumBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
 
-            status =
-              MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
-
-            retVal = copy_from_user(
-              numBuffers, smaAttrs.numBuffers, BUF_MEM_SIZE);
+            retVal = copy_from_user((void*) tmpNumBuffers,
+                                    (void*) smaAttrs.numBuffers,
+                                    BUF_MEM_SIZE);
 
             if (DSP_SUCCEEDED(status) && retVal == 0) {
-
-              /* NOTE, this serves as a temporary container, which we later
-                 will read to write to yet another container */
-              smaAttrs.numBuffers = numBuffers;
-              smaAttrs.bufSizes = bufSizes;
-
-              for (i = 0 ; i < smaAttrs.numBufPools ; i++) {
+              for (i = 0; i < NUM_BUF_POOLS; i++) {
                 /* buffer size is not aligned with the L2 cache line size */
-                if (numBuffers[i] != 0 && (bufSizes[i] % CACHE_L2_LINESIZE))
+                if (tmpNumBuffers[i] != 0
+                && (tmpBufSizes[i] % CACHE_L2_LINESIZE))
                 {
                   status = DSP_EINVALIDARG;
                   SET_FAILURE_REASON;
@@ -549,7 +552,7 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
           ctrlPtr = smaState->ctrlPtr;
 
           /* Convert the buffer handle from DSP to GPP address space */
-          smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs;
+          smaBufObj = (SmaBufObj*) smaState->ctrlPtr->smaBufObjs;
 
           /* We use a distance of "sizeof(SmaBufObj) * MAX_SMABUFENTRIES", to
              create a buffer header (to provide a provision for adding new
@@ -562,34 +565,33 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
           TRC_1PRINT (TRC_LEVEL4,
                "SMAPOOL buffers start DSP address: 0x%x\n", bufDspHeader);
   
-          /* Check for duplicate size entries in SMA attributes. NKim, guess
-             it is safe to overwrite 'bufSizes' and 'numBuffers' since we
-             have provided copies and saved them above */
-          status =
-            MEM_Alloc((Void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
+          /* now allocate buffers and sizes again (into different arrays) */
+          status = MEM_Alloc(
+            (void **) &bufSizes, BUF_MEM_SIZE, MEM_DEFAULT);
 
-          if (DSP_SUCCEEDED (status)) {
+          if (DSP_SUCCEEDED(status)) {
 
-            status =
-              MEM_Calloc((Void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
+            status = MEM_Calloc(
+              (void **) &numBuffers, BUF_MEM_SIZE, MEM_DEFAULT);
 
-            if (DSP_SUCCEEDED (status)) {
+            if (DSP_SUCCEEDED(status)) {
 
-              /* rearrange stuff by reading 'smaAttrs'-array and writing to
-                 newly created arrays on the heap */
-              for (i = 0; i < smaAttrs.numBufPools; i++) {
+              /* rearrange data by reading temporary arrays we provided just
+                 for that purpose specifically */
+              for (i = 0; i < NUM_BUF_POOLS; i++) {
                 if (numBuffers[i] != (Uint32) -1) {
                   bufSizes[count] =
-                    DSPLINK_ALIGN(smaAttrs.bufSizes[i], BUS_WIDTH);
+                    DSPLINK_ALIGN(tmpBufSizes[i], BUS_WIDTH);
 
                   DBC_Assert(bufSizes[count] % BUS_WIDTH == 0);
-                  numBuffers[count] = smaAttrs.numBuffers[i];
 
-                  for (j = i + 1; j < smaAttrs.numBufPools; j++) {
+                  numBuffers[count] = tmpNumBuffers[i];
+
+                  for (j = i + 1; j < NUM_BUF_POOLS; j++) {
                     if (bufSizes[count] ==
-                        DSPLINK_ALIGN(smaAttrs.bufSizes[j], BUS_WIDTH))
+                        DSPLINK_ALIGN(tmpBufSizes[j], BUS_WIDTH))
                     {
-                      numBuffers[count] += smaAttrs.numBuffers[j];
+                      numBuffers[count] += tmpNumBuffers[j];
                       numBuffers[j] = (Uint32) -1;
                     }
                   }
@@ -601,8 +603,8 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
               /* NKim, NOTE, the array we used as a temporary to read from,
                  is gone now. Make sure not to use it. Use local variables
                  'bufSizes' and 'numBuffers' instead */
-              FREE_PTR(smaAttrs.bufSizes);
-              FREE_PTR(smaAttrs.numBuffers);
+              FREE_PTR(tmpBufSizes);
+              FREE_PTR(tmpNumBuffers);
             }
             else {
               irqFlags = SYNC_SpinLockStartEx(smaState->lock);
@@ -610,7 +612,6 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
 
               SYNC_SpinLockEndEx(smaState->lock, irqFlags);
               SET_FAILURE_REASON;
-              FREE_PTR(bufSizes);
             }
           }
           else {
@@ -622,7 +623,6 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
           }
 
           if (DSP_SUCCEEDED (status)) {
-
             /* NKim, now sort the buffer sizes and buffers, awesome bubble-
                sort stuff going on here */
             for (i = 0; i < count; i++) {
@@ -664,10 +664,11 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                 bufHeader = (Uint8 *) (smaBufObj[i].startAddress);
 
                 /* Create the buffer pools */
-                for (j = 0; j < numBuffers[i] ; j++) {
+                for (j = 0; j < numBuffers[i]; j++) {
+
                   ((SmaBufHeader*) bufHeader)->next =
-                    (SmaBufHeader *) SWAP_LONG(smaBufObj[i].size * (j + 1),
-                                               smaBufObj[i].wordSwap);
+                    (SmaBufHeader*) SWAP_LONG(smaBufObj[i].size * (j + 1),
+                                              smaBufObj[i].wordSwap);
 
                   bufHeader += bufSizes[i];
                 }
@@ -676,11 +677,13 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
                                               smaState->dspMaduSize);
               }
               else {
-                status = DSP_ERANGE;
-                PRINT_Printf("Error: Configured pool size is not sufficient "
-                             "for passed parameters. "
-                             "Check /dsplink/config/all/CFG_<PLATFORM>.c\n");
+                TRC_1PRINT(TRC_LEVEL7,
+                           "*** error in '%s': configured pool size is not "
+                           "sufficient for specified parameters. "
+                           "Check 'dsplink/config/all/CFG_<PLATFORM>.c'\n",
+                           __FUNCTION__);
 
+                status = DSP_ERANGE;
                 SET_FAILURE_REASON;
               }
             }
@@ -709,16 +712,14 @@ EXPORT_API DSP_STATUS SMAPOOL_open(IN ProcessorId dspId,
 
   if (DSP_SUCCEEDED(status)) {
     /* Update the pool parameters for translation. This is to be used later
-       with alloc and free, when called from the user process */
+       with alloc, free, and mmap when called from the user process */
     poolOpenParams->physAddr = smaState->bufPhysMemAddr;
     poolOpenParams->virtAddr = smaState->bufGppMemAddr;
     poolOpenParams->dspAddr = smaState->bufDspMemAddr;
     poolOpenParams->size = smaState->bufPoolSize;
   }
 
-  printk(KERN_ALERT "'SMAPOOL_open' executed, status: 0x%lx\n", status);
   TRC_1LEAVE("SMAPOOL_open", status);
-
   return status;
 }
 
@@ -788,122 +789,115 @@ SMAPOOL_close (IN  ProcessorId       dspId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  SMAPOOL_alloc
+  @desc  This function allocates a free buffer from the specified buffer pool
+         and returns it to the user
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   SMAPOOL_alloc
- *
- *  @desc   This function allocates a free buffer from the specified buffer pool
- *          and returns it to the user.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-SMAPOOL_alloc (IN  ProcessorId       dspId,
-               IN  Uint32            poolId,
-               IN  Void *            object,
-               OUT Pvoid *           bufPtr,
-               IN  Uint32            size)
+EXPORT_API DSP_STATUS SMAPOOL_alloc(IN ProcessorId dspId,
+                                    IN Uint32 poolId,
+                                    IN Void *object,
+                                    OUT Pvoid *bufPtr,
+                                    IN Uint32 size)
 {
-    DSP_STATUS       status = DSP_SOK ;
-    Uint32           i      = 0       ;
-    Uint32           poolIndx = 0     ;
-    Bool             found  = FALSE   ;
-    SMAPOOL_Object * smaState         ;
-    SMAPOOL_Ctrl *   ctrlPtr          ;
-    SmaBufObj *      smaBufObj        ;    /* Holds the buffer handles */
-    MPCS_ShObj *     mpcsObj          ;
-    SmaBufHeader *   bufHeader        ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i = 0;
+  Uint32 poolIndx = 0;
+  Bool found = FALSE;
+  SMAPOOL_Object *smaState;
+  SMAPOOL_Ctrl *ctrlPtr;
 
-    TRC_5ENTER ("SMAPOOL_alloc", dspId, poolId, object, bufPtr, size) ;
+  /* Holds the buffer handles */
+  SmaBufObj *smaBufObj;
+  MPCS_ShObj *mpcsObj;
+  SmaBufHeader *bufHeader;
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (poolId != POOL_INVALIDID) ;
-    DBC_Require (object != NULL) ;
-    DBC_Require (bufPtr != NULL) ;
-    DBC_Require (size   != 0) ;
+  TRC_5ENTER("SMAPOOL_alloc", dspId, poolId, object, bufPtr, size);
 
-    smaState  = (SMAPOOL_Object *) object ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(poolId != POOL_INVALIDID);
+  DBC_Require(object != NULL);
+  DBC_Require(bufPtr != NULL);
+  DBC_Require(size != 0);
 
-    /* Check if pool is opened. */
-    if (smaState->refCount == 0) {
-        status = DSP_EFAIL ;
-        *bufPtr = NULL;
-        SET_FAILURE_REASON ;
+  smaState = (SMAPOOL_Object *) object;
+
+  /* Check if pool is opened */
+  if (smaState->refCount == 0) {
+    status = DSP_EFAIL;
+    *bufPtr = NULL;
+    SET_FAILURE_REASON;
+  }
+  else {
+    ctrlPtr = smaState->ctrlPtr;
+    mpcsObj = (MPCS_ShObj *) &(smaState->smaShmObj->mpcsObj);
+    smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs;
+
+    /* Convert the size to DSP addressable size */
+    size  = DSPLINK_ALIGN(size, BUS_WIDTH);
+    size /= smaState->dspMaduSize;
+
+    for (i = 0; (i < ctrlPtr->numBufs) && (found == FALSE); i++) {
+      if (smaState->smaShmObj->exactMatchReq == FALSE) {
+
+        /* Look for the nearest match for the requested size */
+        if (SWAP_LONG(smaBufObj[i].size, smaState->wordSwap) >= size)
+        {
+          /* Found a match for required size */
+          found = TRUE;
+          poolIndx = i;
+        }
+      }
+      else {
+        /* Look for the exact match for the requested size */
+        if (SWAP_LONG(smaBufObj[i].size, smaState->wordSwap) == size)
+        {
+          /* Found a match for required size */
+          found = TRUE;
+          poolIndx = i;
+        }
+      }
+    }
+
+    if (found == TRUE) {
+      /* Enter the critical section */
+      LDRV_MPCS_enter(mpcsObj);
+
+      if (smaBufObj[poolIndx].freeBuffers != 0) {
+        bufHeader =
+          (SmaBufHeader *)(smaBufObj[poolIndx].nextFree +
+                           smaBufObj[poolIndx].startAddress);
+
+        smaBufObj[poolIndx].nextFree = SWAP_LONG(
+                                          (Uint32) bufHeader->next,
+                                          smaState->wordSwap);
+
+        smaBufObj[poolIndx].freeBuffers--;
+        *bufPtr = bufHeader;
+      }
+      else {
+        status = DSP_EMEMORY;
+        SET_FAILURE_REASON;
+      }
+
+      /* leave the critical section */
+      LDRV_MPCS_leave(mpcsObj);
     }
     else {
-        ctrlPtr = smaState->ctrlPtr ;
-        mpcsObj = (MPCS_ShObj *) &(smaState->smaShmObj->mpcsObj) ;
-        smaBufObj = (SmaBufObj *) smaState->ctrlPtr->smaBufObjs ;
-
-        /* ---------------------------------------------------------------------
-         * Convert the size to DSP addressable size.
-         * ---------------------------------------------------------------------
-         */
-        size  = DSPLINK_ALIGN (size, BUS_WIDTH) ;
-        size /= smaState->dspMaduSize ;
-
-        for (i = 0 ; (i < ctrlPtr->numBufs) && (found == FALSE) ; i++) {
-            if (smaState->smaShmObj->exactMatchReq == FALSE) {
-                /* Look for the nearest match for the requested size */
-                if (SWAP_LONG (smaBufObj [i].size, smaState->wordSwap) >= size){
-                    /* Found a match for required size. */
-                    found = TRUE ;
-                    poolIndx = i ;
-                }
-             }
-             else {
-                /* Look for the exact match for the requested size */
-                if (SWAP_LONG (smaBufObj [i].size, smaState->wordSwap) == size){
-                    /* Found a match for required size. */
-                    found = TRUE ;
-                    poolIndx = i ;
-                }
-            }
-        }
-
-        if (found == TRUE) {
-            /* -----------------------------------------------------------------
-             * Enter the critical section.
-             * -----------------------------------------------------------------
-             */
-            LDRV_MPCS_enter (mpcsObj) ;
-
-            if (smaBufObj [poolIndx].freeBuffers != 0) {
-                bufHeader = (SmaBufHeader *)
-                                         (  smaBufObj [poolIndx].nextFree
-                                          + smaBufObj [poolIndx].startAddress) ;
-                smaBufObj [poolIndx].nextFree = SWAP_LONG ((Uint32) bufHeader->next,
-                                                    smaState->wordSwap) ;
-                smaBufObj [poolIndx].freeBuffers-- ;
-                *bufPtr = bufHeader ;
-            }
-            else {
-                status = DSP_EMEMORY ;
-                SET_FAILURE_REASON ;
-            }
-
-            /* -----------------------------------------------------------------
-             * leave the critical section.
-             * -----------------------------------------------------------------
-             */
-            LDRV_MPCS_leave (mpcsObj) ;
-        }
-        else {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
     }
+  }
 
-    DBC_Ensure (  (DSP_SUCCEEDED (status) && (*bufPtr != NULL))
-                || DSP_FAILED (status)) ;
-    DBC_Ensure (   (DSP_FAILED (status) && (*bufPtr == NULL))
-                || DSP_SUCCEEDED (status)) ;
+  DBC_Ensure((DSP_SUCCEEDED(status) && (*bufPtr != NULL))
+           || DSP_FAILED(status));
 
-    TRC_1LEAVE ("SMAPOOL_alloc", status) ;
+  DBC_Ensure((DSP_FAILED(status) && (*bufPtr == NULL))
+           || DSP_SUCCEEDED(status));
 
-    return status ;
+  TRC_1LEAVE("SMAPOOL_alloc", status);
+  return status;
 }
 
 

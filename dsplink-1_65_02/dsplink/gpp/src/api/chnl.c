@@ -99,51 +99,46 @@ extern "C" {
 
 
 
-/** ============================================================================
- *  @func   CHNL_create
- *
- *  @desc   Creates resources used for transferring data between GPP and DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-CHNL_create (IN ProcessorId     procId,
-             IN ChannelId       chnlId,
-             IN ChannelAttrs *  attrs)
+/*******************************************************************************
+  @func  CHNL_create
+  @desc  Creates resources used for transferring data between GPP and DSP
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS CHNL_create(IN ProcessorId procId,
+                                  IN ChannelId chnlId,
+                                  IN ChannelAttrs *attrs)
 {
-    DSP_STATUS  status = DSP_SOK ;
-    CMD_Args    args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_3ENTER ("CHNL_create", procId, chnlId, attrs) ;
+  TRC_3ENTER("CHNL_create", procId, chnlId, attrs);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (IS_VALID_CHNL_ATTRS (attrs)) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(IS_VALID_CHNL_ATTRS(attrs));
 
-    if (   (IS_VALID_PROCID (procId)         == FALSE)
-        || (IS_VALID_CHNLID (procId, chnlId) == FALSE)
-        || (IS_VALID_CHNL_ATTRS (attrs)      == FALSE)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(procId) == FALSE)
+  || (IS_VALID_CHNLID(procId, chnlId) == FALSE)
+  || (IS_VALID_CHNL_ATTRS(attrs) == FALSE))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.chnlCreateArgs.procId = procId;
+    args.apiArgs.chnlCreateArgs.chnlId = chnlId;
+    args.apiArgs.chnlCreateArgs.attrs = attrs;
+
+    status = DRV_INVOKE(DRV_handle, CMD_CHNL_CREATE, &args);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.chnlCreateArgs.procId = procId ;
-        args.apiArgs.chnlCreateArgs.chnlId = chnlId ;
-        args.apiArgs.chnlCreateArgs.attrs  = attrs ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_CHNL_CREATE, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("CHNL_create", status) ;
-
-    return status ;
+  TRC_1LEAVE("CHNL_create", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   CHNL_delete
@@ -187,118 +182,107 @@ CHNL_delete (IN ProcessorId  procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  CHNL_allocateBuffer
+  @desc  Allocates an array of buffers of specified size and returns them
+         to the client
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   CHNL_allocateBuffer
- *
- *  @desc   Allocates an array of buffers of specified size and returns them
- *          to the client.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-CHNL_allocateBuffer (IN  ProcessorId procId,
-                     IN  ChannelId   chnlId,
-                     OUT Char8 **    bufArray,
-                     IN  Uint32      size,
-                     IN  Uint32      numBufs)
+EXPORT_API DSP_STATUS CHNL_allocateBuffer(IN ProcessorId procId,
+                                          IN ChannelId chnlId,
+                                          OUT Char8 **bufArray,
+                                          IN Uint32 size,
+                                          IN Uint32 numBufs)
 {
-    DSP_STATUS status = DSP_SOK ;
-    CMD_Args   args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_5ENTER ("CHNL_allocateBuffer",
-                procId,
-                chnlId,
-                size,
-                bufArray,
-                numBufs) ;
+  TRC_5ENTER("CHNL_allocateBuffer",
+             procId,
+             chnlId,
+             size,
+             bufArray,
+             numBufs);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (bufArray != NULL) ;
-    DBC_Require (size     != 0) ;
-    DBC_Require (numBufs  <= MAX_ALLOC_BUFFERS) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(bufArray != NULL);
+  DBC_Require(size != 0);
+  DBC_Require(numBufs <= MAX_ALLOC_BUFFERS);
 
-    if (   (IS_VALID_PROCID (procId)         == FALSE)
-        || (IS_VALID_CHNLID (procId, chnlId) == FALSE)
-        || (bufArray == NULL)
-        || (size     == 0)
-        || (numBufs == 0 )
-        || (numBufs  > MAX_ALLOC_BUFFERS)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(procId) == FALSE)
+  || (IS_VALID_CHNLID(procId, chnlId) == FALSE)
+  || (bufArray == NULL)
+  || (size == 0)
+  || (numBufs == 0 )
+  || (numBufs > MAX_ALLOC_BUFFERS))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.chnlAllocateBufferArgs.procId = procId;
+    args.apiArgs.chnlAllocateBufferArgs.chnlId = chnlId;
+    args.apiArgs.chnlAllocateBufferArgs.bufArray = bufArray;
+    args.apiArgs.chnlAllocateBufferArgs.size = size;
+    args.apiArgs.chnlAllocateBufferArgs.numBufs = numBufs;
+
+    status = DRV_INVOKE(DRV_handle, CMD_CHNL_ALLOCATEBUFFER, &args);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.chnlAllocateBufferArgs.procId   = procId   ;
-        args.apiArgs.chnlAllocateBufferArgs.chnlId   = chnlId   ;
-        args.apiArgs.chnlAllocateBufferArgs.bufArray = bufArray ;
-        args.apiArgs.chnlAllocateBufferArgs.size     = size     ;
-        args.apiArgs.chnlAllocateBufferArgs.numBufs  = numBufs  ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_CHNL_ALLOCATEBUFFER, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("CHNL_allocateBuffer", status) ;
-
-    return status ;
+  TRC_1LEAVE("CHNL_allocateBuffer", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  CHNL_freeBuffer
+  @desc  Frees buffer(s) allocated by CHNL_allocateBuffer
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   CHNL_freeBuffer
- *
- *  @desc   Frees buffer(s) allocated by CHNL_allocateBuffer.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-CHNL_freeBuffer (IN ProcessorId procId,
-                 IN ChannelId   chnlId,
-                 IN Char8 **    bufArray,
-                 IN Uint32      numBufs)
+EXPORT_API DSP_STATUS CHNL_freeBuffer(IN ProcessorId procId,
+                                      IN ChannelId chnlId,
+                                      IN Char8 **bufArray,
+                                      IN Uint32 numBufs)
 {
-    DSP_STATUS status = DSP_SOK ;
-    CMD_Args   args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_4ENTER ("CHNL_freeBuffer", procId, chnlId, bufArray, numBufs) ;
+  TRC_4ENTER("CHNL_freeBuffer", procId, chnlId, bufArray, numBufs);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (bufArray != NULL) ;
-    DBC_Require (numBufs <= MAX_ALLOC_BUFFERS) ;
+  DBC_Require (IS_VALID_PROCID(procId));
+  DBC_Require (IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require (bufArray != NULL);
+  DBC_Require (numBufs <= MAX_ALLOC_BUFFERS);
 
-    if (   (IS_VALID_PROCID (procId)         == FALSE)
-        || (IS_VALID_CHNLID (procId, chnlId) == FALSE)
-        || (bufArray == NULL)
-        || (numBufs == 0)
-        || (numBufs > MAX_ALLOC_BUFFERS)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(procId) == FALSE)
+  || (IS_VALID_CHNLID(procId, chnlId) == FALSE)
+  || (bufArray == NULL)
+  || (numBufs == 0)
+  || (numBufs > MAX_ALLOC_BUFFERS))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.chnlFreeBufferArgs.procId = procId;
+    args.apiArgs.chnlFreeBufferArgs.chnlId = chnlId;
+    args.apiArgs.chnlFreeBufferArgs.bufArray = bufArray;
+    args.apiArgs.chnlFreeBufferArgs.numBufs  = numBufs;
+
+    status = DRV_INVOKE(DRV_handle, CMD_CHNL_FREEBUFFER, &args);
+
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.chnlFreeBufferArgs.procId   = procId   ;
-        args.apiArgs.chnlFreeBufferArgs.chnlId   = chnlId   ;
-        args.apiArgs.chnlFreeBufferArgs.bufArray = bufArray ;
-        args.apiArgs.chnlFreeBufferArgs.numBufs  = numBufs  ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_CHNL_FREEBUFFER, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("CHNL_freeBuffer", status) ;
-
-    return status ;
+  TRC_1LEAVE("CHNL_freeBuffer", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   CHNL_issue
@@ -350,52 +334,47 @@ CHNL_issue (IN ProcessorId     procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  CHNL_reclaim
+  @desc  Gets the buffer back that has been issued to this channel
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   CHNL_reclaim
- *
- *  @desc   Gets the buffer back that has been issued to this channel.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-CHNL_reclaim (IN     ProcessorId      procId,
-              IN     ChannelId        chnlId,
-              IN     Uint32           timeout,
-              IN OUT ChannelIOInfo *  ioReq)
+EXPORT_API DSP_STATUS CHNL_reclaim(IN ProcessorId procId,
+                                   IN ChannelId chnlId,
+                                   IN Uint32 timeout,
+                                   IN OUT ChannelIOInfo *ioReq)
 {
-    DSP_STATUS status = DSP_SOK ;
-    CMD_Args   args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_4ENTER ("CHNL_reclaim", procId, chnlId, timeout, ioReq) ;
+  TRC_4ENTER("CHNL_reclaim", procId, chnlId, timeout, ioReq);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (ioReq != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(IS_VALID_CHNLID (procId, chnlId));
+  DBC_Require(ioReq != NULL) ;
 
-    if (   (IS_VALID_PROCID (procId)         == FALSE)
-        || (IS_VALID_CHNLID (procId, chnlId) == FALSE)
-        || (ioReq == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(procId) == FALSE)
+  || (IS_VALID_CHNLID(procId, chnlId) == FALSE)
+  || (ioReq == NULL))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.chnlReclaimArgs.procId = procId;
+    args.apiArgs.chnlReclaimArgs.chnlId = chnlId;
+    args.apiArgs.chnlReclaimArgs.timeout = timeout;
+    args.apiArgs.chnlReclaimArgs.ioReq = ioReq;
+
+    status = DRV_INVOKE(DRV_handle, CMD_CHNL_RECLAIM, &args);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.chnlReclaimArgs.procId = procId   ;
-        args.apiArgs.chnlReclaimArgs.chnlId = chnlId   ;
-        args.apiArgs.chnlReclaimArgs.timeout = timeout ;
-        args.apiArgs.chnlReclaimArgs.ioReq  = ioReq    ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_CHNL_RECLAIM, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("CHNL_reclaim", status) ;
-
-    return status ;
+  TRC_1LEAVE("CHNL_reclaim", status);
+  return status;
 }
 
 

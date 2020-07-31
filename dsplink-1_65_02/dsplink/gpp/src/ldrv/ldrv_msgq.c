@@ -1022,90 +1022,76 @@ LDRV_MSGQ_put (IN MSGQ_Queue msgqQueue, IN MSGQ_Msg msg)
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_MSGQ_get
+  @desc  This function receives a message on the specified MSGQ
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_MSGQ_get
- *
- *  @desc   This function receives a message on the specified MSGQ.
- *
- *  @modif  None.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-LDRV_MSGQ_get (IN MSGQ_Queue msgqQueue, IN Uint32 timeout, OUT MSGQ_Msg * msg)
+EXPORT_API DSP_STATUS LDRV_MSGQ_get(IN MSGQ_Queue msgqQueue,
+                                    IN Uint32 timeout,
+                                    OUT MSGQ_Msg *msg)
 {
-    DSP_STATUS        status  = DSP_SOK ;
-    LDRV_MSGQ_Handle  msgqHandle ;
-    Uint32            irqFlags ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_MSGQ_Handle msgqHandle;
+  Uint32 irqFlags;
 
-    TRC_3ENTER ("LDRV_MSGQ_get", msgqQueue, timeout, msg) ;
+  TRC_3ENTER("LDRV_MSGQ_get", msgqQueue, timeout, msg);
 
-    DBC_Require (LDRV_MSGQ_IsInitialized == TRUE) ;
-    DBC_Require (IS_VALID_MSGQ (msgqQueue)) ;
-    DBC_Require (msg != NULL) ;
+  DBC_Require(LDRV_MSGQ_IsInitialized == TRUE);
+  DBC_Require(IS_VALID_MSGQ (msgqQueue));
+  DBC_Require(msg != NULL) ;
 
-    msgqHandle = LDRV_MSGQ_StateObj.msgqHandles [(MSGQ_Id) msgqQueue] ;
-    DBC_Assert (msgqHandle != NULL) ;
+  msgqHandle = LDRV_MSGQ_StateObj.msgqHandles[(MSGQ_Id) msgqQueue];
+  DBC_Assert(msgqHandle != NULL);
 
-    *msg = NULL ;
+  *msg = NULL;
 
-    while ((DSP_SUCCEEDED (status)) && (*msg == NULL)) {
-        /*  --------------------------------------------------------------------
-         *  Get the first element of the queue in msg. If the queue is empty,
-         *  NULL will be returned which is not an error condition.
-         *  --------------------------------------------------------------------
-         */
-        irqFlags = SYNC_SpinLockStartEx (LDRV_MSGQ_StateObj.lock) ;
-        status = LIST_GetHead (msgqHandle->queue,
-                               (ListElement **) ((Pvoid) msg)) ;
-        SYNC_SpinLockEndEx (LDRV_MSGQ_StateObj.lock, irqFlags) ;
+  while ((DSP_SUCCEEDED(status)) && (*msg == NULL)) {
+    /* Get the first element of the queue in msg. If the queue is empty,
+       NULL will be returned which is not an error condition */
+    irqFlags = SYNC_SpinLockStartEx(LDRV_MSGQ_StateObj.lock);
 
-        /*  --------------------------------------------------------------------
-         *  Wait on the semaphore till the time a message comes in this local
-         *  queue. This semaphore will be posted by MSGQ_put.
-         *  If the semaphore was already posted, below call returns immediately.
-         *  However, the list could still be empty, because the message might
-         *  have been taken away by a previous call. In this case, try to get
-         *  the message once more (while loop), and wait once more if a message
-         *  was not available.
-         *  --------------------------------------------------------------------
-         */
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-        else if (*msg == NULL) {
-            status = msgqHandle->pend (msgqHandle->ntfyHandle, timeout) ;
-            if ((timeout == SYNC_NOWAIT) && (status == SYNC_E_FAIL)) {
-                status = DSP_ENOTCOMPLETE ;
-                SET_FAILURE_REASON ;
-            }
-            else if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-            else {
-                /* Added for MISRAC compliance */
-            }
-        }
-        else {
-            /* Added for MISRAC compliance */
-        }
+    status = LIST_GetHead(msgqHandle->queue,
+                          (ListElement **) ((Pvoid) msg));
+
+    SYNC_SpinLockEndEx(LDRV_MSGQ_StateObj.lock, irqFlags);
+
+    /* Wait on the semaphore till the time a message comes in this local
+       queue. This semaphore will be posted by MSGQ_put. If the semaphore
+       was already posted, below call returns immediately.  However, the
+       list could still be empty, because the message might have been taken
+       away by a previous call. In this case, try to get the message once
+       more (while loop), and wait again if a message was not available */
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
+    else if (*msg == NULL) {
+      status = msgqHandle->pend(msgqHandle->ntfyHandle, timeout);
+
+      if ((timeout == SYNC_NOWAIT) && (status == SYNC_E_FAIL)) {
+        status = DSP_ENOTCOMPLETE;
+        SET_FAILURE_REASON;
+      }
+      else if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+      else { /* Added for MISRA C compliance */ }
+    }
+    else { /* Added for MISRA C compliance */ }
+  }
 
 #if defined (DDSP_PROFILE)
-    if (DSP_SUCCEEDED (status)) {
-        msgqHandle->msgqStats.msgqData.transferred++ ;
-    }
-#endif /* defined (DDSP_PROFILE) */
+  if (DSP_SUCCEEDED (status)) {
+    msgqHandle->msgqStats.msgqData.transferred++;
+  }
+#endif
 
-    DBC_Ensure (   ((*msg != NULL) && (DSP_SUCCEEDED (status)))
-                || ((*msg == NULL) && (DSP_FAILED (status)))) ;
+  DBC_Ensure(((*msg != NULL) && (DSP_SUCCEEDED (status)))
+          || ((*msg == NULL) && (DSP_FAILED (status))));
 
-    TRC_1LEAVE ("LDRV_MSGQ_get", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_MSGQ_get", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_MSGQ_count

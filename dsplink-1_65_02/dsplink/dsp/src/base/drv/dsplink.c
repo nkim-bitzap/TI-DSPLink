@@ -180,8 +180,6 @@ Void DSPLINK_init(Void)
   Uint16 dspHandshake = DRV_HANDSHAKE_BASE;
   DRV_Ctrl *ctrlPtr = NULL;
 
-  DBC_assert(FALSE);
-
   /* Call the internal function to initialize DSPLINK. By this time all data
      drivers (if any) and pools (if any) are already initialized */
   _DSPLINK_init();
@@ -250,10 +248,8 @@ Void _DSPLINK_init(Void)
     if (strncmp(ctrlPtr->version, DSPLINK_VERSION, (NUM_CHARS_VERSION -1))
         != 0)
     {
-      printf("*** error in '%s': version DSPLINK version mismatch "
-             "between GPP (version %s) and DSP (version %s)\n",
-             __FUNCTION__, ctrlPtr->version, DSPLINK_VERSION);
-
+      /* DSPLINK version mismatch between GPP and DSP, if you get here, you
+         need to revisit/corrent configurations for both sides */
       status = SYS_ENODEV;
       ctrlPtr->drvDspInitDone = (Uint32) status;
       SET_FAILURE_REASON(status);
@@ -274,8 +270,6 @@ Void _DSPLINK_init(Void)
 
     if (status == SYS_OK) {
       ctrlPtr->procId = GBL_getProcId();
-
-      printf("+++ set procId: 0x%x\n", ctrlPtr->procId);
     }
 
     if (status == SYS_OK) {
@@ -285,9 +279,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->drvDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing SHM component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -302,9 +293,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->ipsDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing IPS component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -316,9 +304,6 @@ Void _DSPLINK_init(Void)
                                 ctrlPtr->poolAddr);
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing POOL component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -332,9 +317,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->mpcsDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing MPCS component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -348,9 +330,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->mplistDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing MPLIST component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -369,9 +348,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->mqtDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing MQT component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON (status);
       }
     }
@@ -384,9 +360,6 @@ Void _DSPLINK_init(Void)
                                 ctrlPtr->dataAddr);
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing DATA component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -401,9 +374,6 @@ Void _DSPLINK_init(Void)
       dspHandshake |= DRV_HANDSHAKE_NOTIFY;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing NOTIFY component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status) ;
 
         if (ctrlPtr->ipsDspInitDone == SYS_OK) {
@@ -421,9 +391,6 @@ Void _DSPLINK_init(Void)
       ctrlPtr->ringIoDspInitDone = (Uint32) status;
 
       if (status != SYS_OK) {
-        printf("*** error in '%s': failed initializing RINGIO component\n",
-               __FUNCTION__);
-
         SET_FAILURE_REASON(status);
       }
     }
@@ -439,10 +406,7 @@ Void _DSPLINK_init(Void)
   }
 
   DBC_ensure(DSPLINK_isInitialized == TRUE);
-
-  printf("'_DSPLINK_init' executed, status 0x%x\n", status);
 }
-
 
 #if defined (POOL_COMPONENT)
 #if !defined (POOL_open) /* To ensure no clash with future BIOS definition */

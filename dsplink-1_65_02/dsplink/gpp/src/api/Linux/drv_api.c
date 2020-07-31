@@ -93,10 +93,6 @@
 #include <_proc.h>
 #include <_sync_usr.h>
 
-#ifndef DDSP_DEBUG
-#define DDSP_DEBUG
-#endif
-
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
@@ -300,6 +296,130 @@ static
 void
 DSPLINK_sigHandler (int sigNum) ;
 
+/*******************************************************************************
+  @name  getCmdString
+  @desc  For debugging purposes get a printable name for a command
+*******************************************************************************/
+
+Char8 *getCmdString(Uint32 cmd)
+{
+  switch (cmd) {
+    case BASE_CMD: return "BASE_CMD";
+    case CMD_PROC_SETUP: return "CMD_PROC_SETUP";
+    case CMD_PROC_DESTROY: return "CMD_PROC_DESTROY";
+    case CMD_PROC_START: return "CMD_PROC_START";
+    case CMD_PROC_STOP: return "CMD_PROC_STOP";
+    case CMD_PROC_LOAD: return "CMD_PROC_LOAD";
+    case CMD_PROC_LOADSECTION: return "CMD_PROC_LOADSECTION";
+    case CMD_PROC_DETACH: return "CMD_PROC_DETACH";
+    case CMD_PROC_ATTACH: return "CMD_PROC_ATTACH";
+    case CMD_PROC_GETSTATE: return "CMD_PROC_GETSTATE";
+    case CMD_PROC_CONTROL: return "CMD_PROC_CONTROL";
+    case CMD_PROC_READ: return "CMD_PROC_READ";
+    case CMD_PROC_WRITE: return "CMD_PROC_WRITE";
+    case CMD_PROC_GETSYMBOLADDRESS: return "CMD_PROC_GETSYMBOLADDRESS";
+    case CMD_PROC_SENDTERMEVT: return "CMD_PROC_SENDTERMEVT";
+    case CMD_PROC_ISLASTDESTROY: return "CMD_PROC_ISLASTDESTROY";
+    case CMD_PROC_ISLASTDETACH: return "CMD_PROC_ISLASTDETACH";
+    case CMD_PROC_CLEANUP: return "CMD_PROC_CLEANUP";
+    case CMD_PROC_ADDRTRANSLATE: return "CMD_PROC_ADDRTRANSLATE";
+
+#if defined (DDSP_PROFILE)
+    case CMD_PROC_INSTRUMENT: return "CMD_PROC_INSTRUMENT";
+#endif
+
+#if defined (DDSP_DEBUG)
+    case CMD_PROC_DEBUG: return "CMD_PROC_DEBUG";
+#endif
+
+#if defined (CHNL_COMPONENT)
+    case CMD_CHNL_CREATE: return "CMD_CHNL_CREATE";
+    case CMD_CHNL_DELETE: return "CMD_CHNL_DELETE";
+    case CMD_CHNL_ISSUE: return "CMD_CHNL_ISSUE";
+    case CMD_CHNL_RECLAIM: return "CMD_CHNL_RECLAIM";
+    case CMD_CHNL_ALLOCATEBUFFER: return "CMD_CHNL_ALLOCATEBUFFER";
+    case CMD_CHNL_FREEBUFFER: return "CMD_CHNL_FREEBUFFER";
+    case CMD_CHNL_IDLE: return "CMD_CHNL_IDLE";
+    case CMD_CHNL_FLUSH: return "CMD_CHNL_FLUSH";
+    case CMD_CHNL_CONTROL: return "CMD_CHNL_CONTROL";
+    case CMD_DRV_GETCHNLMAPTABLE_ADDRESS:
+      return "CMD_DRV_GETCHNLMAPTABLE_ADDRESS";
+
+#if defined (DDSP_PROFILE)
+    case CMD_CHNL_INSTRUMENT: return "CMD_CHNL_INSTRUMENT";
+#endif
+
+#if defined (DDSP_DEBUG)
+    case CMD_CHNL_DEBUG: return "CMD_CHNL_DEBUG";
+#endif
+
+#endif /* CHNL_COMPONENT */
+
+#if defined (MSGQ_COMPONENT)
+    case CMD_MSGQ_TRANSPORTOPEN: return "CMD_MSGQ_TRANSPORTOPEN";
+    case CMD_MSGQ_TRANSPORTCLOSE: return "CMD_MSGQ_TRANSPORTCLOSE";
+    case CMD_MSGQ_OPEN: return "CMD_MSGQ_OPEN";
+    case CMD_MSGQ_CLOSE: return "CMD_MSGQ_CLOSE";
+    case CMD_MSGQ_LOCATE: return "CMD_MSGQ_LOCATE";
+    case CMD_MSGQ_LOCATEASYNC: return "CMD_MSGQ_LOCATEASYNC";
+    case CMD_MSGQ_RELEASE: return "CMD_MSGQ_RELEASE";
+    case CMD_MSGQ_ALLOC: return "CMD_MSGQ_ALLOC";
+    case CMD_MSGQ_FREE: return "CMD_MSGQ_FREE";
+    case CMD_MSGQ_PUT: return "CMD_MSGQ_PUT";
+    case CMD_MSGQ_GET: return "CMD_MSGQ_GET";
+    case CMD_MSGQ_SETERRORHANDLER: return "CMD_MSGQ_SETERRORHANDLER";
+    case CMD_MSGQ_COUNT: return "CMD_MSGQ_COUNT";
+
+#if defined (DDSP_PROFILE)
+    case CMD_MSGQ_INSTRUMENT: return "CMD_MSGQ_INSTRUMENT";
+#endif
+
+#if defined (DDSP_DEBUG)
+    case CMD_MSGQ_DEBUG: return "CMD_MSGQ_DEBUG";
+#endif
+
+#endif /* MSGQ_COMPONENT */
+
+    case CMD_POOL_OPEN: return "CMD_POOL_OPEN";
+    case CMD_POOL_CLOSE: return "CMD_POOL_CLOSE";
+    case CMD_POOL_ALLOC: return "CMD_POOL_ALLOC";
+    case CMD_POOL_FREE: return "CMD_POOL_FREE";
+    case CMD_POOL_TRANSLATEADDR: return "CMD_POOL_TRANSLATEADDR";
+    case CMD_POOL_RECONFIGURE: return "CMD_POOL_RECONFIGURE";
+    case CMD_POOL_WRITEBACK: return "CMD_POOL_WRITEBACK";
+    case CMD_POOL_INVALIDATE: return "CMD_POOL_INVALIDATE";
+
+#if defined (MPCS_COMPONENT)
+    case CMD_MPCS_MAPREGION: return "CMD_MPCS_MAPREGION";
+    case CMD_MPCS_UNMAPREGION: return "CMD_MPCS_UNMAPREGION";
+#endif
+
+    case CMD_NOTIFY_INITIALIZE: return "CMD_NOTIFY_INITIALIZE";
+    case CMD_NOTIFY_FINALIZE: return "CMD_NOTIFY_FINALIZE";
+    case CMD_NOTIFY_REGISTER: return "CMD_NOTIFY_REGISTER";
+    case CMD_NOTIFY_UNREGISTER: return "CMD_NOTIFY_UNREGISTER";
+    case CMD_NOTIFY_NOTIFY: return "CMD_NOTIFY_NOTIFY";
+
+#if defined (DDSP_PROFILE)
+    case CMD_NOTIFY_INSTRUMENT: return "CMD_NOTIFY_INSTRUMENT";
+#endif
+
+    case CMD_RINGIO_MAPREGION: return "CMD_RINGIO_MAPREGION";
+    case CMD_RINGIO_UNMAPREGION: return "CMD_RINGIO_UNMAPREGION";
+
+    case CMD_MPLIST_MAPREGION: return "CMD_MPLIST_MAPREGION";
+    case CMD_MPLIST_UNMAPREGION: return "CMD_MPLIST_UNMAPREGION";
+
+    case CMD_IDM_INIT: return "CMD_IDM_INIT";
+    case CMD_IDM_EXIT: return "CMD_IDM_EXIT";
+    case CMD_IDM_CREATE: return "CMD_IDM_CREATE";
+    case CMD_IDM_DELETE: return "CMD_IDM_DELETE";
+    case CMD_IDM_ACQUIREID: return "CMD_IDM_ACQUIREID";
+    case CMD_IDM_RELEASEID: return "CMD_IDM_RELEASEID";
+
+    default: return "CMD_INVALID (UNCONFIGURED)";
+  }
+}
 
 /** ============================================================================
  *  @name   DRV_Initialize
@@ -430,14 +550,11 @@ NORMAL_API DSP_STATUS DRV_Initialize(OUT DRV_Object ** drvObj,
   return status;
 }
 
-/** ============================================================================
- *  @name   DRV_Finalize
- *
- *  @desc   Finalize function for the driver.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_Finalize
+  @desc  Finalize function for the driver
+*******************************************************************************/
+
 NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
                                    IN OUT Pvoid arg)
 {
@@ -448,11 +565,10 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
   Uint32 length;
 #endif /* if defined (CHNL_COMPONENT) */
 
-  printf("  Executing 'DRV_Finalize'\n");
-  TRC_2ENTER ("DRV_Finalize", drvObj, arg) ;
+  TRC_2ENTER("DRV_Finalize", drvObj, arg);
 
-  DBC_Require (drvObj != NULL) ;
-  DBC_Require (IS_OBJECT_VALID (drvObj, SIGN_DRV)) ;
+  DBC_Require(drvObj != NULL);
+  DBC_Require(IS_OBJECT_VALID(drvObj, SIGN_DRV));
 
   if (IS_OBJECT_VALID (drvObj, SIGN_DRV)) {
     /* This is called in protection from proc_detach, and for proc_destroy
@@ -462,6 +578,7 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
     }
 
     if (drvObj->refCount == 0) {
+
 #if defined (CHNL_COMPONENT)
       length =  sizeof (Uint32) * MAX_CHANNELS * MAX_DSPS;
       osStatus = munmap (DRV_chnlIdToPoolIdMap, length);
@@ -470,7 +587,7 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
         status = DSP_EFAIL;
         SET_FAILURE_REASON;
       }
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
 
       /* clear process id to indicate normal shutdown to driver */
       fcntl(drvObj->driverHandle, F_SETOWN, 0);
@@ -482,12 +599,12 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
       free (drvObj) ;
       drvObj = NULL ;
 
-      if ((osStatus < 0) && DSP_SUCCEEDED (status)) {
-        status = DSP_EFAIL ;
-        SET_FAILURE_REASON ;
+      if ((osStatus < 0) && DSP_SUCCEEDED(status)) {
+        status = DSP_EFAIL;
+        SET_FAILURE_REASON;
       }
       else if (DSP_SUCCEEDED (status)) {
-        status = DSP_SFINALIZED ;
+        status = DSP_SFINALIZED;
       }
     }
   }
@@ -496,7 +613,6 @@ NORMAL_API DSP_STATUS DRV_Finalize(IN DRV_Object * drvObj,
     SET_FAILURE_REASON;
   }
 
-  printf("  'DRV_Finalize' executed, status: %ld\n", status);
   TRC_1LEAVE ("DRV_Finalize", status) ;
   return status;
 }
@@ -529,9 +645,9 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
 #if defined (MSGQ_COMPONENT)
       case CMD_MSGQ_PUT:
       {
-        /* Get the pool Id from the poolno and dsp processor Id
-           args->apiArgs.msgqPutArgs.msg->poolId is poolno and not
-           poolid in 1.60 stream */
+        /* Get the pool ID from  the pool number and dsp processor ID.
+           'args->apiArgs.msgqPutArgs.msg->poolId' is pool number and not
+           pool ID in 1.60 stream */
         status = _POOL_xltBuf(args->apiArgs.msgqPutArgs.msg->poolId,
                               (Pvoid *) &args->apiArgs.msgqPutArgs.msg,
                               USR_TO_KNL);
@@ -573,62 +689,72 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
 #endif /* if defined (MSGQ_COMPONENT) */
 
 #if defined (CHNL_COMPONENT)
-        /*  Channel Issue & Reclaim is handled on top of switch statement
-         *  to optimize the data transfer path.
-         */
-        case CMD_CHNL_ISSUE:
-            {
-                ProcessorId     procId  = args->apiArgs.chnlIssueArgs.procId ;
-                ChannelId       chnlId  = args->apiArgs.chnlIssueArgs.chnlId ;
-                ChannelIOInfo * ioInfo  = args->apiArgs.chnlIssueArgs.ioReq  ;
-                Char8*          usrAddr = ioInfo->buffer ;
-                Char8*          addr    = usrAddr ;
+      /*  Channel Issue & Reclaim is handled on top of switch statement
+          to optimize the data transfer path */
+      case CMD_CHNL_ISSUE:
+      {
+        ProcessorId procId = args->apiArgs.chnlIssueArgs.procId;
+        ChannelId chnlId = args->apiArgs.chnlIssueArgs.chnlId;
+        ChannelIOInfo *ioInfo = args->apiArgs.chnlIssueArgs.ioReq;
+        Char8 *usrAddr = ioInfo->buffer;
+        Char8 *addr = usrAddr;
 
-                status = _POOL_xltBuf (DRV_chnlIdToPoolIdMap [procId][chnlId],
-                                       (Pvoid *) &addr,
-                                       USR_TO_KNL) ;
-                if (DSP_SUCCEEDED (status)) {
-                    ioInfo->buffer = addr ;
-                    osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
-                    if (osStatus < 0) {
-                        status = DSP_EFAIL ;
-                        SET_FAILURE_REASON ;
-                    }
+        /* translate the buffer address to the kernel space. This means,
+           we don't have to copy the buffer itself during 'ioctl' */
+        status = _POOL_xltBuf(
+                          DRV_chnlIdToPoolIdMap[procId][chnlId],
+                          (Pvoid *) &addr,
+                          USR_TO_KNL);
 
-                    /* Restore the user address in the user structure */
-                    ioInfo->buffer = usrAddr ;
-                }
-                else {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
+        if (DSP_SUCCEEDED(status)) {
+          ioInfo->buffer = addr;
 
-            }
-            break ;
+          osStatus = ioctl(drvObj->driverHandle, cmdId, args);
 
-        case CMD_CHNL_RECLAIM:
-            {
-                ProcessorId     procId  = args->apiArgs.chnlReclaimArgs.procId ;
-                ChannelId       chnlId  = args->apiArgs.chnlReclaimArgs.chnlId ;
-                ChannelIOInfo * ioInfo  = args->apiArgs.chnlReclaimArgs.ioReq  ;
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
 
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
+          /* Restore the user address in the user structure */
+          ioInfo->buffer = usrAddr;
+        }
+        else {
+          status = DSP_EFAIL;
+          SET_FAILURE_REASON;
+        }
 
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-                else if (DSP_SUCCEEDED (args->apiStatus)) {
-                    status = _POOL_xltBuf (
-                                         DRV_chnlIdToPoolIdMap [procId][chnlId],
-                                         (Pvoid *) &ioInfo->buffer,
-                                         KNL_TO_USR) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
-            break ;
+        break;
+      }
+
+      case CMD_CHNL_RECLAIM:
+      {
+        ProcessorId procId = args->apiArgs.chnlReclaimArgs.procId;
+        ChannelId chnlId = args->apiArgs.chnlReclaimArgs.chnlId;
+        ChannelIOInfo *ioInfo = args->apiArgs.chnlReclaimArgs.ioReq;
+
+        osStatus = ioctl(drvObj->driverHandle, cmdId, args);
+
+        if (osStatus < 0) {
+          status = DSP_EFAIL;
+          SET_FAILURE_REASON;
+        }
+        else if (DSP_SUCCEEDED (args->apiStatus)) {
+
+          /* translate the buffer address back to the user space */
+          status = _POOL_xltBuf(
+                          DRV_chnlIdToPoolIdMap[procId][chnlId],
+                          (Pvoid *) &ioInfo->buffer,
+                          KNL_TO_USR);
+
+          if (DSP_FAILED (status)) {
+            SET_FAILURE_REASON;
+          }
+        }
+
+        break;
+      }
+
 #endif /* if defined (CHNL_COMPONENT) */
 
 #if defined (MSGQ_COMPONENT)
@@ -669,64 +795,75 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
 
 #if defined (CHNL_COMPONENT)
         case CMD_CHNL_ALLOCATEBUFFER:
-            {
-                ProcessorId  procId   ;
-                ChannelId    chnlId   ;
-                Uint32       numBufs  ;
-                Char8 **     bufArray ;
-                Uint32       i ;
+        {
+          ProcessorId procId;
+          ChannelId chnlId;
+          Uint32 numBufs;
+          Char8 **bufArray;
+          Uint32 i;
 
-                procId   = args->apiArgs.chnlAllocateBufferArgs.procId ;
-                chnlId   = args->apiArgs.chnlAllocateBufferArgs.chnlId ;
-                numBufs  = args->apiArgs.chnlAllocateBufferArgs.numBufs ;
-                bufArray = args->apiArgs.chnlAllocateBufferArgs.bufArray ;
+          procId = args->apiArgs.chnlAllocateBufferArgs.procId;
+          chnlId = args->apiArgs.chnlAllocateBufferArgs.chnlId;
+          numBufs = args->apiArgs.chnlAllocateBufferArgs.numBufs;
+          bufArray = args->apiArgs.chnlAllocateBufferArgs.bufArray;
 
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
+          osStatus = ioctl(drvObj->driverHandle, cmdId, args);
 
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-                else if (DSP_SUCCEEDED (args->apiStatus)) {
-                    for (i = 0 ; (i < numBufs) ; i++) {
-                        status = _POOL_xltBuf (DRV_chnlIdToPoolIdMap [procId][chnlId],
-                                               (Pvoid *) &(bufArray [i]),
-                                               KNL_TO_USR) ;
-                        DBC_Assert (DSP_SUCCEEDED (status)) ;
-                    }
-                }
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+          else if (DSP_SUCCEEDED (args->apiStatus)) {
+            /* translate each of the buffers (created in the kernel space)
+               back to the user by translating its address. This way we
+               don't have to worry about explicitly copying each buffer
+               at the end of 'ioctl' */
+            for (i = 0; (i < numBufs); i++) {
+              status = _POOL_xltBuf(
+                           DRV_chnlIdToPoolIdMap[procId][chnlId],
+                           (Pvoid *) &(bufArray[i]),
+                           KNL_TO_USR);
+
+              DBC_Assert(DSP_SUCCEEDED(status));
             }
-            break ;
+          }
+
+          break;
+        }
 
         case CMD_CHNL_FREEBUFFER:
-            {
-                ProcessorId  procId   ;
-                ChannelId    chnlId   ;
-                Uint32       numBufs  ;
-                Char8 **     bufArray ;
-                Uint32       i ;
+        {
+          ProcessorId procId;
+          ChannelId chnlId;
+          Uint32 numBufs;
+          Char8 **bufArray;
+          Uint32 i;
 
-                procId   = args->apiArgs.chnlFreeBufferArgs.procId ;
-                chnlId   = args->apiArgs.chnlFreeBufferArgs.chnlId ;
-                numBufs  = args->apiArgs.chnlFreeBufferArgs.numBufs ;
-                bufArray = args->apiArgs.chnlFreeBufferArgs.bufArray ;
+          procId = args->apiArgs.chnlFreeBufferArgs.procId;
+          chnlId = args->apiArgs.chnlFreeBufferArgs.chnlId;
+          numBufs = args->apiArgs.chnlFreeBufferArgs.numBufs;
+          bufArray = args->apiArgs.chnlFreeBufferArgs.bufArray;
 
-                for (i = 0 ; (i < numBufs) ; i++) {
-                    status = _POOL_xltBuf (
-                                         DRV_chnlIdToPoolIdMap [procId][chnlId],
-                                         (Pvoid *) &(bufArray [i]),
-                                         USR_TO_KNL) ;
-                    DBC_Assert (DSP_SUCCEEDED (status)) ;
-                }
+          /* similarly here, prior to calling 'ioctl' translate ach buffer
+             address from the user to the kernel space */
+          for (i = 0; (i < numBufs); i++) {
+            status = _POOL_xltBuf(
+                               DRV_chnlIdToPoolIdMap [procId][chnlId],
+                               (Pvoid *) &(bufArray[i]),
+                               USR_TO_KNL);
 
-                osStatus = ioctl (drvObj->driverHandle, cmdId, args) ;
+            DBC_Assert(DSP_SUCCEEDED (status));
+          }
 
-                if (osStatus < 0) {
-                    status = DSP_EFAIL ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-            break ;
+          osStatus = ioctl(drvObj->driverHandle, cmdId, args);
+
+          if (osStatus < 0) {
+            status = DSP_EFAIL;
+            SET_FAILURE_REASON;
+          }
+
+          break;
+        }
 #endif /* if defined (CHNL_COMPONENT) */
 
 #if defined (RINGIO_COMPONENT)
@@ -1113,11 +1250,11 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
                                      xltFlag) ;
 
                 if (DSP_SUCCEEDED (status)) {
-                    if (   *(args->apiArgs.poolTranslateAddrArgs.dstAddr)
-                        == (Uint32) NULL) {
-                        status = DSP_ENOTFOUND ;
-                        SET_FAILURE_REASON ;
-                    }
+                  if (*(args->apiArgs.poolTranslateAddrArgs.dstAddr) == NULL)
+                  {
+                     status = DSP_ENOTFOUND;
+                     SET_FAILURE_REASON;
+                  }
                 }
                 else {
                     SET_FAILURE_REASON ;
@@ -1136,12 +1273,10 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
         POOL_AddrInfo *poolAddrPtr;
 
         /* trigger 'ioctl' which goes to DRV_Ioctl which subsequently calls
-           'LDRV_POOL_open' */
-        printf("+++++++ calling 'ioctl'\n");
-
+           'LDRV_POOL_open'. NOTE, that despite of 'args' being declared as
+           'in' we expect the data to be (partially) updated by subsequent
+           calls (e.g. 'SMAPOOL_open', 'LDRV_POOL_open', etc.) */
         osStatus = ioctl(drvObj->driverHandle, cmdId, args);
-
-        printf("+++++++ ioctl status: 0x%x\n", osStatus);
 
         if ((osStatus < 0) || (DSP_FAILED(args->apiStatus))) {
           if (osStatus < 0) {
@@ -1150,21 +1285,16 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
           }
         }
         else {
+          /* Now acquire the POOL address data set-up by 'SMAPOOL_open' and
+	     'LDRV_POOL_open' */
           retParams = args->apiArgs.poolOpenArgs.params;
-          size = retParams->size;
-          addr = retParams->physAddr;
-
-          printf("+++++++ preparing mmap:\n");
-          printf("  size: %d\n", size);
-          printf("  addr: 0x%x\n", addr);
 
           /* Align the physical address to page boundary */
-          size = size + (addr % drvObj->pageSize);
-          addr = addr - (addr % drvObj->pageSize);
+          size = retParams->size +
+                 (retParams->physAddr % drvObj->pageSize);
 
-          printf("  pageSize: %d\n", drvObj->pageSize);
-          printf("  size (aligned): %d\n", size);
-          printf("  addr (aligned): 0x%x\n", addr);
+          addr = retParams->physAddr -
+                 (retParams->physAddr % drvObj->pageSize);
 
           userAddr = (Uint32) mmap(NULL,
                                    size,
@@ -1174,8 +1304,6 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
                                    addr);
 
           if (userAddr == (Uint32) MAP_FAILED) {
-            printf("+++++++ mmap failed!!!\n");
-
             TRC_1PRINT(TRC_LEVEL7, "*** error in 's': 'mmap' failed\n",
                                    __FUNCTION__);
 
@@ -1196,7 +1324,7 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
             poolNo = POOL_getPoolNo(args->apiArgs.poolOpenArgs.poolId);
 
             /* update the pool information */
-            poolAddrPtr = &POOL_addrConfig [procId][poolNo];
+            poolAddrPtr = &POOL_addrConfig[procId][poolNo];
             poolAddrPtr->addr[AddrType_Usr] = userAddr;
             poolAddrPtr->addr[AddrType_Phy] = retParams->physAddr;
             poolAddrPtr->addr[AddrType_Knl] = retParams->virtAddr;
@@ -1402,48 +1530,43 @@ NORMAL_API DSP_STATUS DRV_Invoke(IN DRV_Object * drvObj,
         break;
       }
 
-      TRC_1PRINT(TRC_LEVEL4, "Status: %x\n", args->apiStatus);
-
-        /* Return API's status if ioctl is successful */
-        if (DSP_SUCCEEDED (status)) {
-            status = args->apiStatus ;
-        }
+    /* Return API's status if ioctl is successful */
+    if (DSP_SUCCEEDED (status)) {
+      status = args->apiStatus;
     }
-    else {
-        status = DSP_EATTACHED ;
-        SET_FAILURE_REASON ;
-    }
+  }
+  else {
+    status = DSP_EATTACHED;
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("DRV_Invoke", status) ;
+  TRC_3PRINT(TRC_LEVEL4, "processed %s in '%s', status 0x%x\n",
+                         getCmdString(cmdId), __FUNCTION__, status);
 
-    return status ;
+  TRC_1LEAVE("DRV_Invoke", status);
+  return status;
 }
 
-/** ============================================================================
- *  @name   DRV_ProtectInit
- *
- *  @desc   This function initailizes driver protection mechanism between
- *          multiple processes. This API can be called by multiple processes,
- *          and will create the semaphore if it does not exist.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_ProtectInit
+  @desc  This function initailizes driver protection mechanism between
+         multiple processes. This API can be called by multiple processes,
+         and will create the semaphore if it does not exist
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS DRV_ProtectInit(IN DRV_Object * drvObj)
 {
   DSP_STATUS status = DSP_SOK;
   key_t key;
 
-  TRC_1ENTER ("DRV_ProtectInit", drvObj) ;
-  printf("  Executing 'DRV_ProtectInit'\n");
+  TRC_1ENTER("DRV_ProtectInit", drvObj);
 
-  DBC_Require (drvObj != NULL) ;
-  DBC_Require (IS_OBJECT_VALID (drvObj, SIGN_DRV)) ;
+  DBC_Require(drvObj != NULL);
+  DBC_Require(IS_OBJECT_VALID(drvObj, SIGN_DRV));
 
-  if (IS_OBJECT_VALID (drvObj, SIGN_DRV)) {
-    /* Generate the unique key. */
-    key = ftok (LINK_DRIVER_NAME, DRV_KEY_CS) ;
+  if (IS_OBJECT_VALID(drvObj, SIGN_DRV)) {
+    /* Generate the unique key */
+    key = ftok(LINK_DRIVER_NAME, DRV_KEY_CS);
 
     if (key == OS_EFAILURE) {
       status = DSP_EFAIL;
@@ -1461,8 +1584,8 @@ NORMAL_API DSP_STATUS DRV_ProtectInit(IN DRV_Object * drvObj)
  
       if (DRV_protectObj.osCsId == OS_EFAILURE) {
         if (errno == EEXIST) {
-          DRV_protectObj.osCsId = semget (key, 0, 0) ;
-          DRV_protectObj.csEntered = FALSE ;
+          DRV_protectObj.osCsId = semget (key, 0, 0);
+          DRV_protectObj.csEntered = FALSE;
         }
         else {
           status = DSP_EFAIL;
@@ -1487,36 +1610,29 @@ NORMAL_API DSP_STATUS DRV_ProtectInit(IN DRV_Object * drvObj)
     SET_FAILURE_REASON;
   }
 
-  printf("  'DRV_ProtectInit' executed, status: %ld\n", status);
-  TRC_1LEAVE ("DRV_ProtectInit", status);
-
+  TRC_1LEAVE("DRV_ProtectInit", status);
   return status;
 }
 
-/** ============================================================================
- *  @name   DRV_ProtectExit
- *
- *  @desc   This function finalizes driver protection mechanism between
- *          multiple processes. This function must be called only by the
-            last exiting process.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_ProtectExit
+  @desc  This function finalizes driver protection mechanism between
+         multiple processes. This function must be called only by the
+         last exiting process
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS DRV_ProtectExit(IN DRV_Object * drvObj)
 {
   DSP_STATUS status = DSP_SOK;
 
-  TRC_1ENTER ("DRV_ProtectExit", drvObj);
-  printf("  Executing 'DRV_ProtectExit'\n");
+  TRC_1ENTER("DRV_ProtectExit", drvObj);
 
-  DBC_Require (drvObj != NULL);
-  DBC_Require (IS_OBJECT_VALID(drvObj, SIGN_DRV));
+  DBC_Require(drvObj != NULL);
+  DBC_Require(IS_OBJECT_VALID(drvObj, SIGN_DRV));
 
-  if (IS_OBJECT_VALID (drvObj, SIGN_DRV)) {
+  if (IS_OBJECT_VALID(drvObj, SIGN_DRV)) {
     /* Delete the semaphore set */
-    if (semctl (DRV_protectObj.osCsId, 0, IPC_RMID, 0) == OS_EFAILURE) {
+    if (semctl(DRV_protectObj.osCsId, 0, IPC_RMID, 0) == OS_EFAILURE) {
       status = DSP_EFAIL;
       SET_FAILURE_REASON;
     }
@@ -1526,31 +1642,24 @@ NORMAL_API DSP_STATUS DRV_ProtectExit(IN DRV_Object * drvObj)
     SET_FAILURE_REASON;
   }
 
-  printf("  'DRV_ProtectExit' executed, status: %ld\n", status);
-  TRC_1LEAVE ("DRV_ProtectExit", status);
-
+  TRC_1LEAVE("DRV_ProtectExit", status);
   return status;
 }
 
-/** ============================================================================
- *  @name   DRV_ProtectEnter
- *
- *  @desc   This function enters driver protection between multiple processes.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_ProtectEnter
+  @desc  This function enters driver protection between multiple processes
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS DRV_ProtectEnter(IN DRV_Object * drvObj)
 {
   DSP_STATUS status = DSP_SOK;
   struct sembuf sb  = { 0, SEMOP_ALLOC_ONE_RESOURCE, 0 };
 
-  TRC_1ENTER ("DRV_ProtectEnter", drvObj);
-  printf("  Executing 'DRV_ProtectEnter'\n");
+  TRC_1ENTER("DRV_ProtectEnter", drvObj);
 
-  DBC_Require (drvObj != NULL) ;
-  DBC_Require (IS_OBJECT_VALID (drvObj, SIGN_DRV)) ;
+  DBC_Require(drvObj != NULL);
+  DBC_Require(IS_OBJECT_VALID (drvObj, SIGN_DRV));
 
   if (IS_OBJECT_VALID (drvObj, SIGN_DRV)) {
     if (DSPLINK_isSignal == FALSE) {
@@ -1561,9 +1670,9 @@ NORMAL_API DSP_STATUS DRV_ProtectEnter(IN DRV_Object * drvObj)
       do {
         status = DSP_SOK;
 
-        if (semop (DRV_protectObj.osCsId, &sb, 1) == OS_EFAILURE) {
+        if (semop(DRV_protectObj.osCsId, &sb, 1) == OS_EFAILURE) {
           if (errno == EINTR) {
-            /* If interrupted by a signal, wait again. */
+            /* If interrupted by a signal, wait again */
             status = DSP_EINTR;
           }
           else {
@@ -1581,34 +1690,27 @@ NORMAL_API DSP_STATUS DRV_ProtectEnter(IN DRV_Object * drvObj)
     SET_FAILURE_REASON;
   }
 
-  printf("  'DRV_ProtectEnter' executed, status: %ld\n", status);
-  TRC_1LEAVE ("DRV_ProtectEnter", status) ;
-
+  TRC_1LEAVE("DRV_ProtectEnter", status);
   return status;
 }
 
-/** ============================================================================
- *  @name   DRV_ProtectLeave
- *
- *  @desc   This function leaves driver protection between multiple processes.
- *
- *  @modif  None.
- *  ============================================================================
- */
+/*******************************************************************************
+  @name  DRV_ProtectLeave
+  @desc  This function leaves driver protection between multiple processes
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS DRV_ProtectLeave(IN DRV_Object * drvObj)
 {
   DSP_STATUS status = DSP_SOK;
   struct sembuf sb  = {0, SEMOP_FREE_ONE_RESOURCE, 0};
-  Bool enteredCs = TRUE ;
+  Bool enteredCs = TRUE;
 
-  TRC_1ENTER ("DRV_ProtectLeave", drvObj);
-  printf("  Executing 'DRV_ProtectEnter'\n");
+  TRC_1ENTER("DRV_ProtectLeave", drvObj);
 
-  DBC_Require (drvObj != NULL);
-  DBC_Require (IS_OBJECT_VALID (drvObj, SIGN_DRV));
+  DBC_Require(drvObj != NULL);
+  DBC_Require(IS_OBJECT_VALID (drvObj, SIGN_DRV));
 
-  if (IS_OBJECT_VALID (drvObj, SIGN_DRV)) {
+  if (IS_OBJECT_VALID(drvObj, SIGN_DRV)) {
     if (DSPLINK_isSignal == TRUE) {
       if (DRV_protectObj.csEntered == FALSE) {
         enteredCs = FALSE;
@@ -1620,12 +1722,12 @@ NORMAL_API DSP_STATUS DRV_ProtectLeave(IN DRV_Object * drvObj)
       /* Release the semaphore */
       sb.sem_num = 0 ;
 
-      if (semop (DRV_protectObj.osCsId, &sb, 1) == OS_EFAILURE) {
+      if (semop(DRV_protectObj.osCsId, &sb, 1) == OS_EFAILURE) {
         status = DSP_EFAIL;
         SET_FAILURE_REASON;
       }
 
-      DRV_protectObj.csEntered = FALSE ;
+      DRV_protectObj.csEntered = FALSE;
     }
   }
   else {
@@ -1633,174 +1735,154 @@ NORMAL_API DSP_STATUS DRV_ProtectLeave(IN DRV_Object * drvObj)
     SET_FAILURE_REASON;
   }
 
-  printf("  'DRV_ProtectLeave' executed, status: %ld\n", status);
-  TRC_1LEAVE ("DRV_ProtectLeave", status) ;
-
+  TRC_1LEAVE("DRV_ProtectLeave", status);
   return status;
 }
 
-/*  ----------------------------------------------------------------------------
- *  @name   DRV_installCleanupRoutines
- *
- *  @desc   Install signal handler and atexit handler for cleanup.
- *
- *  @modif  None.
- *  ----------------------------------------------------------------------------
- */
-static
-void
-DRV_installCleanupRoutines (IN LINKCFG_Object * linkCfgPtr)
+/*******************************************************************************
+  @name  DRV_installCleanupRoutines
+  @desc  Install signal handler and atexit handler for cleanup
+*******************************************************************************/
+
+static void DRV_installCleanupRoutines(IN LINKCFG_Object *linkCfgPtr)
 {
-    struct  sigaction sigInstaller ;
-    Uint32  i ;
-    sigset_t block_mask ;
+  struct sigaction sigInstaller;
+  Uint32 i;
+  sigset_t block_mask;
 
-    TRC_1ENTER ("DRV_installCleanupRoutines", linkCfgPtr) ;
+  TRC_1ENTER("DRV_installCleanupRoutines", linkCfgPtr);
 
-    if (linkCfgPtr->gppObject->gppOsObject->handleSignals == TRUE) {
-        sigemptyset (&block_mask) ;
-        sigfillset( &block_mask) ;
-        sigInstaller.sa_flags   = (SA_RESTART) ;
-        sigInstaller.sa_mask    = block_mask;
-        sigInstaller.sa_handler = &DSPLINK_sigHandler ;
+  if (linkCfgPtr->gppObject->gppOsObject->handleSignals == TRUE) {
+    sigemptyset(&block_mask);
+    sigfillset(&block_mask);
+    sigInstaller.sa_flags = (SA_RESTART);
+    sigInstaller.sa_mask = block_mask;
+    sigInstaller.sa_handler = &DSPLINK_sigHandler;
 
-        for (i = 0 ; i < linkCfgPtr->gppObject->gppOsObject->numSignals ; i++){
-            sigaction (linkCfgPtr->gppObject->gppOsObject->sigNumArray [i],
-                       &sigInstaller,
-                       NULL) ;
-        }
+    for (i = 0; i < linkCfgPtr->gppObject->gppOsObject->numSignals; i++)
+    {
+      sigaction(linkCfgPtr->gppObject->gppOsObject->sigNumArray[i],
+                &sigInstaller,
+                NULL);
     }
-    atexit (&DSPLINK_atExitHandler) ;
+  }
 
-    TRC_0LEAVE ("DRV_installCleanupRoutines") ;
+  atexit(&DSPLINK_atExitHandler);
+
+  TRC_0LEAVE("DRV_installCleanupRoutines");
 }
 
+/*******************************************************************************
+  @name  DSPLINK_atExitHandler
+  @desc  'atexit' handler for DSP/BIOS LINK. This ensures that the system
+         is left in a correct state even if application does not perform
+         the required shutdown operations
+*******************************************************************************/
 
-/*  ----------------------------------------------------------------------------
- *  @name   DSPLINK_atExitHandler
- *
- *  @desc   atexit handler for DSP/BIOS LINK. This ensures that the system
- *          is left in a correct state even if application does not perform
- *          the required shutdown operations.
- *
- *  @modif  None.
- *  ----------------------------------------------------------------------------
- */
-static
-void
-DSPLINK_atExitHandler (Void)
+STATIC Void DSPLINK_atExitHandler(Void)
 {
-    int         osStatus = 0 ;
-    Uint32      procId   = 0 ; /* Hard code for now. */
-    CMD_Args    args ;
-    PROC_State  procState;
+  int osStatus = 0;
+  CMD_Args args;
+
+  /* NOTE, hardcoded for now */
+  Uint32 procId = 0;
+
 #if defined (POOL_COMPONENT)
-    Uint32      i ;
-#endif /* if defined (POOL_COMPONENT) */
+  Uint32 i;
+#endif
 
-    TRC_0ENTER ("DSPLINK_atExitHandler") ;
+  TRC_0ENTER ("DSPLINK_atExitHandler") ;
 
-    /* skip handler if already invoked by signal handler */
-    if (DSPLINK_skipExitHandler) {
-        goto leave;
-    }
+  /* skip handler if already invoked by signal handler */
+  if (DSPLINK_skipExitHandler) goto leave;
 
-    TRC_0PRINT (TRC_LEVEL7,
+  TRC_0PRINT (TRC_LEVEL7,
     "=====================================================================\n"
     "IMPORTANT: There may be several error prints in the atExit handler.  \n"
     "           These occur because DSPLink tries to clean up resources.  \n"
     "           If resources are already freed, it will cause errors.     \n"
     "           THESE ERRORS CAN BE SAFELY IGNORED.                       \n"
-    "=====================================================================\n") ;
+    "=====================================================================\n");
 
-
-    /* Set the flag to TRUE to indicating signal */
-    DSPLINK_isSignal = TRUE;
+  /* Set the flag to TRUE to indicating signal */
+  DSPLINK_isSignal = TRUE;
 
 #if defined (MSGQ_COMPONENT)
-    MSGQ_transportClose (procId) ;
-#endif /* if defined (MSGQ_COMPONENT) */
+  MSGQ_transportClose(procId);
+#endif
 
 #if DSPLINK_TERMINATE_EVT != (-1)
-    /* if dsp still running, send terminate event */
+  /* if dsp still running, send terminate event */
+  {
+    PROC_State procState;
     PROC_getState(procId, &procState);
 
     if (procState == ProcState_Started) {
-        PROC_sendTerminateEvent(procId);
+      PROC_sendTerminateEvent(procId);
     }
     else {
-        PROC_stop(procId);
+      PROC_stop(procId);
     }
+  }
 #else
-        PROC_stop(procId);
+  PROC_stop(procId);
 #endif
 
-    if (DRV_handle != NULL) {
-        osStatus = ioctl (DRV_handle->driverHandle, CMD_PROC_CLEANUP, &args) ;
-        if (osStatus < 0) {
-            TRC_0PRINT (TRC_LEVEL7,
+  if (DRV_handle != NULL) {
+    osStatus = ioctl(DRV_handle->driverHandle, CMD_PROC_CLEANUP, &args);
+
+    if (osStatus < 0) {
+      TRC_0PRINT(TRC_LEVEL7,
                 "!!! Could not cleanup the kernel driver. "
                 "Please restart the system...\n") ;
-        }
     }
+  }
+
 #if defined (POOL_COMPONENT)
-    for (i = 0 ; i < MAX_POOLENTRIES ; i++) {
-        POOL_close (i) ;
-    }
-#endif /* if defined (POOL_COMPONENT) */
+  for (i = 0; i < MAX_POOLENTRIES; i++) {
+    POOL_close(i);
+  }
+#endif
 
-    PROC_detach (procId) ;
-    PROC_destroy () ;
+  PROC_detach(procId);
+  PROC_destroy();
 
-    /* Reset the DSPLINK_isSignal flag */
-    DSPLINK_isSignal = FALSE;
+  /* Reset the DSPLINK_isSignal flag */
+  DSPLINK_isSignal = FALSE;
 
 leave:
-    TRC_0LEAVE ("DSPLINK_atExitHandler") ;
-
-    return ;
+  TRC_0LEAVE("DSPLINK_atExitHandler");
+  return;
 }
 
+/*******************************************************************************
+  @name  DSPLINK_sigHandler
+  @desc  Signal handler for incorrect behavior of user applications that may
+         result in DSP/BIOS Link being left in an unusable state.
+         This is a Linux specific implementation and equivalent
+         implementation may not available on other operating systems
+*******************************************************************************/
 
-/*  ----------------------------------------------------------------------------
- *  @name   DSPLINK_sigHandler
- *
- *  @desc   Signal handler for incorrect behavior of user applications that may
- *          result in DSP/BIOS Link being left in an unusable state.
- *          This is a Linux specific implementation and equivalent
- *          implementation may not available on other operating systems.
- *
- *  @args   sigNum
- *              Signal number.
- *
- *  @modif  None.
- *  ----------------------------------------------------------------------------
- */
-static
-void
-DSPLINK_sigHandler (int sigNum)
+static void DSPLINK_sigHandler(int sigNum)
 {
-    TRC_1ENTER ("DSPLINK_sigHandler", sigNum) ;
-    /* Set the flag to TRUE to indicating signal */
-    DSPLINK_isSignal = TRUE;
+  TRC_1ENTER("DSPLINK_sigHandler", sigNum);
 
-    /* It is necessary to call the cleanup function
-     * from signal handler context to ensure that the
-     * cleanup is not interrupted by another signal.
-     * Just exit (0) is not enough  as the at exit handler
-     * can be pre-empted by a signal.
-     */
-    DSPLINK_atExitHandler () ;
-    DSPLINK_skipExitHandler = TRUE;
+  /* Set the flag to TRUE to indicating signal */
+  DSPLINK_isSignal = TRUE;
 
-    /*  Force hard stop on the process  */
-    exit (0) ;
+  /* It is necessary to call the cleanup function from the signal handler
+     context to ensure that the cleanup is not interrupted by another
+     signal. Just exit (0) is not enough  as the at exit handler can be
+     pre-empted by a signal */
+  DSPLINK_atExitHandler();
+  DSPLINK_skipExitHandler = TRUE;
 
-    TRC_0LEAVE ("DSPLINK_sigHandler") ;
+  /*  Force hard stop on the process  */
+  exit(0);
 
-    return ;
+  TRC_0LEAVE("DSPLINK_sigHandler");
+  return;
 }
-
 
 #if defined (__cplusplus)
 }

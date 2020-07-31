@@ -5,7 +5,7 @@
 ;; INPUT scale.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Tue Jul 28 21:26:19 2020", VERS$DATE
+	.asg "Fri Jul 31 12:51:11 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include scalecfg.h62

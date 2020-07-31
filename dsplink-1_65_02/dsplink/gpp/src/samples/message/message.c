@@ -42,25 +42,22 @@
  *  ============================================================================
  */
 
-
 #include <stdio.h>
 
-/*  ----------------------------------- DSP/BIOS Link                   */
+/* DSP/BIOS Link */
 #include <dsplink.h>
 
-/*  ----------------------------------- DSP/BIOS LINK API               */
+/* DSP/BIOS LINK API */
 #include <proc.h>
 #include <msgq.h>
 #include <pool.h>
+
 #if defined (DA8XXGEM)
 #include <loaderdefs.h>
 #endif
 
-
-/*  ----------------------------------- Application Header              */
 #include <message.h>
 #include <message_os.h>
-
 
 #if defined (__cplusplus)
 extern "C" {
@@ -198,7 +195,7 @@ STATIC SMAPOOL_Attrs SamplePoolAttrs =
  *  @desc   Name of the first MSGQ on the GPP.
  *  ============================================================================
  */
-STATIC Char8 SampleGppMsgqName [DSP_MAX_STRLEN] = "GPPMSGQ1" ;
+STATIC Char8 SampleGppMsgqName[DSP_MAX_STRLEN] = "GPPMSGQ1";
 
 /** ============================================================================
  *  @const  MsgqDsp1
@@ -206,7 +203,7 @@ STATIC Char8 SampleGppMsgqName [DSP_MAX_STRLEN] = "GPPMSGQ1" ;
  *  @desc   Name of the first MSGQ on the DSP.
  *  ============================================================================
  */
-STATIC Char8 SampleDspMsgqName [DSP_MAX_STRLEN] = "DSPMSGQ" ;
+STATIC Char8 SampleDspMsgqName[DSP_MAX_STRLEN] = "DSPMSGQ";
 
 /** ============================================================================
  *  @name   SampleGppMsgq
@@ -292,22 +289,18 @@ extern  LINKCFG_Object LINKCFG_config ;
  *  @see    None
  *  ----------------------------------------------------------------------------
  */
+
 STATIC
 NORMAL_API
 DSP_STATUS
-MESSAGE_VerifyData (IN MSGQ_Msg msg, IN Uint16 sequenceNumber) ;
+MESSAGE_VerifyData (IN MSGQ_Msg msg, IN Uint16 sequenceNumber);
 #endif /* if defined (VERIFY_DATA) */
 
-
-/** ============================================================================
- *  @func   MESSAGE_Create
- *
- *  @desc   This function allocates and initializes resources used by
- *          this application.
- *
- *  @modif  MESSAGE_InpBufs , MESSAGE_OutBufs
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  MESSAGE_Create
+  @desc  This function allocates and initializes resources used by
+         this application
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
                                      IN Char8 *strNumIterations,
@@ -322,48 +315,48 @@ NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
   NOLOADER_ImageInfo imageInfo;
 #endif
 
-  MESSAGE_0Print ("Executing 'MESSAGE_Create'\n") ;
+  MESSAGE_0Print("*** Executing 'MESSAGE_Create'\n") ;
 
   /* Create and initialize the proc object */
   status = PROC_setup(NULL);
 
-  MESSAGE_1Print("'PROC_setup' done, status: 0x%x\n", status);
+  MESSAGE_1Print("  'PROC_setup' done, status: 0x%x\n", status);
 
   /* Attach the Dsp with which the transfers have to be done */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     status = PROC_attach(processorId, NULL);
 
-    MESSAGE_1Print("'PROC_attach' done, status: 0x%x\n", status);
+    MESSAGE_1Print("  'PROC_attach' done, status: 0x%x\n", status);
   }
 
   /* Open the pool */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     status = POOL_open(
       POOL_makePoolId(processorId, SAMPLE_POOL_ID),
       &SamplePoolAttrs);
 
-    MESSAGE_1Print("'POOL_open' done, status: 0x%x\n", status);
+    MESSAGE_1Print("  'POOL_open' done, status: 0x%x\n", status);
   }
 
   /* Open the GPP's message queue */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
 
-    MESSAGE_1Print("'MSGQ_open' done, status: 0x%x\n", status);
+    MESSAGE_1Print("  'MSGQ_open' done, status: 0x%x\n", status);
   }
 
   /* Set the message queue that will receive any async. errors */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     status = MSGQ_setErrorHandler(SampleGppMsgq,
                                   POOL_makePoolId(processorId,
                                   SAMPLE_POOL_ID));
 
     MESSAGE_1Print(
-      "'MSGQ_setErrorHandler' done, status: 0x%x\n", status);
+      "  'MSGQ_setErrorHandler' done, status: 0x%x\n", status);
   }
 
   /* Load the executable on the DSP */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     args[0] = strNumIterations;
 
 #if defined (DA8XXGEM)
@@ -383,7 +376,7 @@ NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
     {
       status = PROC_load(processorId, dspExecutable, numArgs, args);
 
-      MESSAGE_1Print("'PROC_load' done, status: 0x%x\n", status);
+      MESSAGE_1Print("  'PROC_load' done, status: 0x%x\n", status);
     }
   }
 
@@ -395,17 +388,17 @@ NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
   }
 
   /* open the remote transport */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID);
 
     status = MSGQ_transportOpen(processorId, &mqtAttrs);
 
     MESSAGE_1Print(
-      "'MSGQ_transportOpen' done, status: 0x%x\n", status);
+      "  'MSGQ_transportOpen' done, status: 0x%x\n", status);
   }
 
   /* Locate the DSP's message queue */
-  if (DSP_SUCCEEDED (status)) {
+  if (DSP_SUCCEEDED(status)) {
     syncLocateAttrs.timeout = WAIT_FOREVER;
     status = DSP_ENOTFOUND;
 
@@ -420,22 +413,19 @@ NORMAL_API DSP_STATUS MESSAGE_Create(IN Char8 *dspExecutable,
       }
     }
 
-    MESSAGE_1Print("'MSGQ_locate' done, status 0x%x\n", status);
+    MESSAGE_1Print("  'MSGQ_locate' done, status 0x%x\n", status);
   }
 
-  MESSAGE_0Print("Leaving MESSAGE_Create ()\n");
+  MESSAGE_1Print("*** 'MESSAGE_Create' executed, status 0x%x\n",
+                 status);
+
   return status;
 }
 
-
-/** ============================================================================
- *  @func   MESSAGE_Execute
- *
- *  @desc   This function implements the execute phase for this application.
- *
- *  @modif  None
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  MESSAGE_Execute
+  @desc  This function implements the execute phase for this application
+*******************************************************************************/
 
 NORMAL_API DSP_STATUS MESSAGE_Execute(IN Uint32 numIterations,
                                       Uint8 processorId)
@@ -446,7 +436,7 @@ NORMAL_API DSP_STATUS MESSAGE_Execute(IN Uint32 numIterations,
   Uint32 i;
   MSGQ_Msg msg;
 
-  MESSAGE_0Print("Entered MESSAGE_Execute ()\n");
+  MESSAGE_0Print("*** Executing 'MESSAGE_Execute'\n") ;
 
 #if defined (MESSAGE_PROFILE)
   MESSAGE_GetStartTime ();
@@ -460,15 +450,16 @@ NORMAL_API DSP_STATUS MESSAGE_Execute(IN Uint32 numIterations,
     /* Receive the message */
     status = MSGQ_get(SampleGppMsgq, WAIT_FOREVER, &msg);
 
-    MESSAGE_1Print("'MSGQ_get' done, status 0x%x\n", status);
+    MESSAGE_1Print("iteration: %d\n", i);
+    MESSAGE_1Print("  'MSGQ_get' done, status 0x%x\n", status);
 
 #if defined (VERIFY_DATA)
-    /* Verify correctness of data received */
+    /* Verify correctness of the data received */
     if (DSP_SUCCEEDED(status)) {
       status = MESSAGE_VerifyData(msg, sequenceNumber);
 
       MESSAGE_1Print(
-        "'MESSAGE_VerifyData' done, status 0x%x\n", status);
+        "  'MESSAGE_VerifyData' done, status 0x%x\n", status);
 
       if (DSP_FAILED(status)) {
         MSGQ_free(msg);
@@ -476,254 +467,225 @@ NORMAL_API DSP_STATUS MESSAGE_Execute(IN Uint32 numIterations,
     }
 #endif
 
-    /* If the message received is the final one, free it. */
+    /* If the message received is the final one, free it */
     if ((numIterations != 0) && (i == (numIterations + 1))) {
       MSGQ_free(msg);
     }
     else {
-            /*
-             *  Send the same message received in earlier MSGQ_get () call.
-             */
-            if (DSP_SUCCEEDED (status)) {
-                msgId = MSGQ_getMsgId (msg) ;
-                MSGQ_setMsgId (msg, msgId) ;
-                status = MSGQ_put (SampleDspMsgq, msg) ;
-                if (DSP_FAILED (status)) {
-                    MSGQ_free (msg) ;
-                    MESSAGE_1Print ("MSGQ_put () failed. Status = [0x%x]\n",
-                                    status) ;
-                }
-            }
+      /* Send the same message received in earlier 'MSGQ_get' call */
+      if (DSP_SUCCEEDED(status)) {
+        msgId = MSGQ_getMsgId(msg);
+        MSGQ_setMsgId(msg, msgId);
 
-            sequenceNumber++ ;
-            /* Make sure that the sequenceNumber stays within the permitted
-             * range for applications.
-             */
-            if (sequenceNumber == MSGQ_INTERNALIDSSTART) {
-                sequenceNumber = 0 ;
-            }
+        status = MSGQ_put(SampleDspMsgq, msg);
+
+        MESSAGE_1Print("  'MSGQ_put' done, status 0x%x\n", status);
+
+        if (DSP_FAILED (status)) {
+          MSGQ_free(msg);
+        }
+      }
+
+      sequenceNumber++;
+
+      /* Make sure that the sequenceNumber stays within the permitted
+         range for applications */
+      if (sequenceNumber == MSGQ_INTERNALIDSSTART) {
+        sequenceNumber = 0;
+      }
 
 #if !defined (MESSAGE_PROFILE)
-            if (DSP_SUCCEEDED (status) && ((i % 100) == 0)) {
-                MESSAGE_1Print ("Transferred %ld messages\n", i) ;
-            }
+      if (DSP_SUCCEEDED(status) && ((i % 100) == 0)) {
+        MESSAGE_1Print("  Transferred %ld messages\n", i);
+      }
 #endif
-        }
+
     }
+  }
 
 #if defined (MESSAGE_PROFILE)
-    if (DSP_SUCCEEDED (status)) {
-        MESSAGE_GetEndTime () ;
-        MESSAGE_GetProfileInfo (numIterations) ;
-    }
+  if (DSP_SUCCEEDED(status)) {
+    MESSAGE_GetEndTime();
+    MESSAGE_GetProfileInfo(numIterations);
+  }
 #endif
 
-    MESSAGE_0Print ("Leaving MESSAGE_Execute ()\n") ;
+  MESSAGE_1Print("*** 'MESSAGE_Execute' executed, status 0x%x\n",
+                 status);
 
-    return status ;
+  return status;
 }
 
+/*******************************************************************************
+  @func  MESSAGE_Delete
+  @desc  This function releases resources allocated earlier by call to
+         MESSAGE_Create ().
 
-/** ============================================================================
- *  @func   MESSAGE_Delete
- *
- *  @desc   This function releases resources allocated earlier by call to
- *          MESSAGE_Create ().
- *          During cleanup, the allocated resources are being freed
- *          unconditionally. Actual applications may require stricter check
- *          against return values for robustness.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-MESSAGE_Delete (Uint8 processorId)
+         During cleanup, the allocated resources are being freed
+         unconditionally. Actual applications may require stricter check
+         against return values for robustness
+*******************************************************************************/
+
+NORMAL_API Void MESSAGE_Delete(Uint8 processorId)
 {
-    DSP_STATUS status    = DSP_SOK ;
-    DSP_STATUS tmpStatus = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
 
-    MESSAGE_0Print ("Entered MESSAGE_Delete ()\n") ;
+  MESSAGE_0Print("*** Executing 'MESSAGE_Delete'\n");
 
-    /*
-     *  Release the remote message queue
-     */
-    status = MSGQ_release (SampleDspMsgq) ;
-    if (DSP_FAILED (status)) {
-        MESSAGE_1Print ("MSGQ_release () failed. Status = [0x%x]\n", status) ;
-    }
+  /*Release the remote message queue */
+  status = MSGQ_release(SampleDspMsgq);
 
-    /*
-     *  Close the remote transport
-     */
-    tmpStatus = MSGQ_transportClose (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("MSGQ_transportClose () failed. Status = [0x%x]\n",
-                        status) ;
-    }
+  MESSAGE_1Print("  'MSGQ_release' done, status 0x%x\n", status);
 
-    /*
-     *  Stop execution on DSP.
-     */
-    tmpStatus = PROC_stop (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("PROC_stop () failed. Status = [0x%x]\n", status) ;
-    }
+  /* Close the remote transport */
+  tmpStatus = MSGQ_transportClose(processorId);
 
-    /*
-     * Reset the error handler before deleting the MSGQ that receives
-     * the error messages.
-     */
-    tmpStatus = MSGQ_setErrorHandler (MSGQ_INVALIDMSGQ, MSGQ_INVALIDMSGQ) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("MSGQ_setErrorHandler () failed. Status = [0x%x]\n",
-                        status) ;
-    }
+  MESSAGE_1Print("  'MSGQ_transportClone' done, status 0x%x\n", tmpStatus);
 
-    /*
-     *  Close the GPP's message queue
-     */
-    tmpStatus = MSGQ_close (SampleGppMsgq) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("MSGQ_close () failed. Status = [0x%x]\n", status) ;
-    }
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
 
-    /*
-     *  Close the pool
-     */
-    tmpStatus = POOL_close (POOL_makePoolId(processorId, SAMPLE_POOL_ID)) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("POOL_close () failed. Status = [0x%x]\n", status) ;
-    }
+  /* Stop execution on DSP */
+  tmpStatus = PROC_stop(processorId);
 
-    /*
-     *  Detach from the processor
-     */
-    tmpStatus = PROC_detach  (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("PROC_detach () failed. Status = [0x%x]\n", status) ;
-    }
+  MESSAGE_1Print("  'PROC_stop' done, status 0x%x\n", tmpStatus);
 
-    /*
-     *  Destroy the PROC object.
-     */
-    tmpStatus = PROC_destroy () ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        MESSAGE_1Print ("PROC_destroy () failed. Status = [0x%x]\n", status) ;
-    }
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
 
-    MESSAGE_0Print ("Leaving MESSAGE_Delete ()\n") ;
+  /* Reset the error handler before deleting the MSGQ that receives the
+     error messages */
+  tmpStatus = MSGQ_setErrorHandler(MSGQ_INVALIDMSGQ, MSGQ_INVALIDMSGQ);
+
+  MESSAGE_1Print("  'MSGQ_setErrorHandler' done, status 0x%x\n", tmpStatus);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
+
+  /* Close the GPP's message queue */
+  tmpStatus = MSGQ_close(SampleGppMsgq);
+
+  MESSAGE_1Print("  'MSGQ_close' done, status 0x%x\n", tmpStatus);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
+
+  /* Close the pool */
+  tmpStatus = POOL_close(POOL_makePoolId(processorId, SAMPLE_POOL_ID));
+
+  MESSAGE_1Print("  'POOL_close' done, status 0x%x\n", tmpStatus);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
+
+  /* Detach from the processor */
+  tmpStatus = PROC_detach(processorId);
+
+  MESSAGE_1Print("  'PROC_detach' done, status 0x%x\n", tmpStatus);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
+
+  /* Destroy the PROC object */
+  tmpStatus = PROC_destroy();
+
+  MESSAGE_1Print("  'PROC_destroy' done, status 0x%x\n", tmpStatus);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus)) {
+    status = tmpStatus;
+  }
+
+  MESSAGE_1Print("*** 'MESSAGE_Delete' executed, status 0x%x\n",
+                 status);
 }
 
+/*******************************************************************************
+  @func  MESSAGE_Main
+  @desc  Entry point for the application
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   MESSAGE_Main
- *
- *  @desc   Entry point for the application
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-MESSAGE_Main (IN Char8 * dspExecutable,
-              IN Char8 * strNumIterations,
-              IN Char8 * strProcessorId)
+NORMAL_API Void MESSAGE_Main(IN Char8 *dspExecutable,
+                             IN Char8 *strNumIterations,
+                             IN Char8 *strProcessorId)
 {
-    DSP_STATUS status        = DSP_SOK ;
-    Uint32     numIterations = 0       ;
-    Uint8      processorId   = 0 ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 numIterations = 0;
+  Uint8 processorId = 0;
 
-    MESSAGE_0Print ("========== Sample Application : MESSAGE ==========\n") ;
+  MESSAGE_0Print("========== Sample Application : MESSAGE ==========\n");
 
-    if ((dspExecutable != NULL) && (strNumIterations != NULL)) {
-        numIterations = MESSAGE_Atoi (strNumIterations) ;
+  if ((dspExecutable != NULL) && (strNumIterations != NULL)) {
+    numIterations = MESSAGE_Atoi(strNumIterations);
 
-        if (numIterations >  0xFFFF) {
-            status = DSP_EINVALIDARG ;
-            MESSAGE_1Print ("ERROR! Invalid arguments specified for  "
-                            "message application.\n"
-                            "     Max iterations = %d\n",
-                            0xFFFF) ;
-        }
-        else {
-            processorId = MESSAGE_Atoi (strProcessorId) ;
+    if (numIterations > 0xFFFF) {
+      status = DSP_EINVALIDARG;
 
-            if (processorId >= MAX_DSPS) {
-                MESSAGE_1Print (
-                            "== Error: Invalid processor id %d specified ==\n",
-                             processorId) ;
-                status = DSP_EFAIL ;
-
-            }
-
-            if (DSP_SUCCEEDED (status)) {
-                /*
-                 *  Specify the dsp executable file name for message creation
-                 *  phase.
-                 */
-                status = MESSAGE_Create (dspExecutable,
-                                         strNumIterations,
-                                         processorId) ;
-
-                /*
-                 *  Execute the message execute phase.
-                 */
-                if (DSP_SUCCEEDED (status)) {
-                    status = MESSAGE_Execute (numIterations,
-                                              processorId) ;
-                }
-
-                /*
-                 *  Perform cleanup operation.
-                 */
-                MESSAGE_Delete (processorId) ;
-            }
-        }
+      MESSAGE_1Print("error: invalid iteration count (maximum 0x%x) "
+                     "specified for the MESSAGE application\n", 0xFFFF);
     }
     else {
-        status = DSP_EINVALIDARG ;
-        MESSAGE_0Print ("ERROR! Invalid arguments specified for  "
-                        "message application\n") ;
-    }
+      processorId = MESSAGE_Atoi(strProcessorId);
 
-    MESSAGE_0Print ("====================================================\n") ;
+      if (processorId >= MAX_DSPS) {
+        status = DSP_EFAIL;
+
+        MESSAGE_1Print("error: invalid processor id %d specified for the "
+                       "MESSAGE application\n", processorId);
+      }
+
+      if (DSP_SUCCEEDED(status)) {
+        /* Specify the dsp executable for the message creation phase */
+        status =
+          MESSAGE_Create(dspExecutable, strNumIterations, processorId);
+
+        /* Execute the message execute phase */
+        if (DSP_SUCCEEDED(status)) {
+          status = MESSAGE_Execute(numIterations, processorId);
+        }
+
+        /* platform housekeeping */
+        MESSAGE_Delete(processorId);
+      }
+    }
+  }
+  else {
+    status = DSP_EINVALIDARG;
+
+    MESSAGE_0Print("error: invalid arguments specified for the MESSAGE "
+                   "application\n");
+  }
+
+  MESSAGE_0Print("====================================================\n");
 }
 
 #if defined (VERIFY_DATA)
-/** ----------------------------------------------------------------------------
- *  @func   MESSAGE_VerifyData
- *
- *  @desc   This function verifies the data-integrity of given buffer.
- *
- *  @modif  None
- *  ----------------------------------------------------------------------------
- */
-STATIC
-NORMAL_API
-DSP_STATUS
-MESSAGE_VerifyData (IN MSGQ_Msg msg, IN Uint16 sequenceNumber)
+/*******************************************************************************
+  @func  MESSAGE_VerifyData
+  @desc  This function verifies the data-integrity of given buffer
+*******************************************************************************/
+
+STATIC NORMAL_API DSP_STATUS MESSAGE_VerifyData(IN MSGQ_Msg msg,
+                                                IN Uint16 sequenceNumber)
 {
-    DSP_STATUS status = DSP_SOK ;
-    Uint16     msgId ;
+  DSP_STATUS status = DSP_SOK;
+  Uint16 msgId;
 
-    /*
-     *  Verify the message
-     */
-    msgId = MSGQ_getMsgId(msg);
-    if (msgId != sequenceNumber) {
-        status = DSP_EFAIL;
-        MESSAGE_0Print ("ERROR! Data integrity check failed\n") ;
-    }
+  msgId = MSGQ_getMsgId(msg);
 
-    return status ;
+  if (msgId != sequenceNumber) {
+    status = DSP_EFAIL;
+
+    MESSAGE_0Print("error: data integrity verification failed\n");
+  }
+
+  return status;
 }
 #endif /* if defined (VERIFY_DATA) */
 

@@ -239,7 +239,7 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
 
 #else
         TRC_0PRINT(
-          TRC_LEVEL4, "BigPhys allocation is supported on this platform");
+          TRC_LEVEL4, "'BigPhys' allocation is supported on this platform");
 #endif /* if (DM6437_PHYINTERFACE == PCI)... */
       }
       else {
@@ -266,11 +266,6 @@ EXPORT_API DSP_STATUS MEM_Alloc(OUT Void ** ptr,
   DBC_Ensure(((ptr == NULL) && DSP_FAILED(status))
           || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED(status))
           || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED(status)));
-
-  if (DSP_FAILED(status) || ptr == NULL || *ptr == NULL) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
-  }
 
   TRC_1LEAVE ("MEM_Alloc", status);
   return status;
@@ -305,11 +300,6 @@ EXPORT_API DSP_STATUS MEM_Calloc(OUT Void **ptr,
   DBC_Ensure(((ptr == NULL) && DSP_FAILED(status))
           || ((ptr != NULL) && (*ptr != NULL) && DSP_SUCCEEDED(status))
           || ((ptr != NULL) && (*ptr == NULL) && DSP_FAILED(status)));
-
-  if (DSP_FAILED(status) || ptr == NULL || *ptr == NULL) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
-  }
 
   TRC_1LEAVE("MEM_Calloc", status);
   return status;
@@ -353,16 +343,17 @@ EXPORT_API DSP_STATUS MEM_Free(IN Pvoid *ptr, IN Pvoid arg)
       freeArg = (MemFreeAttrs *) arg;
 
       if (freeArg->bigArea == TRUE) {
+
 #if ((defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == PCI_INTERFACE)) \
   || (defined (DM642_PHYINTERFACE) && (DM642_PHYINTERFACE == PCI_INTERFACE)) \
   || (defined (DM648_PHYINTERFACE) && (DM648_PHYINTERFACE == PCI_INTERFACE)))
         bigphysarea_free_pages((caddr_t) *ptr);
 #elif (defined (DM6437_PHYINTERFACE) && (DM6437_PHYINTERFACE == VLYNQ_INTERFACE))
-
 #else
         TRC_0PRINT(
-          TRC_LEVEL4, "BigPhys allocation is supported on this platform");
-#endif /* if (DM6437_PHYINTERFACE == PCI_INTERFACE)... */
+          TRC_LEVEL4, "'BigPhys' allocation is supported on this platform");
+#endif
+
       }
       else {
         dma_free_coherent(NULL,
@@ -372,8 +363,8 @@ EXPORT_API DSP_STATUS MEM_Free(IN Pvoid *ptr, IN Pvoid arg)
       }
 
 #if defined (DDSP_DEBUG)
-            MEM_SpecialFree++ ;
-#endif    /* if defined (DDSP_DEBUG) */
+      MEM_SpecialFree++;
+#endif
     }
 
     *ptr = NULL;
@@ -425,11 +416,6 @@ EXPORT_API DSP_STATUS MEM_Map(IN OUT MemMapInfo *mapInfo)
   DBC_Ensure((DSP_SUCCEEDED(status) && (mapInfo->dst != 0))
           || (DSP_FAILED(status) && (mapInfo->dst == 0)));
 
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
-  }
-
   TRC_1LEAVE("MEM_Map", status);
   return status;
 }
@@ -454,9 +440,6 @@ EXPORT_API DSP_STATUS MEM_Unmap(IN MemUnmapInfo *unmapInfo)
   else {
     status = DSP_EINVALIDARG;
     SET_FAILURE_REASON;
-
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
   }
 
   TRC_1LEAVE("MEM_Unmap", status);

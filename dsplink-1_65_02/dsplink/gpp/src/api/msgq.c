@@ -102,7 +102,6 @@ extern "C" {
  */
 extern PROC_Object PROC_stateObj ;
 
-
 /*******************************************************************************
   @func  MSGQ_transportOpen
   @desc  This function initializes the transport associated with the
@@ -140,14 +139,15 @@ EXPORT_API DSP_STATUS MSGQ_transportOpen(IN ProcessorId procId,
         SET_FAILURE_REASON;
       }
       else if (DRV_CHECK_CURSTATUS (
-                 PROC_stateObj.curStatus.mqtIsOpened [procId])
-                    ==  TRUE)
+                 PROC_stateObj.curStatus.mqtIsOpened[procId]) ==  TRUE)
       {
         /* Check if MSGQ transport has been opened in this process */
         status = DSP_EALREADYOPENED;
         SET_FAILURE_REASON;
       }
       else {
+        /* 'attrs' represent user attributes put together in a struct, e.g.
+           in case of the 'message' example the type is 'ZCPYMQT_Attrs' */
         args.apiArgs.msgqTransportOpenArgs.procId = procId;
         args.apiArgs.msgqTransportOpenArgs.attrs = attrs;
 
@@ -301,7 +301,6 @@ EXPORT_API DSP_STATUS MSGQ_open(IN Pstr queueName,
   }
 
   TRC_1LEAVE("MSGQ_open", status);
-
   return status;
 }
 

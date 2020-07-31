@@ -528,56 +528,52 @@ LDRV_CHNL_close (IN ProcessorId procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_CHNL_allocateBuffer
+  @desc  Allocates an array of buffers of specified size and returns them
+         to the client
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_CHNL_allocateBuffer
- *
- *  @desc   Allocates an array of buffers of specified size and returns them
- *          to the client.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_CHNL_allocateBuffer (IN  ProcessorId procId,
-                          IN  ChannelId   chnlId,
-                          OUT Char8 **    bufArray,
-                          IN  Uint32      size,
-                          IN  Uint32      numBufs)
+NORMAL_API DSP_STATUS LDRV_CHNL_allocateBuffer(IN ProcessorId procId,
+                                               IN ChannelId chnlId,
+                                               OUT Char8 **bufArray,
+                                               IN Uint32 size,
+                                               IN Uint32 numBufs)
 {
-    DSP_STATUS status  = DSP_SOK ;
+  DSP_STATUS status  = DSP_SOK;
 
-    TRC_5ENTER ("LDRV_CHNL_allocateBuffer", procId, chnlId,
-                                            bufArray, size, numBufs) ;
+  TRC_5ENTER("LDRV_CHNL_allocateBuffer",
+             procId,
+             chnlId,
+             bufArray,
+             size,
+             numBufs);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (bufArray != NULL) ;
-    DBC_Require (numBufs <= MAX_ALLOC_BUFFERS) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(bufArray != NULL);
+  DBC_Require(numBufs <= MAX_ALLOC_BUFFERS);
 
-    if (size > LDRV_CHNL_Object [procId][chnlId]->maxBufSize) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if (size > LDRV_CHNL_Object[procId][chnlId]->maxBufSize) {
+    status = DSP_EINVALIDARG; 
+    SET_FAILURE_REASON;
+  }
+  else {
+    LDRV_CHNL_Object[procId][chnlId]->bufSize = size;
+
+    status = LDRV_DATA_allocateBuffer(procId,
+                                      chnlId,
+                                      bufArray,
+                                      size,
+                                      numBufs);
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-    LDRV_CHNL_Object [procId][chnlId]->bufSize = size ;
+  }
 
-    status = LDRV_DATA_allocateBuffer (procId,
-                                       chnlId,
-                                       bufArray,
-                                       size,
-                                       numBufs) ;
-    if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
-    }
-    }
-
-    TRC_1LEAVE ("LDRV_CHNL_allocateBuffer", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_CHNL_allocateBuffer", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_CHNL_freeBuffer
@@ -633,175 +629,181 @@ LDRV_CHNL_freeBuffer (IN ProcessorId procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_CHNL_addIORequest
+  @desc  Adds an IO request to a channel. An IO request may be a request
+         for transferring a buffer from GPP side to DSP side or vice-versa.
+         The direction of data transfer is decided by the mode of channel
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_CHNL_addIORequest
- *
- *  @desc   Adds an IO request to a channel. An IO request may be a request
- *          for transferring a buffer from GPP side to DSP side or vice-versa.
- *          The direction of data transfer is decided by the mode of channel.
- *
- *  @modif  LDRV_CHNL_Object [procId][chnlId]
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_CHNL_addIORequest (IN ProcessorId        procId,
-                        IN ChannelId          chnlId,
-                        IN LDRV_CHNL_IOInfo * ioInfo)
+NORMAL_API DSP_STATUS LDRV_CHNL_addIORequest(IN ProcessorId procId,
+                                             IN ChannelId chnlId,
+                                             IN LDRV_CHNL_IOInfo *ioInfo)
 {
-    DSP_STATUS        status      = DSP_SOK  ;
-    LDRV_CHNL_Irp *   chirp       = NULL     ;
-    LDRVChnlObject *  chnlObj     = NULL     ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_CHNL_Irp *chirp = NULL;
+  LDRVChnlObject *chnlObj = NULL;
+
 #if defined (DDSP_PROFILE_DETAILED)
-    CHNL_Instrument * chnlInst ;
-    Uint32            i        ;
+  CHNL_Instrument *chnlInst;
+  Uint32 i;
 #endif
 
-    TRC_3ENTER ("LDRV_CHNL_addIORequest", procId, chnlId, ioInfo) ;
+  TRC_3ENTER("LDRV_CHNL_addIORequest", procId, chnlId, ioInfo);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (ioInfo != NULL) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(ioInfo != NULL);
 
-    /*  ------------------------------------------------------------------------
-     *  Start the protection to ensure that DPC does not preempt the execution
-     *  below.
-     *  ------------------------------------------------------------------------
-     */
-    SYNC_ProtectionStart () ;
+  /* Start the protection to ensure that DPC does not preempt the execution
+     below */
+  SYNC_ProtectionStart();
 
-    DBC_Assert (LDRV_CHNL_Object [procId][chnlId] != NULL) ;
+  DBC_Assert(LDRV_CHNL_Object[procId][chnlId] != NULL);
 
-    chnlObj = LDRV_CHNL_Object [procId][chnlId] ;
-    if (chnlObj == NULL) {
-        status = DSP_EFAIL ;      /* channel not opened */
-        SET_FAILURE_REASON ;
+  chnlObj = LDRV_CHNL_Object [procId][chnlId];
+
+  if (chnlObj == NULL) {
+    status = DSP_EFAIL;      /* channel not opened */
+    SET_FAILURE_REASON;
+  }
+  else if (IS_CHNL_EOS(chnlObj)) {
+    status = CHNL_E_EOS;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_SpinLockStartEx(chnlObj->fLock);
+
+    if (LIST_IsEmpty(chnlObj->freeList)) {
+      status = CHNL_E_NOIORPS;
+      SET_FAILURE_REASON;
     }
-    else if (IS_CHNL_EOS (chnlObj)) {
-        status = CHNL_E_EOS ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        SYNC_SpinLockStartEx (chnlObj->fLock) ;
-        if (LIST_IsEmpty (chnlObj->freeList)) {
-            status = CHNL_E_NOIORPS ;
-            SET_FAILURE_REASON ;
-        }
-        else  {
-            SYNC_SpinLockEndEx (chnlObj->fLock, 0u) ;
-            if (    (chnlObj->doDspCtrl != DSP_BootMode_Boot_Pwr)
-                  && (chnlObj->doDspCtrl != DSP_BootMode_NoLoad_Pwr)) {
-                status = LDRV_PROC_isStarted (procId) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-            }
-            SYNC_SpinLockStartEx (chnlObj->fLock) ;
-        }
-        SYNC_SpinLockEndEx (chnlObj->fLock, 0u) ;
-    }
+    else  {
+      SYNC_SpinLockEndEx(chnlObj->fLock, 0u);
 
-    if (DSP_SUCCEEDED (status)) {
-        if (ioInfo->size > LDRV_CHNL_Object [procId][chnlId]->maxBufSize) {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
+      if ((chnlObj->doDspCtrl != DSP_BootMode_Boot_Pwr)
+      && (chnlObj->doDspCtrl != DSP_BootMode_NoLoad_Pwr))
+      {
+        status = LDRV_PROC_isStarted(procId);
+
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
         }
+      }
+
+      SYNC_SpinLockStartEx(chnlObj->fLock);
     }
 
-    if (DSP_SUCCEEDED (status)) {
-        if (IS_CHNL_IDLE (chnlObj)) {
-            /* Reset the underlying communication hardware here
-             * and make channel ready again
-             */
-            chnlObj->chnlState = ChannelState_Ready ;
-        }
+    SYNC_SpinLockEndEx(chnlObj->fLock, 0u);
+  }
 
-        SYNC_SpinLockStartEx (chnlObj->fLock) ;
-        status = LIST_GetHead (chnlObj->freeList, (ListElement **) &chirp) ;
-        SYNC_SpinLockEndEx (chnlObj->fLock, 0u) ;
-        if (DSP_SUCCEEDED (status)) {
-            if (ioInfo->size == 0) {
-                chnlObj->chnlState = ChannelState_EOS ;
-            }
+  if (DSP_SUCCEEDED(status)) {
+    if (ioInfo->size > LDRV_CHNL_Object[procId][chnlId]->maxBufSize)
+    {
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
+    }
+  }
 
-            chirp->buffer    = (Uint32) ioInfo->buffer   ;
-            chirp->size      = ioInfo->size     ;
-            chirp->arg       = ioInfo->arg      ;
-            chirp->iocStatus = LDRV_CHNL_IOCSTATE_PENDING ;
-            chirp->chnlId    = chnlId ;
+  if (DSP_SUCCEEDED(status)) {
+    if (IS_CHNL_IDLE(chnlObj)) {
 
-            SYNC_SpinLockStartEx (chnlObj->rLock) ;
-            status = LIST_PutTail (chnlObj->requestList,
-                                   (ListElement *) chirp) ;
-            SYNC_SpinLockEndEx (chnlObj->rLock, 0u) ;
+      /* Reset the underlying communication hardware here and make channel
+         ready again */
+      chnlObj->chnlState = ChannelState_Ready;
+    }
+
+    SYNC_SpinLockStartEx(chnlObj->fLock);
+
+    status = LIST_GetHead(chnlObj->freeList, (ListElement **) &chirp);
+
+    SYNC_SpinLockEndEx(chnlObj->fLock, 0u);
+
+    if (DSP_SUCCEEDED(status)) {
+
+      if (ioInfo->size == 0) {
+        chnlObj->chnlState = ChannelState_EOS;
+      }
+
+      chirp->buffer = (Uint32) ioInfo->buffer;
+      chirp->size = ioInfo->size;
+      chirp->arg = ioInfo->arg;
+      chirp->iocStatus = LDRV_CHNL_IOCSTATE_PENDING;
+      chirp->chnlId = chnlId;
+
+      SYNC_SpinLockStartEx(chnlObj->rLock);
+
+      status = LIST_PutTail(chnlObj->requestList,
+                           (ListElement *) chirp);
+
+      SYNC_SpinLockEndEx(chnlObj->rLock, 0u);
 
 #if defined (LOG_GD_CHNL_I_QUE)
-            /* Log the event */
-            DSPLINKLOG_LogEvent (
-                            GD_CHNL_I_QUE,
-                            0,
-                            (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
-                            (Uint32) ioInfo->buffer,
-                            ioInfo->size,
-                            0,
-                            0) ;
-#endif /* if defined (LOG_GD_CHNL_I_QUE) */
-
-#if defined (DDSP_PROFILE)
-            (chnlObj->chnlStats.chnlData.numBufsQueued)++ ;
-#endif /* defined (DDSP_PROFILE) */
-
-#if defined (DDSP_PROFILE_DETAILED)
-            /* Store the first few bytes of buffer if output channel */
-            if (chnlObj->attrs.mode == ChannelMode_Output) {
-                chnlInst = &(chnlObj->chnlStats.chnlData) ;
-                for (i = 0 ; i < DATA_LENGTH ; i++) {
-                    chnlInst->archive [chnlInst->archIndex][i]
-                                            = ((Char8 *) (chirp->buffer)) [i] ;
-                }
-                chnlInst->archIndex++ ;
-                if (chnlInst->archIndex == HIST_LENGTH) {
-                    chnlInst->archIndex = 0 ;
-                }
-            }
+      /* Log the event */
+      DSPLINKLOG_LogEvent(
+                     GD_CHNL_I_QUE,
+                     0,
+                     (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
+                     (Uint32) ioInfo->buffer,
+                     ioInfo->size,
+                     0,
+                     0);
 #endif
 
-            if (DSP_SUCCEEDED (status)) {
-                status = SYNC_ResetEvent (chnlObj->chnlIdleSync) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
-                else {
-                    status = LDRV_DATA_request (procId, chnlId) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-            }
-            else {
-                status = DSP_EFAIL ;
-                SET_FAILURE_REASON ;
-            }
+#if defined (DDSP_PROFILE)
+      (chnlObj->chnlStats.chnlData.numBufsQueued)++;
+#endif
+
+#if defined (DDSP_PROFILE_DETAILED)
+      /* Store the first few bytes of buffer if output channel */
+      if (chnlObj->attrs.mode == ChannelMode_Output) {
+        chnlInst = &(chnlObj->chnlStats.chnlData);
+
+        for (i = 0; i < DATA_LENGTH; i++) {
+          chnlInst->archive[chnlInst->archIndex][i] =
+            ((Char8 *) (chirp->buffer))[i];
+        }
+
+        chnlInst->archIndex++;
+
+        if (chnlInst->archIndex == HIST_LENGTH) {
+          chnlInst->archIndex = 0;
+        }
+      }
+#endif
+
+      if (DSP_SUCCEEDED(status)) {
+        status = SYNC_ResetEvent(chnlObj->chnlIdleSync);
+
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
         }
         else {
-            status = DSP_ERESOURCE ;
-            SET_FAILURE_REASON ;
-            chirp = NULL ;
+          status = LDRV_DATA_request(procId, chnlId);
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
         }
+      }
+      else {
+        status = DSP_EFAIL;
+        SET_FAILURE_REASON;
+      }
     }
+    else {
+      status = DSP_ERESOURCE;
+      SET_FAILURE_REASON;
+      chirp = NULL;
+    }
+  }
 
-    /*  ------------------------------------------------------------------------
-     *  End the protection from DPC.
-     *  ------------------------------------------------------------------------
-     */
-    SYNC_ProtectionEnd () ;
+  /* End the protection from DPC */
+  SYNC_ProtectionEnd();
 
-    TRC_1LEAVE ("LDRV_CHNL_addIORequest", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_CHNL_addIORequest", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_CHNL_getIOCompletion

@@ -228,81 +228,90 @@ Int TSKLOOP_create (TSKLOOP_TransferInfo ** infoPtr)
     return status ;
 }
 
+/*******************************************************************************
+  @func  TSKLOOP_execute
+  @desc  Execute phase function for the TSKLOOP application. Application
+         receives the data from the input channel and sends the same data
+         back on output channel. Channel numbers can be configured through
+         header file
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   TSKLOOP_execute
- *
- *  @desc   Execute phase function for the TSKLOOP application. Application
- *          receives the data from the input channel and sends the same data
- *          back on output channel. Channel numbers can be configured through
- *          header file.
- *
- *  @modif  None.
- *  ============================================================================
- */
-Int TSKLOOP_execute(TSKLOOP_TransferInfo * info)
+Int TSKLOOP_execute(TSKLOOP_TransferInfo *info)
 {
-    Int         status  = SYS_OK ;
-    Char *      buffer  = info->buffers [0] ;
-    Arg         arg     = 0 ;
-    Uint32      i ;
-    Int         nmadus ;
+  Int status = SYS_OK;
+  Char *buffer = info->buffers[0];
+  Arg arg = 0;
+  Uint32 i, j;
+  Int nmadus;
 
-    /* Execute the loop for configured number of transfers
-     * A value of 0 in numTransfers implies infinite iterations
-     */
-    for (i = 0 ;
-         (   ((info->numTransfers == 0) || (i < info->numTransfers))
-          && (status == SYS_OK)) ;
-         i++) {
-        /* Receive a data buffer from GPP */
-        status = SIO_issue(info->inputStream,
-                           buffer,
-                           info->bufferSize,
-                           arg) ;
-        if (status == SYS_OK) {
-            nmadus = SIO_reclaim (info->inputStream,
-                                  (Ptr *) &buffer,
-                                  &arg) ;
-            if (nmadus < 0) {
-                status = -nmadus ;
-                SET_FAILURE_REASON (status) ;
-            }
-            else {
-                info->receivedSize = nmadus ;
-            }
-        }
-        else {
-            SET_FAILURE_REASON(status);
-        }
+  /* Execute the loop for configured number of transfers. A value of 0 in
+     'numTransfers' implies infinite iterations */
+  for (i = 0;
+       (((info->numTransfers == 0) || (i < info->numTransfers))
+       && (status == SYS_OK));
+       i++)
+  {
+    /* Receive a data buffer from GPP */
+    status = SIO_issue(info->inputStream,
+                       buffer,
+                       info->bufferSize,
+                       arg);
 
-        /* Do processing on this buffer */
-        if (status == SYS_OK) {
-            /* Add code to process the buffer here*/
-        }
+    if (status == SYS_OK) {
+      nmadus = SIO_reclaim(info->inputStream,
+                           (Ptr *) &buffer,
+                           &arg);
 
-        /* Send the processed buffer back to GPP */
-        if (status == SYS_OK) {
-            status = SIO_issue(info->outputStream,
-                               buffer,
-                               info->receivedSize,
-                               arg);
-
-            if (status == SYS_OK) {
-                nmadus = SIO_reclaim (info->outputStream,
-                                      (Ptr *) &(buffer),
-                                      &arg) ;
-                if (nmadus < 0) {
-                    status = -nmadus ;
-                    SET_FAILURE_REASON (status) ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON (status) ;
-            }
-        }
+      if (nmadus < 0) {
+        status = -nmadus;
+        SET_FAILURE_REASON(status);
+      }
+      else {
+        info->receivedSize = nmadus;
+      }
     }
-    return status ;
+    else {
+      SET_FAILURE_REASON(status);
+    }
+
+    /* Do processing on this buffer. This is the actual part where the
+       user-space operation on the supplied data takes place. Extend by
+       providing your code at will */
+    if (status == SYS_OK) {
+
+      /* increment each character in the buffer by 1. If initialized by
+         '0', each character should be 'N' after N iterations. Pay
+         attention to preserve the last character, since we interpret
+         the buffer as a null-terminated C-string */
+      for (j = 0; j < info->bufferSize - 1; ++j) {
+        buffer[j] = buffer[j] + 1;
+      }
+    }
+
+    /* Send the processed buffer back to GPP */
+    if (status == SYS_OK) {
+      status = SIO_issue(info->outputStream,
+                         buffer,
+                         info->receivedSize,
+                         arg);
+
+      if (status == SYS_OK) {
+        nmadus = SIO_reclaim(info->outputStream,
+                             (Ptr *) &(buffer),
+                             &arg);
+
+        if (nmadus < 0) {
+          status = -nmadus;
+          SET_FAILURE_REASON(status);
+        }
+      }
+      else {
+        SET_FAILURE_REASON(status);
+      }
+    }
+  }
+
+  return status;
 }
 
 

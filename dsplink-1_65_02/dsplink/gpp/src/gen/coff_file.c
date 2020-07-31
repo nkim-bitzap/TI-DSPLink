@@ -46,8 +46,6 @@
 #include <coff_64x.h>
 #include <coff_file.h>
 
-#include <linux/module.h>
-
 #if defined (__cplusplus)
 extern "C" {
 #endif /* defined (__cplusplus) */
@@ -116,7 +114,6 @@ NORMAL_API DSP_STATUS COFFFILE_init(IN ProcessorId procId,
   COFF_Context *obj = NULL;
 
   TRC_4ENTER ("COFFFILE_init", procId, baseImage, args, objCtx);
-  printk(KERN_ALERT "Executing 'COFFFILE_init'\n");
 
   DBC_Require(IS_VALID_PROCID (procId));
   DBC_Require(baseImage != NULL);
@@ -161,9 +158,7 @@ NORMAL_API DSP_STATUS COFFFILE_init(IN ProcessorId procId,
     KFILE_Close(fileObj);
   }
 
-  printk(KERN_ALERT "'COFFFILE_init' executed, status: 0x%x\n", status);
   TRC_1LEAVE("COFFFILE_init", status);
-
   return status;
 }
 
@@ -182,7 +177,6 @@ NORMAL_API DSP_STATUS COFFFILE_exit(IN Pvoid objCtx)
   DBC_Require(objCtx != NULL);
 
   TRC_1ENTER("COFFFILE_exit", objCtx);
-  printk(KERN_ALERT "Executing 'COFFFILE_exit'\n");
 
   obj = (COFF_Context *) objCtx;
 
@@ -216,12 +210,9 @@ NORMAL_API DSP_STATUS COFFFILE_exit(IN Pvoid objCtx)
     }
   }
 
-  printk(KERN_ALERT "'COFFFILE_exit' executed, status: 0x%x\n", status);
   TRC_1LEAVE("COFFFILE_exit", status);
-
   return status;
 }
-
 
 #if defined (__cplusplus)
 }

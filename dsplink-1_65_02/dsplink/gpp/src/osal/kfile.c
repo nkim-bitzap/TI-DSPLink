@@ -188,11 +188,6 @@ EXPORT_API DSP_STATUS KFILE_Open(IN CONST FileName fileName,
                  && (fileHandlePtr != NULL)
                  && (*fileHandlePtr == NULL)));
 
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
-  }
-
   TRC_1LEAVE("KFILE_Open", status);
   return status;
 }

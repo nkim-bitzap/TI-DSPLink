@@ -588,11 +588,6 @@ NORMAL_API DSP_STATUS PMGR_PROC_attach(IN ProcessorId procId,
     }
   }
 
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s', failed attaching proc, "
-                      "result 0x%x\n", __FUNCTION__, status);
-  }
-
   TRC_1LEAVE("PMGR_PROC_attach", status);
   return status;
 }
@@ -899,7 +894,6 @@ NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
   LoaderInitArgs loaderArgs;
 
   TRC_4ENTER("PMGR_PROC_load", procId, imagePath, argc, argv);
-  printk(KERN_ALERT "Executing 'PMGR_PROC_load'\n");
 
   DBC_Require(IS_VALID_PROCID (procId));
   DBC_Require(imagePath != NULL);
@@ -1031,9 +1025,7 @@ NORMAL_API DSP_STATUS PMGR_PROC_load(IN ProcessorId procId,
     }
   }
 
-  printk(KERN_ALERT "'PMGR_PROC_load' executed, status: 0x%lx\n", status);
   TRC_1LEAVE ("PMGR_PROC_load", status);
-
   return status;
 }
 
@@ -1200,76 +1192,71 @@ NORMAL_API DSP_STATUS PMGR_PROC_start(IN ProcessorId procId)
     }
   }
 
-  printk(KERN_ALERT "'PMGR_PROC_start' executed, status 0x%x\n", status);
   TRC_1LEAVE("PMGR_PROC_start", status);
-
   return status;
 }
 
+/*******************************************************************************
+  @func  PMGR_PROC_stop
+  @desc  Stops the specified DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_PROC_stop
- *
- *  @desc   Stops the specified DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_PROC_stop (IN  ProcessorId  procId)
+NORMAL_API DSP_STATUS PMGR_PROC_stop(IN ProcessorId procId)
 {
-    DSP_STATUS   status    = DSP_SOK ;
-    DSP_STATUS   tmpStatus = DSP_SOK ;
-    Bool         toStop    = FALSE   ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
+  Bool toStop = FALSE;
 
-    TRC_1ENTER ("PMGR_PROC_stop", procId) ;
+  TRC_1ENTER("PMGR_PROC_stop", procId);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
+  DBC_Require(IS_VALID_PROCID(procId));
 
-    if (PMGR_SetupRefCount == 0) {
-        status = DSP_ESETUP ;
-        SET_FAILURE_REASON ;
+  if (PMGR_SetupRefCount == 0) {
+    status = DSP_ESETUP;
+    SET_FAILURE_REASON;
+  }
+  else {
+    SYNC_ProtectionStart();
+
+    if (PMGR_ProcObj[procId].attachRefCount == 0) {
+      status = DSP_EATTACHED;
+      SET_FAILURE_REASON;
     }
     else {
-        SYNC_ProtectionStart () ;
-        if (PMGR_ProcObj [procId].attachRefCount == 0) {
-            status = DSP_EATTACHED ;
-            SET_FAILURE_REASON ;
+      if (PMGR_ProcObj[procId].startRefCount == 0) {
+        status = DSP_ESTARTED;
+        SET_FAILURE_REASON;
+      }
+      else {
+        PMGR_ProcObj[procId].startRefCount--;
+
+        if (PMGR_ProcObj[procId].startRefCount == 0) {
+          toStop = TRUE;
+          status = DSP_SSTOPPED;
         }
-        else {
-            if (PMGR_ProcObj [procId].startRefCount == 0) {
-                status = DSP_ESTARTED ;
-                SET_FAILURE_REASON ;
-            }
-            else {
-                PMGR_ProcObj [procId].startRefCount-- ;
-                if (PMGR_ProcObj [procId].startRefCount == 0) {
-                    toStop = TRUE ;
-                    status = DSP_SSTOPPED ;
-                }
-            }
-        }
-        SYNC_ProtectionEnd () ;
+      }
     }
 
-    if (DSP_SUCCEEDED (status)) {
-        if (toStop == TRUE) {
-            tmpStatus = LDRV_PROC_stop (procId) ;
-            if (DSP_SUCCEEDED (tmpStatus)) {
-                /* Indicate that processor needs to be re-loaded. */
-                PMGR_ProcObj [procId].isLoaded = FALSE ;
-            }
-            else {
-                status = tmpStatus ;
-                SET_FAILURE_REASON ;
-            }
-        }
+    SYNC_ProtectionEnd();
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    if (toStop == TRUE) {
+      tmpStatus = LDRV_PROC_stop(procId);
+
+      if (DSP_SUCCEEDED (tmpStatus)) {
+        /* Indicate that processor needs to be re-loaded */
+        PMGR_ProcObj [procId].isLoaded = FALSE;
+      }
+      else {
+        status = tmpStatus;
+        SET_FAILURE_REASON;
+      }
     }
+  }
 
-    TRC_1LEAVE ("PMGR_PROC_stop", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_PROC_stop", status);
+  return status;
 }
 
 /*******************************************************************************

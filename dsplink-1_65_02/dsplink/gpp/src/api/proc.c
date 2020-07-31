@@ -435,16 +435,16 @@ PROC_destroy ()
 *******************************************************************************/
 
 EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
-                                  PROC_Attrs *attr)
+                                  IN PROC_Attrs *attr)
 {
   DSP_STATUS status = DSP_SOK;
   DSP_STATUS tmpStatus = DSP_SOK;
 
-#if defined     (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
-             || (MPLIST_COMPONENT) || (RINGIO_COMPONENT)
+#if defined (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
+         || (MPLIST_COMPONENT) || (RINGIO_COMPONENT)
   Bool firstAttach = FALSE;
-#endif /* if defined      (NOTIFY_COMPONENT) || (MPCS_COMPONENT)
-                       || (MPLIST_COMPONENT) || (RINGIO_COMPONENT) */
+#endif
+
   CMD_Args args;
 
   TRC_2ENTER("PROC_attach", procId, attr);
@@ -514,8 +514,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
           firstAttach = TRUE;
         }
 
-#endif /* #if defined (NOTIFY_COMPONENT) || (MPCS_COMPONENT)  \
-                   || (MPLIST_COMPONENT) || (RINGIO_COMPONENT) */
+#endif
 
         if (DSP_SUCCEEDED(status)) {
           /* Check if this is being called from a forked process.
@@ -535,7 +534,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
             status = tmpStatus;
             SET_FAILURE_REASON;
           }
-#endif /* if defined (NOTIFY_COMPONENT) */
+#endif
 
 #if defined (MPCS_COMPONENT)
           if (DSP_SUCCEEDED (status)) {
@@ -546,12 +545,13 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
               SET_FAILURE_REASON;
             }
           }
-#endif /* if defined (MPCS_COMPONENT) */
+#endif
 
 #if defined (MPLIST_COMPONENT) || (RINGIO_COMPONENT)
           /* If it is the first process attaching to the DSP, initialize
              the MPLIST and RingIO modules */
           if (firstAttach == TRUE) {
+
 #if defined (MPLIST_COMPONENT)
             if (DSP_SUCCEEDED(status)) {
               tmpStatus = _MPLIST_moduleInit (procId);
@@ -561,7 +561,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
                 SET_FAILURE_REASON;
               }
             }
-#endif /* if defined (MPLIST_COMPONENT) */
+#endif
 
 #if defined (RINGIO_COMPONENT)
             if (DSP_SUCCEEDED(status)) {
@@ -572,7 +572,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
                 SET_FAILURE_REASON;
               }
             }
-#endif /* if defined (RINGIO_COMPONENT) */
+#endif
           }
 #endif /* #if defined (MPLIST_COMPONENT) || (RINGIO_COMPONENT) */
 
@@ -585,7 +585,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
               SET_FAILURE_REASON;
             }
           }
-#endif /* if defined (MPLIST_COMPONENT) */
+#endif
 
 #if defined (RINGIO_COMPONENT)
           if (DSP_SUCCEEDED(status)) {
@@ -596,7 +596,7 @@ EXPORT_API DSP_STATUS PROC_attach(IN ProcessorId procId,
               SET_FAILURE_REASON;
             }
           }
-#endif /* if defined (RINGIO_COMPONENT) */
+#endif
 
           if (DSP_SUCCEEDED(status)) {
             DRV_SET_CURSTATUS(
@@ -864,7 +864,6 @@ EXPORT_API DSP_STATUS PROC_load(IN ProcessorId procId,
   CMD_Args args;
 
   TRC_4ENTER("PROC_load", procId, imagePath, argc, argv);
-  printf("Executing 'PROC_load'\n");
 
   DBC_Require(IS_VALID_PROCID (procId));
   DBC_Require(imagePath != NULL );
@@ -916,9 +915,7 @@ EXPORT_API DSP_STATUS PROC_load(IN ProcessorId procId,
     }
   }
 
-  printf("'PROC_load' executed, status 0x%x\n", status);
   TRC_1LEAVE("PROC_load", status);
-
   return status;
 }
 
@@ -1049,10 +1046,10 @@ PROC_write (IN ProcessorId    procId,
 }
 
 /*******************************************************************************
-  @func   PROC_start
-  @desc   Starts execution of the loaded code on DSP from the starting
-          point specified in the DSP executable loaded earlier by call to
-          'PROC_load'
+  @func  PROC_start
+  @desc  Starts execution of the loaded code on DSP from the starting
+         point specified in the DSP executable loaded earlier by call to
+         'PROC_load'
 *******************************************************************************/
 
 EXPORT_API DSP_STATUS PROC_start(IN ProcessorId procId)
@@ -1063,7 +1060,6 @@ EXPORT_API DSP_STATUS PROC_start(IN ProcessorId procId)
   CMD_Args args;
 
   TRC_1ENTER("PROC_start", procId);
-  printf("Executing 'PROC_start'\n");
 
   DBC_Require(IS_VALID_PROCID(procId));
 
@@ -1116,9 +1112,7 @@ EXPORT_API DSP_STATUS PROC_start(IN ProcessorId procId)
     }
   }
 
-  printf("'PROC_start' executed, status 0x%x\n", status);
   TRC_1LEAVE("PROC_start", status);
-
   return status;
 }
 
@@ -1239,7 +1233,6 @@ PROC_GetSymbolAddress (IN   ProcessorId   procId,
     return status ;
 }
 
-
 /** ============================================================================
  *  @func   PROC_control
  *
@@ -1282,47 +1275,39 @@ PROC_control (IN  ProcessorId procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PROC_sendTerminateEvent
+  @desc  Send an IPS terminate event to the DSP
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PROC_sendTerminateEvent
- *
- *  @desc   Send an IPS terminate event to the DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-PROC_sendTerminateEvent(IN ProcessorId procId)
+EXPORT_API DSP_STATUS PROC_sendTerminateEvent(IN ProcessorId procId)
 {
-    DSP_STATUS status = DSP_SOK;
-    CMD_Args args;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_1ENTER("PROC_sendTerminateEvent", procId);
+  TRC_1ENTER("PROC_sendTerminateEvent", procId);
 
-    DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_PROCID(procId));
 
-    if (IS_VALID_PROCID(procId) == FALSE) {
-        status = DSP_EINVALIDARG;
-        SET_FAILURE_REASON;
+  if (IS_VALID_PROCID(procId) == FALSE) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+
+  if (DSP_SUCCEEDED(status)) {
+    args.apiArgs.procSendTermEvtArgs.procId = procId;
+
+    status = DRV_INVOKE(DRV_handle, CMD_PROC_SENDTERMEVT, &args);
+
+    if (DSP_FAILED (status)) {
+      status = DSP_EFAIL;
+      SET_FAILURE_REASON;
     }
+  }
 
-    if (DSP_SUCCEEDED(status)) {
-        args.apiArgs.procSendTermEvtArgs.procId = procId;
-
-        status = DRV_INVOKE(DRV_handle, CMD_PROC_SENDTERMEVT, &args);
-
-        if (DSP_FAILED (status)) {
-            status = DSP_EFAIL;
-            SET_FAILURE_REASON;
-        }
-    }
-
-    TRC_1LEAVE("PROC_sendTerminateEvent", status);
-
-    return(status);
+  TRC_1LEAVE("PROC_sendTerminateEvent", status);
+  return status;
 }
-
 
 /** ----------------------------------------------------------------------------
  *  @func   PROC_resetCurStatus
@@ -1439,20 +1424,6 @@ PROC_debug (IN ProcessorId procId)
     TRC_0LEAVE ("PROC_debug") ;
 }
 #endif /* defined (DDSP_DEBUG) */
-
-
-/** ============================================================================
- *  To be deprecated: Backward Compatibility definitions for the DSP/BIOS LINK
- *                    interface.
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-PROC_Setup (Void)
-{
-    return PROC_setup (NULL) ;
-}
-
 
 #if defined (__cplusplus)
 }

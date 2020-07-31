@@ -398,6 +398,7 @@ Void main(Int argc, Char *argv[])
     /* Transfer size for loopback given by GPP side */
     xferBufSize = 1024 ;
 #endif
+
 #if defined (SWI_MODE)
     /* Create phase of SWILOOP application */
     status = SWILOOP_create(&info);
@@ -422,61 +423,66 @@ Void main(Int argc, Char *argv[])
         SET_FAILURE_REASON (deleteStatus);
     }
     */
-#else /* if defined (SWI_MODE) */
-    /* Creating task for TSKLOOP application */
-    tskLoopTask = TSK_create(tskLoop, NULL, 0);
-    if (tskLoopTask != NULL) {
-        LOG_printf(&trace, "Create TSKLOOP: Success\n");
-    }
-    else {
-        LOG_printf(&trace, "Create TSKLOOP: Failed.\n");
-        return;
-    }
+
+#else
+  /* NOTE, TSK is the default configuration. Creating a task for TSKLOOP
+     application */
+  tskLoopTask = TSK_create(tskLoop, NULL, 0);
+
+  if (tskLoopTask != NULL) {
+    LOG_printf(&trace, "Create TSKLOOP: Success\n");
+  }
+  else {
+    LOG_printf(&trace, "Create TSKLOOP: Failed.\n");
+    return;
+  }
 #endif /* if defined (SWI_MODE) */
 
-    return;
+  return;
 }
 
-
 #if defined (TSK_MODE)
-/** ----------------------------------------------------------------------------
- *  @func   tskLoop
- *
- *  @desc   Task for TSK based TSKLOOP application.
- *
- *  @modif  None
- *  ----------------------------------------------------------------------------
- */
+
+/*******************************************************************************
+  @func  tskLoop
+  @desc  Task for TSK based TSKLOOP application
+*******************************************************************************/
+
 static Int tskLoop()
 {
-    Int status = SYS_OK;
-    TSKLOOP_TransferInfo *info;
+  Int status = SYS_OK;
+  TSKLOOP_TransferInfo *info;
 
 #if defined (DSP_BOOTMODE_NOBOOT)
-    {
-        while (DSPLINK_initFlag != 0xC0C0BABA) ;
-    }
-    /* Initialize DSP/BIOS LINK. */
-    DSPLINK_init () ;
+  {
+    while (DSPLINK_initFlag != 0xC0C0BABA);
+  }
+
+  /* Initialize DSP/BIOS LINK. */
+  DSPLINK_init();
 #endif
-    /* Create Phase */
-    status = TSKLOOP_create (&info);
 
-    /* Execute Phase */
-    if (status == SYS_OK) {
-        status = TSKLOOP_execute (info);
-        if (status != SYS_OK) {
-            SET_FAILURE_REASON(status);
-        }
-    }
+  /* Create Phase */
+  status = TSKLOOP_create(&info);
 
-    /* Delete Phase */
-    status = TSKLOOP_delete (info);
+  /* Execute Phase */
+  if (status == SYS_OK) {
+
+    status = TSKLOOP_execute(info);
+
     if (status != SYS_OK) {
-        SET_FAILURE_REASON(status);
+      SET_FAILURE_REASON(status);
     }
+  }
 
-    return status ;
+  /* Delete Phase */
+  status = TSKLOOP_delete(info);
+
+  if (status != SYS_OK) {
+    SET_FAILURE_REASON(status);
+  }
+
+  return status;
 }
 #endif /* if defined (TSK_MODE) */
 

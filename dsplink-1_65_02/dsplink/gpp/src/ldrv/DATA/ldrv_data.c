@@ -627,67 +627,66 @@ LDRV_DATA_closeChannel (IN ProcessorId dspId, IN ChannelId chnlId)
     return status ;
 }
 
+/*******************************************************************************
+  @func  LDRV_DATA_allocateBuffer
+  @desc  Allocates an array of buffers of specified size and returns them
+         to the client
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_DATA_allocateBuffer
- *
- *  @desc   Allocates an array of buffers of specified size and returns them
- *          to the client.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_DATA_allocateBuffer (IN  ProcessorId dspId,
-                          IN  ChannelId   chnlId,
-                          OUT Char8 **    bufArray,
-                          IN  Uint32      size,
-                          IN  Uint32      numBufs)
+NORMAL_API DSP_STATUS LDRV_DATA_allocateBuffer(IN ProcessorId dspId,
+                                               IN ChannelId chnlId,
+                                               OUT Char8 **bufArray,
+                                               IN Uint32 size,
+                                               IN Uint32 numBufs)
 {
-    DSP_STATUS          status = DSP_SOK ;
-    LDRV_DATA_Object *  dataState ;
-    Uint32              dataDrvId ;
-    PoolId              poolId ;
-    Uint32              i ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_DATA_Object *dataState;
+  Uint32 dataDrvId;
+  PoolId poolId;
+  Uint32 i;
 
-    TRC_5ENTER ("LDRV_DATA_allocateBuffer",
-                dspId,
-                chnlId,
-                bufArray,
-                size,
-                numBufs) ;
+  TRC_5ENTER("LDRV_DATA_allocateBuffer",
+             dspId,
+             chnlId,
+             bufArray,
+             size,
+             numBufs);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (bufArray != NULL) ;
-    DBC_Require (numBufs  <= MAX_ALLOC_BUFFERS) ;
-    DBC_Assert  (LDRV_DATA_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(bufArray != NULL);
+  DBC_Require(numBufs  <= MAX_ALLOC_BUFFERS);
+  DBC_Assert(LDRV_DATA_IsInitialized[dspId] == TRUE);
 
-    dataState = &(LDRV_DATA_State [dspId]) ;
+  dataState = &(LDRV_DATA_State[dspId]);
 
-    status = LDRV_DATA_getDataDrvId (dspId, chnlId, &dataDrvId) ;
-    if (DSP_SUCCEEDED (status)) {
-        poolId = dataState->dataTable [dataDrvId].poolId ;
-        for (i = 0 ; DSP_SUCCEEDED (status) && i < numBufs ; i++) {
-            status = LDRV_POOL_alloc (poolId, (Pvoid *) &(bufArray[i]), size) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
+  status = LDRV_DATA_getDataDrvId(dspId, chnlId, &dataDrvId);
 
-        if (DSP_FAILED (status)) {
-            LDRV_DATA_freeBuffer (dspId, chnlId, bufArray, size, numBufs) ;
-        }
+  if (DSP_SUCCEEDED(status)) {
+    poolId = dataState->dataTable[dataDrvId].poolId;
+
+    for (i = 0 ; DSP_SUCCEEDED (status) && i < numBufs ; i++) {
+      /* the array of buffers is of type (void**), with a particular buffer
+         being (void*). Allocate a buffer at the current position (i) in
+         the array of buffers */
+      status =
+        LDRV_POOL_alloc(poolId, (Pvoid *) &(bufArray[i]), size);
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
     }
-    else {
-        SET_FAILURE_REASON ;
+
+    if (DSP_FAILED(status)) {
+      LDRV_DATA_freeBuffer(dspId, chnlId, bufArray, size, numBufs);
     }
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("LDRV_DATA_allocateBuffer", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_DATA_allocateBuffer", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_DATA_freeBuffer

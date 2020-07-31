@@ -1050,31 +1050,31 @@ ZCPYDATA_SWI (Arg arg0, Arg arg1)
  *  @modif  None
  *  ============================================================================
  */
-Void
-ZCPYDATA_tskFxn (Arg arg0)
+
+Void ZCPYDATA_tskFxn(Arg arg0)
 {
-    ZCPYDATA_DevObject *     dev = (ZCPYDATA_DevObject *) arg0 ;
-    Bool                     i   = 1 ;
-    Int                      status  = SYS_OK ;
+  Int status = SYS_OK;
+  ZCPYDATA_DevObject *dev = (ZCPYDATA_DevObject*) arg0;
+  Bool i = TRUE;
 
-    if (dev->tskPriority != 0) {
-
-        if (   (dev->tskPriority > TSK_MINPRI)
-            && (dev->tskPriority <= TSK_MAXPRI)) {
-            TSK_setpri (TSK_self (), dev->tskPriority) ;
-        }
-        else {
-            status = IOM_EBADARGS ;
-            SET_FAILURE_REASON (status) ;
-        }
+  if (dev->tskPriority != 0) {
+    if ((dev->tskPriority > TSK_MINPRI)
+    && (dev->tskPriority <= TSK_MAXPRI))
+    {
+      TSK_setpri(TSK_self(), dev->tskPriority);
     }
-
-    DBC_require (dev != NULL) ;
-
-    while (i) {
-        SEM_pend(&(dev->zcpyDataSem), SYS_FOREVER) ;
-        ZCPYDATA_dataCtrl (dev) ;
+    else {
+      status = IOM_EBADARGS;
+      SET_FAILURE_REASON(status);
     }
+  }
+
+  DBC_require(dev != NULL);
+
+  while(i) {
+    SEM_pend(&(dev->zcpyDataSem), SYS_FOREVER);
+    ZCPYDATA_dataCtrl(dev);
+  }
 }
 #endif /* if defined (DSP_TSK_MODE) */
 

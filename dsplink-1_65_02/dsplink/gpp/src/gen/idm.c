@@ -148,127 +148,108 @@ typedef struct IDM_State_tag {
  *  @desc   State object containing all global information for the IDM component
  *  ============================================================================
  */
+
 STATIC IDM_State IDM_StateObj = {
-    FALSE
-} ;
+  FALSE
+};
 
+/*******************************************************************************
+  @func  IDM_init
+  @desc  Initializes the IDM component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   IDM_init
- *
- *  @desc   Initializes the IDM component
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-IDM_init (Void)
+EXPORT_API DSP_STATUS IDM_init(Void)
 {
-    DSP_STATUS status = DSP_SOK ;
-    Bool       toInit = FALSE ;
-    Uint32     i ;
+  DSP_STATUS status = DSP_SOK;
+  Bool toInit = FALSE;
+  Uint32 i;
 
-    TRC_0ENTER ("IDM_init") ;
+  TRC_0ENTER("IDM_init");
 
-    SYNC_ProtectionStart () ;
-    if (IDM_StateObj.isInitialized == FALSE) {
-        IDM_StateObj.isInitialized = TRUE ;
-        toInit = TRUE ;
+  SYNC_ProtectionStart();
+
+  if (IDM_StateObj.isInitialized == FALSE) {
+    IDM_StateObj.isInitialized = TRUE;
+    toInit = TRUE;
+  }
+  else {
+    status = DSP_SALREADYSETUP;
+  }
+
+  SYNC_ProtectionEnd();
+
+  if (toInit == TRUE) {
+    for (i = 0; i < MAX_IDM_OBJECTS; i++) {
+      IDM_StateObj.idmObjs[i].key = IDM_INVALID_KEY;
+      IDM_StateObj.idmObjs[i].idArray = NULL;
     }
-    else {
-        status = DSP_SALREADYSETUP ;
-    }
-    SYNC_ProtectionEnd () ;
+  }
 
-    if (toInit == TRUE) {
-        for (i = 0 ; i < MAX_IDM_OBJECTS ; i++) {
-            IDM_StateObj.idmObjs [i].key     = IDM_INVALID_KEY ;
-            IDM_StateObj.idmObjs [i].idArray = NULL ;
-        }
-    }
+  DBC_Ensure(IDM_StateObj.isInitialized == TRUE);
 
-    DBC_Ensure (IDM_StateObj.isInitialized == TRUE) ;
-
-    TRC_1LEAVE ("IDM_init", status) ;
-
-    return status ;
+  TRC_1LEAVE("IDM_init", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  IDM_exit
+  @desc  Finalizes the IDM component
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   IDM_exit
- *
- *  @desc   Finalizes the IDM component
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-IDM_exit (Void)
+EXPORT_API DSP_STATUS IDM_exit(Void)
 {
-    DSP_STATUS status = DSP_SOK ;
-    Uint32     i ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i;
 
-    TRC_0ENTER ("IDM_exit") ;
+  TRC_0ENTER("IDM_exit");
 
-    DBC_Require (IDM_StateObj.isInitialized == TRUE) ;
+  DBC_Require(IDM_StateObj.isInitialized == TRUE);
 
-    if (IDM_StateObj.isInitialized == TRUE) {
-        /* Delete any unfreed IDM objects. */
-        for (i = 0 ; i < MAX_IDM_OBJECTS ; i++) {
-            if (IDM_StateObj.idmObjs [i].key != IDM_INVALID_KEY) {
-                status = FREE_PTR (IDM_StateObj.idmObjs [i].idArray) ;
-                if (DSP_FAILED (status)) {
-                    SET_FAILURE_REASON ;
-                }
+  if (IDM_StateObj.isInitialized == TRUE) {
+    /* Delete any unfreed IDM objects */
+    for (i = 0; i < MAX_IDM_OBJECTS; i++) {
 
-                /* Reset the key to indicate deleted object. */
-                IDM_StateObj.idmObjs [i].key = IDM_INVALID_KEY ;
-            }
+      if (IDM_StateObj.idmObjs[i].key != IDM_INVALID_KEY) {
+        status = FREE_PTR(IDM_StateObj.idmObjs[i].idArray);
+
+        if (DSP_FAILED(status)) {
+          SET_FAILURE_REASON;
         }
 
-        IDM_StateObj.isInitialized = FALSE ;
-    }
-    else {
-        status = DSP_EACCESSDENIED ;
-        SET_FAILURE_REASON ;
+        /* Reset the key to indicate deleted object */
+        IDM_StateObj.idmObjs[i].key = IDM_INVALID_KEY;
+      }
     }
 
-    DBC_Ensure (IDM_StateObj.isInitialized == FALSE) ;
+    IDM_StateObj.isInitialized = FALSE;
+  }
+  else {
+    status = DSP_EACCESSDENIED;
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("IDM_exit", status) ;
+  DBC_Ensure(IDM_StateObj.isInitialized == FALSE);
 
-    return status ;
+  TRC_1LEAVE("IDM_exit", status);
+  return status;
 }
 
-
-/** ============================================================================
- *  @func   IDM_create
- *
- *  @desc   Creates an IDM object identifier based on a unique key specified
-            by the user.
- *
- *  @modif  None
- *  ============================================================================
- */
-
-#include <linux/module.h>
+/*******************************************************************************
+  @func  IDM_create
+  @desc  Creates an IDM object identifier based on a unique key specified
+         by the user
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS IDM_create(IN Uint32 key, IN IDM_Attrs *attrs)
 {
   DSP_STATUS status = DSP_ERESOURCE;
 
+  Void **buf;
+  unsigned long size;
   Bool found = FALSE;
-  Uint32 i;
-  Uint32 j;
+  Uint32 i, j;
 
-  printk(KERN_ALERT "Executing 'IDM_create', args:\n");
-  printk(KERN_ALERT "          key: %ud\n");
-  printk(KERN_ALERT "          attrs: 0x%lx\n", attrs);
-
-  TRC_2ENTER ("IDM_create", key, attrs) ;
+  TRC_2ENTER("IDM_create", key, attrs);
 
   DBC_Require(attrs != NULL);
   DBC_Require(IDM_StateObj.isInitialized == TRUE);
@@ -278,6 +259,8 @@ EXPORT_API DSP_STATUS IDM_create(IN Uint32 key, IN IDM_Attrs *attrs)
     SET_FAILURE_REASON;
   }
   else {
+    size = sizeof(IDM_Id) * attrs->maxIds;
+
     for (i = 0; ((i < MAX_IDM_OBJECTS) && (found == FALSE)); i++)
     {
       /* Find a free IDM object */
@@ -289,8 +272,7 @@ EXPORT_API DSP_STATUS IDM_create(IN Uint32 key, IN IDM_Attrs *attrs)
         IDM_StateObj.idmObjs[i].baseId = attrs->baseId;
         IDM_StateObj.idmObjs[i].maxIds = attrs->maxIds;
 
-        Void **buf = (Void **) &(IDM_StateObj.idmObjs[i].idArray);
-        unsigned long size = (sizeof (IDM_Id) * attrs->maxIds);
+        buf = (Void **) &(IDM_StateObj.idmObjs[i].idArray);
 
         status = MEM_Alloc(buf, size, MEM_DEFAULT);
 
@@ -303,70 +285,56 @@ EXPORT_API DSP_STATUS IDM_create(IN Uint32 key, IN IDM_Attrs *attrs)
             IDM_StateObj.idmObjs[i].idArray[j].refCount = 0;
           }
         }
-        else {
-          printk(KERN_ALERT "error: 'MEM_Alloc' failed in '%s', "
-                            "status: %ld\n",  __FUNCTION__, status);
-
-          SET_FAILURE_REASON;
-        }
+        else SET_FAILURE_REASON;
       }
     }
   }
 
-  printk(KERN_ALERT "'IDM_create' executed, status: 0x%x\n", status);
-  TRC_1LEAVE ("IDM_create", status);
-
+  TRC_1LEAVE("IDM_create", status);
   return status;
 }
 
-/** ============================================================================
- *  @func   IDM_delete
- *
- *  @desc   Deletes an IDM object identified based on a unique key specified by
- *          the user.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-IDM_delete (IN Uint32 key)
+/*******************************************************************************
+  @func  IDM_delete
+  @desc  Deletes an IDM object identified based on a unique key specified by
+         the user
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS IDM_delete(IN Uint32 key)
 {
-    DSP_STATUS status = DSP_ENOTFOUND ;
-    Bool       found  = FALSE ;
-    Uint32     i ;
+  DSP_STATUS status = DSP_ENOTFOUND;
+  Bool found = FALSE;
+  Uint32 i;
 
-    TRC_1ENTER ("IDM_delete", key) ;
+  TRC_1ENTER("IDM_delete", key);
 
-    DBC_Require (IDM_StateObj.isInitialized == TRUE) ;
+  DBC_Require(IDM_StateObj.isInitialized == TRUE);
 
-    for (i = 0 ; ((i < MAX_IDM_OBJECTS) && (found == FALSE)) ; i++) {
-        /* Find the IDM object to be deleted based on the key. */
-        if (IDM_StateObj.idmObjs [i].key == key) {
-            found = TRUE ;
-            status = FREE_PTR (IDM_StateObj.idmObjs [i].idArray) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
+  for (i = 0; ((i < MAX_IDM_OBJECTS) && (found == FALSE)); i++) {
 
-            /* Reset the key to indicate deleted object. */
-            IDM_StateObj.idmObjs [i].key = IDM_INVALID_KEY ;
-        }
+    /* Find the IDM object to be deleted based on the key */
+    if (IDM_StateObj.idmObjs[i].key == key) {
+      found = TRUE;
+
+      status = FREE_PTR(IDM_StateObj.idmObjs [i].idArray);
+
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+
+      /* Reset the key to indicate deleted object */
+      IDM_StateObj.idmObjs[i].key = IDM_INVALID_KEY;
     }
+  }
 
-    TRC_1LEAVE ("IDM_delete", status) ;
-
-    return status ;
+  TRC_1LEAVE("IDM_delete", status);
+  return status;
 }
 
-/** ============================================================================
- *  @func   IDM_acquireId
- *
- *  @desc   Acquires a free ID for the specified IDM object.
- *
- *  @modif  None
- *  ============================================================================
- */
+/*******************************************************************************
+  @func  IDM_acquireId
+  @desc  Acquires a free ID for the specified IDM object
+*******************************************************************************/
 
 EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
                                     IN Pstr idKey,
@@ -381,12 +349,7 @@ EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
   Uint32 j;
   Int32 cmpResult;
 
-  TRC_3ENTER ("IDM_acquireId", key, idKey, id) ;
-
-  printk(KERN_ALERT "Executing 'IDM_acquireId', args:\n");
-  printk(KERN_ALERT "  key: %ud\n", key);
-  printk(KERN_ALERT "  idKey: %s\n", idKey);
-  printk(KERN_ALERT "  id: 0x%lx\n", id);
+  TRC_3ENTER("IDM_acquireId", key, idKey, id) ;
 
   DBC_Require(id != NULL);
   DBC_Require(idKey != NULL);
@@ -422,16 +385,18 @@ EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
           }
           else {
             status = GEN_Strcmp(
-              idmObject->idArray [j].idKey, idKey, &cmpResult);
-              DBC_Assert (DSP_SUCCEEDED (status));
+              idmObject->idArray[j].idKey, idKey, &cmpResult);
+              DBC_Assert(DSP_SUCCEEDED (status));
 
             if (cmpResult == 0) {
               /* Found existing idKey. Increment refCount and
                  return the ID */
-              idmObject->idArray [j].refCount++;
+              idmObject->idArray[j].refCount++;
               *id = idmObject->baseId + j;
 
               idFound = TRUE;
+
+              /* sexists, really */
               status = DSP_SEXISTS;
             }
           }
@@ -451,9 +416,9 @@ EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
                                  DSP_MAX_STRLEN);
 
             /* Validity of parameters is ensured for success */
-            DBC_Assert (DSP_SUCCEEDED(status));
+            DBC_Assert(DSP_SUCCEEDED(status));
 
-            idmObject->idArray [freeId].refCount = 1;
+            idmObject->idArray[freeId].refCount = 1;
             *id = idmObject->baseId + freeId;
           }
         }
@@ -469,9 +434,7 @@ EXPORT_API DSP_STATUS IDM_acquireId(IN Uint32 key,
     SYNC_ProtectionEnd();
   }
 
-  printk(KERN_ALERT "'IDM_acquireId' executed, status: %ld\n", status);
   TRC_1LEAVE("IDM_acquireId", status);
-
   return status;
 }
 

@@ -566,7 +566,7 @@ STATIC int __init DRV_InitializeModule(void)
   if (DSP_FAILED(status)) {
     TRC_2PRINT(TRC_LEVEL7,
                "*** error in '%s': 'OSAL_Initialize' failed, "
-               "result 0x%x\n", __FUNCTION__, result);
+               "status 0x%x\n", __FUNCTION__, result);
 
     SET_FAILURE_REASON;
     result = -1;
@@ -669,7 +669,7 @@ STATIC int __init DRV_InitializeModule(void)
     if (result < 0) {
       TRC_2PRINT(TRC_LEVEL7,
                  "*** error in '%s': Linux API 'register_chrdev' "
-                 "failed, result 0x%x\n", __FUNCTION__, result);
+                 "failed, status 0x%x\n", __FUNCTION__, result);
 
       status = DSP_EFAIL;
       SET_FAILURE_REASON;
@@ -746,7 +746,7 @@ STATIC NORMAL_API void __exit DRV_FinalizeModule (void)
   if (DSP_FAILED(status)) {
     TRC_2PRINT(TRC_LEVEL7,
                "*** error in '%s': 'OSAL_Finalize' failed, "
-               "result 0x%x\n", __FUNCTION__, result);
+               "status 0x%x\n", __FUNCTION__, result);
 
     SET_FAILURE_REASON;
   }
@@ -805,8 +805,6 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
   pid_t       pid;
   Int         i;
 
-  printk(KERN_ALERT "Executing 'DRV_Release'\n");
-
   /* get the pid associated with the file pointer */
   pid = pid_nr(filp->f_owner.pid);
 
@@ -817,10 +815,10 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
     /* send terminate event to dsp */
     status = PMGR_PROC_sendTerminateEvent(DRV_dspId);
 
-    if (DSP_FAILED(status)) {
-      printk(KERN_ALERT
-             "  Error in '%s': bad 'PMGR_PROC_sendTeirminateEvent'\n",
-             __FUNCTION__);
+    if (DSP_FAILED(status)) 
+      TRC_2PRINT(TRC_LEVEL4,
+             "*** error in '%s': 'PMGR_PROC_sendTerminateEvent' failed, "
+             "status 0x%x\n", __FUNCTION__, status);
 
       SET_FAILURE_REASON;
     }
@@ -915,9 +913,7 @@ STATIC NORMAL_API int DRV_Release(struct inode *inode, struct file *filp)
     DRV_dspId = 0xffff;
   }
 
-  printk(KERN_ALERT "'DRV_Release' executed, status: 0x%x\n", status);
-
-  return(status);
+  return status;
 }
 
 /********************************************************************************
@@ -945,38 +941,27 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
      only results in a 'shallow copy'. Pointers are copied (however, their
      destinations are not, thus copy them additionally where required) */
   retVal = copy_from_user(&apiArgs, srcArgs, sizeof(CMD_Args));
+  DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-  if (retVal != 0) {
+  status = DRV_CallAPI(cmd, &apiArgs);
+
+  if (DSP_FAILED(status)) {
     TRC_2PRINT(TRC_LEVEL7,
-               "*** error in '%s': bad 'copy_from_user', result "
+               "*** error in '%s': 'DRV_CallAPI' failed, status "
                "0x%x\n", __FUNCTION__, retVal);
 
-    osStatus = -EFAULT;
+    if (status == -ERESTARTSYS) {
+      osStatus = -ERESTARTSYS;
+    }
+    else {
+      osStatus = -1;
+    }
   }
 
-  if (osStatus == 0) {
-    status = DRV_CallAPI(cmd, &apiArgs);
-
-    printk("            status: 0x%x\n", status);
-
-    if (DSP_FAILED(status)) {
-      TRC_2PRINT(TRC_LEVEL7,
-                 "*** error in '%s': 'DRV_CallAPI' failed, result "
-                 "0x%x\n", __FUNCTION__, retVal);
-
-      if (status == -ERESTARTSYS) {
-        osStatus = -ERESTARTSYS;
-      }
-      else {
-        osStatus = -1;
-      }
-    }
-
-    /* always do this regardless of previous success status. This is a one
-       shot trigger, clear the 'snoop' value */
-    if (cmd == CMD_PROC_SENDTERMEVT) {
-      DRV_dspId = 0xffff;
-    }
+  /* always do this regardless of previous success status. This is a one
+     shot trigger, clear the 'snoop' value */
+  if (cmd == CMD_PROC_SENDTERMEVT) {
+    DRV_dspId = 0xffff;
   }
 
   /* now, to finalize the API call, write back the main 'args' struct, if
@@ -984,14 +969,7 @@ STATIC NORMAL_API long DRV_Ioctl(struct file * filp,
      DSP operation is found in 'args->apiStatus' */
   if (osStatus == 0) {
     retVal = copy_to_user(srcArgs, &apiArgs, sizeof(CMD_Args));
-
-    if (retVal != 0) {
-      TRC_2PRINT(TRC_LEVEL7,
-                 "*** error in '%s': bad 'copy_to_user', result "
-                 "0x%x\n", __FUNCTION__, retVal);
-
-      osStatus = -EFAULT;
-    }
+    DBC_Assert((0 == retVal) && "Failed to copy data to user");
   }
 
   TRC_1LEAVE ("DRV_Ioctl", status);
@@ -1013,7 +991,7 @@ module_exit (DRV_FinalizeModule);
   @desc  Function to invoke the APIs through ioctl
 ********************************************************************************/
 
-STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
+STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
 {
   DSP_STATUS status = DSP_SOK;     /* status of driver's ioctl    */
   DSP_STATUS retStatus = DSP_SOK;  /* status of the PMGR function */
@@ -1028,6 +1006,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 #if defined (MSGQ_COMPONENT)
     case CMD_MSGQ_PUT:
     {
+
 #if defined (LOG_GD_MSGQ_PUT)
       /* Log the event */
       DSPLINKLOG_LogEvent(GD_MSGQ_PUT,
@@ -1037,9 +1016,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
                           (Uint32) (args->apiArgs.msgqPutArgs.msg)->size,
                           0,
                           0);
-#endif /* if defined (LOG_GD_MSGQ_PUT) */
-
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_PUT'\n");
+#endif
 
       retStatus = PMGR_MSGQ_put (args->apiArgs.msgqPutArgs.msgqQueue,
                                  args->apiArgs.msgqPutArgs.msg);
@@ -1048,17 +1025,19 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
     }
 
+    /* propagate the third argument of type 'MSGQ_Msg' back to the user.
+       Since the value contained in the 'msgqGetArgs' is not a pointer,
+       we dont need to involve 'copy_to_user' */
     case CMD_MSGQ_GET:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_GET'\n");
+      MSGQ_Msg msg;
 
-      MsgqMsg msg ;
-      retStatus = PMGR_MSGQ_get (args->apiArgs.msgqGetArgs.msgqQueue,
-                                 args->apiArgs.msgqGetArgs.timeout,
-                                 &msg);
+      retStatus = PMGR_MSGQ_get(args->apiArgs.msgqGetArgs.msgqQueue,
+                                args->apiArgs.msgqGetArgs.timeout,
+                                &msg);
 
-      if (DSP_SUCCEEDED (retStatus)) {
-        args->apiArgs.msgqGetArgs.poolId  = msg->poolId;
+      if (DSP_SUCCEEDED(retStatus)) {
+        args->apiArgs.msgqGetArgs.poolId = msg->poolId;
         args->apiArgs.msgqGetArgs.msgAddr = (Uint32) msg;
       }
 
@@ -1071,35 +1050,46 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 #if defined (CHNL_COMPONENT)
     case CMD_CHNL_ISSUE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_ISSUE'\n");
+      ProcessorId procId = args->apiArgs.chnlIssueArgs.procId;
+      ChannelId chnlId = args->apiArgs.chnlIssueArgs.chnlId;
+      ChannelIOInfo ioInfo;
 
-      ProcessorId     procId  = args->apiArgs.chnlIssueArgs.procId ;
-      ChannelId       chnlId  = args->apiArgs.chnlIssueArgs.chnlId ;
-      ChannelIOInfo * ioInfo  = args->apiArgs.chnlIssueArgs.ioReq ;
+      DBC_Assert((NULL != args->apiArgs.chnlIssueArgs.ioReq) &&
+                 "Expected valid IO parameters for 'CMD_CHNL_ISSUE'");
+
+      /* copy the entire 'ChannelIOInfo' struct first */
+      retVal = copy_from_user(
+                         (void*) &ioInfo,
+                         (void*) args->apiArgs.chnlIssueArgs.ioReq,
+                         sizeof(ChannelIOInfo));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
 #if defined (LOG_GD_CHNL_I_START)
       /* Log the event */
-      DSPLINKLOG_LogEvent(GD_CHNL_I_START,
-                          0,
-                          (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
-                          (Uint32) ioInfo->buffer,
-                          ioInfo->size,
-                          0,
-                          0);
-#endif /* if defined (LOG_GD_CHNL_I_START) */
+      DSPLINKLOG_LogEvent(
+                  GD_CHNL_I_START,
+                  0,
+                  (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
+                  (Uint32) ioInfo.buffer,
+                  ioInfo.size,
+                  0,
+                  0);
+#endif
 
-      retStatus = PMGR_CHNL_issue (procId, chnlId, ioInfo, NULL) ;
+      retStatus = PMGR_CHNL_issue(procId, chnlId, &ioInfo, NULL);
 
 #if defined (LOG_GD_CHNL_I_COMPLETE)
       /* Log the event */
-      DSPLINKLOG_LogEvent(GD_CHNL_I_COMPLETE,
-                          0,
-                          (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
-                          (Uint32) ioInfo->buffer,
-                          ioInfo->size,
-                          0,
-                          0) ;
-#endif /* if defined (LOG_GD_CHNL_I_COMPLETE) */
+      DSPLINKLOG_LogEvent(
+                  GD_CHNL_I_COMPLETE,
+                  0,
+                  (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
+                  (Uint32) ioInfo.buffer,
+                  ioInfo.size,
+                  0,
+                  0);
+#endif
 
       args->apiStatus = retStatus;
       break;
@@ -1107,50 +1097,69 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_CHNL_RECLAIM:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_RECLAIM'\n");
+      ProcessorId procId = args->apiArgs.chnlReclaimArgs.procId;
+      ChannelId chnlId = args->apiArgs.chnlReclaimArgs.chnlId;
+      Uint32 timeout = args->apiArgs.chnlReclaimArgs.timeout;
+      ChannelIOInfo ioInfo;
 
-      ProcessorId     procId  = args->apiArgs.chnlReclaimArgs.procId  ;
-      ChannelId       chnlId  = args->apiArgs.chnlReclaimArgs.chnlId  ;
-      Uint32          timeout = args->apiArgs.chnlReclaimArgs.timeout ;
-      ChannelIOInfo * ioInfo  = args->apiArgs.chnlReclaimArgs.ioReq   ;
+      /* This probably does not make much sense, since the user-supplied
+         info is not supposed to contain any meaningful values yet (only
+         initializer values (if initialized)). However, we still provide
+         an explicit copy for more consistency */
+      retVal = copy_from_user(
+                       (void*) &ioInfo,
+                       (void*) args->apiArgs.chnlReclaimArgs.ioReq,
+                       sizeof(ChannelIOInfo));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+//  = args->apiArgs.chnlReclaimArgs.ioReq;
 
 #if defined (LOG_GD_CHNL_R_START)
-            /* Log the event */
-            DSPLINKLOG_LogEvent (
-                          GD_CHNL_R_START,
-                          0,
-                          (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
-                          (Uint32) NULL,
-                          ioInfo->size,
-                          0,
-                          0) ;
-#endif /* if defined (LOG_GD_CHNL_R_START) */
+      /* Log the event */
+      DSPLINKLOG_LogEvent(
+                  GD_CHNL_R_START,
+                  0,
+                  (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
+                  (Uint32) NULL,
+                  ioInfo.size,
+                  0,
+                  0);
+#endif
 
-            retStatus = PMGR_CHNL_reclaim (procId, chnlId, timeout, ioInfo, NULL) ;
+      retStatus =
+        PMGR_CHNL_reclaim(procId, chnlId, timeout, &ioInfo, NULL);
 
 #if defined (LOG_GD_CHNL_R_COMPLETE)
-            /* Log the event */
-            DSPLINKLOG_LogEvent (
-                          GD_CHNL_R_COMPLETE,
-                          0,
-                          (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
-                          (Uint32) ioInfo->buffer,
-                          ioInfo->size,
-                          0,
-                          0) ;
-#endif /* if defined (LOG_GD_CHNL_R_COMPLETE) */
+      /* Log the event */
+      DSPLINKLOG_LogEvent(
+                  GD_CHNL_R_COMPLETE,
+                  0,
+                  (((procId << 16) & 0xFFFF0000) | (chnlId & 0xFFFF)),
+                  (Uint32) ioInfo.buffer,
+                  ioInfo.size,
+                  0,
+                  0);
+#endif
 
-        args->apiStatus = retStatus;
-        break;
-      }
+      /* commit created values back to the user. NOTE, that we don't have
+         to worry about separately writing the buffer since its address
+         will be explicitly translated later in 'DRV_Invoke' */
+      retVal = copy_to_user(
+                       (void*) args->apiArgs.chnlReclaimArgs.ioReq,
+                       (void*) &ioInfo,
+                       sizeof(ChannelIOInfo));
 
+      DBC_Assert((0 == retVal) && "Failed to copy data to user");
+
+      args->apiStatus = retStatus;
+      break;
+    }
 #endif /* if defined (CHNL_COMPONENT) */
 
 #if defined (MSGQ_COMPONENT)
     case CMD_MSGQ_ALLOC:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_ALLOC'\n");
- 
       MsgqMsg msg;
       retStatus = PMGR_MSGQ_alloc(args->apiArgs.msgqAllocArgs.poolId,
                                   args->apiArgs.msgqAllocArgs.size,
@@ -1163,9 +1172,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_MSGQ_FREE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_FREE'\n");
- 
-      retStatus = PMGR_MSGQ_free (args->apiArgs.msgqFreeArgs.msg);
+      retStatus = PMGR_MSGQ_free(args->apiArgs.msgqFreeArgs.msg);
       args->apiStatus = retStatus;
       break;
     }
@@ -1174,20 +1181,19 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_PROC_SETUP:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_SETUP'\n");
 
 #if defined (MSGQ_COMPONENT)
       LINKCFG_Gpp * gppObj ;
-#endif /* if defined (MSGQ_COMPONENT) */
+#endif
 
-      retStatus = PMGR_PROC_setup (args->apiArgs.procSetupArgs.linkCfg) ;
+      retStatus = PMGR_PROC_setup(args->apiArgs.procSetupArgs.linkCfg);
 
 #if defined (MSGQ_COMPONENT)
-      if (DSP_SUCCEEDED (retStatus)) {
-        gppObj = LDRV_LinkCfgPtr->gppObject ;
-        DRV_MaxMsgqs = gppObj->maxMsgqs ;
+      if (DSP_SUCCEEDED(retStatus)) {
+        gppObj = LDRV_LinkCfgPtr->gppObject;
+        DRV_MaxMsgqs = gppObj->maxMsgqs;
       }
-#endif /* if defined (MSGQ_COMPONENT) */
+#endif
 
       args->apiStatus = retStatus;
       break;
@@ -1195,22 +1201,18 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_PROC_DESTROY:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_DESTROY'\n");
-
-      retStatus = PMGR_PROC_destroy ();
-      args->apiStatus = retStatus ;
+      retStatus = PMGR_PROC_destroy();
+      args->apiStatus = retStatus;
 
 #if defined (DDSP_DEBUG)
-      MEM_Debug () ;
-#endif /* if defined (DDSP_DEBUG) */
+      MEM_Debug();
+#endif
 
       break;
     }
 
     case CMD_PROC_ISLASTDESTROY:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_ISLASTDESTROY'\n");
-
       args->apiArgs.procIsLastDestroyArgs.lastDestroy =
         (PMGR_PROC_getSetupRefCount () == 1) ? TRUE : FALSE;
 
@@ -1220,12 +1222,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_PROC_ISLASTDETACH:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_ISLASTDETACH'\n");
-
       args->apiArgs.procIsLastDetachArgs.lastDetach =
-        (PMGR_PROC_getAttachRefCount (
+        (PMGR_PROC_getAttachRefCount(
            args->apiArgs.procIsLastDetachArgs.procId) == 1) ?
-                                    TRUE : FALSE ;
+                                    TRUE : FALSE;
       args->apiStatus = DSP_SOK;
       break;
     }
@@ -1233,52 +1233,37 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 #if defined (MPCS_COMPONENT)
     case CMD_MPCS_MAPREGION:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_MPCS_MAPREGION'\n");
-
-      retStatus = LDRV_MPCS_getMemInfo (
+      retStatus = LDRV_MPCS_getMemInfo(
         &args->apiArgs.mpcsMapArgs.mpcsRegionArgs);
 
       args->apiStatus = retStatus;
       break;
     }
-
-#endif /* if defined (MPCS_COMPONENT) */
+#endif
 
 #if defined (RINGIO_COMPONENT)
-
-    /* 'LDRV_RINGIO_getMemInfo' takes an argument that is 'in' and 'out'.
-       Fortunately we don't need to copy anything, since no pointers are
-       involved */
     case CMD_RINGIO_MAPREGION:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_RINGIO_MAPREGION'\n");
-
       retStatus = LDRV_RINGIO_getMemInfo(
         &args->apiArgs.ringIoArgs.ringioRegionArgs);
 
       args->apiStatus = retStatus;
       break;
     }
-
-#endif /* if defined (RINGIO_COMPONENT) */
+#endif
 
 #if defined (MPLIST_COMPONENT)
     case CMD_MPLIST_MAPREGION:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_MPLIST_MAPREGION'\n");
-
       retStatus = LDRV_MPLIST_getMemInfo (
         &args->apiArgs.mplistArgs.mplistRegionArgs) ;
 
       args->apiStatus = retStatus;
       break;
     }
-
-#endif /* if defined (MPLIST_COMPONENT) */
+#endif
 
     case CMD_PROC_START:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_START'\n");
-
       retStatus = PMGR_PROC_start(args->apiArgs.procStartArgs.procId);
 
       /* snoop the dsp id, used for sending terminate event */
@@ -1288,16 +1273,12 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
 
     case CMD_PROC_STOP:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_STOP'\n");
-
-      retStatus = PMGR_PROC_stop (args->apiArgs.procStopArgs.procId);
+      retStatus = PMGR_PROC_stop(args->apiArgs.procStopArgs.procId);
 
       args->apiStatus = retStatus;
       break;
 
     case CMD_PROC_GETSYMBOLADDRESS:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_GETSYMBOLADDRESS'\n");
-
       retStatus = PMGR_PROC_getSymbolAddress (
                         args->apiArgs.procGetSymbolAddressArgs.procId,
                         args->apiArgs.procGetSymbolAddressArgs.symbolName,
@@ -1311,8 +1292,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
        arguments are 'in' */
     case CMD_PROC_LOAD:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_LOAD'\n");
-
       Char8 path[DSP_MAX_STRLEN] = { 0 };
       Char8 **argv;
       Char8 *arg;
@@ -1320,15 +1299,11 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
       if (args->apiArgs.procLoadArgs.imagePath != NULL) {
         retVal = copy_from_user(
-          path, args->apiArgs.procLoadArgs.imagePath, DSP_MAX_STRLEN);
+                         (void*) path,
+                         (void*) args->apiArgs.procLoadArgs.imagePath,
+                         DSP_MAX_STRLEN);
 
-        if (retVal != 0) {
-          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                            "(CMD_PROC_LOAD), result 0x%x\n",
-                            __FUNCTION__, retVal);
-
-          status = -EFAULT;
-        }
+        DBC_Assert((0 == retVal) && "Failed to copy data from user");
       }
 
       if (status != -EFAULT) {
@@ -1344,7 +1319,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
         if (retVal != 0) {
           printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                            "(CMD_PROC_LOAD), result 0x%x\n",
+                            "(CMD_PROC_LOAD), status 0x%x\n",
                             __FUNCTION__, retVal);
 
           status = -EFAULT;
@@ -1361,7 +1336,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
             if (retVal != 0) {
               printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                                "(CMD_PROC_LOAD), result 0x%x\n",
+                                "(CMD_PROC_LOAD), status 0x%x\n",
                                 __FUNCTION__, retVal);
 
               status = -EFAULT;
@@ -1391,9 +1366,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     }
 
     case CMD_PROC_LOADSECTION:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_LOADSECTION'\n");
-
-      retStatus = PMGR_PROC_loadSection (
+      retStatus = PMGR_PROC_loadSection(
         args->apiArgs.procLoadSectionArgs.procId,
         args->apiArgs.procLoadSectionArgs.imagePath,
         args->apiArgs.procLoadSectionArgs.sectID);
@@ -1402,34 +1375,30 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
 
     case CMD_PROC_READ:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_READ'\n");
-
-      retStatus = PMGR_PROC_read (args->apiArgs.procReadArgs.procId,
-                                  args->apiArgs.procReadArgs.dspAddr,
-                                  args->apiArgs.procReadArgs.numBytes,
-                                  args->apiArgs.procReadArgs.buffer);
+      retStatus = PMGR_PROC_read(args->apiArgs.procReadArgs.procId,
+                                 args->apiArgs.procReadArgs.dspAddr,
+                                 args->apiArgs.procReadArgs.numBytes,
+                                 args->apiArgs.procReadArgs.buffer);
 
       args->apiStatus = retStatus;
       break;
 
     case CMD_PROC_WRITE:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_WRITE'\n");
+      retStatus = PMGR_PROC_write(args->apiArgs.procWriteArgs.procId,
+                                  args->apiArgs.procWriteArgs.dspAddr,
+                                  args->apiArgs.procWriteArgs.numBytes,
+                                  args->apiArgs.procWriteArgs.buffer);
 
-      retStatus = PMGR_PROC_write (args->apiArgs.procWriteArgs.procId,
-                                   args->apiArgs.procWriteArgs.dspAddr,
-                                   args->apiArgs.procWriteArgs.numBytes,
-                                   args->apiArgs.procWriteArgs.buffer);
       args->apiStatus = retStatus;
       break;
 
     case CMD_PROC_ATTACH:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_ATTACH'\n");
 
 #if defined (CHNL_COMPONENT)
       ProcessorId procId;
       ChannelId chnlId;
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
       retStatus = PMGR_PROC_attach(args->apiArgs.procAttachArgs.procId,
                                    args->apiArgs.procAttachArgs.attr,
                                    NULL);
@@ -1453,23 +1422,19 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
           }
         }
       }
-#endif /* if defined (CHNL_COMPONENT) */
+#endif
 
       args->apiStatus = retStatus;
       break;
     }
 
     case CMD_PROC_DETACH:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_DETACH'\n");
-
       retStatus = PMGR_PROC_detach(args->apiArgs.procDetachArgs.procId,
                                    NULL);
       args->apiStatus = retStatus;
       break;
 
     case CMD_PROC_CONTROL:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_CONTROL'\n");
-
       retStatus = PMGR_PROC_control (
                     args->apiArgs.procControlArgs.procId,
                     args->apiArgs.procControlArgs.cmd,
@@ -1479,9 +1444,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
 
     case CMD_PROC_GETSTATE:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_GETSTATE'\n");
-
-      retStatus = PMGR_PROC_getState (
+      retStatus = PMGR_PROC_getState(
                     args->apiArgs.procGetStateArgs.procId,
                     args->apiArgs.procGetStateArgs.procState);
 
@@ -1489,8 +1452,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
 
     case CMD_PROC_SENDTERMEVT:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_SENDTERMEVT'\n");
-
       retStatus = PMGR_PROC_sendTerminateEvent(
               args->apiArgs.procGetSymbolAddressArgs.procId);
 
@@ -1499,105 +1460,146 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
 #if defined (DDSP_PROFILE)
     case CMD_PROC_INSTRUMENT:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_INSTRUMENT'\n");
-
-      retStatus = PMGR_PROC_instrument (
+      retStatus = PMGR_PROC_instrument(
                     args->apiArgs.procInstrumentArgs.procId,
                     args->apiArgs.procInstrumentArgs.procStats);
 
       args->apiStatus = retStatus;
       break;
-#endif /* if defined (DDSP_PROFILE) */
+#endif
 
 #if defined (DDSP_DEBUG)
     case CMD_PROC_DEBUG:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_DEBUG'\n");
-
-      PMGR_PROC_debug (args->apiArgs.procDebugArgs.procId);
+      PMGR_PROC_debug(args->apiArgs.procDebugArgs.procId);
       break ;
-#endif /* if defined (DDSP_DEBUG) */
+#endif
 
     case CMD_PROC_CLEANUP:
-      printk(KERN_ALERT "      executing command: 'CMD_PROC_CLEANUP'\n");
-
-      DSPLINK_Cleanup ();
+      DSPLINK_Cleanup();
       break;
 
 #if defined (CHNL_COMPONENT)
     case CMD_CHNL_CREATE:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_CREATE'\n");
+    {
+      ChannelAttrs attrs;
 
-      retStatus = PMGR_CHNL_create (
+      retVal = copy_from_user(
+                        (void*) &attrs,
+                        (void*) args->apiArgs.chnlCreateArgs.attrs,
+                        sizeof(ChannelAttrs));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+      retStatus = PMGR_CHNL_create(
                     args->apiArgs.chnlCreateArgs.procId,
                     args->apiArgs.chnlCreateArgs.chnlId,
-                    args->apiArgs.chnlCreateArgs.attrs,
+                    &attrs,
                     NULL);
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_CHNL_DELETE:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_DELETE'\n");
-
-      retStatus = PMGR_CHNL_delete (args->apiArgs.chnlDeleteArgs.procId,
-                                    args->apiArgs.chnlDeleteArgs.chnlId,
-                                    NULL);
+      retStatus = PMGR_CHNL_delete(args->apiArgs.chnlDeleteArgs.procId,
+                                   args->apiArgs.chnlDeleteArgs.chnlId,
+                                   NULL);
 
       args->apiStatus = retStatus;
       break;
 
     case CMD_CHNL_ALLOCATEBUFFER:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_ALLOCATEBUFFER'\n");
+      ProcessorId procId;
+      ChannelId chnlId;
+      Uint32 size;
+      Uint32 numBufs;
+      Char8 **bufArray;
 
-      ProcessorId  procId   ;
-      ChannelId    chnlId   ;
-      Uint32       size     ;
-      Uint32       numBufs  ;
-      Char8 **     bufArray ;
+      procId = args->apiArgs.chnlAllocateBufferArgs.procId;
+      chnlId = args->apiArgs.chnlAllocateBufferArgs.chnlId;
+      size = args->apiArgs.chnlAllocateBufferArgs.size;
+      numBufs = args->apiArgs.chnlAllocateBufferArgs.numBufs;
 
-      procId   = args->apiArgs.chnlAllocateBufferArgs.procId ;
-      chnlId   = args->apiArgs.chnlAllocateBufferArgs.chnlId ;
-      size     = args->apiArgs.chnlAllocateBufferArgs.size ;
-      numBufs  = args->apiArgs.chnlAllocateBufferArgs.numBufs ;
-      bufArray = args->apiArgs.chnlAllocateBufferArgs.bufArray ;
+      /* in order to be able to transfer created buffers back to the user,
+         we need to preserve user addresses. And since there can be more
+         than just 1 buffer, we need to do it dynamically */
+      status = MEM_Alloc((void **) &bufArray,
+                         sizeof(Char8*) * numBufs,
+                         MEM_DEFAULT);
 
-      retStatus = PMGR_CHNL_allocateBuffer (procId,
-                                            chnlId,
-                                            bufArray,
-                                            size,
-                                            numBufs,
-                                            NULL);
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+
+      retStatus = PMGR_CHNL_allocateBuffer(procId,
+                                           chnlId,
+                                           bufArray,
+                                           size,
+                                           numBufs,
+                                           NULL);
+
+      /* now write all created buffers back to the user, write the entire
+         array at once */
+      retVal = copy_to_user(
+                 (void*) args->apiArgs.chnlAllocateBufferArgs.bufArray,
+                 (void*) bufArray,
+                 sizeof(Char8*) * numBufs);
+
+      DBC_Assert((0 == retVal) && "Failed to copy data to user");
+
+      /* do the housekeeping now. We can safely drop all of the allocated
+         structures here */
+      status = MEM_Free((Pvoid*) &bufArray, NULL);
+
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
+
       args->apiStatus = retStatus;
       break;
     }
 
     case CMD_CHNL_FREEBUFFER:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_FREEBUFFER'\n");
+      ProcessorId procId;
+      ChannelId chnlId;
+      Uint32 numBufs;
+      Char8 **bufArray;
 
-      ProcessorId  procId   ;
-      ChannelId    chnlId   ;
-      Uint32       numBufs  ;
-      Char8 **     bufArray ;
+      procId = args->apiArgs.chnlFreeBufferArgs.procId;
+      chnlId = args->apiArgs.chnlFreeBufferArgs.chnlId;
+      numBufs = args->apiArgs.chnlFreeBufferArgs.numBufs;
 
-      procId   = args->apiArgs.chnlFreeBufferArgs.procId ;
-      chnlId   = args->apiArgs.chnlFreeBufferArgs.chnlId ;
-      numBufs  = args->apiArgs.chnlFreeBufferArgs.numBufs ;
-      bufArray = args->apiArgs.chnlFreeBufferArgs.bufArray ;
+      /* here too, work on a temporary array of buffer addresses. Allocate
+         dynamically and copy each buffer address (which is translated to
+         the kernel space by now) */
+      status = MEM_Alloc((void **) &bufArray,
+                         sizeof(Char8*) * numBufs,
+                         MEM_DEFAULT);
 
-      retStatus = PMGR_CHNL_freeBuffer (procId,
-                                        chnlId,
-                                        bufArray,
-                                        numBufs,
-                                        NULL) ;
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+
+      retVal = copy_from_user(
+                 (void*) bufArray,
+                 (void*) args->apiArgs.chnlFreeBufferArgs.bufArray,
+                 sizeof(Char8*) * numBufs);
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
+      retStatus = PMGR_CHNL_freeBuffer(procId,
+                                       chnlId,
+                                       bufArray,
+                                       numBufs,
+                                       NULL);
+
+      /* do the housekeeping now. We can safely drop all of the allocated
+         structures here */
+      status = MEM_Free((Pvoid*) &bufArray, NULL);
+
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
+
       args->apiStatus = retStatus;
       break;
     }
 
     case CMD_CHNL_IDLE:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_IDLE'\n");
-
       retStatus = PMGR_CHNL_idle(args->apiArgs.chnlIdleArgs.procId,
                                  args->apiArgs.chnlIdleArgs.chnlId,
                                  NULL);
@@ -1606,8 +1608,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break;
 
     case CMD_CHNL_FLUSH:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_FLUSH'\n");
-
       retStatus = PMGR_CHNL_flush(args->apiArgs.chnlFlushArgs.procId,
                                   args->apiArgs.chnlFlushArgs.chnlId,
                                   NULL);
@@ -1616,8 +1616,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       break ;
 
     case CMD_CHNL_CONTROL:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_CONTROL'\n");
-
       retStatus = PMGR_CHNL_control (
                         args->apiArgs.chnlControlArgs.procId,
                         args->apiArgs.chnlControlArgs.chnlId,
@@ -1629,34 +1627,29 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
 #if defined (DDSP_PROFILE)
     case CMD_CHNL_INSTRUMENT:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_INSTRUMENT'\n");
-
-      retStatus = PMGR_CHNL_instrument (
+      retStatus = PMGR_CHNL_instrument(
                        args->apiArgs.chnlInstrumentArgs.procId,
                        args->apiArgs.chnlInstrumentArgs.chnlId,
                        args->apiArgs.chnlInstrumentArgs.chnlStats);
 
       args->apiStatus = retStatus;
       break;
-#endif /* if defined (DDSP_PROFILE) */
+#endif
 
 #if defined (DDSP_DEBUG)
     case CMD_CHNL_DEBUG:
-      printk(KERN_ALERT "      executing command: 'CMD_CHNL_DEBUG'\n");
-
-      PMGR_CHNL_debug (args->apiArgs.chnlDebugArgs.procId,
-                       args->apiArgs.chnlDebugArgs.chnlId);
+      PMGR_CHNL_debug(args->apiArgs.chnlDebugArgs.procId,
+                      args->apiArgs.chnlDebugArgs.chnlId);
 
       break;
-#endif /* if defined (DDSP_DEBUG) */
+#endif
 
     case CMD_DRV_GETCHNLMAPTABLE_ADDRESS:
-      printk(KERN_ALERT "      executing command: 'CMD_DRV_GETCHNLMAPTABLE_ADDRESS'\n");
-
       args->apiArgs.drvPhyAddrArgs.phyAddr =
         (Void *) DRV_MemAllocAttrs.physicalAddress;
 
       break;
+
 #endif /* if defined (CHNL_COMPONENT) */
 
 #if defined (MSGQ_COMPONENT)
@@ -1667,14 +1660,13 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     {
       ZCPYMQT_Attrs attrs;
 
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_TRANSPORTOPEN'\n");
+      DBC_Assert((NULL != args->apiArgs.msgqTransportOpenArgs.attrs) &&
+                 "Expected valid attributes for 'CMD_MSGQ_TRANSPORTOPEN'");
 
-      DBC_Assert((args->apiArgs.msgqTransportOpenArgs.attrs != NULL)
-                 && "Expected valid message queue attributes");
-
-      retVal = copy_from_user(&attrs,
-                              args->apiArgs.msgqTransportOpenArgs.attrs,
-                              sizeof(ZCPYMQT_Attrs));
+      retVal = copy_from_user(
+                        (void*) &attrs,
+                        (void*) args->apiArgs.msgqTransportOpenArgs.attrs,
+                        sizeof(ZCPYMQT_Attrs));
 
       DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
@@ -1687,10 +1679,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     }
 
     case CMD_MSGQ_TRANSPORTCLOSE:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_TRANSPORTCLOES'\n");
-
       retStatus = PMGR_MSGQ_transportClose(
-                                args->apiArgs.msgqTransportCloseArgs.procId);
+                              args->apiArgs.msgqTransportCloseArgs.procId);
 
       args->apiStatus = retStatus;
       break ;
@@ -1698,8 +1688,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     /* the second argument to 'PMGR_MSGQ_open' is 'out', while the third is
        'in'. Proceed in the same manner as we did for other commands */
     case CMD_MSGQ_OPEN:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_OPEN'\n");
-
+    {
       /* Only NULL attributes are supported for Linux for MSGQ_open () */
       if (args->apiArgs.msgqOpenArgs.attrs != NULL) {
         retStatus = DSP_ENOTSUPPORTED;
@@ -1714,61 +1703,40 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
         {
           /* use a local copy 'attrs' for the third argument */
           retVal = copy_from_user(
-            &attrs, args->apiArgs.msgqOpenArgs.attrs, sizeof(MSGQ_Attrs));
+                            (void*) &attrs,
+                            (void*) args->apiArgs.msgqOpenArgs.attrs,
+                            sizeof(MSGQ_Attrs));
 
-          if (retVal != 0) {
-            TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
-                                   "'copy_from_user' (CMD_MSGQ_OPEN), "
-                                   "result 0x%x\n",
-                                   __FUNCTION__, retVal);
-
-            status = -EFAULT;
-          }
-          else pAttrs = &attrs;
+          DBC_Assert((0 == retVal) && "Failed to copy data from user");
+          pAttrs = &attrs;
         }
 
-        /* use a local copy 'attrs' for the third argument */
         retVal = copy_from_user(
           name, args->apiArgs.msgqOpenArgs.queueName, DSP_MAX_STRLEN);
 
-        if (retVal != 0) {
-          TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
-                                 "'copy_from_user' (CMD_MSGQ_OPEN), "
-                                 "result 0x%x\n",
-                                 __FUNCTION__, retVal);
+        DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-          status = -EFAULT;
-        }
+        retStatus = PMGR_MSGQ_open(name, &queue, pAttrs, NULL);
 
-        if (status != -EFAULT) {
-          retStatus = PMGR_MSGQ_open(name, &queue, pAttrs, NULL);
+        if (DSP_SUCCEEDED(retStatus)) {
+          /* write the local copy 'queue' back to the user space */
+          retVal = copy_to_user(
+                        (void*) args->apiArgs.msgqOpenArgs.msgqQueue,
+                        (void*) &queue,
+                        sizeof(MSGQ_Queue));
 
-          if (DSP_SUCCEEDED(retStatus)) {
-            /* write the local copy 'queue' back to the user */
-            retVal = copy_to_user(args->apiArgs.msgqOpenArgs.msgqQueue,
-                                  &queue,
-                                  sizeof(MSGQ_Queue));
-
-            if (retVal != 0) {
-              TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad "
-                                     "'copy_to_user' (CMD_MSGQ_OPEN), "
-                                     "result 0x%x\n",
-                                     __FUNCTION__, retVal);
-
-              status = -EFAULT;
-            }
-          }
+          DBC_Assert((0 == retVal) && "Failed to copy data to user");
         }
       }
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_MSGQ_CLOSE:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_CLOSE'\n");
-
       retStatus = PMGR_MSGQ_close(args->apiArgs.msgqCloseArgs.msgqQueue,
                                   NULL);
+
       args->apiStatus = retStatus;
       break;
 
@@ -1782,10 +1750,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       MSGQ_LocateAttrs attrs;
       MSGQ_Queue msgqQueue;
 
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_LOCATE'\n");
-
-      DBC_Assert((args->apiArgs.msgqLocateArgs.queueName != NULL)
-                 && "Expected a valid message queue name");
+      DBC_Assert((NULL != args->apiArgs.msgqLocateArgs.queueName) &&
+                 "Expected a valid queue name for 'CMD_MSGQ_LOCATE'");
 
       retVal = copy_from_user(
                        (void*) queueName,
@@ -1815,35 +1781,28 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     }
 
     case CMD_MSGQ_LOCATEASYNC:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_LOCATESYNC'\n");
-
-      retStatus = PMGR_MSGQ_locateAsync (
-                               args->apiArgs.msgqLocateAsyncArgs.queueName,
-                               args->apiArgs.msgqLocateAsyncArgs.replyQueue,
-                               args->apiArgs.msgqLocateAsyncArgs.attrs);
+      retStatus = PMGR_MSGQ_locateAsync(
+                            args->apiArgs.msgqLocateAsyncArgs.queueName,
+                            args->apiArgs.msgqLocateAsyncArgs.replyQueue,
+                            args->apiArgs.msgqLocateAsyncArgs.attrs);
       args->apiStatus = retStatus;
       break;
 
     case CMD_MSGQ_RELEASE:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_RELEASE'\n");
-
-      retStatus = PMGR_MSGQ_release (
+      retStatus = PMGR_MSGQ_release(
                                args->apiArgs.msgqReleaseArgs.msgqQueue);
 
       args->apiStatus = retStatus;
       break;
 
     case CMD_MSGQ_COUNT:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_COUNT'\n");
+      retStatus = PMGR_MSGQ_count(args->apiArgs.msgqCountArgs.msgqQueue,
+                                  args->apiArgs.msgqCountArgs.count);
 
-      retStatus = PMGR_MSGQ_count (args->apiArgs.msgqCountArgs.msgqQueue,
-                                   args->apiArgs.msgqCountArgs.count);
       args->apiStatus = retStatus;
       break;
 
     case CMD_MSGQ_SETERRORHANDLER:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_SETERRORHANDLER'\n");
-
       retStatus = PMGR_MSGQ_setErrorHandler(
                            args->apiArgs.msgqSetErrorHandlerArgs.errorQueue,
                            args->apiArgs.msgqSetErrorHandlerArgs.poolId);
@@ -1853,33 +1812,27 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
 #if defined (DDSP_PROFILE)
     case CMD_MSGQ_INSTRUMENT:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_INSTRUMENT'\n");
-
-      retStatus = PMGR_MSGQ_instrument (
+      retStatus = PMGR_MSGQ_instrument(
                                  args->apiArgs.msgqInstrumentArgs.msgqQueue,
                                  args->apiArgs.msgqInstrumentArgs.retVal);
 
       args->apiStatus = retStatus;
       break;
-#endif /* if defined (DDSP_PROFILE) */
+#endif
 
 #if defined (DDSP_DEBUG)
     case CMD_MSGQ_DEBUG:
-      printk(KERN_ALERT "      executing command: 'CMD_MSGQ_DEBUG'\n");
-
-      PMGR_MSGQ_debug (args->apiArgs.msgqDebugArgs.msgqQueue);
+      PMGR_MSGQ_debug(args->apiArgs.msgqDebugArgs.msgqQueue);
 
       args->apiStatus = retStatus;
       break;
-#endif /* if defined (DDSP_DEBUG) */
+#endif
 
 #endif /* if defined (MSGQ_COMPONENT) */
 
 #if defined (POOL_COMPONENT)
     case CMD_POOL_ALLOC:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_ALLOC'\n");
-
       retStatus = LDRV_POOL_alloc(args->apiArgs.poolAllocArgs.poolId,
                                   args->apiArgs.poolAllocArgs.bufPtr,
                                   args->apiArgs.poolAllocArgs.size);
@@ -1890,8 +1843,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_POOL_FREE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_FREE'\n");
-
       retStatus = LDRV_POOL_free(args->apiArgs.poolFreeArgs.poolId,
                                  args->apiArgs.poolFreeArgs.bufPtr,
                                  args->apiArgs.poolFreeArgs.size);
@@ -1907,32 +1858,30 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
        'copy_from_user' */
     case CMD_POOL_OPEN:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_OPEN'\n");
-
       POOL_OpenParams params;
 
-      if (args->apiArgs.poolOpenArgs.params != NULL) {
-        retVal = copy_from_user(
-            (void*) &params,
-            (void*) args->apiArgs.poolOpenArgs.params,
-            sizeof(POOL_OpenParams));
+      DBC_Assert((NULL != args->apiArgs.poolOpenArgs.params) &&
+                 "Expected valid pool parameters for 'CMD_POOL_OPEN'");
 
-        if (retVal != 0) {
-          TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_from_user' "
-                                 "(CMD_POOL_OPEN), result 0x%x\n",
-                                 __FUNCTION__, retVal);
+      retVal = copy_from_user(
+                          (void*) &params,
+                          (void*) args->apiArgs.poolOpenArgs.params,
+                          sizeof(POOL_OpenParams));
 
-          status = -EFAULT;
-        }
-      }
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-      if (status != -EFAULT) {
-        retStatus =
-          LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
-      }
+      retStatus =
+        LDRV_POOL_open(args->apiArgs.poolOpenArgs.poolId, &params);
 
-      printk(KERN_ALERT "  CMD_POOL_OPEN retStatus: 0x%x\n", retStatus);
-      printk(KERN_ALERT "  CMD_POOL_OPEN status: 0x%x\n", status);
+      /* need to preserve POOL address data accumulated in 'params' for
+         the later tasks (e.g. mmap). Thus, write the computed address data
+         back but make sure not to touch the buffer configuration supplied
+         by the user */
+      retVal = copy_to_user((void*) args->apiArgs.poolOpenArgs.params,
+                            (void*) &params,
+                            sizeof(POOL_OpenParams));
+
+      DBC_Assert((0 == retVal) && "Failed to copy data to user");
 
       args->apiStatus = retStatus;
       break;
@@ -1940,8 +1889,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_POOL_CLOSE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_CLOSE'\n");
-
       retStatus = LDRV_POOL_close (args->apiArgs.poolCloseArgs.poolId);
 
       args->apiStatus = retStatus;
@@ -1950,8 +1897,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_POOL_WRITEBACK:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_WRITEBACK'\n");
-
       retStatus = LDRV_POOL_writeback(args->apiArgs.poolWBArgs.poolId,
                                       args->apiArgs.poolWBArgs.bufPtr,
                                       args->apiArgs.poolWBArgs.size);
@@ -1962,11 +1907,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_POOL_INVALIDATE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_POOL_INVALIDATE'\n");
-
-      retStatus = LDRV_POOL_invalidate (args->apiArgs.poolInvArgs.poolId,
-                                        args->apiArgs.poolInvArgs.bufPtr,
-                                        args->apiArgs.poolInvArgs.size);
+      retStatus = LDRV_POOL_invalidate(args->apiArgs.poolInvArgs.poolId,
+                                       args->apiArgs.poolInvArgs.bufPtr,
+                                       args->apiArgs.poolInvArgs.size);
 
       args->apiStatus = retStatus;
       break;
@@ -1976,8 +1919,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 #if defined (NOTIFY_COMPONENT)
     case CMD_NOTIFY_INITIALIZE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_INITIALIZE'\n");
-
       retStatus = NOTIFY_KnlInitialize(
                                 args->apiArgs.notifyInitializeArgs.dspId);
 
@@ -1987,8 +1928,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_NOTIFY_FINALIZE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_FINALIZE'\n");
-
       retStatus = NOTIFY_KnlFinalize(
                                 args->apiArgs.notifyFinalizeArgs.dspId);
 
@@ -1998,8 +1937,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_NOTIFY_REGISTER:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_REGISTER'\n");
-
       retStatus = NOTIFY_KnlRegister(
                                args->apiArgs.notifyRegisterArgs.dspId,
                                args->apiArgs.notifyRegisterArgs.ipsId,
@@ -2013,8 +1950,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_NOTIFY_UNREGISTER:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_UNREGISTER'\n");
-
       retStatus = NOTIFY_KnlUnregister(
                              args->apiArgs.notifyUnregisterArgs.dspId,
                              args->apiArgs.notifyUnregisterArgs.ipsId,
@@ -2028,8 +1963,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_NOTIFY_NOTIFY:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_NOTIFY'\n");
-
       retStatus = NOTIFY_KnlNotify(
                             args->apiArgs.notifyNotifyArgs.dspId,
                             args->apiArgs.notifyNotifyArgs.ipsId,
@@ -2043,8 +1976,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 #if defined (DDSP_PROFILE)
     case CMD_NOTIFY_INSTRUMENT:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_NOTIFY_INSTRUMENT'\n");
-
       retStatus = NOTIFY_KnlInstrument(
                               args->apiArgs.ipsInstrumentArgs.dspId,
                               args->apiArgs.ipsInstrumentArgs.ipsId,
@@ -2053,13 +1984,12 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
       args->apiStatus = retStatus;
       break;
     }
-#endif /* if defined (DDSP_PROFILE) */
+#endif
+
 #endif /* #if defined (NOTIFY_COMPONENT) */
 
     case CMD_IDM_INIT:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_INIT'\n");
-
       retStatus = IDM_init();
 
       args->apiStatus = retStatus;
@@ -2068,8 +1998,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_IDM_EXIT:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_EXIT'\n");
-
       retStatus = IDM_exit();
 
       args->apiStatus = retStatus;
@@ -2081,27 +2009,15 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
        safe reference */
     case CMD_IDM_CREATE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_CREATE'\n");
-
       IDM_Attrs attrs;
 
-      int retVal = copy_from_user(
-        (void*) &attrs,
-        (void*) args->apiArgs.idmCreateArgs.attrs,
-        sizeof(IDM_Attrs));
+      retVal = copy_from_user((void*) &attrs,
+                              (void*) args->apiArgs.idmCreateArgs.attrs,
+                              sizeof(IDM_Attrs));
 
-      if (retVal != 0) {
-        TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_to_user' "
-                               "(CMD_IDM_CREATE), result 0x%x\n",
-                               __FUNCTION__, retVal);
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-        status = -EFAULT;
-      }
-      else {
-        /* as mentioned, pass the local 'attrs' object. This should be ok,
-           since declared as 'in' argument */
-        retStatus = IDM_create(args->apiArgs.idmCreateArgs.key, &attrs);
-      }
+      retStatus = IDM_create(args->apiArgs.idmCreateArgs.key, &attrs);
 
       args->apiStatus = retStatus;
       break;
@@ -2109,8 +2025,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_IDM_DELETE:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_DELETE'\n");
-
       retStatus = IDM_delete(args->apiArgs.idmDeleteArgs.key);
 
       args->apiStatus = retStatus;
@@ -2121,9 +2035,8 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
        is the 'id'. Thus, we need to write it back upon completion */
     case CMD_IDM_ACQUIREID:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_ACQUIREID'\n");
-
       Uint32 id;
+      Uint32 *userIdAddr;
       Char8 dstKey[DSP_MAX_STRLEN] = { 0 };
 
       /* copy the id-key into a local buffer. Accessing it directly (user-
@@ -2133,33 +2046,22 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
                          (void*) args->apiArgs.idmAcquireIdArgs.idKey,
                          DSP_MAX_STRLEN);
 
-      if (retVal != 0) {
-        TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_from_user' "
-                               "(CMD_IDM_ACQUIREID), result 0x%x\n",
-                               __FUNCTION__, retVal);
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-        status = -EFAULT;
-      }
-      else {
-        Uint32 *userIdAddr = args->apiArgs.idmAcquireIdArgs.id;
+      userIdAddr = args->apiArgs.idmAcquireIdArgs.id;
 
-        retStatus = IDM_acquireId(
-          args->apiArgs.idmAcquireIdArgs.key, dstKey, &id);
+      retStatus = IDM_acquireId(
+        args->apiArgs.idmAcquireIdArgs.key, dstKey, &id);
 
-        if (DSP_SUCCEEDED(retStatus)) {
-          /* write the created 'id' value back. I guess this is safe (i.e.
-             will not be overwritten when writing the entire 'args' struct
-             back to the user space) */
-          retVal = copy_to_user(userIdAddr, &id, sizeof(Uint32));
+      if (DSP_SUCCEEDED(retStatus)) {
+        /* write the created 'id' value back. I guess this is safe (i.e.
+           will not be overwritten anything when writing the entire 'args'
+           struct back to the user space) */
+        retVal = copy_to_user((void*) userIdAddr,
+                              (void*) &id,
+                              sizeof(Uint32));
 
-          if (retVal != 0) {
-            TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': bad 'copy_to_user' "
-                                   "(CMD_IDM_ACQUIREID), result 0x%x\n",
-                                   __FUNCTION__, retVal);
-
-            status = -EFAULT;
-          }
-        }
+        DBC_Assert((0 == retVal) && "Failed to copy data to user");
       }
 
       args->apiStatus = retStatus;
@@ -2168,8 +2070,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
 
     case CMD_IDM_RELEASEID:
     {
-      printk(KERN_ALERT "      executing command: 'CMD_IDM_RELEASED'\n");
-
       retStatus = IDM_releaseId(args->apiArgs.idmReleaseIdArgs.key,
                                 args->apiArgs.idmReleaseIdArgs.id);
 
@@ -2178,9 +2078,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args * args)
     }
 
     default:
-      TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': incorrect command id "
-                             "specified: 0x%x\n", __FUNCTION__, cmd);
-
       status = DSP_EFAIL;
       break;
   }
@@ -2219,15 +2116,14 @@ STATIC NORMAL_API Void DSPLINK_Cleanup(Void) {
 #endif /* if defined (MSGQ_COMPONENT) */
 }
 
-/*
- *  ======== DSPLINK_sendTerminateEvent ========
- */
+/*******************************************************************************
+  @name  DSPLINK_sendTerminateEvent
+  @desc  Trigger a termination event
+*******************************************************************************/
 
 void DSPLINK_sendTerminateEvent(void)
 {
-  printk("Executing 'DSPLink_sendTerminateEvent'\n");
-
-  DSP_STATUS  status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
   /* send terminate event if we have a valid snoop value */
   if (DRV_dspId != 0xffff) {

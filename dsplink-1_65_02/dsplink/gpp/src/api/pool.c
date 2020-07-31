@@ -102,8 +102,7 @@ extern POOL_AddrInfo POOL_addrConfig [MAX_DSPS][MAX_POOLENTRIES] ;
  *          component containing internal state information required by it.
  *  ============================================================================
  */
-extern PROC_Object PROC_stateObj ;
-
+extern PROC_Object PROC_stateObj;
 
 /*******************************************************************************
   @func  POOL_open
@@ -145,22 +144,18 @@ EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
         SET_FAILURE_REASON;
       }
       else {
-        /* 'params' correspond to the user parameters put together in a struct
-           of type 'SMAPOOL_Attrs' */
         args.apiArgs.poolOpenArgs.poolId = poolId;
+
+        /* 'params' are user supplied parameters (of type 'SMAPOOL_Attrs') */
         poolOpenParams.params = params;
         args.apiArgs.poolOpenArgs.params = &poolOpenParams;
 
-        /* goes to 'DRV_Invoke' which then triggers 'ioctl', which calls the
-           actual implementation in 'DRV_Invoke' which issues a call to
-           'LDRV_POOL_open' */
+        /* goes to 'DRV_Invoke' which then triggers 'ioctl', which then calls
+           'DRV_Ioctl', which calls 'LDRV_POOL_open'...finally followed by
+           'SMAPOOL_open' */
         status = DRV_INVOKE(DRV_handle, CMD_POOL_OPEN, &args);
 
-        printf("DRV_INVOKE in POOL_open status: 0x%x\n", status);
-
         if (DSP_SUCCEEDED(status)) {
-          printf("CMD_POOL_OPEN OK after DRV_INVOKE in POOL_open\n");
-
           DRV_SET_CURSTATUS(
             PROC_stateObj.curStatus.poolIsOpened[procId][poolNo]);
         }
@@ -170,14 +165,7 @@ EXPORT_API DSP_STATUS POOL_open(IN PoolId poolId, IN Pvoid params)
       }
 
       if (csObjExists == TRUE) {
-        printf("DRV_INVOKE in POOL_open status: 0x%x\n", status);
-
-        printf(" CALLING '_SYNC_USR_leaveCS'..."); 
-
         tmpStatus = _SYNC_USR_leaveCS(PROC_stateObj.syncCsObj);
-
-        printf("done, status 0x%x\n", status);
-
 
         if (DSP_FAILED(tmpStatus) && DSP_SUCCEEDED(status)) {
           status = tmpStatus;

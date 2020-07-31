@@ -480,7 +480,6 @@ extern "C" {
                                             BASE_CMD + 73u,\
                                             CMD_Args)
 
-
 /** ============================================================================
  *  @macro  DRV_INITIALIZE
  *
@@ -519,42 +518,43 @@ extern "C" {
  *  ============================================================================
  */
 typedef struct CMD_Args_tag {
-    DSP_STATUS apiStatus ;
-    union {
-        struct {
-            LINKCFG_Object * linkCfg ;
-        } procSetupArgs ;
+  DSP_STATUS apiStatus;
 
-        struct {
-            Char8 dummy ;
-        } procDestroyArgs ;
+  union {
+    struct {
+      LINKCFG_Object *linkCfg;
+    } procSetupArgs;
 
-        struct {
-            ProcessorId     procId ;
-        } procStartArgs ;
+    struct {
+      Char8 dummy;
+    } procDestroyArgs;
 
-        struct {
-            ProcessorId     procId ;
-        } procStopArgs ;
+    struct {
+      ProcessorId procId;
+    } procStartArgs;
 
-        struct {
-            ProcessorId     procId     ;
-            Char8 *         symbolName ;
-            Uint32 *        dspAddr    ;
-        } procGetSymbolAddressArgs ;
+    struct {
+      ProcessorId procId;
+    } procStopArgs;
 
-        struct {
-            ProcessorId     procId;
-        } procSendTermEvtArgs;
+    struct {
+      ProcessorId procId;
+      Char8 *symbolName;
+      Uint32 *dspAddr;
+    } procGetSymbolAddressArgs;
 
-        struct {
-            ProcessorId     procId ;
-            PROC_Attrs *    attr   ;
-        } procAttachArgs ;
+    struct {
+      ProcessorId procId;
+    } procSendTermEvtArgs;
 
-        struct {
-            ProcessorId    procId ;
-        } procDetachArgs ;
+    struct {
+      ProcessorId procId;
+      PROC_Attrs *attr;
+    } procAttachArgs;
+
+    struct {
+      ProcessorId procId;
+    } procDetachArgs;
 
         struct {
             ProcessorId    procId    ;

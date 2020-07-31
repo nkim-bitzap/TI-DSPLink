@@ -206,78 +206,75 @@ PMGR_CHNL_exit (IN ProcessorId   procId)
 }
 
 
-/** ============================================================================
- *  @func   PMGR_CHNL_create
- *
- *  @desc   Creates resources used for transferring data between GPP and DSP.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_CHNL_create (IN     ProcessorId     procId,
-                  IN     ChannelId       chnlId,
-                      IN ChannelAttrs *  attrs,
-                      IN Void *          optArgs)
+/*******************************************************************************
+  @func  PMGR_CHNL_create
+  @desc  Creates resources used for transferring data between GPP and DSP
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS PMGR_CHNL_create(IN ProcessorId procId,
+                                       IN ChannelId chnlId,
+                                       IN ChannelAttrs *attrs,
+                                       IN Void *optArgs)
 {
-    DSP_STATUS   status     = DSP_SOK ;
-    Bool         isAttached = FALSE   ;
-    PrcsObject * prcsInfo   = NULL    ;
-    ChannelAttrs ldrvAttrs            ;
+  DSP_STATUS status = DSP_SOK;
+  Bool isAttached = FALSE;
+  PrcsObject *prcsInfo = NULL;
+  ChannelAttrs ldrvAttrs;
 
-    TRC_3ENTER ("PMGR_CHNL_create", procId, chnlId, attrs) ;
+  TRC_3ENTER("PMGR_CHNL_create", procId, chnlId, attrs);
 
-    DBC_Require (PMGR_CHNL_IsInitialized [procId]) ;
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (attrs != NULL) ;
+  DBC_Require(PMGR_CHNL_IsInitialized[procId]);
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(attrs != NULL);
 
-    if (PMGR_CHNL_OwnerArray [procId][chnlId] != NULL) {
-        status = DSP_EALREADYCONNECTED ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        status = PRCS_Create (&prcsInfo, optArgs) ;
+  if (PMGR_CHNL_OwnerArray[procId][chnlId] != NULL) {
+    status = DSP_EALREADYCONNECTED;
+    SET_FAILURE_REASON;
+  }
+  else {
+    status = PRCS_Create (&prcsInfo, optArgs);
 
-        if (DSP_SUCCEEDED (status)) {
-            status = PMGR_PROC_isAttached (procId, prcsInfo, &isAttached) ;
-            if (DSP_SUCCEEDED (status)) {
-                if (isAttached == TRUE) {
-                    PMGR_CHNL_OwnerArray [procId][chnlId] = prcsInfo ;
-                    ldrvAttrs.endianism = attrs->endianism ;
-                    ldrvAttrs.mode      = attrs->mode      ;
-                    ldrvAttrs.size      = attrs->size      ;
-                    status = LDRV_CHNL_open (procId, chnlId, &ldrvAttrs) ;
-                    if (DSP_FAILED (status)) {
-                        SET_FAILURE_REASON ;
-                    }
-                }
-                else {
-                    status = DSP_EATTACHED ;
-                    SET_FAILURE_REASON ;
-                }
-            }
-            else {
-                SET_FAILURE_REASON ;
-            }
+    if (DSP_SUCCEEDED(status)) {
+      status = PMGR_PROC_isAttached(procId, prcsInfo, &isAttached);
 
-            if (DSP_FAILED (status)) {
-                PMGR_CHNL_OwnerArray [procId][chnlId] = NULL ;
-                PRCS_Delete (prcsInfo) ;
-                prcsInfo = NULL ;
-            }
+      if (DSP_SUCCEEDED(status)) {
+        if (isAttached == TRUE) {
+          PMGR_CHNL_OwnerArray[procId][chnlId] = prcsInfo;
+
+          ldrvAttrs.endianism = attrs->endianism;
+          ldrvAttrs.mode = attrs->mode;
+          ldrvAttrs.size = attrs->size;
+
+          status = LDRV_CHNL_open(procId, chnlId, &ldrvAttrs);
+
+          if (DSP_FAILED(status)) {
+            SET_FAILURE_REASON;
+          }
         }
         else {
-            SET_FAILURE_REASON ;
+          status = DSP_EATTACHED;
+          SET_FAILURE_REASON;
         }
+      }
+      else {
+        SET_FAILURE_REASON;
+      }
+
+      if (DSP_FAILED(status)) {
+        PMGR_CHNL_OwnerArray[procId][chnlId] = NULL;
+        PRCS_Delete(prcsInfo);
+        prcsInfo = NULL;
+      }
     }
+    else {
+      SET_FAILURE_REASON ;
+    }
+  }
 
-    TRC_1LEAVE ("PMGR_CHNL_create", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_CHNL_create", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_CHNL_delete
@@ -322,53 +319,49 @@ PMGR_CHNL_delete (IN ProcessorId  procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PMGR_CHNL_allocateBuffer
+  @desc  Allocates an array of buffers of specified size and returns them
+         to the client
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_CHNL_allocateBuffer
- *
- *  @desc   Allocates an array of buffers of specified size and returns them
- *          to the client.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_CHNL_allocateBuffer (IN  ProcessorId procId,
-                          IN  ChannelId   chnlId,
-                          OUT Char8 **    bufArray,
-                          IN  Uint32      size,
-                          IN     Uint32      numBufs,
-                          IN     Void *      optArgs)
+NORMAL_API DSP_STATUS PMGR_CHNL_allocateBuffer(IN ProcessorId procId,
+                                               IN ChannelId chnlId,
+                                               OUT Char8 **bufArray,
+                                               IN Uint32 size,
+                                               IN Uint32 numBufs,
+                                               IN Void *optArgs)
 {
-    DSP_STATUS status  = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_5ENTER ("PMGR_CHNL_allocateBuffer", procId, chnlId,
-                                            bufArray, size, numBufs) ;
+  TRC_5ENTER("PMGR_CHNL_allocateBuffer",
+             procId,
+             chnlId,
+             bufArray,
+             size,
+             numBufs);
 
-    DBC_Require (PMGR_CHNL_IsInitialized [procId]) ;
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (bufArray != NULL) ;
-    DBC_Require (numBufs <= MAX_ALLOC_BUFFERS) ;
+  DBC_Require(PMGR_CHNL_IsInitialized[procId]);
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(bufArray != NULL);
+  DBC_Require(numBufs <= MAX_ALLOC_BUFFERS);
 
-    if (PMGR_CHNL_IsOwner (procId, chnlId, optArgs)) {
-        status = LDRV_CHNL_allocateBuffer (procId,
-                                           chnlId,
-                                           bufArray,
-                                           size,
-                                           numBufs) ;
-    }
-    else {
-        status = DSP_EACCESSDENIED ;
-        SET_FAILURE_REASON ;
-    }
+  if (PMGR_CHNL_IsOwner(procId, chnlId, optArgs)) {
+    status = LDRV_CHNL_allocateBuffer(procId,
+                                      chnlId,
+                                      bufArray,
+                                      size,
+                                      numBufs);
+  }
+  else {
+    status = DSP_EACCESSDENIED;
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("PMGR_CHNL_allocateBuffer", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_CHNL_allocateBuffer", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   PMGR_CHNL_freeBuffer
@@ -409,90 +402,77 @@ PMGR_CHNL_freeBuffer (IN ProcessorId procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PMGR_CHNL_issue
+  @desc  Issues an input or output request on a specified channel
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_CHNL_issue
- *
- *  @desc   Issues an input or output request on a specified channel.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_CHNL_issue (IN ProcessorId     procId,
-                 IN ChannelId       chnlId,
-                 IN     ChannelIOInfo * ioReq,
-                 IN     Void *          optArgs)
+NORMAL_API DSP_STATUS PMGR_CHNL_issue(IN ProcessorId procId,
+                                      IN ChannelId chnlId,
+                                      IN ChannelIOInfo *ioReq,
+                                      IN Void *optArgs)
 {
-    DSP_STATUS     status  = DSP_SOK ;
-    LDRV_CHNL_IOInfo ioInfo            ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_CHNL_IOInfo ioInfo;
 
-    TRC_3ENTER ("PMGR_CHNL_issue", procId, chnlId, ioReq) ;
+  TRC_3ENTER("PMGR_CHNL_issue", procId, chnlId, ioReq);
 
-    DBC_Require (PMGR_CHNL_IsInitialized [procId]) ;
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (ioReq != NULL) ;
-    DBC_Require (PMGR_CHNL_IsOwner (procId, chnlId, optArgs)) ;
+  DBC_Require(PMGR_CHNL_IsInitialized[procId]);
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(ioReq != NULL);
+  DBC_Require(PMGR_CHNL_IsOwner(procId, chnlId, optArgs));
 
-    ioInfo.buffer      = ioReq->buffer ;
-    ioInfo.size        = ioReq->size   ;
-    ioInfo.arg         = ioReq->arg    ;
+  ioInfo.buffer = ioReq->buffer;
+  ioInfo.size = ioReq->size;
+  ioInfo.arg = ioReq->arg;
 
-    status =  LDRV_CHNL_addIORequest (procId, chnlId, &ioInfo) ;
-    if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
-    }
+  status = LDRV_CHNL_addIORequest(procId, chnlId, &ioInfo);
 
-    TRC_1LEAVE ("PMGR_CHNL_issue", status) ;
+  if (DSP_FAILED(status)) {
+    SET_FAILURE_REASON;
+  }
 
-    return status ;
+  TRC_1LEAVE("PMGR_CHNL_issue", status);
+  return status;
 }
 
+/*******************************************************************************
+  @func  PMGR_CHNL_reclaim
+  @desc  Gets the buffer back that has been issued to this channel
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_CHNL_reclaim
- *
- *  @desc   Gets the buffer back that has been issued to this channel.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-PMGR_CHNL_reclaim (IN     ProcessorId      procId,
-                   IN     ChannelId        chnlId,
-                   IN     Uint32           timeout,
-                   IN OUT ChannelIOInfo *  ioReq,
-                   IN     Void *           optArgs)
+NORMAL_API DSP_STATUS PMGR_CHNL_reclaim(IN ProcessorId procId,
+                                        IN ChannelId chnlId,
+                                        IN Uint32 timeout,
+                                        IN OUT ChannelIOInfo *ioReq,
+                                        IN Void *optArgs)
 {
-    DSP_STATUS     status  = DSP_SOK ;
-    LDRV_CHNL_IOInfo ioInfo            ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_CHNL_IOInfo ioInfo;
 
-    TRC_4ENTER ("PMGR_CHNL_reclaim", procId, chnlId, timeout, ioReq) ;
+  TRC_4ENTER("PMGR_CHNL_reclaim", procId, chnlId, timeout, ioReq);
 
-    DBC_Require (PMGR_CHNL_IsInitialized [procId]) ;
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (ioReq != NULL) ;
-    DBC_Require (PMGR_CHNL_IsOwner (procId, chnlId, optArgs)) ;
+  DBC_Require (PMGR_CHNL_IsInitialized[procId]);
+  DBC_Require (IS_VALID_PROCID(procId));
+  DBC_Require (IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require (ioReq != NULL);
+  DBC_Require (PMGR_CHNL_IsOwner(procId, chnlId, optArgs));
 
-    status = LDRV_CHNL_getIOCompletion (procId, chnlId,
-                                        timeout, &ioInfo) ;
+  status =
+    LDRV_CHNL_getIOCompletion(procId, chnlId, timeout, &ioInfo);
 
-    if (DSP_SUCCEEDED (status)) {
-        ioReq->buffer = ioInfo.buffer ;
-        ioReq->size   = ioInfo.size   ;
-        ioReq->arg    = ioInfo.arg    ;
-    }
-    else {
-        SET_FAILURE_REASON ;
-    }
+  if (DSP_SUCCEEDED (status)) {
+    ioReq->buffer = ioInfo.buffer;
+    ioReq->size = ioInfo.size;
+    ioReq->arg = ioInfo.arg;
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("PMGR_CHNL_reclaim", status) ;
-
-    return status ;
+  TRC_1LEAVE("PMGR_CHNL_reclaim", status);
+  return status;
 }
 
 

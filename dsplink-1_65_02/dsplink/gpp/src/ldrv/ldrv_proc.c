@@ -258,9 +258,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
 
     if (mapId == CFGMAP_Config[dspId]->numDsps) {
       /* Configured DSP is not available */
-      printk(KERN_ALERT "*** configuration error: incorrect "
-                        "DSP name specified (%s)\n",
-                        dspObj->name);
+      TRC_1PRINT(TRC_LEVEL5,
+                 "*** configuration error: invalid DSP name specified "
+                 "(%s)\n", dspObj->name);
 
       status = DSP_ECONFIG;
       SET_FAILURE_REASON;
@@ -287,11 +287,11 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
         }
       }
 
-      if (mapId == CFGMAP_Config [dspId]->numLoaders) {
+      if (mapId == CFGMAP_Config[dspId]->numLoaders) {
         /* Configured loader is not available */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "loader name specified (%s)\n",
-                          dspObj->loaderName);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid loader name "
+                   "specified (%s)\n", dspObj->loaderName);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
@@ -303,9 +303,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->dspArch != DspArch_C64x))
       {
         /* Check if the dspArch is valid */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "DSP architecture specified (0x%x)\n",
-                           dspObj->dspArch);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid DSP architecture "
+                   "specified (0x%x)\n", dspObj->dspArch);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
@@ -314,9 +314,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->autoStart != FALSE))
       {
         /* Check if the autoStart is valid */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "DSP 'autoStart' specified (0x%x)\n",
-                          dspObj->autoStart);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid DSP 'autoStart' "
+                   "specified (0x%x)\n", dspObj->autoStart);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
@@ -326,9 +326,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->endian != Endianism_Little))
       {
         /* Check if the endian is valid */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "DSP endianness specified (0x%x)\n",
-                          dspObj->endian);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid DSP endian type "
+                   "specified (0x%x)\n", dspObj->endian);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
@@ -337,18 +337,18 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
            &&  (dspObj->wordSwap != FALSE))
       {
         /* Check if the wordSwap is valid */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "DSP 'wordSwap' specified (0x%x)\n",
-                          dspObj->wordSwap);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid DSP 'wordSwap' "
+                   "specified (0x%x)\n", dspObj->wordSwap);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
       }
       else if (dspObj->memTableId >= dspConfig->numMemTables) {
         /* Check if the memTableId is in valid range */
-        printk(KERN_ALERT "*** configuration error: incorrect "
-                          "DSP 'memTableId' specified (0x%x)\n",
-                          dspObj->memTableId);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** configuration error: invalid DSP mem. table "
+                   "ID specified (0x%x)\n", dspObj->memTableId);
 
         status = DSP_ECONFIG;
         SET_FAILURE_REASON;
@@ -363,8 +363,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
         procState->dspState = ProcState_Reset;
       }
       else {
-        printk(KERN_ALERT " 'DSP_init' failed, status: 0x%x\n",
-                          status);
+        TRC_2PRINT(TRC_LEVEL5,
+                   "*** error in '%s': failed initializing DSP, "
+                   "status 0x%x\n", __FUNCTION__,  status);
 
         SET_FAILURE_REASON;
       }
@@ -406,7 +407,6 @@ NORMAL_API DSP_STATUS LDRV_PROC_init(IN ProcessorId dspId)
               (DSP_FAILED (status)));
 
   TRC_1LEAVE("LDRV_PROC_init", status);
-
   return status;
 }
 
@@ -550,12 +550,9 @@ NORMAL_API DSP_STATUS LDRV_PROC_start(IN ProcessorId dspId,
            && (procState->dspState == ProcState_Started))
            || (DSP_FAILED(status)));
 
-  printk(KERN_ALERT "'LDRV_PROC_start' executed, status 0x%x\n", status);
   TRC_1LEAVE("LDRV_PROC_start", status);
-
   return status;
 }
-
 
 /** ============================================================================
  *  @func   LDRV_PROC_stop

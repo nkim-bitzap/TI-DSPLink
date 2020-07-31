@@ -20,7 +20,6 @@
  *  ============================================================================
  */
 
-
 /*  ----------------------------------- OS Specific Headers         */
 #include <linux/version.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
@@ -29,7 +28,6 @@
 #include <linux/autoconf.h>
 #endif
 
-#include <linux/module.h>
 #include <linux/spinlock.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -212,15 +210,16 @@ KFILEDEF_Tell (IN  Void *        fileHandle,
  *  @desc   Definition of the interface table for KFILEPSEUDO module.
  *  ============================================================================
  */
+
 KFILE_Interface KFILEDEF_Interface =
 {
-    &KFILEDEF_Open,
-    &KFILEDEF_Close,
-    &KFILEDEF_Read,
-    &KFILEDEF_Seek,
-    &KFILEDEF_Tell,
-    NULL
-} ;
+  &KFILEDEF_Open,
+  &KFILEDEF_Close,
+  &KFILEDEF_Read,
+  &KFILEDEF_Seek,
+  &KFILEDEF_Tell,
+  NULL
+};
 
 /*******************************************************************************
   @func  KFILEDEF_Open
@@ -283,8 +282,10 @@ EXPORT_API DSP_STATUS KFILEDEF_Open(IN CONST FileName fileName,
 
     if (IS_ERR(fd) || fd == NULL || fd->f_op == NULL)
     {
-      printk(KERN_ALERT "*** error in '%s': invalid file descriptor\n",
-                        __FUNCTION__);
+      TRC_2PRINT(TRC_LEVEL5,
+                 "*** error in '%s': invalid file descriptor (0x%x)\n",
+                 __FUNCTION__, fd);
+
       fdErr = TRUE;
     }
     else {
@@ -292,8 +293,9 @@ EXPORT_API DSP_STATUS KFILEDEF_Open(IN CONST FileName fileName,
          alternative to 'read', thus, we need to check both */
       if (fd->f_op->read == NULL && fd->f_op->read_iter == NULL)
       {
-        printk(KERN_ALERT "*** error in '%s': no 'read' function found "
-                          "in the file descriptor\n", __FUNCTION__);
+        TRC_1PRINT(TRC_LEVEL5,
+                   "*** error in '%s': no 'read' function found in "
+                   "the file descriptor interface\n", __FUNCTION__);
 
         fdErr = TRUE;
       }
@@ -341,11 +343,6 @@ EXPORT_API DSP_STATUS KFILEDEF_Open(IN CONST FileName fileName,
                  && (fileHandlePtr != NULL)
                  && (*fileHandlePtr == NULL)));
 
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                       __FUNCTION__, status);
-  }
-
   TRC_1LEAVE ("KFILEDEF_Open", status);
   return status;
 }
@@ -383,11 +380,6 @@ EXPORT_API DSP_STATUS KFILEDEF_Close(IN Void *fileHandle)
 
   DBC_Ensure((DSP_SUCCEEDED(status) && (fileObj == NULL))
           || (DSP_FAILED(status)));
-
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s', result 0x%x\n",
-                      __FUNCTION__, status);
-  }
 
   TRC_1LEAVE("KFILEDEF_Close", status);
   return status;
@@ -448,11 +440,6 @@ EXPORT_API DSP_STATUS KFILEDEF_Read(IN OUT Char8 *buffer,
       }
       else status = DSP_EFILE;
     }
-  }
-
-  if (DSP_FAILED(status)) {
-    printk(KERN_ALERT "*** error in '%s': reading file failed, result "
-                      "0x%x\n", __FUNCTION__, status);
   }
 
   TRC_1LEAVE("KFILEDEF_Read", status);
