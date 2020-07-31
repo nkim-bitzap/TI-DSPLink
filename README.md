@@ -13,3 +13,15 @@ As of 2020, the most Howto's on how to get the DSP running on the BeagleBoard
 are very dated/not applicable. Yet the hardware (C4) is still flexible and
 powerful enough to present a nice platform for various embedded development
 experiments.
+
+
+CONTAINS: bios-5_42_00
+CONTAINS: dsplink-1_65_02
+CONTAINS: GPP/DSP examples
+
+DOES NOT CONTAIN: TI CGT (version used 7.3.23)
+DOES NOT CONTAIN: TI XDC tools (version used 3.16.02.32)
+
+
+Every required package is still available via TI's public site, most are not
+maintained anymore though and may soon disappear entirely.
