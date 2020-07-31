@@ -16,10 +16,13 @@ experiments.
 
 
 CONTAINS: bios-5_42_00
+
 CONTAINS: dsplink-1_65_02
+
 CONTAINS: GPP/DSP examples
 
 DOES NOT CONTAIN: TI CGT (version used 7.3.23)
+
 DOES NOT CONTAIN: TI XDC tools (version used 3.16.02.32)
 
 
