@@ -43,7 +43,6 @@
  *  ============================================================================
  */
 
-
 /*  ----------------------------------- DSP/BIOS Link                   */
 #include <dsplink.h>
 
@@ -76,10 +75,9 @@ extern "C" {
 /*******************************************************************************
   @name  XFER_INIT_CHAR
   @desc  The value used to initialize the output buffer
-  @note  Make printable for a visual validation
 *******************************************************************************/
 
-#define XFER_INIT_CHAR (Char8) '0'
+#define XFER_INIT_CHAR (Char8) 0
 
 /** ============================================================================
  *  @name   NUMBUFFERPOOLS
@@ -178,30 +176,20 @@ extern LINKCFG_Object LINKCFG_config;
 #endif
 
 #if defined (VERIFY_DATA)
-/** ----------------------------------------------------------------------------
- *  @func   LOOP_VerifyData
- *
- *  @desc   This function verifies the data-integrity of given buffer.
- *
- *  @arg    buf
- *              This is the pointer of the buffer whose contents are to be
- *              validated.
- *
- *  @ret    DSP_SOK
- *              Operation successfully completed.
- *          DSP_EFAIL
- *              Contents of the input buffer and the output buffer are
- *              different.
- *
- *  @enter  None
- *
- *  @leave  None
- *
- *  @see    XFER_CHAR
- *  ----------------------------------------------------------------------------
- */
 
-STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf);
+/*******************************************************************************
+  @func  LOOP_VerifyData
+  @desc  This function verifies the data-integrity of given buffer
+
+  @arg   buf: This is the pointer of the buffer whose contents are to be
+              validated
+
+  @arg   key: The value each of the chacaters in the buffer must match.
+              In the current setup this is simply the ID of the current
+              loop iteration.
+*******************************************************************************/
+
+STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf, IN Uint32 key);
 
 #endif /*  defined (VERIFY_DATA) */
 
@@ -332,16 +320,13 @@ NORMAL_API DSP_STATUS LOOP_Create(IN Char8 *dspExecutable,
     LOOP_1Print("  'CHNL_allocateBuffer' done, status 0x%x\n", status);
   }
 
-  /* Now initialize the buffer with data. Make the buffer printable, i.e.
-     interpret at a null terminated C-string for a visual validation */
+  /* Now initialize the buffer with data */
   if (DSP_SUCCEEDED(status)) {
     temp = LOOP_Buffers[0];
 
-    for (i = 0; i < LOOP_BufferSize - 1; i++) {
+    for (i = 0; i < LOOP_BufferSize; i++) {
       *temp++ = XFER_INIT_CHAR;
     }
-
-    *temp = '\0';
   }
 
   LOOP_1Print("'LOOP_Create' done, status 0x%x\n\n", status);
@@ -378,7 +363,7 @@ NORMAL_API DSP_STATUS LOOP_Execute(IN Uint32 numIterations,
        && (DSP_SUCCEEDED(status));
        i++)
   {
-    LOOP_1Print("Iteration %d\n", i);
+    LOOP_1Print("Iteration: %d\n", i);
 
     /* Send data to DSP and issue 'filled' buffer to the channel */
     status = CHNL_issue(processorId, CHNL_ID_OUTPUT, &LOOP_IOReq);
@@ -413,14 +398,17 @@ NORMAL_API DSP_STATUS LOOP_Execute(IN Uint32 numIterations,
     }
 
 #if defined (VERIFY_DATA)
-    /* Verify correctness of data received */
+    /* Verify correctness of the data received. The correctness is given
+       if every character in the buffer matches the iteration ID (i) */
     if (DSP_SUCCEEDED(status)) {
-      status = LOOP_VerifyData(LOOP_IOReq.buffer);
-
-      LOOP_1Print("  'LOOP_VerifyData' done, status 0x%x\n", status);
+      status = LOOP_VerifyData(LOOP_IOReq.buffer, i);
 
       if (DSP_FAILED(status)) {
-        LOOP_0Print("  FAIL: data integrity failed\n");
+        LOOP_0Print("Iteration result: data integrity failed\n");
+      }
+      else {
+        LOOP_1Print("Iteration result: sequence of %d's\n",
+                    LOOP_IOReq.buffer[0]);
       }
     }
 #endif
@@ -564,17 +552,25 @@ NORMAL_API Void LOOP_Main(IN Char8 *dspExecutable,
 
 /*******************************************************************************
   @func  LOOP_VerifyData
-  @desc  This function interprets the content of the given buffer as a
-         C-string and prints it for a visual validation
+  @desc  This function scans the specified buffer and compares each
+         character to the specified key (which is simply the ID of
+         the next iteration)
 *******************************************************************************/
 
-STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf)
+STATIC NORMAL_API DSP_STATUS LOOP_VerifyData(IN Char8 *buf,
+                                             IN Uint32 key)
 {
-  if (buf[LOOP_BufferSize - 1] != '\0') return DSP_EFAIL;
-  else {
-    LOOP_1Print("buffer: %s", (Uint32) buf);
-    return DSP_SOK;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 i;
+
+  for (i = 0; i < LOOP_BufferSize; ++i) {
+    if (buf[i] != key) {
+      status = DSP_EFAIL;
+      break;
+    }
   }
+
+  return status;
 }
 
 #endif

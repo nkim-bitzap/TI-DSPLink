@@ -1,7 +1,7 @@
 ******************************************************************************
                TMS320C6x Linker Unix v7.3.23                   
 ******************************************************************************
->> Linked Fri Jul 31 12:51:26 2020
+>> Linked Fri Jul 31 14:11:15 2020
 
 OUTPUT FILE NAME:   </home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/dsp/BUILD/OMAP3530_0/LOOP/BIN/DEBUG/loop.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 87e26fe0
@@ -1391,7 +1391,7 @@ ffffffff   _RESET_VECTOR
 87e28ad0   _TRC_R_mask
 87e2827c   _TSK
 87e1b100   _TSKLOOP_create
-87e1b6d4   _TSKLOOP_delete
+87e1b6c8   _TSKLOOP_delete
 87e1b448   _TSKLOOP_execute
 87e274dc   _TSK_ATTRS
 87e274f8   _TSK_config
@@ -2111,7 +2111,7 @@ address    name
 87e1b010   _POOL_open
 87e1b100   _TSKLOOP_create
 87e1b448   _TSKLOOP_execute
-87e1b6d4   _TSKLOOP_delete
+87e1b6c8   _TSKLOOP_delete
 87e1c380   _NOTIFY_register
 87e1c53c   _NOTIFY_unregister
 87e1c764   _NOTIFY_notify

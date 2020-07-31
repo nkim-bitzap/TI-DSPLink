@@ -280,10 +280,9 @@ Int TSKLOOP_execute(TSKLOOP_TransferInfo *info)
     if (status == SYS_OK) {
 
       /* increment each character in the buffer by 1. If initialized by
-         '0', each character should be 'N' after N iterations. Pay
-         attention to preserve the last character, since we interpret
-         the buffer as a null-terminated C-string */
-      for (j = 0; j < info->bufferSize - 1; ++j) {
+         0, each character should be N (as seen on the GPP side) after N
+         iterations */
+      for (j = 0; j < info->bufferSize; ++j) {
         buffer[j] = buffer[j] + 1;
       }
     }
@@ -314,56 +313,57 @@ Int TSKLOOP_execute(TSKLOOP_TransferInfo *info)
   return status;
 }
 
+/*******************************************************************************
+  @func  TSKLOOP_delete
+  @desc  Delete phase function for the TSKLOOP application. It deallocates
+         all the resources of allocated during create phase of the
+         application
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   TSKLOOP_delete
- *
- *  @desc   Delete phase function for the TSKLOOP application. It deallocates
- *          all the resources of allocated during create phase of the
- *          application.
- *
- *  @modif  None.
- *  ============================================================================
- */
-Int TSKLOOP_delete (TSKLOOP_TransferInfo * info)
+Int TSKLOOP_delete(TSKLOOP_TransferInfo *info)
 {
-    Int     status     = SYS_OK ;
-    Uint16  tmpStatus = SYS_OK ;
-    Bool    freeStatus = FALSE ;
-    Uint16  j ;
+  Int status = SYS_OK;
+  Uint16 tmpStatus = SYS_OK;
+  Bool freeStatus = FALSE;
+  Uint16 j;
 
-    /* Delete input stream */
-    if (info->inputStream != NULL) {
-        status = SIO_delete (info->inputStream) ;
-        if (status != SYS_OK) {
-            SET_FAILURE_REASON (status) ;
-        }
+  /* Delete input stream */
+  if (info->inputStream != NULL) {
+    status = SIO_delete (info->inputStream);
+
+    if (status != SYS_OK) {
+      SET_FAILURE_REASON(status);
     }
+  }
 
-    /* Delete output stream */
-    if (info->outputStream != NULL) {
-        tmpStatus = SIO_delete(info->outputStream);
-        if ((status == SYS_OK) && (tmpStatus != SYS_OK)) {
-            status = tmpStatus ;
-            SET_FAILURE_REASON (status) ;
-        }
+  /* Delete output stream */
+  if (info->outputStream != NULL) {
+    tmpStatus = SIO_delete(info->outputStream);
+
+    if ((status == SYS_OK) && (tmpStatus != SYS_OK)) {
+      status = tmpStatus;
+      SET_FAILURE_REASON(status);
     }
+  }
 
-    /* Delete the buffers */
-    if (info->numBuffers > 0) {
-        for (j = 0 ;
-             (j < info->numBuffers) && (info->buffers [j] != NULL) ;
-             j++) {
-            POOL_free (SAMPLE_POOL_ID, info->buffers [j], info->bufferSize) ;
-        }
+  /* Delete the buffers */
+  if (info->numBuffers > 0) {
+    for (j = 0;
+         (j < info->numBuffers) && (info->buffers [j] != NULL);
+         j++)
+    {
+      POOL_free(SAMPLE_POOL_ID, info->buffers [j], info->bufferSize);
     }
+  }
 
-    /* Free the info structure */
-    freeStatus = MEM_free (DSPLINK_SEGID, info, sizeof (TSKLOOP_TransferInfo)) ;
-    if ((status == SYS_OK) && (freeStatus != TRUE)) {
-        status = SYS_EFREE ;
-        SET_FAILURE_REASON (status) ;
-    }
+  /* Free the info structure */
+  freeStatus =
+    MEM_free(DSPLINK_SEGID, info, sizeof (TSKLOOP_TransferInfo));
 
-    return status ;
+  if ((status == SYS_OK) && (freeStatus != TRUE)) {
+    status = SYS_EFREE;
+    SET_FAILURE_REASON (status);
+  }
+
+  return status;
 }

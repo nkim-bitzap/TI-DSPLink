@@ -5,7 +5,7 @@
 ;; INPUT ring_io.cdb
 
 ;; CONFIGURATION/VERSION INFORMATION
-	.asg "Fri Jul 31 12:51:44 2020", VERS$DATE
+	.asg "Fri Jul 31 14:11:34 2020", VERS$DATE
 
 ;; PROLOGUE
 	.include ring_iocfg.h62
