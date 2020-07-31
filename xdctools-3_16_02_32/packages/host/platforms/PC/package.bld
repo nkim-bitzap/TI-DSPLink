@@ -1,8 +1,0 @@
-Pkg.attrs.relScript = "tisb/release/what/what.rel";
-
-Pkg.otherFiles = ['package.bld', 'Linux', 'Windows'];
-Pkg.otherSrcs = Pkg.otherFiles;
-/*
- *  @(#) host.platforms.PC; 1, 0, 0,239; 12-18-2009 12:26:01; /db/ztree/library/trees/xdc/xdc-u16x/src/packages/
- */
-
