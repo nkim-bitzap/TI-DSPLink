@@ -1,7 +1,0 @@
-0xd2e246f1	IPS_register	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0xd75705bd	IPS_unregister	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0xd095175d	LDRV_PROC_getState	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0xcc26c3e2	LDRV_PROC_setState	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0x23e24e91	DSPLINK_sendTerminateEvent	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0x13157eef	PMGR_PROC_getSymbolAddress	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL
-0xa2bd7858	IPS_notify	/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink/gpp/src/dsplinkk	EXPORT_SYMBOL

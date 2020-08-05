@@ -966,49 +966,43 @@ OMAP3530_idle (IN ProcessorId dspId, IN DSP_Object * dspState)
     return status ;
 }
 
+/*******************************************************************************
+  @func  OMAP3530_intCtrl
+  @desc  Performs the specified DSP interrupt control activity
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   OMAP3530_intCtrl
- *
- *  @desc   Performs the specified DSP interrupt control activity.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-OMAP3530_intCtrl (IN         ProcessorId       dspId,
-                   IN         DSP_Object *      dspState,
-                   IN         Uint32            intId,
-                   IN         DSP_IntCtrlCmd    cmd,
-                   IN OUT     Pvoid             arg)
+NORMAL_API DSP_STATUS OMAP3530_intCtrl(IN ProcessorId dspId,
+                                       IN DSP_Object *dspState,
+                                       IN Uint32 intId,
+                                       IN DSP_IntCtrlCmd cmd,
+                                       IN OUT Pvoid arg)
 {
-    DSP_STATUS          status = DSP_SOK ;
-    OMAP3530_HalObj *  halObj           ;
+  DSP_STATUS status = DSP_SOK;
+  OMAP3530_HalObj *halObj;
 
-    TRC_5ENTER ("OMAP3530_intCtrl", dspId, dspState, intId, cmd, arg) ;
+  TRC_5ENTER("OMAP3530_intCtrl", dspId, dspState, intId, cmd, arg);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (dspState->halObject != NULL) ;
+  DBC_Require(IS_VALID_PROCID (dspId));
+  DBC_Require(dspState->halObject != NULL);
 
-    if (IS_VALID_PROCID (dspId) == FALSE) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if (IS_VALID_PROCID (dspId) == FALSE) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    halObj = (OMAP3530_HalObj *) dspState->halObject;
+
+    status = halObj->interface->intCtrl((Pvoid) halObj,
+                                        cmd,
+                                        intId,
+                                        (Pvoid) arg);
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        halObj = (OMAP3530_HalObj *) dspState->halObject ;
-        status = halObj->interface->intCtrl ((Pvoid) halObj,
-                                             cmd,
-                                             intId,
-                                             (Pvoid) arg) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
+  }
 
-    TRC_1LEAVE ("OMAP3530_intCtrl", status) ;
-
-    return status ;
+  TRC_1LEAVE("OMAP3530_intCtrl", status);
+  return status;
 }
 
 /*******************************************************************************

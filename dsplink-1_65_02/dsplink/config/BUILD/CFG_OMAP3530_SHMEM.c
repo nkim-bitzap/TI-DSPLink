@@ -110,7 +110,13 @@ EXTERN "C" {
  */
 #define  CODEENTRYID        1u
 #define  CODEMEMORYADDR     (RESETCTRLADDR + RESETCTRLSIZE)
-#define  CODEMEMORYSIZE     0xFFF80u
+
+// #define  CODEMEMORYSIZE     0xFFF80u
+
+/* NKim, changed to almost 64 MB for now. NOTE, that we are required to
+   provide a value so that the sum of all segments listed here is a
+   multiple of 4K (page size) */
+#define CODEMEMORYSIZE 0x3EFFF80u
 
 /** ============================================================================
  *  @name   SHAREDENTRYID/SHAREDMEMORYADDR/SHAREDMEMORYSIZE
@@ -140,7 +146,7 @@ EXTERN "C" {
  */
 #define  POOLENTRYID        4u
 #define  POOLMEMORYADDR     (SHAREDMEMORYADDR1 + SHAREDMEMORYSIZE1)
-#define  POOLMEMORYSIZE     0x000D0000u
+#define  POOLMEMORYSIZE     0xD0000u
 
 /** ============================================================================
  *  @name   LINKCFG_memTable_00

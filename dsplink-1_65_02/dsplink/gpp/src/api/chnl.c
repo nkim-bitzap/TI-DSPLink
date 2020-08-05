@@ -284,54 +284,50 @@ EXPORT_API DSP_STATUS CHNL_freeBuffer(IN ProcessorId procId,
   return status;
 }
 
-/** ============================================================================
- *  @func   CHNL_issue
- *
- *  @desc   Issues an input or output request on a specified channel.
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-CHNL_issue (IN ProcessorId     procId,
-            IN ChannelId       chnlId,
-            IN ChannelIOInfo * ioReq)
+/*******************************************************************************
+  @func  CHNL_issue
+  @desc  Issues an input or output request on a specified channel.
+*******************************************************************************/
+
+EXPORT_API DSP_STATUS CHNL_issue(IN ProcessorId procId,
+                                 IN ChannelId chnlId,
+                                 IN ChannelIOInfo *ioReq)
 {
-    DSP_STATUS status = DSP_SOK ;
-    CMD_Args   args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_3ENTER ("CHNL_issue", procId, chnlId, ioReq) ;
+  TRC_3ENTER("CHNL_issue", procId, chnlId, ioReq);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (IS_VALID_CHNLID (procId, chnlId)) ;
-    DBC_Require (ioReq != NULL) ;
-    DBC_Require ((ioReq != NULL) && (ioReq->buffer != NULL)) ;
+  DBC_Require(IS_VALID_PROCID(procId));
+  DBC_Require(IS_VALID_CHNLID(procId, chnlId));
+  DBC_Require(ioReq != NULL);
+  DBC_Require((ioReq != NULL) && (ioReq->buffer != NULL));
 
-    if (   (IS_VALID_PROCID (procId)         == FALSE)
-        || (IS_VALID_CHNLID (procId, chnlId) == FALSE)
-        || (ioReq == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if ((IS_VALID_PROCID(procId) == FALSE)
+  || (IS_VALID_CHNLID(procId, chnlId) == FALSE)
+  || (ioReq == NULL))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else if (ioReq->buffer == NULL) {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else {
+    args.apiArgs.chnlIssueArgs.procId = procId;
+    args.apiArgs.chnlIssueArgs.chnlId = chnlId;
+    args.apiArgs.chnlIssueArgs.ioReq = ioReq;
+
+    status = DRV_INVOKE(DRV_handle, CMD_CHNL_ISSUE, &args);
+
+    if (DSP_FAILED (status)) {
+      SET_FAILURE_REASON;
     }
-    else if (ioReq->buffer == NULL) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        args.apiArgs.chnlIssueArgs.procId = procId ;
-        args.apiArgs.chnlIssueArgs.chnlId = chnlId ;
-        args.apiArgs.chnlIssueArgs.ioReq  = ioReq  ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_CHNL_ISSUE, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("CHNL_issue", status) ;
-
-    return status ;
+  TRC_1LEAVE("CHNL_issue", status);
+  return status;
 }
 
 /*******************************************************************************

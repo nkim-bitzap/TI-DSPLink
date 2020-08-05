@@ -1,1 +1,0 @@
-/home/admin/Projects/embedded/ti/dsplink-1_65_02/dsplink

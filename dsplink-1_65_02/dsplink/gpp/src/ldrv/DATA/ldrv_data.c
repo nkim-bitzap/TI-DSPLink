@@ -777,46 +777,43 @@ LDRV_DATA_cancel (IN ProcessorId dspId, IN ChannelId chnlId)
     return status;
 }
 
+/*******************************************************************************
+  @func  LDRV_DATA_request
+  @desc  This function sends an IO request on the specified channel to
+         the data driver
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   LDRV_DATA_request
- *
- *  @desc   This function sends an IO request on specified channel to the
- *          data driver.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-LDRV_DATA_request (IN ProcessorId dspId, IN ChannelId chnlId)
+NORMAL_API DSP_STATUS LDRV_DATA_request(IN ProcessorId dspId,
+                                        IN ChannelId chnlId)
 {
-    DSP_STATUS          status = DSP_SOK ;
-    LDRV_DATA_Object *  dataState ;
-    Uint32              dataDrvId ;
+  DSP_STATUS status = DSP_SOK;
+  LDRV_DATA_Object *dataState;
+  Uint32 dataDrvId;
 
-    TRC_2ENTER ("LDRV_DATA_request", dspId, chnlId) ;
+  TRC_2ENTER("LDRV_DATA_request", dspId, chnlId);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Assert  (LDRV_DATA_IsInitialized [dspId] == TRUE) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Assert(LDRV_DATA_IsInitialized [dspId] == TRUE);
 
-    dataState = &(LDRV_DATA_State [dspId]) ;
+  dataState = &(LDRV_DATA_State[dspId]);
+  status = LDRV_DATA_getDataDrvId(dspId, chnlId, &dataDrvId);
 
-    status = LDRV_DATA_getDataDrvId (dspId, chnlId, &dataDrvId) ;
-    if (DSP_SUCCEEDED (status)) {
-        status = (dataState->dataInfo [dataDrvId].interface->request) (dspId,
-                                                                       chnlId) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
+  if (DSP_SUCCEEDED(status)) {
+    /* Issue the request, for the 'OMAP3530' target this goes to
+       'ZCPYDATA_request' via 'ZCPYDATA_Interface' */
+    status = (dataState->dataInfo[dataDrvId].interface->request)(
+      dspId, chnlId);
+
+    if (DSP_FAILED(status)) {
+      SET_FAILURE_REASON;
     }
-    else {
-        SET_FAILURE_REASON ;
-    }
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("LDRV_DATA_request", status) ;
-
-    return status ;
+  TRC_1LEAVE("LDRV_DATA_request", status);
+  return status;
 }
 
 

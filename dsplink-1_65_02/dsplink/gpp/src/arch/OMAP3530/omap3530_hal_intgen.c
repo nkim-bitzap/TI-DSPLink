@@ -106,107 +106,102 @@ extern "C" {
  *  @modif  None.
  *  ============================================================================
  */
-NORMAL_API
-DSP_STATUS
-OMAP3530_halIntCtrl (IN         Pvoid          halObj,
-                      IN         DSP_IntCtrlCmd cmd,
-                      IN         Uint32         intId,
-                      IN OUT     Pvoid          arg)
+
+NORMAL_API DSP_STATUS OMAP3530_halIntCtrl(IN Pvoid halObj,
+                                          IN DSP_IntCtrlCmd cmd,
+                                          IN Uint32 intId,
+                                          IN OUT Pvoid arg)
 {
-    DSP_STATUS         status    = DSP_SOK ;
-    OMAP3530_HalObj * halObject = NULL    ;
+  DSP_STATUS status = DSP_SOK;
+  OMAP3530_HalObj *halObject = NULL;
 
-    TRC_3ENTER ("OMAP3530_halIntCtrl", halObj, cmd, arg) ;
+  TRC_3ENTER("OMAP3530_halIntCtrl", halObj, cmd, arg);
 
-    DBC_Require (NULL != halObj) ;
+  DBC_Require(NULL != halObj);
 
-    halObject = (OMAP3530_HalObj *) halObj ;
+  halObject = (OMAP3530_HalObj *) halObj;
 
-    switch (cmd) {
-        case DSP_IntCtrlCmd_Enable:
-        {
-             /* Enable Mailboxes interface clock control. Set bit 7 */
-             REG (halObject->coreCmBase + CM_ICLKEN1_CORE_OFFSET) |= 0x80 ;
+  switch (cmd) {
+    case DSP_IntCtrlCmd_Enable:
+    {
+      /* Enable Mailboxes interface clock control. Set bit 7 */
+      REG (halObject->coreCmBase + CM_ICLKEN1_CORE_OFFSET) |= 0x80;
 
-             /* Perform software reset of the Mailbox module, set bit 1 */
-             REG (halObject->mailboxBase + MAILBOX_SYSCONFIG_OFFSET) |= 0x02 ;
+      /* Perform software reset of the Mailbox module, set bit 1 */
+      REG (halObject->mailboxBase + MAILBOX_SYSCONFIG_OFFSET) |= 0x02;
 
-             /* Wait for reset complete. If Bit 0 == 0, it's still resetting */
-             while( (REG (halObject->mailboxBase + MAILBOX_SYSSTATUS_OFFSET) & 1 ) == 0 ) {
-             /* Wait for reset to complete */
-             }
+      /* Wait for reset complete. If Bit 0 == 0, it's still resetting */
+      while (
+        (REG (halObject->mailboxBase + MAILBOX_SYSSTATUS_OFFSET) & 1 ) == 0)
+      {
+        /* Wait for the reset to complete */
+      }
 
-             /* Enable autoidle, set bit 0 */
-            SET_BIT (REG (halObject->mailboxBase + MAILBOX_SYSCONFIG_OFFSET), 0) ;
+      /* Enable autoidle, set bit 0 */
+      SET_BIT(REG (halObject->mailboxBase + MAILBOX_SYSCONFIG_OFFSET), 0);
 
-             /*
-               *  Configure the Mail BOX IRQENABLE register for DSP.
-               *  DSP receives on Mailbox 1.
-               */
-            REG (halObject->mailboxBase + MAILBOX_IRQENABLE_1_OFFSET) = 0x4 ;
+      /* Configure the Mail BOX IRQENABLE register for DSP */
+      REG (halObject->mailboxBase + MAILBOX_IRQENABLE_1_OFFSET) = 0x4 ;
 
-             /*
-               *  Configure the Mail BOX IRQENABLE register for GPP.
-               *  GPP receives on Mailbox 0.
-               */
-            REG (halObject->mailboxBase + MAILBOX_IRQENABLE_0_OFFSET) = 0x1 ;
+      /* Configure the Mail BOX IRQENABLE register for GPP */
+      REG (halObject->mailboxBase + MAILBOX_IRQENABLE_0_OFFSET) = 0x1 ;
 
-        }
-        break ;
+      break;
+    }
 
-        case DSP_IntCtrlCmd_Disable:
-        {
-            /*
-              *  Disable the Mail BOX IRQENABLE register for DSP.
-              *  DSP receives on Mailbox 1.
-              */
-            REG (halObject->mailboxBase + MAILBOX_IRQENABLE_1_OFFSET) = 0x0 ;
 
-            /*
-             *  Disable the Mail BOX IRQENABLE register for GPP.
-             *  GPP receives on Mailbox 0.
-             */
-            REG (halObject->mailboxBase + MAILBOX_IRQENABLE_0_OFFSET) = 0x0 ;
-        }
-        break ;
+    case DSP_IntCtrlCmd_Disable:
+    {
+        /*
+          *  Disable the Mail BOX IRQENABLE register for DSP.
+          *  DSP receives on Mailbox 1.
+          */
+        REG (halObject->mailboxBase + MAILBOX_IRQENABLE_1_OFFSET) = 0x0 ;
 
-        case DSP_IntCtrlCmd_Send:
-        {
-            /* Put into the DSP's mailbox to generate the interrupt.
-              * Sends a specified interrupt to the DSP
-              */
-            REG32(halObject->mailboxBase + MAILBOX_MESSAGE_1_OFFSET) = intId ;
-        }
-        break ;
+        /*
+         *  Disable the Mail BOX IRQENABLE register for GPP.
+         *  GPP receives on Mailbox 0.
+         */
+        REG (halObject->mailboxBase + MAILBOX_IRQENABLE_0_OFFSET) = 0x0 ;
+    }
+    break ;
 
-        case DSP_IntCtrlCmd_Clear:
-        {
-            /*
-              *Read the register to get the entry from the mailbox FIFO
-              */
-            REG32(halObject->mailboxBase + MAILBOX_MESSAGE_0_OFFSET);
+    case DSP_IntCtrlCmd_Send:
+    {
+      /* Put into the DSP's mailbox to generate the interrupt. Sends the
+         specified interrupt to the DSP */
+      REG32(halObject->mailboxBase + MAILBOX_MESSAGE_1_OFFSET) = intId;
+    }
+    break ;
 
-             /* Clear the IRQ status.
-               * If there are more in the mailbox FIFO, it will re-assert.
-               */
-            REG32(halObject->mailboxBase + MAILBOX_IRQSTATUS_0_OFFSET) = 0x1;
-        }
-        break ;
+    case DSP_IntCtrlCmd_Clear:
+    {
+        /*
+          *Read the register to get the entry from the mailbox FIFO
+          */
+        REG32(halObject->mailboxBase + MAILBOX_MESSAGE_0_OFFSET);
 
-        case DSP_IntCtrlCmd_Check:
-        {
-            /* Do nothing here for Omap3530 Gem */
-            *((Bool *) arg) = TRUE ;
-        }
-        break ;
+         /* Clear the IRQ status.
+           * If there are more in the mailbox FIFO, it will re-assert.
+           */
+        REG32(halObject->mailboxBase + MAILBOX_IRQSTATUS_0_OFFSET) = 0x1;
+    }
+    break ;
 
-        default:
-        {
-            /* Unsupported interrupt control command */
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
-        break ;
+    case DSP_IntCtrlCmd_Check:
+    {
+        /* Do nothing here for Omap3530 Gem */
+        *((Bool *) arg) = TRUE ;
+    }
+    break ;
+
+    default:
+    {
+        /* Unsupported interrupt control command */
+        status = DSP_EINVALIDARG ;
+        SET_FAILURE_REASON ;
+    }
+    break ;
     }
 
     TRC_1LEAVE ("OMAP3530_halIntCtrl", status) ;

@@ -1113,8 +1113,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
 
       DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-//  = args->apiArgs.chnlReclaimArgs.ioReq;
-
 #if defined (LOG_GD_CHNL_R_START)
       /* Log the event */
       DSPLINKLOG_LogEvent(

@@ -761,83 +761,75 @@ ZCPYDATA_cancelIo (IN ProcessorId dspId, IN ChannelId chnlId)
     return status ;
 }
 
-/** ============================================================================
- *  @func   ZCPYDATA_request
- *
- *  @desc   This function submits an IO request to the DSP.
- *
- *  @modif  None.
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-ZCPYDATA_request (IN ProcessorId dspId, IN ChannelId chnlId)
+/*******************************************************************************
+  @func  ZCPYDATA_request
+  @desc  This function submits an IO request to the DSP
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS ZCPYDATA_request(IN ProcessorId dspId,
+                                       IN ChannelId chnlId)
 {
-    DSP_STATUS        status = DSP_SOK ;
-    ChannelMode       chnlMode ;
-    ZCPYDATA_Object * zcpyDataState ;
-    Uint32            dataDrvId ;
+  DSP_STATUS status = DSP_SOK;
+  ChannelMode chnlMode;
+  ZCPYDATA_Object *zcpyDataState;
+  Uint32 dataDrvId;
 
-    TRC_2ENTER ("ZCPYDATA_request", dspId, chnlId) ;
+  TRC_2ENTER("ZCPYDATA_request", dspId, chnlId);
 
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
-    DBC_Require (IS_VALID_CHNLID (dspId, chnlId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
+  DBC_Require(IS_VALID_CHNLID(dspId, chnlId));
 
-    status = LDRV_DATA_getDataDrvId (dspId, chnlId, &dataDrvId) ;
-    if (DSP_SUCCEEDED (status)) {
-        zcpyDataState = &(ZCPYDATA_State [dspId][dataDrvId]) ;
+  status = LDRV_DATA_getDataDrvId(dspId, chnlId, &dataDrvId);
 
-        chnlMode = LDRV_CHNL_getChannelMode (dspId, chnlId) ;
+  if (DSP_SUCCEEDED(status)) {
 
-        /*  Adjust the channel ID to the actual channel ID. */
-        chnlId = chnlId - zcpyDataState->dataCfgObject->baseChnlId ;
+    zcpyDataState = &(ZCPYDATA_State[dspId][dataDrvId]);
+    chnlMode = LDRV_CHNL_getChannelMode(dspId, chnlId);
 
-        if (chnlMode == ChannelMode_Input) {
-            /*  ----------------------------------------------------------------
-             *  Input Channel
-             *  ----------------------------------------------------------------
-             */
-            TRC_0PRINT (TRC_LEVEL1, "INPUT Channel. Writing free mask\n") ;
+    /*  Adjust the channel ID to the actual channel ID */
+    chnlId = chnlId - zcpyDataState->dataCfgObject->baseChnlId;
 
-            zcpyDataState->ctrlPtr->gppFreeMask [chnlId].bitValue = 1 ;
+    if (chnlMode == ChannelMode_Input) {
+      /* Input Channel */
+      TRC_0PRINT(TRC_LEVEL1, "INPUT Channel. Writing free mask\n");
 
-            /* Notify DSP that GPP is ready for transfer */
-            status = IPS_notify (dspId,
-                                 zcpyDataState->dataCfgObject->ipsId,
-                                 zcpyDataState->dataCfgObject->ipsEventNo,
-                                 (Uint16) 0,
-                                 FALSE) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
-        else if (chnlMode == ChannelMode_Output) {
-            /*  ----------------------------------------------------------------
-             *  Output Channel
-             *  ----------------------------------------------------------------
-             */
-            TRC_0PRINT (TRC_LEVEL1, "OUTPUT Channel. Writing avail mask\n") ;
+      zcpyDataState->ctrlPtr->gppFreeMask[chnlId].bitValue = 1;
 
-            SET_BIT (zcpyDataState->outputMask, chnlId)  ;
+      /* Notify DSP that GPP is ready for transfer */
+      status = IPS_notify(dspId,
+                          zcpyDataState->dataCfgObject->ipsId,
+                          zcpyDataState->dataCfgObject->ipsEventNo,
+                          (Uint16) 0,
+                          FALSE);
 
-            /* Schedule DPC for output data */
-            status = DPC_Schedule (zcpyDataState->dpcObj) ;
-            if (DSP_FAILED (status)) {
-                SET_FAILURE_REASON ;
-            }
-        }
-        else {
-            status = DSP_EINVALIDARG ;
-            SET_FAILURE_REASON ;
-        }
+      if (DSP_FAILED(status)) {
+        SET_FAILURE_REASON;
+      }
+    }
+    else if (chnlMode == ChannelMode_Output) {
+      /* Output Channel */
+      TRC_0PRINT(TRC_LEVEL1, "OUTPUT Channel. Writing avail mask\n");
+
+      SET_BIT(zcpyDataState->outputMask, chnlId);
+
+      /* Schedule DPC for output data */
+      status = DPC_Schedule(zcpyDataState->dpcObj);
+
+      if (DSP_FAILED (status)) {
+        SET_FAILURE_REASON;
+      }
     }
     else {
-        SET_FAILURE_REASON ;
+      status = DSP_EINVALIDARG;
+      SET_FAILURE_REASON;
     }
+  }
+  else {
+    SET_FAILURE_REASON;
+  }
 
-    TRC_1LEAVE ("ZCPYDATA_request", status) ;
-
-    return status ;
+  TRC_1LEAVE("ZCPYDATA_request", status);
+  return status;
 }
 
 

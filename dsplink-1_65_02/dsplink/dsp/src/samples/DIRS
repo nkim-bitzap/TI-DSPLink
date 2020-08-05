@@ -55,6 +55,7 @@ DIRS  :=
 
 ifeq ($(TI_DSPLINK_USE_CHNL), 1)
     DIRS += loop
+    DIRS += rijndael
     ifeq ($(TI_DSPLINK_USE_MSGQ), 1)
         DIRS += scale
     endif # ifeq ($(TI_DSPLINK_USE_MSGQ), 1)

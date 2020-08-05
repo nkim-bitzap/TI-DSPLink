@@ -99,7 +99,7 @@ prog.module("MEM").STACKSIZE = 0x1000 ;
  *  ============================================================================
 */
 var RESET_VECTOR = prog.module("MEM").create("RESET_VECTOR");
-RESET_VECTOR.base        = 0x87E00000 ;
+RESET_VECTOR.base        = 0x87E00000;
 RESET_VECTOR.len         = 0x00000080;
 RESET_VECTOR.space       = "code/data";
 RESET_VECTOR.createHeap  = false;
@@ -111,7 +111,11 @@ RESET_VECTOR.comment     = "RESET_VECTOR";
 */
 var DDR2 = prog.module("MEM").instance("DDR2");
 DDR2.base             = RESET_VECTOR.base + RESET_VECTOR.len ;
-DDR2.len              = 0x000FFF80;
+
+/* NKim, changed to almost 32 MB for now */
+/* DDR2.len              = 0x000FFF80; */
+DDR2.len              = 0x3EFFF80
+
 DDR2.space            = "code/data";
 DDR2.createHeap       = true;
 DDR2.heapSize         = 0x10000;

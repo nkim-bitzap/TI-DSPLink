@@ -228,47 +228,39 @@ DSP_idle (IN ProcessorId dspId)
     return status ;
 }
 
+/*******************************************************************************
+  @func  DSP_intCtrl
+  @desc  Performs the specified DSP interrupt control activity
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   DSP_intCtrl
- *
- *  @desc   Performs the specified DSP interrupt control activity.
- *
- *  @modif  None
- *  ============================================================================
- */
-
-NORMAL_API
-DSP_STATUS
-DSP_intCtrl (IN         ProcessorId       dspId,
-             IN         Uint32            intId,
-             IN         DSP_IntCtrlCmd    cmd,
-             IN OUT     Pvoid             arg)
+NORMAL_API DSP_STATUS DSP_intCtrl(IN ProcessorId dspId,
+                                  IN Uint32 intId,
+                                  IN DSP_IntCtrlCmd cmd,
+                                  IN OUT Pvoid arg)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
+  TRC_4ENTER("DSP_intCtrl", dspId, intId, cmd, arg);
 
-    TRC_4ENTER ("DSP_intCtrl", dspId, intId, cmd, arg) ;
-
-    DBC_Require (IS_VALID_PROCID (dspId)) ;
+  DBC_Require(IS_VALID_PROCID(dspId));
 
 #if defined (DDSP_PROFILE)
-    if (cmd == DSP_IntCtrlCmd_Send) {
-        DSP_State [dspId].dspStat.intsGppToDsp++ ;
-    }
-    if (cmd == DSP_IntCtrlCmd_Clear) {
-        DSP_State [dspId].dspStat.intsDspToGpp++ ;
-    }
+  if (cmd == DSP_IntCtrlCmd_Send) {
+    DSP_State[dspId].dspStat.intsGppToDsp++;
+  }
+  if (cmd == DSP_IntCtrlCmd_Clear) {
+    DSP_State[dspId].dspStat.intsDspToGpp++;
+  }
 #endif /* if defined (DDSP_PROFILE) */
 
-    status = (DSP_State [dspId].dspInterface->intCtrl) (dspId,
-                                                     &DSP_State [dspId],
-                                                     intId,
-                                                     cmd,
-                                                     arg) ;
+  /* 'OMAP3530_intCtrl' (via 'DSP_intCtrl') for the 'OMAP3530' target */
+  status = (DSP_State[dspId].dspInterface->intCtrl)(dspId,
+                                                    &DSP_State [dspId],
+                                                    intId,
+                                                    cmd,
+                                                    arg);
 
-    TRC_1LEAVE ("DSP_intCtrl", status) ;
-
-    return status ;
+  TRC_1LEAVE("DSP_intCtrl", status);
+  return status;
 }
 
 
