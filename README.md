@@ -30,5 +30,6 @@ Every required package is still available via TI's public site, most are not
 maintained anymore though and may soon disappear entirely. Both, the module
 as well as the DSPBIOS compile fine for the kernel 4.19.127 (see R.CNelson).
 
-Current status: LOOP, MESSAGE, READWRITE and a custom AES_RIJNDAEL example
-appear to be functional so far.
+LOOP, MESSAGE, READWRITE and a custom AES_RIJNDAEL example run just fine, the
+NOTIFY example is planned next. That however most probably will conclude the
+development.
