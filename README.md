@@ -1,5 +1,6 @@
 # TI-OMAP3-DSPLink
-Port of the TI DSPLink module to the kernel 4.19.127 for the BeagleBoard C4
+Port of the TI DSPLink module to the kernel 4.19.127 for the BeagleBoard C4/xM
+and variants
 
 This project deals with porting of the original TI DSPLink kernel module to
 work with more recent Linux kernels (4.19 in my case) in order to utilize
