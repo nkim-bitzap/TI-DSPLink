@@ -29,5 +29,6 @@ DOES NOT CONTAIN: TI XDC tools (version used 3.16.02.32)
 Every required package is still available via TI's public site, most are not
 maintained anymore though and may soon disappear entirely. Both, the module
 as well as the DSPBIOS compile fine for the kernel 4.19.127 (see R.CNelson).
-While not completely finished yet, the LOOP and MESSAGE examples appear to
-be functional so far.
+
+Current status: LOOP, MESSAGE, READWRITE and a custom AES_RIJNDAEL examples
+appear to be functional so far.
