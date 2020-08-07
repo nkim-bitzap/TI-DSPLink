@@ -682,7 +682,7 @@ NORMAL_API Void RDWR_Main(IN Char8 *dspExecutable,
 {
   DSP_STATUS status = DSP_SOK;
 
-  RDWR_0Print ("============= Sample Application : READWRITE ==========\n");
+  RDWR_0Print("\n============= Sample Application : READWRITE ==========\n");
 
   if ((dspExecutable != NULL)
   && (strBufferSize != NULL)
