@@ -289,27 +289,21 @@ NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
   NOLOADER_ImageInfo imageInfo;
 #endif
 
-  RDWR_0Print("Entered RDWR_Create ()\n") ;
+  RDWR_0Print("Entered RDWR_Create ()\n");
 
   /* OS initialization */
   status = RDWR_OS_init();
 
-  RDWR_1Print("'RDWR_OS_init' done, status 0x%x\n", status);
-
   /* Create and initialize the proc object */
   if (DSP_SUCCEEDED(status))
   {
-    status = PROC_setup (NULL);
-
-    RDWR_1Print("'PROC_setup' done, status 0x%x\n", status);
+    status = PROC_setup(NULL);
   }
 
   /* Attach the Dsp with which the transfers have to be done */
   if (DSP_SUCCEEDED(status))
   {
     status = PROC_attach(processorId, NULL);
-
-    RDWR_1Print("'PROC_attach' done, status 0x%x\n", status);
   }
 
   /* Open the pool */
@@ -317,16 +311,12 @@ NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
   {
     status = POOL_open(POOL_makePoolId(processorId, SAMPLE_POOL_ID),
                        &SamplePoolAttrs);
-
-    RDWR_1Print("'POOL_open' done, status 0x%x\n", status);
   }
 
   /* Open the GPP's message queue */
   if (DSP_SUCCEEDED(status))
   {
     status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
-
-    RDWR_1Print("'MSGQ_open' done, status 0x%x\n", status);
   }
 
   /* Load the executable on the DSP */
@@ -353,16 +343,12 @@ NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
     {
       status = PROC_load(processorId, dspExecutable, NUM_ARGS, args);
     }
-
-    RDWR_1Print("'PROC_load' done, status 0x%x\n", status);
   }
 
   /* Start execution on DSP */
   if (DSP_SUCCEEDED(status))
   {
     status = PROC_start(processorId);
-
-    RDWR_1Print("'PROC_start' done, status 0x%x\n", status);
   }
 
   /* Open the remote transport */
@@ -370,8 +356,6 @@ NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
   {
     mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID);
     status = MSGQ_transportOpen(processorId, &mqtAttrs);
-
-    RDWR_1Print("'MSGQ_transportOpen' done, status 0x%x\n", status);
   }
 
   /* Locate the DSP's message queue */
@@ -398,7 +382,7 @@ NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
     }
   }
 
-  RDWR_0Print("Leaving RDWR_Create ()\n");
+  RDWR_1Print("Leaving RDWR_Create (), status 0x%x\n\n", status);
   return status;
 }
 
@@ -428,13 +412,9 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
 
   status = RDWR_AllocateBuffer(bufferSize, (Pvoid *) &bufIn);
 
-  RDWR_1Print("'RDWR_AllocateBuffer' done, status 0x%x\n", status);
-
   if (DSP_SUCCEEDED(status)) {
     status = RDWR_AllocateBuffer(bufferSize, (Pvoid *) &bufOut);
 
-    RDWR_1Print("'RDWR_AllocateBuffer' done, status 0x%x\n", status);
- 
     if (DSP_SUCCEEDED(status))
     {
       for (i = 1;
@@ -463,9 +443,6 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
         }
 
         status = PROC_write(processorId, dspAddr2, bufferSize, bufIn);
-
-        RDWR_1Print("++++ADDRESS of 'bufIn': 0x%x\n", bufIn);
-        RDWR_1Print("'PROC_write (1)' done, status 0x%x\n", status);
       }
 
       /* Prime the data buffer for the sample application. Initialize the
@@ -494,8 +471,6 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
       if (DSP_SUCCEEDED(status))
       {
         status = PROC_write(processorId, dspAddr1, bufferSize, bufOut);
-
-        RDWR_1Print("'PROC_write (2)' done, status 0x%x\n", status);
       }
 
       /*  Inform the DSP side that the data buffer has been written */
@@ -523,8 +498,6 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
 
           /* Send the message */
           status = MSGQ_put(SampleDspMsgq, (MSGQ_Msg) msg);
-
-          RDWR_1Print("'MSGQ_put' done, status 0x%x\n", status);
         }
         else {
           RDWR_1Print("*** error: 'MSGQ_alloc' failed "
@@ -537,13 +510,9 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
       {
         status = MSGQ_get(SampleGppMsgq, WAIT_FOREVER, (MSGQ_Msg *) &msg);
 
-        RDWR_1Print("'MSGQ_get' done, status 0x%x\n", status);
-
         if (DSP_SUCCEEDED(status))
         {
           status = MSGQ_free((MSGQ_Msg) msg);
-
-          RDWR_1Print("'MSGQ_free' done, status 0x%x\n", status);
         }
       }
 
@@ -551,8 +520,6 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
       if (DSP_SUCCEEDED(status))
       {
         status = PROC_read(processorId, dspAddr2, bufferSize, bufIn);
-
-        RDWR_1Print("'PROC_read' done, status 0x%x\n", status);
 
         /* Verify the data read back */
         if (DSP_SUCCEEDED(status))
@@ -592,11 +559,8 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
             }
           }
 
-          if ((i % 100) == 0)
-          {
-            RDWR_1Print("Verified %5d Iterations of correct Data Read/"
-                        " Write cycles\n", i);
-          }
+          RDWR_1Print("Data verification done, status 0x%x\n", status);
+          RDWR_1Print("Verified %5d read/write cycles\n", i);
         }
       }
     }
@@ -612,102 +576,94 @@ NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
     RDWR_FreeBuffer((Pvoid *) &bufOut);
   }
 
-  RDWR_0Print("Leaving RDWR_Execute ()\n");
+  RDWR_1Print("Leaving RDWR_Execute (), status 0x%x\n\n", status);
   return status;
 }
 
+/*******************************************************************************
+  @func  RDWR_Delete
+  @desc  This function releases resources allocated earlier by call to
+         RDWR_Create ().
 
-/** ============================================================================
- *  @func   RDWR_Delete
- *
- *  @desc   This function releases resources allocated earlier by call to
- *          RDWR_Create ().
- *          During cleanup, the allocated resources are being freed
- *          unconditionally. Actual applications may require stricter check
- *          against return values for robustness.
- *
- *  @modif  RDWR_Buffers
- *  ============================================================================
- */
-NORMAL_API
-Void
-RDWR_Delete (IN Uint8 processorId)
+         During cleanup, the allocated resources are being freed
+         unconditionally. Actual applications may require stricter check
+         against return values for robustness.
+*******************************************************************************/
+
+NORMAL_API Void RDWR_Delete(IN Uint8 processorId)
 {
-    DSP_STATUS status    = DSP_SOK ;
-    DSP_STATUS tmpStatus = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
+  DSP_STATUS tmpStatus = DSP_SOK;
 
-    RDWR_0Print ("Entered RDWR_Delete ()\n") ;
+  RDWR_0Print("Entered RDWR_Delete ()\n");
 
-    /*
-     *  Release the remote message queue
-     */
-    status = MSGQ_release (SampleDspMsgq) ;
-    if (DSP_FAILED (status)) {
-        RDWR_1Print ("MSGQ_release () failed. Status = [0x%x]\n", status) ;
-    }
+  /* Release the remote message queue */
+  status = MSGQ_release(SampleDspMsgq);
 
-    /*
-     *  Close the remote transport
-     */
-    status = MSGQ_transportClose (processorId) ;
-    if (DSP_FAILED (status)) {
-        RDWR_1Print ("MSGQ_transportClose () failed. Status = [0x%x]\n",
-                        status) ;
-    }
+  if (DSP_FAILED(status))
+  {
+    RDWR_1Print("MSGQ_release () failed. Status = [0x%x]\n", status);
+  }
 
-    /*
-     *  Stop execution on DSP.
-     */
-    tmpStatus = PROC_stop (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        RDWR_1Print ("PROC_stop () failed (output). Status: [0x%x]\n",
-                     tmpStatus) ;
-    }
+  /* Close the remote transport */
+  status = MSGQ_transportClose(processorId);
 
-    /*
-     *  Close the GPP's message queue
-     */
-    tmpStatus = MSGQ_close (SampleGppMsgq) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        RDWR_1Print ("MSGQ_close () failed. Status = [0x%x]\n", status) ;
-    }
+  if (DSP_FAILED(status))
+  {
+    RDWR_1Print("MSGQ_transportClose () failed. Status = [0x%x]\n", status);
+  }
 
-    /*
-     *  Close the pool
-     */
-    tmpStatus = POOL_close (POOL_makePoolId(processorId, SAMPLE_POOL_ID)) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        RDWR_1Print ("POOL_close () failed. Status = [0x%x]\n",
-                        tmpStatus) ;
-    }
+  /* Stop execution on DSP */
+  tmpStatus = PROC_stop(processorId);
 
-    /*
-     *  Detach from the processor
-     */
-    tmpStatus = PROC_detach  (processorId) ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        RDWR_1Print ("PROC_detach () failed. Status: [0x%x]\n", tmpStatus) ;
-    }
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    RDWR_1Print("PROC_stop () failed (output). Status: [0x%x]\n", tmpStatus);
+  }
 
-    /*
-     *  Destroy the PROC object.
-     */
-    tmpStatus = PROC_destroy () ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        RDWR_1Print ("PROC_destroy () failed. Status: [0x%x]\n", tmpStatus) ;
-    }
+  /* Close the GPP's message queue */
+  tmpStatus = MSGQ_close(SampleGppMsgq);
 
-    /*
-     *  OS Finalization
-     */
-    tmpStatus = RDWR_OS_exit () ;
-    if (DSP_SUCCEEDED (status) && DSP_FAILED (tmpStatus)) {
-        status = tmpStatus ;
-        RDWR_1Print ("RDWR_OS_exit () failed. Status = [0x%x]\n", status) ;
-    }
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    status = tmpStatus;
+    RDWR_1Print("MSGQ_close () failed. Status = [0x%x]\n", status);
+  }
 
-    RDWR_0Print ("Leaving RDWR_Delete ()\n") ;
+  /* Close the pool */
+  tmpStatus = POOL_close(POOL_makePoolId(processorId, SAMPLE_POOL_ID));
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    RDWR_1Print("POOL_close () failed. Status = [0x%x]\n", tmpStatus);
+  }
+
+  /* Detach from the processor */
+  tmpStatus = PROC_detach(processorId);
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    RDWR_1Print("PROC_detach () failed. Status: [0x%x]\n", tmpStatus);
+  }
+
+  /* Destroy the PROC object */
+  tmpStatus = PROC_destroy();
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    RDWR_1Print("PROC_destroy () failed. Status: [0x%x]\n", tmpStatus);
+  }
+
+  /* OS Finalization */
+  tmpStatus = RDWR_OS_exit();
+
+  if (DSP_SUCCEEDED(status) && DSP_FAILED(tmpStatus))
+  {
+    status = tmpStatus;
+    RDWR_1Print("RDWR_OS_exit () failed. Status = [0x%x]\n", status);
+  }
+
+  RDWR_1Print("Leaving RDWR_Delete (), status 0x%x\n\n", status);
 }
 
 /*******************************************************************************

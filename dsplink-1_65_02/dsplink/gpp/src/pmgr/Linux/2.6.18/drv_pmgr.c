@@ -1282,10 +1282,9 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
        arguments are 'in' */
     case CMD_PROC_LOAD:
     {
+      Uint32 argc = args->apiArgs.procLoadArgs.argc;
       Char8 path[DSP_MAX_STRLEN] = { 0 };
-      Char8 **argv;
-      Char8 *arg;
-      Uint32 argc;
+      Char8 *argv[argc];
 
       if (args->apiArgs.procLoadArgs.imagePath != NULL) {
         retVal = copy_from_user(
@@ -1296,59 +1295,37 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
         DBC_Assert((0 == retVal) && "Failed to copy data from user");
       }
 
-      if (status != -EFAULT) {
-        /* this is annoying, first copy the shallow array of strings into
-           provided temporary buffer */
-        argc = args->apiArgs.procLoadArgs.argc;
-        DBC_Assert(argc > 0);
+      /* we first copy all user addresses (i.e. location of every argument
+         string) into the local 'argv' array */
+      retVal = copy_from_user(
+        argv, args->apiArgs.procLoadArgs.argv, argc * sizeof(Char8*));
 
-        argv = vmalloc(argc * sizeof(Char8*));
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-        retVal = copy_from_user(
-          argv, args->apiArgs.procLoadArgs.argv, argc * sizeof(Char8*));
+      /* now replicate each argument (i.e. create new buffers and then copy
+         arguments from user space) and save in the local 'argv' */
+      for (i = 0; i < argc; ++i)
+      {
+        Char8 *arg;
 
-        if (retVal != 0) {
-          printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                            "(CMD_PROC_LOAD), status 0x%x\n",
-                            __FUNCTION__, retVal);
+        DBC_Assert(argv[i] != NULL);
 
-          status = -EFAULT;
-        }
-        else {
-          /* now copy each argument into a separate string buffer. Be sure
-             to read/index/dereference the copied array */
-          for (i = 0; i < argc; ++i)
-          {
-            DBC_Assert(argv[i] != NULL);
+        status = MEM_Alloc((void **) &arg, DSP_MAX_STRLEN, MEM_DEFAULT);
 
-            arg = vmalloc(DSP_MAX_STRLEN);
-            retVal = copy_from_user(arg, argv[i], DSP_MAX_STRLEN);
+        DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
 
-            if (retVal != 0) {
-              printk(KERN_ALERT "*** error in '%s': bad 'copy_from_user' "
-                                "(CMD_PROC_LOAD), status 0x%x\n",
-                                __FUNCTION__, retVal);
-
-              status = -EFAULT;
-              break;
-
-            } else argv[i] = arg;
-          }
-        }
+        retVal = copy_from_user(arg, argv[i], DSP_MAX_STRLEN);
+        argv[i] = arg;
       }
 
-      /* NOTE, this means, if there are any errors copying data from user-
-         space, the return is -EFAULT, but the 'apiStatus' is DSP_SOK */
-      if (status != -EFAULT)
-      {
-        retStatus = PMGR_PROC_load(
-          args->apiArgs.procLoadArgs.procId, path, argc, argv);
+      retStatus = PMGR_PROC_load(
+        args->apiArgs.procLoadArgs.procId, path, argc, argv);
 
-        /* can safely destroy all dynamically created data now, since all
-           arguments are 'in' */
-        for (i = 0; i < argc; ++i) vfree(argv[i]);
+      /* housekeeping, drop every local argument copy */
+      for (i = 0; i < argc; ++i) {
+        status = MEM_Free((void**) &argv[i], MEM_DEFAULT);
 
-        vfree(argv);
+        DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
       }
 
       args->apiStatus = retStatus;
@@ -1365,42 +1342,42 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
       break;
 
     case CMD_PROC_READ:
+    {
+      /* C99, rewrite to use 'MEM_Alloc/MEM_Free' if not supported */
+      Char8 buffer[args->apiArgs.procWriteArgs.numBytes];
+
       retStatus = PMGR_PROC_read(args->apiArgs.procReadArgs.procId,
                                  args->apiArgs.procReadArgs.dspAddr,
                                  args->apiArgs.procReadArgs.numBytes,
-                                 args->apiArgs.procReadArgs.buffer);
+                                 (Pvoid) buffer);
+
+      retVal = copy_to_user(
+                        (void*) args->apiArgs.procReadArgs.buffer,
+                        (void*) buffer,
+                        args->apiArgs.procReadArgs.numBytes);
+
+      DBC_Assert((0 == retVal) && "Failed to copy data to user");
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_PROC_WRITE:
     {
-      const Uint32 numBytes = args->apiArgs.procWriteArgs.numBytes;
-      Pvoid buffer;
-
-      status = MEM_Alloc((void **) &buffer, numBytes, MEM_DEFAULT);
-
-      printk(KERN_ALERT "buffer address: 0x%x\n", args->apiArgs.procWriteArgs.buffer);
-      printk(KERN_ALERT "DSP address: 0x%x\n", args->apiArgs.procWriteArgs.dspAddr);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+      /* C99, rewrite to use 'MEM_Alloc/MEM_Free' if not supported */
+      Char8 buffer[args->apiArgs.procWriteArgs.numBytes];
 
       retVal = copy_from_user(
                         (void*) buffer,
                         (void*) args->apiArgs.procWriteArgs.buffer,
-                        numBytes);
+                        args->apiArgs.procWriteArgs.numBytes);
 
       DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
       retStatus = PMGR_PROC_write(args->apiArgs.procWriteArgs.procId,
                                   args->apiArgs.procWriteArgs.dspAddr,
                                   args->apiArgs.procWriteArgs.numBytes,
-                                  buffer);
-
-
-      status = MEM_Free((Pvoid*) &buffer, NULL);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
+                                  (Pvoid) buffer);
 
       args->apiStatus = retStatus;
       break;
@@ -1417,7 +1394,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
                                    args->apiArgs.procAttachArgs.attr,
                                    NULL);
 #if defined (CHNL_COMPONENT)
-      if ((DSP_SUCCEEDED (retStatus)) && (retStatus != DSP_SALREADYATTACHED))
+      if ((DSP_SUCCEEDED(retStatus)) && (retStatus != DSP_SALREADYATTACHED))
       {
         procId = args->apiArgs.procAttachArgs.procId;
 
@@ -1425,9 +1402,10 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
              ((chnlId < MAX_CHANNELS) && DSP_SUCCEEDED (retStatus));
              chnlId++)
         {
-          retStatus = LDRV_DATA_getPoolId(procId,
-                                          chnlId,
-                                          &DRV_ChnlIdToPoolId [procId][chnlId]);
+          retStatus = LDRV_DATA_getPoolId(
+                                       procId,
+                                       chnlId,
+                                       &DRV_ChnlIdToPoolId[procId][chnlId]);
 
           if (retStatus == DSP_ENOTFOUND) {
             /* DSP_ENOTFOUND indicates that the channel ID is
@@ -1445,11 +1423,12 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
     case CMD_PROC_DETACH:
       retStatus = PMGR_PROC_detach(args->apiArgs.procDetachArgs.procId,
                                    NULL);
+
       args->apiStatus = retStatus;
       break;
 
     case CMD_PROC_CONTROL:
-      retStatus = PMGR_PROC_control (
+      retStatus = PMGR_PROC_control(
                     args->apiArgs.procControlArgs.procId,
                     args->apiArgs.procControlArgs.cmd,
                     args->apiArgs.procControlArgs.arg);
@@ -1524,25 +1503,14 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
 
     case CMD_CHNL_ALLOCATEBUFFER:
     {
-      ProcessorId procId;
-      ChannelId chnlId;
-      Uint32 size;
-      Uint32 numBufs;
-      Char8 **bufArray;
+      ProcessorId procId = args->apiArgs.chnlAllocateBufferArgs.procId;
+      ChannelId chnlId = args->apiArgs.chnlAllocateBufferArgs.chnlId;
+      Uint32 size = args->apiArgs.chnlAllocateBufferArgs.size;
+      Uint32 numBufs = args->apiArgs.chnlAllocateBufferArgs.numBufs;
 
-      procId = args->apiArgs.chnlAllocateBufferArgs.procId;
-      chnlId = args->apiArgs.chnlAllocateBufferArgs.chnlId;
-      size = args->apiArgs.chnlAllocateBufferArgs.size;
-      numBufs = args->apiArgs.chnlAllocateBufferArgs.numBufs;
-
-      /* in order to be able to transfer created buffers back to the user,
-         we need to preserve user addresses. And since there can be more
-         than just 1 buffer, we need to do it dynamically */
-      status = MEM_Alloc((void **) &bufArray,
-                         sizeof(Char8*) * numBufs,
-                         MEM_DEFAULT);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+      /* C99, rewrite to use 'MEM_Alloc/MEM_Free' if not supported. Need to
+         preserve user addresses */
+      Char8 *bufArray[numBufs];
 
       retStatus = PMGR_CHNL_allocateBuffer(procId,
                                            chnlId,
@@ -1551,7 +1519,7 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
                                            numBufs,
                                            NULL);
 
-      /* now write all created buffers back to the user, write the entire
+      /* now write all (created) buffers back to the user, write the entire
          array at once */
       retVal = copy_to_user(
                  (void*) args->apiArgs.chnlAllocateBufferArgs.bufArray,
@@ -1560,35 +1528,19 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
 
       DBC_Assert((0 == retVal) && "Failed to copy data to user");
 
-      /* do the housekeeping now. We can safely drop all of the allocated
-         structures here */
-      status = MEM_Free((Pvoid*) &bufArray, NULL);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
-
       args->apiStatus = retStatus;
       break;
     }
 
     case CMD_CHNL_FREEBUFFER:
     {
-      ProcessorId procId;
-      ChannelId chnlId;
-      Uint32 numBufs;
-      Char8 **bufArray;
-
-      procId = args->apiArgs.chnlFreeBufferArgs.procId;
-      chnlId = args->apiArgs.chnlFreeBufferArgs.chnlId;
-      numBufs = args->apiArgs.chnlFreeBufferArgs.numBufs;
+      ProcessorId procId = args->apiArgs.chnlFreeBufferArgs.procId;
+      ChannelId chnlId = args->apiArgs.chnlFreeBufferArgs.chnlId;
+      Uint32 numBufs = args->apiArgs.chnlFreeBufferArgs.numBufs;
 
       /* here too, work on a temporary array of buffer addresses. Allocate
-         dynamically and copy each buffer address (which is translated to
-         the kernel space by now) */
-      status = MEM_Alloc((void **) &bufArray,
-                         sizeof(Char8*) * numBufs,
-                         MEM_DEFAULT);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+         a copy and transfer each buffer address */
+      Char8 *bufArray[numBufs];
 
       retVal = copy_from_user(
                  (void*) bufArray,
@@ -1602,12 +1554,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
                                        bufArray,
                                        numBufs,
                                        NULL);
-
-      /* do the housekeeping now. We can safely drop all of the allocated
-         structures here */
-      status = MEM_Free((Pvoid*) &bufArray, NULL);
-
-      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
 
       args->apiStatus = retStatus;
       break;
