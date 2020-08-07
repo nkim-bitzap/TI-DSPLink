@@ -187,8 +187,11 @@ Int TSKLOOP_create (TSKLOOP_TransferInfo ** infoPtr)
         attrs.nbufs   = info->numBuffers ;
         attrs.segid   = DSPLINK_SEGID ;
         attrs.align   = DSPLINK_BUF_ALIGN ;
-        attrs.flush   = TRUE ;
-        attrs.model   = SIO_ISSUERECLAIM ;
+        attrs.flush   = TRUE;
+
+        /* as per docs, there are two modes available, a default one and the
+           so called issue-reclaim model */
+        attrs.model   = SIO_ISSUERECLAIM;
         attrs.timeout = SYS_FOREVER ;
 
         /* Creating input and output streams */

@@ -23,11 +23,10 @@
 
 /*  ----------------------------------- OS Headers                  */
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
+
+/* support for original antique kernels (2.6.xx) removed */
 #include <generated/autoconf.h>
-#else
-#include <linux/autoconf.h>
-#endif
+
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -77,31 +76,31 @@ extern "C" {
  *  @desc   Sets failure reason.
  *  ============================================================================
  */
+
 #if defined (DDSP_DEBUG)
 #define SET_FAILURE_REASON TRC_SetReason (status,FID_C_ARCH_PHY_SHMEM,__LINE__)
 #else
 #define SET_FAILURE_REASON
-#endif /* if defined (DDSP_DEBUG) */
+#endif
 
+/*******************************************************************************
+  @name   OMAP3530_shmemInterface
+  @desc   Interface functions exported by the Shared Driver subcomponent.
+*******************************************************************************/
 
-/** ============================================================================
- *  @name   OMAP3530_shmemInterface
- *
- *  @desc   Interface functions exported by the Shared Driver subcomponent.
- *  ============================================================================
- */
-HAL_Interface OMAP3530_shmemInterface = { &OMAP3530_phyShmemInit,
-                                          &OMAP3530_phyShmemExit,
-                                          &OMAP3530_halBootCtrl,
-                                          &OMAP3530_halIntCtrl,
-                                          &OMAP3530_halMmuCtrl,
-                                          NULL,
-                                          &OMAP3530_halPwrCtrl,
-                                          NULL,
-                                          NULL,
-                                          NULL,
-                                          NULL} ;
-
+HAL_Interface OMAP3530_shmemInterface = {
+  &OMAP3530_phyShmemInit,
+  &OMAP3530_phyShmemExit,
+  &OMAP3530_halBootCtrl,
+  &OMAP3530_halIntCtrl,
+  &OMAP3530_halMmuCtrl,
+  NULL,
+  &OMAP3530_halPwrCtrl,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
 
 /* ============================================================================
  *  @func   OMAP3530_phyShmemInit

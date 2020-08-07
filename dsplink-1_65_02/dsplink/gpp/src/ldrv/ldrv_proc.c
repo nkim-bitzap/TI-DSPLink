@@ -517,12 +517,8 @@ NORMAL_API DSP_STATUS LDRV_PROC_start(IN ProcessorId dspId,
       status = LDRV_DRV_handshake(dspId, DRV_HandshakeStart);
 
       if (DSP_SUCCEEDED(status)) {
-        PRINT_Printf("Driver handshake (compl)\n");
-
         /* Wait for completion of handshaking between the GPP and DSP */
         status = LDRV_DRV_handshake(dspId, DRV_HandshakeCompl);
-
-        PRINT_Printf("done, status: 0x%x\n", status);
 
         if (DSP_FAILED(status)) {
           SET_FAILURE_REASON;

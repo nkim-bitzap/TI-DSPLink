@@ -59,73 +59,52 @@ extern "C" {
 #endif /* defined (__cplusplus) */
 
 
-/** ============================================================================
- *  @func   RDWR_OS_init
- *
- *  @desc   This function creates a mem pool.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-RDWR_OS_init(Void)
-{
-    DSP_STATUS          status = DSP_SOK ;
+/*******************************************************************************
+  @func  RDWR_OS_init
+  @desc  This function creates a mem pool
 
-    return status ;
+  @note  Does it ?
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS RDWR_OS_init(Void)
+{
+  DSP_STATUS status = DSP_SOK;
+  return status;
 }
 
+/*******************************************************************************
+  @func  RDWR_OS_exit
+  @desc  This function deletes a mem pool
 
-/** ============================================================================
- *  @func   RDWR_OS_exit
- *
- *  @desc   This function deletes a mem pool.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-RDWR_OS_exit(Void)
+  @note  Wondering how
+*******************************************************************************/
+
+NORMAL_API DSP_STATUS RDWR_OS_exit(Void)
 {
-    DSP_STATUS status = DSP_SOK ;
-
-    return status ;
+  DSP_STATUS status = DSP_SOK;
+  return status;
 }
 
+/*******************************************************************************
+  @func   RDWR_0Print
+  @desc   Print a message without any arguments
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_0Print
- *
- *  @desc   Print a message without any arguments.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-RDWR_0Print (Char8 * str)
+NORMAL_API Void RDWR_0Print(Char8 *str)
 {
-    printf (str) ;
-    fflush (stdout) ;
+  printf(str);
+  fflush(stdout);
 }
 
+/*******************************************************************************
+  @func   RDWR_1Print
+  @desc   Print a message with one arguments.
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_1Print
- *
- *  @desc   Print a message with one arguments.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-RDWR_1Print (Char8 * str, Uint32 arg)
+NORMAL_API Void RDWR_1Print(Char8 *str, Uint32 arg)
 {
-    printf (str, arg) ;
-    fflush (stdout) ;
+  printf(str, arg);
+  fflush(stdout);
 }
 
 /** ============================================================================
@@ -145,46 +124,36 @@ RDWR_Sleep (IN Uint32 uSec)
     usleep (uSec) ;
 }
 
+/*******************************************************************************
+  @func  RDWR_AllocateBuffer
+  @desc  Allocates a buffer of specified size
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_AllocateBuffer
- *
- *  @desc   Allocates a buffer of specified size.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-RDWR_AllocateBuffer (IN Uint32 size, OUT Pvoid * buf)
+NORMAL_API DSP_STATUS RDWR_AllocateBuffer(IN Uint32 size,
+                                          OUT Pvoid *buf)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    *buf = malloc (size) ;
-    if (*buf == NULL) {
-        status = DSP_EMEMORY ;
-    }
+  *buf = malloc (size);
 
-    return status ;
+  if (*buf == NULL)
+  {
+    status = DSP_EMEMORY;
+  }
+
+  return status;
 }
 
+/*******************************************************************************
+  @func  RDWR_FreeBuffer
+  @desc  Frees the specified buffer
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_FreeBuffer
- *
- *  @desc   Frees the specified buffer
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-RDWR_FreeBuffer (IN OUT Pvoid * buf)
+NORMAL_API Void RDWR_FreeBuffer(IN OUT Pvoid *buf)
 {
-    free (*buf) ;
-    *buf = NULL ;
+  free(*buf);
+  *buf = NULL;
 }
-
 
 /** ============================================================================
  *  @func   RDWR_Atoll

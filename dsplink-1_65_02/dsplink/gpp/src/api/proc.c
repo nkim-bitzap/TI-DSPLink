@@ -996,53 +996,50 @@ PROC_read (IN     ProcessorId    procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PROC_write
+  @desc  This function allows GPP side applications to write to the DSP
+         memory space
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PROC_write
- *
- *  @desc   This function allows GPP side applications to write to the DSP
- *          memory space
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-PROC_write (IN ProcessorId    procId,
-            IN Uint32         dspAddr,
-            IN Uint32         numBytes,
-            IN Pvoid          buffer)
+EXPORT_API DSP_STATUS PROC_write(IN ProcessorId procId,
+                                 IN Uint32 dspAddr,
+                                 IN Uint32 numBytes,
+                                 IN Pvoid buffer)
 {
-    DSP_STATUS status = DSP_SOK ;
-    CMD_Args   args             ;
+  DSP_STATUS status = DSP_SOK;
+  CMD_Args args;
 
-    TRC_4ENTER ("PROC_write", procId, dspAddr, numBytes, buffer) ;
+  TRC_4ENTER("PROC_write", procId, dspAddr, numBytes, buffer);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (numBytes != 0) ;
-    DBC_Require (buffer != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(numBytes != 0);
+  DBC_Require(buffer != NULL);
 
-    if (   ((IS_VALID_PROCID (procId)) == FALSE)
-        || (numBytes == 0)
-        || (buffer == NULL)) {
-        status = DSP_EINVALIDARG ;
-        SET_FAILURE_REASON ;
+  if (((IS_VALID_PROCID (procId)) == FALSE)
+  || (numBytes == 0)
+  || (buffer == NULL))
+  {
+    status = DSP_EINVALIDARG;
+    SET_FAILURE_REASON;
+  }
+  else
+  {
+    args.apiArgs.procWriteArgs.procId = procId;
+    args.apiArgs.procWriteArgs.dspAddr = dspAddr;
+    args.apiArgs.procWriteArgs.numBytes = numBytes;
+    args.apiArgs.procWriteArgs.buffer = buffer;
+
+    status = DRV_INVOKE(DRV_handle, CMD_PROC_WRITE, &args);
+
+    if (DSP_FAILED (status))
+    {
+      SET_FAILURE_REASON;
     }
-    else {
-        args.apiArgs.procWriteArgs.procId   = procId   ;
-        args.apiArgs.procWriteArgs.dspAddr  = dspAddr  ;
-        args.apiArgs.procWriteArgs.numBytes = numBytes ;
-        args.apiArgs.procWriteArgs.buffer   = buffer   ;
+  }
 
-        status = DRV_INVOKE (DRV_handle, CMD_PROC_WRITE, &args) ;
-        if (DSP_FAILED (status)) {
-            SET_FAILURE_REASON ;
-        }
-    }
-
-    TRC_1LEAVE ("PROC_write", status) ;
-
-    return status ;
+  TRC_1LEAVE("PROC_write", status);
+  return status;
 }
 
 /*******************************************************************************

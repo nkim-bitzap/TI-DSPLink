@@ -1095,43 +1095,38 @@ PMGR_PROC_read (IN     ProcessorId    procId,
     return status ;
 }
 
+/*******************************************************************************
+  @func  PMGR_PROC_write
+  @desc  This function allows GPP side applications to write to the DSP
+         memory space
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   PMGR_PROC_write
- *
- *  @desc   This function allows GPP side applications to write to the DSP
- *          memory space
- *
- *  @modif  None
- *  ============================================================================
- */
-EXPORT_API
-DSP_STATUS
-PMGR_PROC_write (IN ProcessorId    procId,
-                 IN Uint32         dspAddr,
-                 IN Uint32         numBytes,
-                 IN Pvoid          buffer)
+EXPORT_API DSP_STATUS PMGR_PROC_write(IN ProcessorId procId,
+                                      IN Uint32 dspAddr,
+                                      IN Uint32 numBytes,
+                                      IN Pvoid buffer)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    TRC_4ENTER ("PMGR_PROC_write", procId, dspAddr, numBytes, buffer) ;
+  TRC_4ENTER("PMGR_PROC_write", procId, dspAddr, numBytes, buffer);
 
-    DBC_Require (IS_VALID_PROCID (procId)) ;
-    DBC_Require (numBytes != 0) ;
-    DBC_Require (buffer != NULL) ;
+  DBC_Require(IS_VALID_PROCID (procId));
+  DBC_Require(numBytes != 0);
+  DBC_Require(buffer != NULL);
 
-    status = LDRV_PROC_write (procId,
-                              dspAddr,
-                              Endianism_Default,
-                              numBytes,
-                              buffer) ;
-    if (DSP_FAILED (status)) {
-        SET_FAILURE_REASON ;
-    }
+  status = LDRV_PROC_write(procId,
+                           dspAddr,
+                           Endianism_Default,
+                           numBytes,
+                           buffer);
 
-    TRC_1LEAVE ("PMGR_PROC_write", status) ;
+  if (DSP_FAILED(status))
+  {
+    SET_FAILURE_REASON;
+  }
 
-    return status ;
+  TRC_1LEAVE("PMGR_PROC_write", status);
+  return status;
 }
 
 /*******************************************************************************

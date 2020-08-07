@@ -318,6 +318,7 @@ NORMAL_API DSP_STATUS SHMDRV_handshake(IN ProcessorId dspId,
       break;
 
     case DRV_HandshakeCompl:
+    {
       /* Generate the DSP handshake value to be checked against */
       dspHandshake |= DRV_HANDSHAKE_DRV;
       dspHandshake |= DRV_HANDSHAKE_IPS;
@@ -368,11 +369,8 @@ NORMAL_API DSP_STATUS SHMDRV_handshake(IN ProcessorId dspId,
         }
       }
 
-      PRINT_Printf("  dspHandshake: 0x%x\n", dspHandshake);
-      PRINT_Printf("  ctrlPtr->handshakeDsp: 0x%x\n", ctrlPtr->handshakeDsp);
-      PRINT_Printf("  ctrlPtr->handshakeGpp: 0x%x\n", ctrlPtr->handshakeGpp);
-
       break;
+    }
 
     default:
       /* Added for MISRAC compliance */
@@ -382,7 +380,6 @@ NORMAL_API DSP_STATUS SHMDRV_handshake(IN ProcessorId dspId,
   TRC_1LEAVE("SHMDRV_handshake", status);
   return status;
 }
-
 
 #if defined (DDSP_DEBUG)
 /** ============================================================================

@@ -23,11 +23,10 @@
 
 /*  ----------------------------------- OS Specific Headers         */
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
+
+/* support for original antique kernels (2.6.xx) removed */
 #include <generated/autoconf.h>
-#else
-#include <linux/autoconf.h>
-#endif
+
 #include <linux/version.h>
 #include <linux/spinlock.h>
 #include <linux/sched.h>
@@ -389,99 +388,91 @@ ISR_Delete (IN IsrObject * isrObj)
     return status ;
 }
 
+/*******************************************************************************
+  @func  ISR_Install
+  @desc  Install an interrupt service routine.
+         This function calls the request_irq () function and installs
+         the specified interrupt service routine in non-shared, non-fiq
+         mode.
 
-/** ============================================================================
- *  @func   ISR_Install
- *
- *  @desc   Install an interrupt service routine.
- *          This function calls the request_irq () function and installs
- *          the specified interrupt service routine in non-shared, non-fiq
- *          mode.
- *
- *  @modif  ISR_InstalledIsrs
- *  ============================================================================
- */
+  @modif ISR_InstalledIsrs
+*******************************************************************************/
 
-EXPORT_API
-DSP_STATUS
-ISR_Install (IN  Void *      hostConfig,
-             IN  IsrObject * isrObj)
+EXPORT_API DSP_STATUS ISR_Install(IN Void *hostConfig, IN IsrObject *isrObj)
 {
-    DSP_STATUS   status   = DSP_SOK ;
-    int          osStatus = 0       ;
+  DSP_STATUS status = DSP_SOK;
+  int osStatus = 0;
 
-    TRC_2ENTER ("ISR_Install", hostConfig, isrObj) ;
+  TRC_2ENTER("ISR_Install", hostConfig, isrObj);
 
-    DBC_Require (ISR_IsInitialized == TRUE) ;
-    DBC_Require (isrObj != NULL) ;
-    DBC_Require (IS_OBJECT_VALID (isrObj, SIGN_ISR)) ;
-    DBC_Require (   (isrObj != NULL)
-                 && (ISR_InstalledIsrs [isrObj->dspId][isrObj->irq] == NULL)) ;
+  DBC_Require(ISR_IsInitialized == TRUE);
+  DBC_Require(isrObj != NULL);
+  DBC_Require(IS_OBJECT_VALID(isrObj, SIGN_ISR));
+  DBC_Require((isrObj != NULL)
+           && (ISR_InstalledIsrs[isrObj->dspId][isrObj->irq] == NULL));
 
-    if (IS_OBJECT_VALID (isrObj, SIGN_ISR) == FALSE) {
-        status = DSP_EPOINTER ;
-        SET_FAILURE_REASON ;
+  if (IS_OBJECT_VALID(isrObj, SIGN_ISR) == FALSE)
+  {
+    status = DSP_EPOINTER;
+    SET_FAILURE_REASON;
+  }
+  else if (ISR_InstalledIsrs[isrObj->dspId][isrObj->irq] != NULL)
+  {
+    status = DSP_EACCESSDENIED;
+    SET_FAILURE_REASON;
+  }
+  else
+  {
+    if (isrObj->shared == TRUE)
+    {
+      /* NOTE, removed the version for obsolete 2.6.22 kernels. Changed to
+         be conform with the kernel version in mind (4.19) */
+      osStatus = request_irq(isrObj->irq,
+                             (Void*)&ISR_Callback,
+                             IRQF_SHARED,
+                             "DSPLINK",
+                             (void *)isrObj);
     }
-    else if (ISR_InstalledIsrs [isrObj->dspId][isrObj->irq] != NULL) {
-        status = DSP_EACCESSDENIED ;
-        SET_FAILURE_REASON ;
-    }
-    else {
-        if (isrObj->shared == TRUE) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-            osStatus = request_irq (isrObj->irq,
-                                    (Void*)&ISR_Callback,
-                                    SA_SHIRQ,
-                                    "DSPLINK",
-                                    (void *)isrObj) ;
-#else /* if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22) */
-            osStatus = request_irq (isrObj->irq,
-                                    (Void*)&ISR_Callback,
-                                    IRQF_SHARED,
-                                    "DSPLINK",
-                                    (void *)isrObj) ;
-#endif /* if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22) */
-        }
-        else {
-            osStatus = request_irq (isrObj->irq,
-                                    (Void*)&ISR_Callback,
-//                                    0,
-                                    IRQF_NO_THREAD,
-                                    "DSPLINK",
-                                    (void *)isrObj) ;
-        }
-
-        if (osStatus != 0) {
-            TRC_1PRINT (TRC_LEVEL7, "request_irq failed with error: %d\n",
-                        osStatus) ;
-            status = DSP_EFAIL ;
-            SET_FAILURE_REASON ;
-        }
-        else {
-            /*
-             *  Maintain the installed ISR object pointer locally for cleanup
-             *  on ISR_Finalize.
-             */
-            ISR_InstalledIsrs [isrObj->dspId][isrObj->irq] = isrObj ;
-
-            /*
-             *  The ISR is enabled by default upon install so indicate that in
-             *  local state.
-             */
-            isrObj->enabled = TRUE ;
-        }
+    else
+    {
+      /* NOTE, the originally used '0' value changed to 'IRQF_NO_THREAD'
+         while tracking deadlocks and GPP/DSP communication bugs. Seems to
+         be working, still most probably needs more investigation */
+      osStatus = request_irq(isrObj->irq,
+                             (Void*)&ISR_Callback,
+                             /* 0, */
+                             IRQF_NO_THREAD,
+                             "DSPLINK",
+                             (void *)isrObj);
     }
 
-    DBC_Ensure (   (   (DSP_SUCCEEDED (status))
-                    && (   ISR_InstalledIsrs [isrObj->dspId][isrObj->irq]
-                        == isrObj))
-                || DSP_FAILED (status)) ;
+    if (osStatus != 0)
+    {
+      TRC_2PRINT(TRC_LEVEL7, "*** error in '%s': failed requesting IRQ, "
+                             "status 0x%x\n", __FUNCTION__, osStatus);
 
-    TRC_1LEAVE ("ISR_Install", status) ;
+      status = DSP_EFAIL;
+      SET_FAILURE_REASON;
+    }
+    else
+    {
+      /* Maintain the installed ISR object pointer locally for cleanup on
+         'ISR_Finalize' */
+      ISR_InstalledIsrs[isrObj->dspId][isrObj->irq] = isrObj;
 
-    return status ;
+      /* The ISR is enabled by default upon install so we indicate that in
+         local state */
+      isrObj->enabled = TRUE;
+    }
+  }
+
+  DBC_Ensure(((DSP_SUCCEEDED(status))
+           && (ISR_InstalledIsrs[isrObj->dspId][isrObj->irq] == isrObj))
+           || DSP_FAILED(status));
+
+  TRC_1LEAVE("ISR_Install", status);
+  return status;
 }
-
 
 /** ============================================================================
  *  @func   ISR_Uninstall

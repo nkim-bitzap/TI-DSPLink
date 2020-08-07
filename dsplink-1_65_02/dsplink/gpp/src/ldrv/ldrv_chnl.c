@@ -873,7 +873,7 @@ LDRV_CHNL_getIOCompletion (IN  ProcessorId        procId,
                       0) ;
 #endif /* if defined (LOG_GD_CHNL_R_PEND) */
 
-        status = SYNC_WaitOnEvent (chnlObj->syncEvent, timeout) ;
+        status = SYNC_WaitOnEvent(chnlObj->syncEvent, timeout);
 
         /*  --------------------------------------------------------------------
          *  Start the protection to ensure that DPC does not preempt the

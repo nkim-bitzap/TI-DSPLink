@@ -22,11 +22,9 @@
 
 /*  ----------------------------------- OS Specific Headers         */
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
+
+/* support for original antique kernels (2.6.xx) removed */
 #include <generated/autoconf.h>
-#else
-#include <linux/autoconf.h>
-#endif
 
 #include <linux/spinlock.h>
 #include <linux/kernel.h>

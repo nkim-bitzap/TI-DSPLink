@@ -40,22 +40,19 @@
  *  ============================================================================
  */
 
-
-/*  ----------------------------------- DSP/BIOS Link                   */
+/* DSP/BIOS Link */
 #include <dsplink.h>
 
-/*  ----------------------------------- DSP/BIOS LINK API               */
+/* DSP/BIOS LINK API */
 #include <proc.h>
 #include <msgq.h>
 #include <pool.h>
+
 #if defined (DA8XXGEM)
 #include <loaderdefs.h>
 #endif
 
-
-/*  ----------------------------------- APP HEADER                       */
 #include <readwrite.h>
-
 
 #if defined (__cplusplus)
 extern "C" {
@@ -273,365 +270,350 @@ STATIC SMAPOOL_Attrs SamplePoolAttrs =
 } ;
 #endif /* if defined ZCPY_LINK */
 
+/*******************************************************************************
+  @func  RDWR_Create
+  @desc  This function allocates and initializes resources used by
+         this application
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_Create
- *
- *  @desc   This function allocates and initializes resources used by
- *          this application.
- *
- *  @modif  RDWR_Buffers
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-RDWR_Create (IN Char8 * dspExecutable,
-             IN Char8 * strBufferSize,
-             IN Char8 * strNumIterations,
-             IN Uint8   processorId)
+NORMAL_API DSP_STATUS RDWR_Create(IN Char8 *dspExecutable,
+                                  IN Char8 *strBufferSize,
+                                  IN Char8 *strNumIterations,
+                                  IN Uint8 processorId)
 {
-    DSP_STATUS       status   = DSP_SOK   ;
-    Char8 *          args [NUM_ARGS]      ;
-    MSGQ_LocateAttrs syncLocateAttrs      ;
-#if defined (DA8XXGEM)
-    NOLOADER_ImageInfo  imageInfo ;
-#endif
-
-    RDWR_0Print ("Entered RDWR_Create ()\n") ;
-
-
-    /*
-     *  OS initialization
-     */
-    status = RDWR_OS_init () ;
-
-    /*
-     *  Create and initialize the proc object.
-     */
-
-    if (DSP_SUCCEEDED (status)) {
-        status = PROC_setup (NULL) ;
-    }
-
-    /*
-     *  Attach the Dsp with which the transfers have to be done.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = PROC_attach (processorId, NULL) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("PROC_attach failed. Status: [0x%x]\n", status) ;
-        }
-    }
-    else {
-        RDWR_1Print ("PROC_setup failed. Status: [0x%x]\n", status) ;
-    }
-
-    /*
-     *  Open the pool.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = POOL_open (
-                            POOL_makePoolId(processorId, SAMPLE_POOL_ID),
-                            &SamplePoolAttrs) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("POOL_open () failed. Status: [0x%x]\n", status) ;
-        }
-    }
-
-    /*
-     *  Open the GPP's message queue
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = MSGQ_open (SampleGppMsgqName, &SampleGppMsgq, NULL) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("MSGQ_open () failed. Status: [0x%x]\n",
-                            status) ;
-        }
-    }
-
-    /*
-     *  Load the executable on the DSP.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        args [0] = strNumIterations ;
+  DSP_STATUS status = DSP_SOK;
+  Char8 *args[NUM_ARGS];
+  MSGQ_LocateAttrs syncLocateAttrs;
 
 #if defined (DA8XXGEM)
-        if (LINKCFG_config.dspConfigs [processorId]->dspObject->doDspCtrl
-                      ==  DSP_BootMode_NoBoot) {
-            imageInfo.dspRunAddr  = RDWR_dspAddr ;
-            imageInfo.shmBaseAddr = RDWR_shmAddr ;
-            imageInfo.argsAddr    = RDWR_argsAddr ;
-            imageInfo.argsSize    = 50 ;
-            status = PROC_load (processorId,
-                                (Char8 *) &imageInfo,
-                                NUM_ARGS,
-                                args) ;
-        }
-        else
+  NOLOADER_ImageInfo imageInfo;
 #endif
-        {
-            status = PROC_load (processorId, dspExecutable, NUM_ARGS, args) ;
-        }
 
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("PROC_load failed. Status: [0x%x]\n", status) ;
-        }
+  RDWR_0Print("Entered RDWR_Create ()\n") ;
+
+  /* OS initialization */
+  status = RDWR_OS_init();
+
+  RDWR_1Print("'RDWR_OS_init' done, status 0x%x\n", status);
+
+  /* Create and initialize the proc object */
+  if (DSP_SUCCEEDED(status))
+  {
+    status = PROC_setup (NULL);
+
+    RDWR_1Print("'PROC_setup' done, status 0x%x\n", status);
+  }
+
+  /* Attach the Dsp with which the transfers have to be done */
+  if (DSP_SUCCEEDED(status))
+  {
+    status = PROC_attach(processorId, NULL);
+
+    RDWR_1Print("'PROC_attach' done, status 0x%x\n", status);
+  }
+
+  /* Open the pool */
+  if (DSP_SUCCEEDED(status))
+  {
+    status = POOL_open(POOL_makePoolId(processorId, SAMPLE_POOL_ID),
+                       &SamplePoolAttrs);
+
+    RDWR_1Print("'POOL_open' done, status 0x%x\n", status);
+  }
+
+  /* Open the GPP's message queue */
+  if (DSP_SUCCEEDED(status))
+  {
+    status = MSGQ_open(SampleGppMsgqName, &SampleGppMsgq, NULL);
+
+    RDWR_1Print("'MSGQ_open' done, status 0x%x\n", status);
+  }
+
+  /* Load the executable on the DSP */
+  if (DSP_SUCCEEDED(status))
+  {
+    args[0] = strNumIterations;
+
+#if defined (DA8XXGEM)
+    if (LINKCFG_config.dspConfigs [processorId]->dspObject->doDspCtrl ==
+        DSP_BootMode_NoBoot)
+    {
+      imageInfo.dspRunAddr = RDWR_dspAddr;
+      imageInfo.shmBaseAddr = RDWR_shmAddr;
+      imageInfo.argsAddr = RDWR_argsAddr;
+      imageInfo.argsSize = 50;
+
+      status = PROC_load(processorId,
+                         (Char8 *) &imageInfo,
+                         NUM_ARGS,
+                         args);
+    }
+    else
+#endif
+    {
+      status = PROC_load(processorId, dspExecutable, NUM_ARGS, args);
     }
 
-    /*
-     *  Start execution on DSP.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        status = PROC_start (processorId) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("PROC_start failed. Status: [0x%x]\n", status) ;
-        }
+    RDWR_1Print("'PROC_load' done, status 0x%x\n", status);
+  }
+
+  /* Start execution on DSP */
+  if (DSP_SUCCEEDED(status))
+  {
+    status = PROC_start(processorId);
+
+    RDWR_1Print("'PROC_start' done, status 0x%x\n", status);
+  }
+
+  /* Open the remote transport */
+  if (DSP_SUCCEEDED(status))
+  {
+    mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID);
+    status = MSGQ_transportOpen(processorId, &mqtAttrs);
+
+    RDWR_1Print("'MSGQ_transportOpen' done, status 0x%x\n", status);
+  }
+
+  /* Locate the DSP's message queue */
+  if (DSP_SUCCEEDED(status))
+  {
+    syncLocateAttrs.timeout = WAIT_FOREVER;
+    status = DSP_ENOTFOUND;
+
+    while ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY))
+    {
+      status = MSGQ_locate(SampleDspMsgqName,
+                           &SampleDspMsgq,
+                           &syncLocateAttrs);
+
+      if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY))
+      {
+        RDWR_Sleep(100000);
+      }
+      else if (DSP_FAILED(status))
+      {
+        RDWR_1Print("*** error: 'MSGQ_locate' failed, "
+                    "status 0x%x]\n", status);
+      }
     }
+  }
 
-    /*
-     *  Open the remote transport.
-     */
-    if (DSP_SUCCEEDED (status)) {
-        mqtAttrs.poolId = POOL_makePoolId(processorId, SAMPLE_POOL_ID) ;
-        status = MSGQ_transportOpen (processorId, &mqtAttrs) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("MSGQ_transportOpen () failed. Status: [0x%x]\n",
-                            status) ;
-        }
-    }
-
-    /*
-     *  Locate the DSP's message queue
-     */
-    if (DSP_SUCCEEDED (status)) {
-        syncLocateAttrs.timeout = WAIT_FOREVER ;
-        status = DSP_ENOTFOUND ;
-        while ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
-            status = MSGQ_locate (SampleDspMsgqName,
-                                  &SampleDspMsgq,
-                                  &syncLocateAttrs) ;
-            if ((status == DSP_ENOTFOUND) || (status == DSP_ENOTREADY)) {
-                RDWR_Sleep (100000) ;
-            }
-            else if (DSP_FAILED (status)) {
-                RDWR_1Print ("MSGQ_locate () failed. Status = [0x%x]\n",
-                                status) ;
-            }
-        }
-    }
-
-    RDWR_0Print ("Leaving RDWR_Create ()\n") ;
-
-    return status ;
+  RDWR_0Print("Leaving RDWR_Create ()\n");
+  return status;
 }
 
+/*******************************************************************************
+  @func  RDWR_Execute
+  @desc  This function implements the execute phase for this application
+*******************************************************************************/
 
-/** ============================================================================
- *  @func   RDWR_Execute
- *
- *  @desc   This function implements the execute phase for this application.
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-DSP_STATUS
-RDWR_Execute (IN Uint32  dspAddress,
-              IN Uint32  bufferSize,
-              IN Uint32  numIterations,
-              IN Uint8   processorId)
+NORMAL_API DSP_STATUS RDWR_Execute(IN Uint32 dspAddress,
+                                   IN Uint32 bufferSize,
+                                   IN Uint32 numIterations,
+                                   IN Uint8 processorId)
 {
-    DSP_STATUS      status   = DSP_SOK ;
-    Uint32 *        bufIn    = NULL ;
-    Uint32 *        bufOut   = NULL ;
-    Uint8 *         ptr8     = NULL ;
-    Uint8 *         ptr8_1   = NULL ;
-    Uint16 *        ptr16    = NULL ;
-    Uint16 *        ptr16_1  = NULL ;
-    Uint32          dspAddr1 = dspAddress ;
-    Uint32          dspAddr2 = (dspAddress + bufferSize) ;
-    SampleMessage * msg ;
-    Uint32          i, j ;
+  DSP_STATUS status = DSP_SOK;
+  Uint32 *bufIn = NULL;
+  Uint32 *bufOut = NULL;
+  Uint8 *ptr8 = NULL;
+  Uint8 *ptr8_1 = NULL;
+  Uint16 *ptr16 = NULL;
+  Uint16 *ptr16_1 = NULL;
+  Uint32 dspAddr1 = dspAddress;
+  Uint32 dspAddr2 = (dspAddress + bufferSize);
+  SampleMessage *msg;
+  Uint32 i, j;
 
-    RDWR_0Print ("Entered RDWR_Execute ()\n") ;
+  RDWR_0Print ("Entered RDWR_Execute ()\n") ;
 
-    status = RDWR_AllocateBuffer (bufferSize, (Pvoid *) &bufIn) ;
-    if (DSP_SUCCEEDED (status)) {
-        status = RDWR_AllocateBuffer (bufferSize, (Pvoid *) &bufOut) ;
-        if (DSP_FAILED (status)) {
-            RDWR_1Print ("Buffer Allocation Failed. Status: [0x%x]\n",
-                              status) ;
-        }
-    }
-    else {
-       RDWR_1Print ("Buffer Allocation Failed. Status: [0x%x]\n", status) ;
-    }
+  status = RDWR_AllocateBuffer(bufferSize, (Pvoid *) &bufIn);
 
-    for (i = 1 ;
-        (  ((numIterations == 0) || (i <= numIterations))
-         && DSP_SUCCEEDED (status)) ;
-         i++) {
-        /*
-         *  Prime the DSP memory regions to allow for data integrity check
-         */
-        ptr8  = (Uint8 *) (bufIn) ;
-        ptr16 = (Uint16 *) (bufIn) ;
-        for (j = 0 ;
-             DSP_SUCCEEDED (status) && (j < bufferSize / DSP_MAUSIZE) ;
-             j++) {
-            if (DSP_MAUSIZE == 1) {
-                *ptr8 = 0 ;
-                ptr8++ ;
-            }
-            else if (DSP_MAUSIZE == 2) {
-                *ptr16 = 0 ;
-                ptr16++ ;
-            }
-        }
+  RDWR_1Print("'RDWR_AllocateBuffer' done, status 0x%x\n", status);
 
-        if (DSP_SUCCEEDED (status)) {
-            status = PROC_write (processorId, dspAddr2, bufferSize, bufIn) ;
-            if (DSP_FAILED (status)) {
-                RDWR_1Print ("PROC_write Failed. Status: [0x%x]\n",
-                                  status) ;
-            }
+  if (DSP_SUCCEEDED(status)) {
+    status = RDWR_AllocateBuffer(bufferSize, (Pvoid *) &bufOut);
+
+    RDWR_1Print("'RDWR_AllocateBuffer' done, status 0x%x\n", status);
+ 
+    if (DSP_SUCCEEDED(status))
+    {
+      for (i = 1;
+           (((numIterations == 0) || (i <= numIterations))
+           && DSP_SUCCEEDED(status));
+           i++)
+      {
+        /* Prime the DSP memory regions to allow for data integrity check */
+        ptr8  = (Uint8 *) (bufIn);
+        ptr16 = (Uint16 *) (bufIn);
+
+        for (j = 0;
+             DSP_SUCCEEDED(status) && (j < bufferSize / DSP_MAUSIZE);
+             j++)
+        {
+          if (DSP_MAUSIZE == 1)
+          {
+            *ptr8 = 0;
+             ptr8++;
+          }
+          else if (DSP_MAUSIZE == 2)
+          {
+            *ptr16 = 0;
+            ptr16++;
+          }
         }
 
-        /*  Prime the data buffer for the sample application
-         *  - Initialize the buffer to '1's. This value is multiplied
-         *    by the DSP with the iteration number
-         */
-        ptr8  = (Uint8 *)  (bufOut) ;
-        ptr16 = (Uint16 *) (bufOut) ;
-        for (j = 0 ;
-             DSP_SUCCEEDED (status) && (j < (bufferSize / DSP_MAUSIZE)) ;
-             j++) {
-            if (DSP_MAUSIZE == 1) {
-                *ptr8  = 0x1 ;
-                ptr8++ ;
-            }
-            else if (DSP_MAUSIZE == 2) {
-                *ptr16 = CONVERT_ENDIANISM (0x1) ;
-                ptr16++ ;
-            }
-        }
+        status = PROC_write(processorId, dspAddr2, bufferSize, bufIn);
 
-        /*  Write the data buffer to the DSP side */
-        if (DSP_SUCCEEDED (status)) {
-            status = PROC_write (processorId, dspAddr1, bufferSize, bufOut) ;
-            if (DSP_FAILED (status)) {
-                RDWR_1Print ("PROC_write Failed. Status: [0x%x]\n",
-                                  status) ;
-            }
-        }
+        RDWR_1Print("++++ADDRESS of 'bufIn': 0x%x\n", bufIn);
+        RDWR_1Print("'PROC_write (1)' done, status 0x%x\n", status);
+      }
 
-        /*  Inform the DSP side that the data buffer has been written */
-        if (DSP_SUCCEEDED (status)) {
-            status = MSGQ_alloc (POOL_makePoolId(processorId, SAMPLE_POOL_ID),
-                                 APP_MSG_SIZE,
-                                 (MSGQ_Msg *) &msg) ;
-            if (DSP_SUCCEEDED (status)) {
-                /* Set the message id as the scaling factor */
+      /* Prime the data buffer for the sample application. Initialize the
+         buffer to '1's. This value is multiplied by the DSP with the loop
+         iteration number */
+      ptr8  = (Uint8 *) (bufOut);
+      ptr16 = (Uint16 *) (bufOut);
+
+      for (j = 0;
+           DSP_SUCCEEDED (status) && (j < (bufferSize / DSP_MAUSIZE));
+           j++)
+      {
+        if (DSP_MAUSIZE == 1)
+        {
+          *ptr8 = 0x1;
+          ptr8++;
+        }
+        else if (DSP_MAUSIZE == 2)
+        {
+          *ptr16 = CONVERT_ENDIANISM(0x1);
+          ptr16++;
+        }
+      }
+
+      /*  Write the data buffer to the DSP side */
+      if (DSP_SUCCEEDED(status))
+      {
+        status = PROC_write(processorId, dspAddr1, bufferSize, bufOut);
+
+        RDWR_1Print("'PROC_write (2)' done, status 0x%x\n", status);
+      }
+
+      /*  Inform the DSP side that the data buffer has been written */
+      if (DSP_SUCCEEDED(status))
+      {
+        status = MSGQ_alloc(POOL_makePoolId(processorId, SAMPLE_POOL_ID),
+                            APP_MSG_SIZE,
+                            (MSGQ_Msg *) &msg);
+
+        if (DSP_SUCCEEDED(status))
+        {
+          /* Set the message id as the scaling factor */
+
 #if (defined (OMAP) && defined (PCPY_LINK)) || defined (WORD_SWAP)
-                msg->gppWriteAddr  = WORDSWAP_LONG ((dspAddr1  / DSP_MAUSIZE)) ;
-                msg->dspWriteAddr  = WORDSWAP_LONG ((dspAddr2  / DSP_MAUSIZE)) ;
-                msg->size          = WORDSWAP_LONG ((bufferSize/ DSP_MAUSIZE)) ;
-                msg->scalingFactor = WORDSWAP_LONG (i) ;
-#else /* if (defined (OMAP) && defined (PCPY_LINK)) || defined (WORD_SWAP) */
-                msg->gppWriteAddr  = (dspAddr1   / DSP_MAUSIZE) ;
-                msg->dspWriteAddr  = (dspAddr2   / DSP_MAUSIZE) ;
-                msg->size          = (bufferSize / DSP_MAUSIZE) ;
-                msg->scalingFactor = i ;
-#endif /* if (defined (OMAP) && defined (PCPY_LINK)) || defined (WORD_SWAP) */
+          msg->gppWriteAddr = WORDSWAP_LONG((dspAddr1 / DSP_MAUSIZE));
+          msg->dspWriteAddr = WORDSWAP_LONG((dspAddr2 / DSP_MAUSIZE));
+          msg->size = WORDSWAP_LONG((bufferSize / DSP_MAUSIZE));
+          msg->scalingFactor = WORDSWAP_LONG(i);
+#else
+          msg->gppWriteAddr = (dspAddr1 / DSP_MAUSIZE);
+          msg->dspWriteAddr = (dspAddr2 / DSP_MAUSIZE);
+          msg->size = (bufferSize / DSP_MAUSIZE);
+          msg->scalingFactor = i;
+#endif
 
-                /* Send the message */
-                status = MSGQ_put (SampleDspMsgq, (MSGQ_Msg) msg) ;
-                if (DSP_FAILED (status)) {
-                    RDWR_1Print ("MSGQ_put failed. Status: [0x%x]\n",
-                                      status) ;
-                }
-            }
-            else {
-                RDWR_1Print ("MSGQ_alloc failed. Status: [0x%x]\n",
-                                  status) ;
-            }
-        }
+          /* Send the message */
+          status = MSGQ_put(SampleDspMsgq, (MSGQ_Msg) msg);
 
-        /*  Wait for a message from the DSP confirming it has written data  */
-        if (DSP_SUCCEEDED (status)) {
-            status = MSGQ_get (SampleGppMsgq, WAIT_FOREVER, (MSGQ_Msg *) &msg) ;
-            if (DSP_SUCCEEDED (status)) {
-                status = MSGQ_free ((MSGQ_Msg) msg) ;
-                if (DSP_FAILED (status)) {
-                    RDWR_1Print ("MSGQ_free failed. Status: [0x%x]\n",
-                                      status) ;
-                }
-            }
-            else {
-                RDWR_1Print ("MSGQ_get failed. Status: [0x%x]\n", status) ;
-            }
-        }
-
-        /*  Read from the DSP memory region */
-        if (DSP_SUCCEEDED (status)) {
-            status = PROC_read (processorId, dspAddr2, bufferSize, bufIn) ;
-            if (DSP_FAILED (status)) {
-                RDWR_1Print ("PROC_read Failed. Status: [0x%x]\n",
-                                  status) ;
-            }
+          RDWR_1Print("'MSGQ_put' done, status 0x%x\n", status);
         }
         else {
-            RDWR_1Print ("PROC_write Failed. Status: [0x%x]\n", status) ;
+          RDWR_1Print("*** error: 'MSGQ_alloc' failed "
+                      "status 0x%x\n", status);
         }
+      }
+
+      /*  Wait for a message from the DSP confirming it has written data */
+      if (DSP_SUCCEEDED(status))
+      {
+        status = MSGQ_get(SampleGppMsgq, WAIT_FOREVER, (MSGQ_Msg *) &msg);
+
+        RDWR_1Print("'MSGQ_get' done, status 0x%x\n", status);
+
+        if (DSP_SUCCEEDED(status))
+        {
+          status = MSGQ_free((MSGQ_Msg) msg);
+
+          RDWR_1Print("'MSGQ_free' done, status 0x%x\n", status);
+        }
+      }
+
+      /*  Read from the DSP memory region */
+      if (DSP_SUCCEEDED(status))
+      {
+        status = PROC_read(processorId, dspAddr2, bufferSize, bufIn);
+
+        RDWR_1Print("'PROC_read' done, status 0x%x\n", status);
 
         /* Verify the data read back */
-        if (DSP_SUCCEEDED (status)) {
-            ptr8    = (Uint8 *)  bufIn ;
-            ptr8_1  = (Uint8 *)  bufOut ;
-            ptr16   = (Uint16 *) bufIn ;
-            ptr16_1 = (Uint16 *) bufOut ;
-            for (j = 0 ;
-                 (j < (bufferSize / DSP_MAUSIZE)) && DSP_SUCCEEDED (status);
-                 j++) {
-                if (DSP_MAUSIZE == 1) {
-                    if (ptr8 [j] != (Uint8) (ptr8_1 [j] * i)) {
-                        RDWR_1Print ("Data mismatch at [0x%x]\n", j) ;
-                        RDWR_1Print ("  Expected [0x%x]\n", (ptr8_1 [j] * i)) ;
-                        RDWR_1Print ("  Received [0x%x]\n", ptr8 [j]) ;
-                        status = DSP_EFAIL ;
-                    }
-                }
-                else if (DSP_MAUSIZE == 2) {
-                    if (   CONVERT_ENDIANISM (ptr16 [j])
-                        != (Uint16) (CONVERT_ENDIANISM (ptr16_1 [j]) * i)) {
-                        RDWR_1Print ("Data mismatch at [0x%x]\n", j) ;
-                        RDWR_1Print ("  Expected [0x%x]\n",
-                                     (CONVERT_ENDIANISM (ptr16_1 [j]) * i)) ;
-                        RDWR_1Print ("  Received [0x%x]\n",
-                                     CONVERT_ENDIANISM (ptr16 [j])) ;
-                        status = DSP_EFAIL ;
-                    }
-                }
-            }
+        if (DSP_SUCCEEDED(status))
+        {
+          ptr8 = (Uint8 *) bufIn;
+          ptr8_1 = (Uint8 *) bufOut;
+          ptr16 = (Uint16 *) bufIn;
+          ptr16_1 = (Uint16 *) bufOut;
 
-            if ((i % 100) == 0) {
-                RDWR_1Print ("Verified %5d Iterations of "
-                             "Correct Data Read/ Write\n", i) ;
+          for (j = 0;
+               (j < (bufferSize / DSP_MAUSIZE)) && DSP_SUCCEEDED(status);
+               j++)
+          {
+            if (DSP_MAUSIZE == 1)
+            {
+              if (ptr8[j] != (Uint8) (ptr8_1[j] * i))
+              {
+                RDWR_1Print("Data mismatch at [0x%x]\n", j);
+                RDWR_1Print("  Expected [0x%x]\n", (ptr8_1 [j] * i));
+                RDWR_1Print("  Received [0x%x]\n", ptr8 [j]);
+                status = DSP_EFAIL;
+              }
             }
+            else if (DSP_MAUSIZE == 2)
+            {
+              if (CONVERT_ENDIANISM(ptr16[j]) !=
+                  (Uint16) (CONVERT_ENDIANISM(ptr16_1[j]) * i))
+              {
+                RDWR_1Print("Data mismatch at [0x%x]\n", j) ;
+                RDWR_1Print("  Expected [0x%x]\n",
+                            (CONVERT_ENDIANISM (ptr16_1 [j]) * i)) ;
+                RDWR_1Print("  Received [0x%x]\n",
+                             CONVERT_ENDIANISM (ptr16 [j]));
+
+                status = DSP_EFAIL;
+              }
+            }
+          }
+
+          if ((i % 100) == 0)
+          {
+            RDWR_1Print("Verified %5d Iterations of correct Data Read/"
+                        " Write cycles\n", i);
+          }
         }
+      }
     }
+  }
 
-    if (bufIn != NULL) {
-        RDWR_FreeBuffer ((Pvoid *) &bufIn) ;
-    }
+  if (bufIn != NULL)
+  {
+    RDWR_FreeBuffer((Pvoid *) &bufIn);
+  }
 
-    if (bufOut != NULL) {
-        RDWR_FreeBuffer ((Pvoid *) &bufOut) ;
-    }
+  if (bufOut != NULL)
+  {
+    RDWR_FreeBuffer((Pvoid *) &bufOut);
+  }
 
-    RDWR_0Print ("Leaving RDWR_Execute ()\n") ;
-
-    return status ;
+  RDWR_0Print("Leaving RDWR_Execute ()\n");
+  return status;
 }
 
 
@@ -728,87 +710,81 @@ RDWR_Delete (IN Uint8 processorId)
     RDWR_0Print ("Leaving RDWR_Delete ()\n") ;
 }
 
-/** ============================================================================
- *  @func   RDWR_Main
- *
- *  @desc   Entry point for the application
- *
- *  @modif  None
- *  ============================================================================
- */
-NORMAL_API
-Void
-RDWR_Main (IN Char8 * dspExecutable,
-           IN Char8 * strDspAddress,
-           IN Uint32  dspAddress,
-           IN Char8 * strBufferSize,
-           IN Uint32  bufferSize,
-           IN Char8 * strNumIterations,
-           IN Uint32  numIterations,
-           IN Uint8   processorId)
+/*******************************************************************************
+  @func  RDWR_Main
+  @desc  Entry point for the application
+*******************************************************************************/
+
+NORMAL_API Void RDWR_Main(IN Char8 *dspExecutable,
+                          IN Char8 *strDspAddress,
+                          IN Uint32 dspAddress,
+                          IN Char8 *strBufferSize,
+                          IN Uint32 bufferSize,
+                          IN Char8 *strNumIterations,
+                          IN Uint32 numIterations,
+                          IN Uint8  processorId)
 {
-    DSP_STATUS status = DSP_SOK ;
+  DSP_STATUS status = DSP_SOK;
 
-    RDWR_0Print ("============= Sample Application : READWRITE ==========\n") ;
+  RDWR_0Print ("============= Sample Application : READWRITE ==========\n");
 
-    if (   (dspExecutable != NULL)
-        && (strBufferSize != NULL)
-        && (strNumIterations != NULL)) {
-        if (   (numIterations >  0xFFFF)
-            || (bufferSize == 0)
-            || (processorId >= MAX_DSPS)) {
-            status = DSP_EINVALIDARG ;
-            RDWR_1Print ("ERROR! Invalid arguments specified for  "
-                         "readwrite application.\n"
-                         "     Max iterations = %d\n",
-                         0xFFFF) ;
-            RDWR_1Print ("     Buffer size    = %d\n",
-                         bufferSize) ;
-            RDWR_1Print ("     DSP processorId    = %d\n",
-                         processorId) ;
-        }
-        else {
-            /*
-             *  Specify the dsp executable file name and the buffer size for
-             *  loop creation phase.
-             */
-            status = RDWR_Create (dspExecutable,
-                                  strBufferSize,
-                                  strNumIterations,
-                                  processorId) ;
+  if ((dspExecutable != NULL)
+  && (strBufferSize != NULL)
+  && (strNumIterations != NULL))
+  {
+    if ((numIterations > 0xFFFF)
+    || (bufferSize == 0)
+    || (processorId >= MAX_DSPS))
+    {
+      status = DSP_EINVALIDARG;
 
-            /*
-             *  Execute the data transfer loop.
-             */
-            if (DSP_SUCCEEDED (status)) {
-                status = RDWR_Execute (dspAddress,
-                                       bufferSize,
-                                       numIterations,
-                                       processorId) ;
-                if (DSP_FAILED (status)) {
-                    RDWR_1Print ("Execute phase failed. Status: [0x%x]\n",
-                                 status) ;
-                }
-            }
-            else {
-                RDWR_1Print ("Create phase failed. Status: [0x%x]\n", status) ;
-            }
+      RDWR_1Print("ERROR! Invalid arguments specified for  "
+                  "readwrite application.\n"
+                  "     Max iterations = %d\n", 0xFFFF);
 
-            /*
-             *  Perform cleanup operation.
-             */
-            RDWR_Delete (processorId) ;
-        }
+      RDWR_1Print ("     Buffer size = %d\n", bufferSize);
+      RDWR_1Print ("     DSP processorId = %d\n", processorId);
     }
     else {
-        status = DSP_EINVALIDARG ;
-        RDWR_0Print ("ERROR! Invalid arguments specified for while executing "
-                     "readwrite application\n") ;
+      /* Specify the dsp executable file name and the buffer size for the
+         creation phase */
+      status = RDWR_Create(dspExecutable,
+                           strBufferSize,
+                           strNumIterations,
+                           processorId);
+
+      /* Execute the data transfer loop */
+      if (DSP_SUCCEEDED(status))
+      {
+        status = RDWR_Execute(dspAddress,
+                              bufferSize,
+                              numIterations,
+                              processorId);
+
+        if (DSP_FAILED (status))
+        {
+          RDWR_1Print("Execute phase failed. Status: [0x%x]\n", status);
+        }
+      }
+      else
+      {
+        RDWR_1Print("Create phase failed. Status: [0x%x]\n", status);
+      }
+
+      /* Perform cleanup operation */
+      RDWR_Delete(processorId);
     }
+  }
+  else
+  {
+    status = DSP_EINVALIDARG;
 
-    RDWR_0Print ("=======================================================\n") ;
+    RDWR_0Print ("ERROR! Invalid arguments specified for while executing "
+                 "'readwrite' application\n") ;
+  }
+
+  RDWR_0Print("=======================================================\n");
 }
-
 
 #if defined (__cplusplus)
 }

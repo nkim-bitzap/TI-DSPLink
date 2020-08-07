@@ -30,22 +30,16 @@
 
 /*  ----------------------------------- OS Specific Headers         */
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+
+/* support for original antique kernels (2.6.xx) removed */
 #include <linux/device.h>
-#endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
 #include <generated/autoconf.h>
-#else
-#include <linux/autoconf.h>
-#endif
+
 #include <linux/spinlock.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
-
-/* NKim, changed for the kernel in mind, i.e. 4.19 */
-/* #include <asm/uaccess.h> */
 #include <linux/uaccess.h>
 
 #include <linux/pid.h>
@@ -196,7 +190,6 @@ STATIC Int32 major = 230 ;
  */
 STATIC unsigned long DRV_dspId = 0xffff;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 /** ----------------------------------------------------------------------------
  *  @name   dsplink_class
  *
@@ -204,7 +197,6 @@ STATIC unsigned long DRV_dspId = 0xffff;
  *  ----------------------------------------------------------------------------
  */
 STATIC struct class *dsplink_class;
-#endif
 
 /** ----------------------------------------------------------------------------
  *  @name   DRV_IsInitialized
@@ -1382,13 +1374,37 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
       break;
 
     case CMD_PROC_WRITE:
+    {
+      const Uint32 numBytes = args->apiArgs.procWriteArgs.numBytes;
+      Pvoid buffer;
+
+      status = MEM_Alloc((void **) &buffer, numBytes, MEM_DEFAULT);
+
+      printk(KERN_ALERT "buffer address: 0x%x\n", args->apiArgs.procWriteArgs.buffer);
+      printk(KERN_ALERT "DSP address: 0x%x\n", args->apiArgs.procWriteArgs.dspAddr);
+
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+
+      retVal = copy_from_user(
+                        (void*) buffer,
+                        (void*) args->apiArgs.procWriteArgs.buffer,
+                        numBytes);
+
+      DBC_Assert((0 == retVal) && "Failed to copy data from user");
+
       retStatus = PMGR_PROC_write(args->apiArgs.procWriteArgs.procId,
                                   args->apiArgs.procWriteArgs.dspAddr,
                                   args->apiArgs.procWriteArgs.numBytes,
-                                  args->apiArgs.procWriteArgs.buffer);
+                                  buffer);
+
+
+      status = MEM_Free((Pvoid*) &buffer, NULL);
+
+      DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
 
       args->apiStatus = retStatus;
       break;
+    }
 
     case CMD_PROC_ATTACH:
     {
