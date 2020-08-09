@@ -1284,7 +1284,6 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
     {
       Uint32 argc = args->apiArgs.procLoadArgs.argc;
       Char8 path[DSP_MAX_STRLEN] = { 0 };
-      Char8 *argv[argc];
 
       if (args->apiArgs.procLoadArgs.imagePath != NULL) {
         retVal = copy_from_user(
@@ -1295,37 +1294,48 @@ STATIC NORMAL_API DSP_STATUS DRV_CallAPI(Uint32 cmd, CMD_Args *args)
         DBC_Assert((0 == retVal) && "Failed to copy data from user");
       }
 
-      /* we first copy all user addresses (i.e. location of every argument
-         string) into the local 'argv' array */
-      retVal = copy_from_user(
-        argv, args->apiArgs.procLoadArgs.argv, argc * sizeof(Char8*));
-
-      DBC_Assert((0 == retVal) && "Failed to copy data from user");
-
-      /* now replicate each argument (i.e. create new buffers and then copy
-         arguments from user space) and save in the local 'argv' */
-      for (i = 0; i < argc; ++i)
+      if (argc > 0)
       {
-        Char8 *arg;
+        Char8 *argv[argc];
 
-        DBC_Assert(argv[i] != NULL);
+        /* first create a shallow copy, i.e. an array containing locations
+           of argument strings in user space */
+        retVal = copy_from_user(
+          argv, args->apiArgs.procLoadArgs.argv, argc * sizeof(Char8*));
 
-        status = MEM_Alloc((void **) &arg, DSP_MAX_STRLEN, MEM_DEFAULT);
+        DBC_Assert((0 == retVal) && "Failed to copy data from user");
 
-        DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+        /* replicate each argument (i.e. create new buffers and then copy
+           arguments from user space) and save in the local 'argv' */
+        for (i = 0; i < argc; ++i)
+        {
+          Char8 *arg;
+          DBC_Assert(argv[i] != NULL);
 
-        retVal = copy_from_user(arg, argv[i], DSP_MAX_STRLEN);
-        argv[i] = arg;
+          status = MEM_Alloc((void **) &arg, DSP_MAX_STRLEN, MEM_DEFAULT);
+
+          DBC_Assert(DSP_SUCCEEDED(status) && "Failed allocating memory");
+
+          retVal = copy_from_user(arg, argv[i], DSP_MAX_STRLEN);
+          argv[i] = arg;
+        }
+
+        retStatus = PMGR_PROC_load(
+          args->apiArgs.procLoadArgs.procId, path, argc, argv);
+
+        /* now we are done, housekeeping, drop every local argument copy */
+        for (i = 0; i < argc; ++i) {
+          status = MEM_Free((void**) &argv[i], MEM_DEFAULT);
+
+          DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
+        }
       }
-
-      retStatus = PMGR_PROC_load(
-        args->apiArgs.procLoadArgs.procId, path, argc, argv);
-
-      /* housekeeping, drop every local argument copy */
-      for (i = 0; i < argc; ++i) {
-        status = MEM_Free((void**) &argv[i], MEM_DEFAULT);
-
-        DBC_Assert(DSP_SUCCEEDED(status) && "Failed releasing memory");
+      else
+      {
+        /* if there are no arguments, 'PMGR_PROC_load' expects both, 'argc'
+           and 'argv' to be 0 resp. NULL */
+        retStatus = PMGR_PROC_load(
+          args->apiArgs.procLoadArgs.procId, path, 0, NULL);
       }
 
       args->apiStatus = retStatus;
